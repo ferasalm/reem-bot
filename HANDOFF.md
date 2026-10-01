@@ -7,7 +7,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 
 ## Decisions (owner's rules, don't revisit)
 - **The AI model stays `sao10k/l3-lunaris-8b`** (chat and memory): cheap, uncensored, good at roleplay. The owner decides models; Claude only advises when asked.
-- Adult themes stay open and may turn explicit naturally. **`LIMITS & OOC` in SYSTEM_PROMPT stays word for word**: never loosen or tighten it.
+- Adult themes stay open and may turn explicit naturally. **Never tone down explicitness** (owner, 2026-10-01): prompt edits may only make INTIMACY more explicit, and code guards fix format only, never content. **`LIMITS & OOC` in SYSTEM_PROMPT stays word for word**: never loosen or tighten it.
 - No photo vision (it would need a second model). No deliberate typos. Emoji reactions: yes. Expressive voice (eleven_v3): strongly preferred.
 - Arabizi (ya3ni, 7abibi) is fine in texts, but **no digit may ever be spoken** in voice notes (verified with a real clip).
 - Don't merge, open a PR, or deploy unless the owner asks. The Cloudflare API token has full permissions (the Cloudflare MCP can inspect the Worker).
