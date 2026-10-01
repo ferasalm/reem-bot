@@ -11,6 +11,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.includes("openrouter")) {
     const b = JSON.parse(init.body); prompts.push(b);
     if (b.messages.some(m => m.at !== undefined)) throw new Error("history 'at' leaked to OpenRouter");
+    if (!b.messages[0].content.includes("HOW YOU TALK")) return j({ choices: [{ message: { content: "- notes" }, finish_reason: "stop" }] }); // memory folding
     const next = llm.shift() ?? { content: "hey you\n\nwhat are you doing up" };
     return j({ choices: [{ message: { content: next.content }, finish_reason: next.finish || "stop" }] });
   }
@@ -27,10 +28,10 @@ const queued = [];
 const env = { TELEGRAM_BOT_TOKEN: "t", OPENROUTER_API_KEY: "o", ELEVENLABS_API_KEY: "e", REEM_KV: kv, OWNER_ID: "7",
   REEM_QUEUE: { async send(b){ queued.push(b); } }, CONFIG_OVERRIDES: JSON.stringify({ PROACTIVE: { CHANCE: 1 } }) };
 import { loadWorker } from "./load-worker.mjs";
-const mod = (await loadWorker()).default;
+const W = await loadWorker(); const mod = W.default;
 const ctx = { waitUntil(){} };
 let uid = 1;
-const msg = (m) => ({ body: { update_id: uid++, message: { chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock/1000, ...m } }, ack(){} });
+const msg = (m) => ({ body: { update_id: uid, message: { message_id: 1000 + uid++, chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock/1000, ...m } }, ack(){} });
 const run = (...ms) => mod.queue({ messages: ms }, env, ctx);
 const step = (t) => log.push(`--- ${t}`);
 const sys = () => prompts.at(-1).messages[0].content.split("LIMITS & OOC")[1];
@@ -74,7 +75,28 @@ step("v3 audio tags: text reply");
 llm = [{ content: "[laughs] omg stop\n\nyou're the worst [sighs]" }];
 await run(msg({ text: "lol" }));
 console.log("texts have no tags:", !log.slice(-3).some(l => l.includes("sendMessage") && /\[(laughs|sighs)\]/.test(l)));
-step("model down -> line dropped");
+step("reaction + text");
+W.CONFIG.REACTIONS.CHANCE = 1; // CONFIG_OVERRIDES is read once per run, so set it directly
+llm = [{ content: "[react: ❤️] okay that was sweet\n\ndon't let it go to your head" }];
+await run(msg({ text: "i got you the cake you wanted" }));
+const reacts = () => log.filter(l => l.includes("setMessageReaction"));
+console.log("react nudge:", sys().includes("[react: X]"), "| reaction:", reacts().at(-1), "| text clean:", !log.slice(-3).some(l => l.includes("react:")));
+step("reaction only");
+llm = [{ content: "[react: 😂]" }];
+const before = log.length;
+await run(msg({ text: "basbousa is wearing my sock" }));
+console.log("reaction only:", reacts().at(-1).includes("🤣"), "| no text sent:", !log.slice(before).some(l => l.includes("sendMessage")), "| saved:", JSON.parse(store.get("h:7")).at(-1).content);
+step("invalid emoji");
+llm = [{ content: "[react: 🦖] lmao what" }];
+const nReacts = reacts().length;
+await run(msg({ text: "dinosaur noises" }));
+console.log("invalid: no reaction:", reacts().length === nReacts, "| text:", log.filter(l => l.includes("sendMessage")).at(-1));
+step("no reaction in a scene or when texting first");
+llm = [{ content: "[react: 🔥] *She grins.*" }];
+await run(msg({ text: "*knocks on your door*" }));
+console.log("scene: no reaction:", reacts().length === nReacts, "| no react nudge:", !sys().includes("[react: X]"));
+W.CONFIG.REACTIONS.CHANCE = 0.25;
+
 globalThis.fetch = ((f) => async (url, init) => url.includes("openrouter") ? new Response("{}", { status: 503 }) : f(url, init))(globalThis.fetch);
 await run(msg({ text: "you there?" }));
-console.log(log.filter(l => l.startsWith("---") || l.includes("sendMessage") || l.includes("sendVoice") || l.includes("text-to-speech")).join("\n"));
+console.log(log.filter(l => l.startsWith("---") || l.includes("setMessageReaction") || l.includes("sendMessage") || l.includes("sendVoice") || l.includes("text-to-speech")).join("\n"));

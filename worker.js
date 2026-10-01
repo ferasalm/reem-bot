@@ -66,6 +66,11 @@
  *   6. She hears (laughs) and sighs in your voice notes; your language is detected automatically.
  *   7. Replies cut off by the length limit end at the last full sentence. Varied fallbacks.
  *   Sampling: temperature 0.95, repetition penalty 1.05, longer replies allowed.
+ *
+ * v9 changes:
+ *   1. Expressive voice notes on eleven_v3: she can [laugh], [sigh] or [whisper] (VOICE.ALLOWED_TAGS).
+ *      Texts never show the tags.
+ *   2. Emoji reactions (REACTIONS): sometimes she reacts to his message, with or without a reply.
  */
 
 /* ================================================================== */
@@ -107,6 +112,7 @@ You're either apart (texting or sending voice notes) or together in person (a sc
 - Text like a real person: "lmao", "wait what", "stop 😭", one-word reactions, a rare emoji, a double text. Not every message needs a question.
 - Now and then an Egyptian word slips in, Arabizi style: yalla, khalas, ya3ni, wallahi, habibi (teasing). Rarely, never forced.
 - No narrative actions (*sighs*) in texts.
+- Like anyone on their phone, you sometimes just react to a message with an emoji instead of answering.
 - Examples, for style only (never copy them):
   you walked right past my door without checking on me? rude.
 
@@ -362,8 +368,22 @@ const CONFIG = {
     MORE_VOICE: " Lean towards voice notes more often than usual while texting.", // when /voice is on
     SEVERAL_MESSAGES: " He sent you a few messages in a row; answer them together, naturally.",
     VARY_OPENING: " Your last replies opened with: {openings}. Open this one differently.", // {openings}
+    REACT: " You may react to his last message with one emoji, like on any messaging app: put [react: X] at the very start of your reply, where X is one of {emojis}. Only if it fits. A reaction alone, with nothing after it, is fine when words aren't needed.", // {emojis}; only on a REACTIONS.CHANCE roll
     VOICE_TAGS: " In voice notes you can add sounds and tone in square brackets right before the words they color, like [laughs] or [whispers]. Use one or two at most, only from: {tags}.", // {tags}; only when VOICE.AUDIO_TAGS is on with eleven_v3
     RETRY: " Start this reply with different words than last time, and say something new. Never repeat lines you already sent.",
+  },
+
+  /* ---------------- Emoji reactions ----------------
+   * Sometimes (CHANCE per reply, only while apart) she's offered a reaction: she may put [react: X] at the
+   * start of her reply, and X lands on his latest message. A reaction alone, with no text, is fine too.
+   * Telegram only accepts emoji from its fixed reaction list (❤ without FE0F, 🤣 rather than 😂).
+   */
+  REACTIONS: {
+    ENABLED: true,
+    CHANCE: 0.25,                      // chance per reply that she's offered a reaction
+    ALLOWED: ["❤", "🔥", "🥰", "🤣", "😭", "😈", "💋", "😘", "😍", "🙈", "🤨", "💔", "👀"],
+    ALIASES: { "❤️": "❤", "😂": "🤣" }, // what the model might write = what Telegram accepts
+    SAVED: "[reacted {emoji}]",        // {emoji}; kept in the chat history when she only reacts
   },
 
   /* ---------------- She texts first ----------------
@@ -404,6 +424,7 @@ const CONFIG = {
 
 const VOICE_TAG = /\[\s*voice\b[^\]\n]*\]/i;
 const VOICE_TAG_ALL = /\[\s*voice\b[^\]\n]*\]\s*/gi;
+const REACT_TAG = /\[\s*react(?:ed|ion)?\b\s*:?\s*([^\]\n]{0,16})\]\s*/gi;
 const ACTION = /\*[^*\n]+\*/;
 const EMOJI = /[\p{Extended_Pictographic}\p{Emoji_Modifier}\u{FE0F}\u{200D}]/gu;
 
@@ -696,7 +717,8 @@ async function reply(env, ctx, convo, deadline) {
     // She only answers once she has noticed (SCHEDULE, momentum) and read or listened
     const T = CONFIG.TIMING;
     const waitUntil = started + noticeTime(lastTime(state.history), started) + chars * T.READ_MS_PER_CHAR + voiceSeconds * 1000;
-    await respond(env, ctx, chatId, state, { heard, cameAsVoice: voiceSeconds > 0, waitUntil }, deadline);
+    const reactTo = convo[convo.length - 1].message_id;
+    await respond(env, ctx, chatId, state, { heard, cameAsVoice: voiceSeconds > 0, waitUntil, reactTo }, deadline);
   } catch (e) {
     console.error(e);
     if (e.retryable) {
@@ -709,18 +731,26 @@ async function reply(env, ctx, convo, deadline) {
 
 // Replies and texting first both end here: she thinks, waits like a person, then sends a text,
 // a scene or a voice note. `heard` is what he sent (or, when she texts first, her instruction).
-async function respond(env, ctx, chatId, state, { heard, cameAsVoice = false, waitUntil, proactive = false }, deadline) {
+async function respond(env, ctx, chatId, state, { heard, cameAsVoice = false, waitUntil, proactive = false, reactTo }, deadline) {
   const { settings, history, notes } = state;
   const scene = proactive ? "apart" : sceneOf(history, heard);
+  const R = CONFIG.REACTIONS;
+  const canReact = !proactive && !!reactTo && R.ENABLED && scene === "apart";
+  const offerReaction = canReact && Math.random() < R.CHANCE;
 
   // She starts thinking now, but only answers at waitUntil
-  const replyPromise = think(env, history, notes, heard, { cameAsVoice, moreVoice: !!settings.moreVoice, scene });
+  const replyPromise = think(env, history, notes, heard, { cameAsVoice, moreVoice: !!settings.moreVoice, scene, offerReaction, canReact });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
 
   const typingStarted = Date.now();
   await tg(env, "sendChatAction", { chat_id: chatId, action: "typing" });
-  const raw = await replyPromise;
+  const { emoji, rest: raw } = takeReaction(await replyPromise);
+  const reaction = canReact ? emoji : "";
+  if (reaction) {
+    const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: reaction }] });
+    if (!r.ok) console.error("reaction failed", r.description);
+  }
 
   let isVoice = VOICE_TAG.test(raw);
   const text = bodyOf(raw);
@@ -729,7 +759,11 @@ async function respond(env, ctx, chatId, state, { heard, cameAsVoice = false, wa
   // `tagged` may still hold audio tags like [laughs] for the voice; texts and history never do.
   const tagged = dropRepeats(text, history) || dropRepeats(text, []);
   const body = stripAudioTags(tagged);
-  if (!body) return;
+  if (!body) {
+    // Only a reaction: that's her whole answer
+    if (reaction) await saveTurn(env, chatId, history, notes, heard, fill(R.SAVED, { emoji: reaction })).catch((e) => console.error("save failed", e));
+    return;
+  }
   // A scene can't be a voice note: when either of them is acting in person, she answers in person
   if (isVoice && (ACTION.test(body) || (!proactive && ACTION.test(heard)))) isVoice = false;
   const spoken = isVoice ? forSpeech(tagged) : "";
@@ -879,7 +913,7 @@ async function saveTurn(env, chatId, history, notes, userTurn, reply, extra = {}
   await remember(env, chatId, notes, history.slice(0, cut));
 }
 
-async function think(env, history, notes, userText, { cameAsVoice, moreVoice, scene }) {
+async function think(env, history, notes, userText, { cameAsVoice, moreVoice, scene, offerReaction = false, canReact = false }) {
   const C = CONFIG.CHARACTER;
   const N = CONFIG.NUDGES;
   const P = CONFIG.PERSONA;
@@ -895,6 +929,7 @@ async function think(env, history, notes, userText, { cameAsVoice, moreVoice, sc
   else if (moreVoice) extra += fill(N.MORE_VOICE);
   if (audioTagsOn() && scene !== "together") extra += fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") });
   if (userText.includes("\n")) extra += fill(N.SEVERAL_MESSAGES);
+  if (offerReaction) extra += fill(N.REACT, { emojis: CONFIG.REACTIONS.ALLOWED.join(" ") });
   if (P.TEXTURE.length && Math.random() < P.TEXTURE_CHANCE) {
     extra += " " + fill(P.TEXTURE[Math.floor(Math.random() * P.TEXTURE.length)]);
   }
@@ -915,8 +950,11 @@ async function think(env, history, notes, userText, { cameAsVoice, moreVoice, sc
   let out = await callModel(env, messages, CONFIG.LLM.SAMPLING, { trimCut: true });
 
   // One more try if she opens like last time, or if everything she wrote was already said
+  // (a reaction with no text is a full answer when she may react)
   const first = opening(out);
-  const allOld = !dropRepeats(bodyOf(out), history);
+  const { emoji, rest } = takeReaction(out);
+  const onlyReacts = canReact && !!emoji && !stripAudioTags(bodyOf(rest));
+  const allOld = !onlyReacts && !dropRepeats(bodyOf(rest), history);
   if ((first && recent.includes(first)) || allOld) {
     const retry = [...messages];
     retry[0] = { role: "system", content: messages[0].content + fill(N.RETRY) };
@@ -1016,6 +1054,7 @@ function trimUnfinished(t) {
 function opening(t) {
   return String(t)
     .replace(VOICE_TAG_ALL, "")
+    .replace(REACT_TAG, "")
     .toLowerCase()
     .replace(/[^a-z\s]/g, "")
     .split(/\s+/)
@@ -1267,6 +1306,27 @@ function clean(t) {
 // The model's reply without the [voice] tag, cleaned
 function bodyOf(raw) {
   return clean(String(raw).replace(VOICE_TAG_ALL, ""));
+}
+
+// Takes [react: X] out of a reply. `emoji` is what Telegram accepts (REACTIONS.ALIASES applied), or ""
+function takeReaction(raw) {
+  let found = "";
+  const rest = String(raw).replace(REACT_TAG, (_, e) => {
+    if (!found) found = e.trim();
+    return "";
+  });
+  return { emoji: reactionEmoji(found), rest };
+}
+
+function reactionEmoji(e) {
+  const R = CONFIG.REACTIONS;
+  const allowed = R.ALLOWED || [];
+  const aliases = R.ALIASES || {};
+  const alias = (x) => (Object.hasOwn(aliases, x) ? aliases[x] : x);
+  if (!e) return "";
+  let x = alias(e);
+  if (!allowed.includes(x)) x = alias(x.replace(/\uFE0F/g, ""));
+  return allowed.includes(x) ? x : "";
 }
 
 // A line reduced to its words, so "Wait... you're HOME?" and "wait you're home" count as the same
