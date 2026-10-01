@@ -15,6 +15,18 @@ Source for the `reem-bot` Cloudflare Worker (Telegram bot `@reem_nabot`).
 
 Bot secrets (`TELEGRAM_BOT_TOKEN`, `OPENROUTER_API_KEY`, `ELEVENLABS_API_KEY`, …) stay in the Cloudflare dashboard; deploys don't change them, and `keep_vars = true` keeps any plain-text dashboard variables too.
 
+## Changing settings
+
+Every adjustable value is in the **SETTINGS** section at the top of `worker.js` (`CONFIG`): character name and time zone, models and sampling, the ElevenLabs voice (ID, speed, stability, style…), speech-to-text language, typing/reading speed and other timing, the Telegram `/` commands, every message the bot sends, the prompt nudges, and limits. Edit a value there and push to `main`.
+
+To change values without a deploy, add a variable `CONFIG_OVERRIDES` in the Cloudflare dashboard containing JSON with just the values to change, for example:
+
+```json
+{ "VOICE": { "SPEED": 1.05, "ID": "your-voice-id" }, "TIMING": { "TYPING_CHARS_PER_MIN": 200 } }
+```
+
+Objects are merged and lists are replaced whole. Open `/setup` afterwards to check the overrides were applied; it flags misspelled names. After changing `COMMANDS`, open `/setup` again so Telegram's command menu updates.
+
 ## Deploy
 
 Merge to `main`, or Actions → **Deploy to Cloudflare** → Run workflow.
