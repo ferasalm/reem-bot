@@ -64,6 +64,16 @@ const h = JSON.parse(store.get("h:7")); console.log("last entry proactive:", h.a
 step("cron again: unanswered"); await mod.scheduled({}, env, ctx); console.log("queued while unanswered:", queued.length);
 step("he answers"); await run(msg({ text: "sorry was at work" }));
 console.log("sampling:", JSON.stringify({ t: prompts.at(-1).temperature, rp: prompts.at(-1).repetition_penalty, mt: prompts.at(-1).max_tokens, model: prompts.at(-1).model }));
+step("v3 audio tags: voice note");
+llm = [{ content: "[voice] [laughs] ya3ni you're ridiculous\n[whispers] come over" }];
+await run(msg({ text: "i miss you" }));
+const ttsLast = log.filter(l => l.includes("text-to-speech")).at(-1);
+console.log("tags nudge:", sys().includes("[moans softly]"), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| no speaker boost:", !ttsLast.includes("speaker_boost"));
+console.log("history has no tags:", JSON.parse(store.get("h:7")).at(-1).content);
+step("v3 audio tags: text reply");
+llm = [{ content: "[laughs] omg stop\n\nyou're the worst [sighs]" }];
+await run(msg({ text: "lol" }));
+console.log("texts have no tags:", !log.slice(-3).some(l => l.includes("sendMessage") && /\[(laughs|sighs)\]/.test(l)));
 step("model down -> line dropped");
 globalThis.fetch = ((f) => async (url, init) => url.includes("openrouter") ? new Response("{}", { status: 503 }) : f(url, init))(globalThis.fetch);
 await run(msg({ text: "you there?" }));

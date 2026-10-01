@@ -230,15 +230,22 @@ const CONFIG = {
   VOICE: {
     ID: "EXAVITQu4vr4xnSDxMaL",        // Sarah: built-in, young, warm, American. Free plan.
     NAME: "Sarah",                     // only shown on /setup
-    MODEL: "eleven_multilingual_v2",
+    MODEL: "eleven_v3",                // expressive, reads [laughs]-style tags; "eleven_multilingual_v2" is the steady older one
     FORMAT: "opus_48000_64",
     SPEED: 0.95,                       // 0.7 (slow) to 1.2 (fast); 1.0 is normal
-    STABILITY: 0.35,                   // 0 to 1: lower = more expressive, higher = steadier
+    STABILITY: 0.5,                    // 0 to 1: lower = more expressive, higher = steadier. eleven_v3 only takes 0, 0.5 or 1 (rounded to the nearest)
     SIMILARITY_BOOST: 0.75,            // 0 to 1: how closely it sticks to the original voice
     STYLE: 0.4,                        // 0 to 1: style exaggeration
-    SPEAKER_BOOST: true,
+    SPEAKER_BOOST: true,               // not used by eleven_v3
+    // eleven_v3 only: she may put tags like [laughs] or [whispers] in voice notes, and the voice performs
+    // them. Only the tags listed here are kept; any other [...] is dropped. Never shown in texts.
+    AUDIO_TAGS: true,
+    ALLOWED_TAGS: [
+      "laughs", "giggles", "chuckles", "sighs", "whispers", "exhales", "breathes heavily", "breathless",
+      "softly", "teasing", "sarcastic", "sleepy", "excited", "moans softly",
+    ],
     MAX_CHARS: 360,                    // longest text read aloud in one note
-    PAUSE_BETWEEN_LINES: "0.4s",       // pause between separate thoughts in a note
+    PAUSE_BETWEEN_LINES: "0.4s",       // pause between separate thoughts in a note (eleven_v3 uses "..." instead)
     TEST_PHRASE: "Hey you. I was hoping you'd text.", // spoken by the /setup check
     // Arabizi (Arabic written with numbers, like ya3ni) is said properly in voice notes; her texts
     // keep the original spelling. Words listed here are replaced first (whole words, any case)...
@@ -355,6 +362,7 @@ const CONFIG = {
     MORE_VOICE: " Lean towards voice notes more often than usual while texting.", // when /voice is on
     SEVERAL_MESSAGES: " He sent you a few messages in a row; answer them together, naturally.",
     VARY_OPENING: " Your last replies opened with: {openings}. Open this one differently.", // {openings}
+    VOICE_TAGS: " In voice notes you can add sounds and tone in square brackets right before the words they color, like [laughs] or [whispers]. Use one or two at most, only from: {tags}.", // {tags}; only when VOICE.AUDIO_TAGS is on with eleven_v3
     RETRY: " Start this reply with different words than last time, and say something new. Never repeat lines you already sent.",
   },
 
@@ -718,11 +726,13 @@ async function respond(env, ctx, chatId, state, { heard, cameAsVoice = false, wa
   const text = bodyOf(raw);
   // Never the same line twice: not within this reply, not from her last few replies.
   // Only if every line is an old one does she resend it (think() already tried for a new reply).
-  const body = dropRepeats(text, history) || dropRepeats(text, []);
+  // `tagged` may still hold audio tags like [laughs] for the voice; texts and history never do.
+  const tagged = dropRepeats(text, history) || dropRepeats(text, []);
+  const body = stripAudioTags(tagged);
   if (!body) return;
   // A scene can't be a voice note: when either of them is acting in person, she answers in person
   if (isVoice && (ACTION.test(body) || (!proactive && ACTION.test(heard)))) isVoice = false;
-  const spoken = isVoice ? forSpeech(body) : "";
+  const spoken = isVoice ? forSpeech(tagged) : "";
   if (isVoice && !spoken) isVoice = false;
 
   // Saving runs alongside the slow delivery
@@ -883,6 +893,7 @@ async function think(env, history, notes, userText, { cameAsVoice, moreVoice, sc
   if (scene) extra += fill(scene === "together" ? N.TOGETHER : N.APART);
   if (cameAsVoice) extra += fill(N.CAME_AS_VOICE);
   else if (moreVoice) extra += fill(N.MORE_VOICE);
+  if (audioTagsOn() && scene !== "together") extra += fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") });
   if (userText.includes("\n")) extra += fill(N.SEVERAL_MESSAGES);
   if (P.TEXTURE.length && Math.random() < P.TEXTURE_CHANCE) {
     extra += " " + fill(P.TEXTURE[Math.floor(Math.random() * P.TEXTURE.length)]);
@@ -1042,7 +1053,7 @@ function typingTime(text) {
 
 function speakingTime(spoken) {
   const T = CONFIG.TIMING;
-  const words = spoken.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
+  const words = spoken.replace(/<[^>]*>|\[[^\]]*\]/g, " ").split(/\s+/).filter(Boolean).length;
   return Math.min((words / T.SPEAK_WORDS_PER_SEC) * 1000 + T.RECORDING_EXTRA_MS, T.RECORDING_MAX_MS);
 }
 
@@ -1109,13 +1120,7 @@ async function tts(env, text) {
     body: JSON.stringify({
       text,
       model_id: V.MODEL,
-      voice_settings: {
-        stability: V.STABILITY,
-        similarity_boost: V.SIMILARITY_BOOST,
-        style: V.STYLE,
-        use_speaker_boost: V.SPEAKER_BOOST,
-        speed: V.SPEED,
-      },
+      voice_settings: voiceSettings(),
     }),
     signal: AbortSignal.timeout(CONFIG.LIMITS.HTTP_TIMEOUT_MS),
   });
@@ -1124,6 +1129,16 @@ async function tts(env, text) {
     throw new Error(`ElevenLabs voice ${res.status}: ${elevenError(data)}`);
   }
   return res.arrayBuffer();
+}
+
+// eleven_v3 takes stability as exactly 0, 0.5 or 1 and has no speaker boost
+function voiceSettings() {
+  const V = CONFIG.VOICE;
+  const settings = { stability: V.STABILITY, similarity_boost: V.SIMILARITY_BOOST, style: V.STYLE, use_speaker_boost: V.SPEAKER_BOOST, speed: V.SPEED };
+  if (!isV3()) return settings;
+  delete settings.use_speaker_boost;
+  settings.stability = Math.round(Math.min(Math.max(Number(V.STABILITY) || 0, 0), 1) * 2) / 2;
+  return settings;
 }
 
 // Checks the voice works on this account with a short test clip
@@ -1241,7 +1256,7 @@ function clean(t) {
   const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
   if (names) t = t.replace(new RegExp(`^[ \\t]*(${names})[ \\t]*:[ \\t]*`, "gim"), "");
   return t
-    .replace(/^[ \t]*\[[^\]\n]{1,60}\][ \t]*/gm, "")
+    .replace(/^[ \t]*\[[^\]\n]{1,60}\][ \t]*/gm, (m) => (isAudioTag(m) ? m : ""))
     .replace(/^#{1,6}\s*/gm, "")
     .replace(/\*{2,}/g, "*")
     .replace(/[ \t]+\n/g, "\n")
@@ -1256,7 +1271,7 @@ function bodyOf(raw) {
 
 // A line reduced to its words, so "Wait... you're HOME?" and "wait you're home" count as the same
 function lineKey(line) {
-  return plain(line)
+  return plain(stripAudioTags(line))
     .replace(VOICE_TAG_ALL, "")
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
@@ -1294,8 +1309,48 @@ function splitBubbles(t) {
   return parts.length ? parts.slice(0, CONFIG.TEXTING.MAX_BUBBLES) : [t];
 }
 
+// Audio tags (VOICE.ALLOWED_TAGS, eleven_v3 only): [laughs], [whispers]...
+const isV3 = () => /^eleven_v3/.test(String(CONFIG.VOICE.MODEL));
+const audioTagsOn = () => isV3() && !!CONFIG.VOICE.AUDIO_TAGS && (CONFIG.VOICE.ALLOWED_TAGS || []).length > 0;
+
+function audioTagRe() {
+  const names = (CONFIG.VOICE.ALLOWED_TAGS || [])
+    .map((t) => String(t).trim().toLowerCase())
+    .filter(Boolean)
+    .map((t) => escapeRegex(t).replace(/\s+/g, "\\s+"));
+  return names.length ? new RegExp(`\\[\\s*(${names.join("|")})\\s*\\]`, "gi") : null;
+}
+
+const isAudioTag = (s) => {
+  const re = audioTagRe();
+  return !!re && s.trim().replace(re, "") === "";
+};
+
+// Texts never show audio tags, whatever the model
+function stripAudioTags(t) {
+  const re = audioTagRe();
+  if (!re) return t;
+  return t
+    .replace(new RegExp(`[ \\t]*${re.source}`, "gi"), "")
+    .replace(/^[ \t]+/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+// Placeholders that hold audio tags while a line is tidied (no letters or digits, so nothing touches them)
+const TAG_MARK = /[\uE000-\uE0FF]/g;
+
 // One line of texting -> one clean spoken sentence. Actions are never read aloud.
-function tidySpoken(line) {
+// With keepTags (eleven_v3), allowed audio tags stay where she put them; every other [...] goes.
+function tidySpoken(line, keepTags = false) {
+  const tags = [];
+  const re = keepTags && audioTagRe();
+  if (re) {
+    line = line.replace(re, (_, t) => {
+      tags.push(`[${t.toLowerCase().replace(/\s+/g, " ")}]`);
+      return ` ${String.fromCharCode(0xe000 + tags.length - 1)} `;
+    });
+  }
   let s = line
     .replace(/\*[^*\n]*\*/g, " ")
     .replace(/\[[^\]]*\]/g, "")
@@ -1307,12 +1362,14 @@ function tidySpoken(line) {
     .replace(/\s+/g, " ")
     .replace(/^[,.\s]+/, "")
     .trim();
-  if (!s) return "";
+  if (!s.replace(TAG_MARK, "").trim()) return "";
   s = sayArabizi(s);
   s = s.replace(/\bi\b/g, "I");
-  s = s.replace(/(^|[.!?]\s+)([a-z])/g, (_, a, b) => a + b.toUpperCase());
-  if (!/[.!?…]$/.test(s)) s += ".";
-  return s;
+  s = s.replace(/(^|[.!?]\s+)((?:[\uE000-\uE0FF]\s*)*)([a-z])/g, (_, a, t, b) => a + t + b.toUpperCase());
+  // The full stop goes after the words, before any tags at the very end
+  const [, words, tail] = s.match(/^([\s\S]*?)((?:\s*[\uE000-\uE0FF])*)$/);
+  if (!/[.!?…]$/.test(words)) s = words + "." + tail;
+  return s.replace(TAG_MARK, (c) => tags[c.charCodeAt(0) - 0xe000]);
 }
 
 // Numbers followed by an English ending stay numbers: 3am, 10pm, 2nd, 90s, 5k, 20min
@@ -1347,10 +1404,16 @@ function cutAtSentence(s, max) {
   return (end > max / 2 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, "") + ".").trim();
 }
 
-// What goes to ElevenLabs. Separate thoughts get a short pause (VOICE.PAUSE_BETWEEN_LINES) between them.
+// What goes to ElevenLabs. Separate thoughts get a short pause between them: VOICE.PAUSE_BETWEEN_LINES,
+// or "..." on eleven_v3 (it has no <break>), where allowed audio tags are also kept.
 function forSpeech(t) {
   const max = CONFIG.VOICE.MAX_CHARS;
-  const lines = t.split(/\n+/).map(tidySpoken).filter(Boolean);
+  const v3 = isV3();
+  const keepTags = audioTagsOn();
+  // A line that is only a tag ("[sighs]") belongs to the line after it
+  const re = keepTags && audioTagRe();
+  if (re) t = t.replace(new RegExp(`^((?:[ \\t]*${re.source})+)[ \\t]*\\n+`, "gim"), "$1 ");
+  const lines = t.split(/\n+/).map((l) => tidySpoken(l, keepTags)).filter(Boolean);
   const kept = [];
   let len = 0;
   for (const line of lines) {
@@ -1361,6 +1424,7 @@ function forSpeech(t) {
     kept.push(line);
     len += line.length + 1;
   }
+  if (v3) return kept.map((l, i) => (i < kept.length - 1 ? l.replace(/([^.])\.$/, "$1...") : l)).join(" ");
   return kept.join(` <break time="${CONFIG.VOICE.PAUSE_BETWEEN_LINES}" /> `);
 }
 
