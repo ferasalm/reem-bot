@@ -1,12 +1,13 @@
 # HANDOFF — reem-bot
 
 ## Goal and status
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan). v8 ("more human") and v9
-(eleven_v3 audio tags + emoji reactions) are pushed to branch `ccr-9d5bc032-5c585q`. **It is not merged to `main`, so it is not deployed** (pushing to `main` deploys via GitHub Actions).
-Steps 2, 3 and 4 of the approved plan are done and verified. Nothing is planned after them yet.
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan). v8 + v9 are merged to `main` (PR #5) and deployed.
+Branch `claude/reem-llm-model-comparison-f27xor` adds the model bench (`tools/model-bench/`, `.github/workflows/model-bench.yml`);
+results are in `tools/model-bench/FINDINGS.md`. **Next: switch the chat model to DeepSeek V4 Flash** (owner's decision, see below).
 
 ## Decisions (owner's rules, don't revisit)
-- **The AI model stays `sao10k/l3-lunaris-8b`** (chat and memory): cheap, uncensored, good at roleplay. The owner decides models; Claude only advises when asked.
+- **Chat model: switch to `deepseek/deepseek-v4-flash`, reasoning off, providers Novita → Baidu → Relace → StreamLake; never Azure, Alibaba, AtlasCloud or DeepInfra** (owner decided 2026-10-01 after the bench, see `tools/model-bench/FINDINGS.md`). Memory model: owner's call. The owner decides models; Claude only advises when asked.
+- **Model bench**: runs only in GitHub Actions (the key is a GitHub secret, not in Claude's cloud environment). A push of `.github/workflows/model-bench.yml` runs it with `PUSH_ARGS`/`PUSH_BUDGET` from that file; read results with `gh run download <id> -n model-bench-results`. Always keep a hard `--budget` cap the owner approved. Results can be explicit: never commit them, describe them in summary terms.
 - Adult themes stay open and may turn explicit naturally. **`LIMITS & OOC` in SYSTEM_PROMPT stays word for word**: never loosen or tighten it.
 - No photo vision (it would need a second model). No deliberate typos. Emoji reactions: yes. Expressive voice (eleven_v3): strongly preferred.
 - Arabizi (ya3ni, 7abibi) is fine in texts, but **no digit may ever be spoken** in voice notes (verified with a real clip).
@@ -54,8 +55,3 @@ Note: transcribing a TTS node directly in a flow only echoes its prompt; upload 
 
 **After each step:** run `node tools/build-panel.mjs` (add panel fields), `node tools/test/unit.mjs`, `node tools/test/e2e.mjs`, `node --check worker.js`. Commit, push to `ccr-9d5bc032-5c585q`, update this file.
 Suggested model: Opus for pipeline changes; Sonnet for panel/README/text tweaks.
-
-## Prompt for the next chat (paste as-is)
-> Continue the reem-bot project on branch `ccr-9d5bc032-5c585q`. Use /anthropic-skills:lean-session. Read `HANDOFF.md` first and follow its rules exactly: the AI model stays Lunaris 8B (advise only, never change it); `LIMITS & OOC` stays word for word; every tunable goes in `CONFIG`; don't merge, open a PR or deploy unless I ask.
-> Continue the reem-bot project from HANDOFF.md. <describe the next change>. Finish with the listed checks, then commit and push.
-> Report briefly: what changed, test results, and anything you need from me.
