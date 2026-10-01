@@ -98,3 +98,4 @@ eq(W.CONFIG.MEMORY.MODEL === W.CONFIG.LLM.MODEL, true, "memory uses the chat mod
   eq(unknown, ["LLM.FOO"], "unknown LLM key rejected");
 }
 console.log(fails ? `${fails} FAILED` : "all passed");
+process.exit(fails ? 1 : 0);
