@@ -18,7 +18,8 @@ on:
     branches: [claude/reem-llm-model-comparison-f27xor, ccr-b7869b5d-d7yudi]
     paths: [.github/workflows/model-bench.yml]
 
-# Arguments for runs started by a push of this file (workflow_dispatch uses its inputs instead)
+# Arguments for runs started by a push of this file (workflow_dispatch uses its inputs instead).
+# Last push run: DeepSeek switch, re-check of the tightened scene/voice/intimacy nudges.
 env:
   PUSH_BUDGET: "0.03"
   PUSH_PLAN: full
