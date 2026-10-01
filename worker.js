@@ -3,7 +3,7 @@
  *
  *   Brain:  Sao10K L3 Lunaris 8B via OpenRouter (writes every text and every voice note)
  *   Ears:   ElevenLabs Scribe v2 (speech-to-text, English)
- *   Voice:  ElevenLabs text-to-speech, built-in voice "Sarah" (works on the free plan)
+ *   Voice:  ElevenLabs text-to-speech (eleven_v3), voice "Reem" designed for her (works on the free plan)
  *
  * What you add in Cloudflare (nothing to edit in this file):
  *   Secrets (Settings > Variables and Secrets):
@@ -234,15 +234,17 @@ const CONFIG = {
 
   /* ---------------- Voice (ElevenLabs text-to-speech) ---------------- */
   VOICE: {
-    ID: "EXAVITQu4vr4xnSDxMaL",        // Sarah: built-in, young, warm, American. Free plan.
-    NAME: "Sarah",                     // only shown on /setup
+    ID: "8SAEKgpGuII5UtUnpuYN",        // Reem: designed for her (husky, warm, close-mic, North Jersey). Sarah, built-in: EXAVITQu4vr4xnSDxMaL
+    NAME: "Reem",                      // only shown on /setup
     MODEL: "eleven_v3",                // expressive, reads [laughs]-style tags; "eleven_multilingual_v2" is the steady older one
     FORMAT: "opus_48000_64",
+    // eleven_v3 only uses STABILITY: 0 = Creative, 0.5 = Natural, 1 = Robust (other values are rounded).
+    // The four settings after it are for the older models (eleven_multilingual_v2 and the like).
+    STABILITY: 0.5,                    // 0 to 1: lower = more expressive, higher = steadier
     SPEED: 0.95,                       // 0.7 (slow) to 1.2 (fast); 1.0 is normal
-    STABILITY: 0.5,                    // 0 to 1: lower = more expressive, higher = steadier. eleven_v3 only takes 0, 0.5 or 1 (rounded to the nearest)
     SIMILARITY_BOOST: 0.75,            // 0 to 1: how closely it sticks to the original voice
     STYLE: 0.4,                        // 0 to 1: style exaggeration
-    SPEAKER_BOOST: true,               // not used by eleven_v3
+    SPEAKER_BOOST: true,
     // eleven_v3 only: she may put tags like [laughs] or [whispers] in voice notes, and the voice performs
     // them. Only the tags listed here are kept; any other [...] is dropped. Never shown in texts.
     AUDIO_TAGS: true,
@@ -1170,14 +1172,11 @@ async function tts(env, text) {
   return res.arrayBuffer();
 }
 
-// eleven_v3 takes stability as exactly 0, 0.5 or 1 and has no speaker boost
+// eleven_v3 only takes stability, as exactly 0 (Creative), 0.5 (Natural) or 1 (Robust)
 function voiceSettings() {
   const V = CONFIG.VOICE;
-  const settings = { stability: V.STABILITY, similarity_boost: V.SIMILARITY_BOOST, style: V.STYLE, use_speaker_boost: V.SPEAKER_BOOST, speed: V.SPEED };
-  if (!isV3()) return settings;
-  delete settings.use_speaker_boost;
-  settings.stability = Math.round(Math.min(Math.max(Number(V.STABILITY) || 0, 0), 1) * 2) / 2;
-  return settings;
+  if (isV3()) return { stability: Math.round(Math.min(Math.max(Number(V.STABILITY) || 0, 0), 1) * 2) / 2 };
+  return { stability: V.STABILITY, similarity_boost: V.SIMILARITY_BOOST, style: V.STYLE, use_speaker_boost: V.SPEAKER_BOOST, speed: V.SPEED };
 }
 
 // Checks the voice works on this account with a short test clip

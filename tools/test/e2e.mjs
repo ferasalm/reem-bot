@@ -69,7 +69,7 @@ step("v3 audio tags: voice note");
 llm = [{ content: "[voice] [laughs] ya3ni you're ridiculous\n[whispers] come over" }];
 await run(msg({ text: "i miss you" }));
 const ttsLast = log.filter(l => l.includes("text-to-speech")).at(-1);
-console.log("tags nudge:", sys().includes("[moans softly]"), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| no speaker boost:", !ttsLast.includes("speaker_boost"));
+console.log("tags nudge:", sys().includes("[moans softly]"), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| v3 stability only:", ttsLast.includes('"voice_settings":{"stability":0.5}'));
 console.log("history has no tags:", JSON.parse(store.get("h:7")).at(-1).content);
 step("v3 audio tags: text reply");
 llm = [{ content: "[laughs] omg stop\n\nyou're the worst [sighs]" }];
