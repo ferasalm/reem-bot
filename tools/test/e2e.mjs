@@ -44,7 +44,7 @@ console.log("nudge after intro:", /in person/.test(sys()) ? "?" : "", "");
 step("in person: he acts");
 llm = [{ content: "[voice] come here... ya3ni" }];
 await run(msg({ text: "*steps closer*" }));
-console.log("scene nudge:", sys().includes("Your last exchange was in person"), "| voice blocked in scene:", !log.some(l => l.includes("sendVoice")));
+console.log("scene nudge:", sys().includes("You're together in person"), "| voice blocked in scene:", !log.some(l => l.includes("sendVoice")));
 step("cut-off scene");
 llm = [{ content: "*She pulls you in. Her lips brush your ear as she whis", finish: "length" }];
 await run(msg({ text: "*kisses her*" }));

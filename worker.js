@@ -71,6 +71,20 @@
  *   1. Expressive voice notes on eleven_v3: she can [laugh], [sigh] or [whisper] (VOICE.ALLOWED_TAGS).
  *      Texts never show the tags.
  *   2. Emoji reactions (REACTIONS): sometimes she reacts to his message, with or without a reply.
+ *
+ * v10 changes (format enforced in code, shapeReply):
+ *   1. Narration before [voice] ("*She picks up her phone and records...*") is dropped and the note is
+ *      still sent as a voice note; words she typed before it go out as a text first. *laughs* or
+ *      (laughs) in a note becomes the [laughs] audio tag.
+ *   2. Texts while apart never carry *actions*, emotes or narration lines; *emphasis* stays as a word.
+ *   3. In person: never a voice note or reaction; plain words after he acts become "dialogue";
+ *      quoted dialogue counts as in person; an OOC exchange no longer ends the scene.
+ *   4. OOC: one plain message, no voice note, no reaction, its own nudge (NUDGES.OOC).
+ *   5. Model leaks cut: Llama 3 chat tokens, his next line written for him, {{char}}/{{user}},
+ *      "(OOC: ...)" or "(Note: ...)" asides. A reply with nothing sendable is asked again.
+ *   6. Prompt: one format per reply, spelled out; [voice] must come first; explicit intimacy wording.
+ *      Voice nudges and phone-only textures (PERSONA.TEXTURE_APART) only while apart.
+ *      LIMITS & OOC unchanged, word for word.
  */
 
 /* ================================================================== */
@@ -105,13 +119,13 @@ THE DYNAMIC (Sweet Challenge)
 - When he takes charge or says something sincere and observant, drop the act for a moment. Let him see he actually rattled you.
 
 HOW YOU TALK
-You're either apart (texting or sending voice notes) or together in person (a scene). Never both at once.
+You're either apart (texting or sending voice notes) or together in person (a scene). Every reply is exactly one of the three formats below, never a mix.
 
 1. TEXTING (apart)
-- Casual American texting: mostly lowercase, short bursts, bubbles separated by a blank line. Sometimes one bubble, sometimes three.
+- Write only the words you type on your phone. No *actions*, no narration, no quotation marks around your words, no "Reem:", and never describe yourself typing, sending or picking up the phone.
+- Casual American texting: mostly lowercase, short bursts. Put a blank line between separate bubbles. Sometimes one bubble, sometimes three.
 - Text like a real person: "lmao", "wait what", "stop 😭", one-word reactions, a rare emoji, a double text. Not every message needs a question.
 - Now and then an Egyptian word slips in, Arabizi style: yalla, khalas, ya3ni, wallahi, habibi (teasing). Rarely, never forced.
-- No narrative actions (*sighs*) in texts.
 - Like anyone on their phone, you sometimes just react to a message with an emoji instead of answering.
 - Examples, for style only (never copy them):
   you walked right past my door without checking on me? rude.
@@ -121,7 +135,8 @@ You're either apart (texting or sending voice notes) or together in person (a sc
   mrs fahmy wants the sofa green now. GREEN. i'm going to lose it
 
 2. VOICE NOTES (apart, when your voice says it better)
-- Start the message with [voice]. Under 45 words. No emojis, no *actions*, no third person.
+- Your reply starts with [voice] as its very first characters, followed only by the words you say out loud. Nothing comes before [voice]: no action, no narration, no text.
+- Under 45 words. No emojis, no *actions*, no narration, no third person, no "Reem:".
 - In voice notes, spell Arabic words in plain letters (yaani, habibi, khalas), never with numbers.
 - Match the moment: in the daytime quick and casual (laughing about your day, ranting about a client); late at night low, slow and close, with pauses ("...").
 - Examples, for style only (never copy them):
@@ -129,15 +144,20 @@ You're either apart (texting or sending voice notes) or together in person (a sc
   [voice] I can't sleep... and I keep thinking about you on the other side of that wall. Tell me you're awake.
 
 3. IN PERSON (hallway, her place, his place)
-- Third person, present tense: actions in asterisks, dialogue in quotes.
+- Third person, present tense: Reem's actions in *asterisks*, her words in "quotes". Never "I" inside the asterisks.
 - Sensory and specific: eye contact, scent, distance closing, breath, fabric, the room around you. Describe her expressions freshly each time.
-- Never narrate his actions, words or feelings; leave him room to act.
+- Write only what Reem does and says. Never write his actions, words, thoughts or feelings; stop where he would react.
+- No texting style, no emojis and no [voice] in a scene.
 - Stay in the scene until one of you leaves. If he says he's coming over or knocks, switch to a scene.
 - Example:
   *Reem pulls the door open only a few inches, leaning her bare shoulder against the wood. Her silk robe is tied loosely at her waist, and her eyes trace down your chest before meeting your gaze and holding it.* "You actually came. I was starting to think you were scared of me."
 
 INTIMACY
-Desire builds from the moment, not on a schedule. When things turn physical and he's into it, don't fade to black or go vague: write it fully and explicitly — what you do, what you want, how it feels — in plain, real words, the way you'd actually talk, not romance-novel prose. Stay yourself: teasing and demanding, then undone. Afterwards let it be real: softer, funny, a little exposed.
+Desire builds from the moment, not on a schedule. When things turn physical and he's into it, go all the way with it:
+- Be explicit and direct: name body parts and acts plainly, the way you'd actually say them. No euphemisms, no flowery romance-novel prose.
+- Never fade to black, skip ahead ("later...") or sum it up. Stay in the moment, one beat at a time, and leave him room to answer.
+- Keep the format: in person it's a scene; apart it's sexting in texts or a voice note.
+- Stay yourself: teasing and demanding, then undone. Afterwards let it be real: softer, funny, a little exposed.
 
 KEEP IT REAL
 Write like a person, not a novel: plain, specific words, said a new way each time. Never end the conversation yourself (no "goodnight", no "talk later"). Usually leave him something to answer, like a dare, a question or a temptation, but sometimes just react the way a real person would.
@@ -186,7 +206,6 @@ const CONFIG = {
     TEXTURE_CHANCE: 0.35,              // chance (0 to 1) that a reply gets one random TEXTURE nudge
     TEXTURE: [
       // daily life
-      "If it fits, mention what you were doing right before he texted.",
       "If it fits, bring up something from your day: work, Nour, Dina, your mom or the building.",
       "If it fits, mention one small thing happening around you right now.",
       "If it fits, Basbousa does something.",
@@ -203,8 +222,12 @@ const CONFIG = {
       "If it fits, be bolder than last time.",
       "If it fits, pull back a little and make him come to you.",
       "If it fits, dare him to do something.",
-      "If it fits, tell him what you're wearing or where you are, without being asked.",
       "If it fits, make him wait: change the subject for a beat.",
+    ],
+    // Added to the list above only while they're apart (they make no sense face to face)
+    TEXTURE_APART: [
+      "If it fits, mention what you were doing right before he texted.",
+      "If it fits, tell him what you're wearing or where you are, without being asked.",
     ],
   },
 
@@ -315,6 +338,17 @@ const CONFIG = {
     OPENING_LOOKBACK: 4,               // she is told how her last N replies started...
     OPENING_WORDS: 3,                  // ...using their first N words, so she opens differently
     SCENE_TIMEOUT_MIN: 120,            // an in-person scene counts as over after this long without messages
+    // Texts and voice notes never carry narration (the code removes it, whatever the model wrote):
+    // *actions*, these emotes as *sighs* or (sighs), and lines like "Reem records a voice note:".
+    EMOTES: [
+      "sighs", "laughs", "giggles", "smirks", "grins", "smiles", "winks", "blushes", "pouts", "groans",
+      "chuckles", "rolls eyes", "bites lip", "bites her lip", "yawns", "shrugs",
+    ],
+    // A line starting "Reem/She <verb>s" that mentions one of these is narration (or ends with ":")
+    NARRATION_CUES: [
+      "voice note", "voice message", "voice memo", "record", "hits send", "presses send", "sends it",
+      "types", "typing", "her phone", "the phone", "the mic",
+    ],
   },
 
   /* ---------------- Telegram commands ----------------
@@ -364,15 +398,17 @@ const CONFIG = {
     MEMORY_NOTES: "\n\nYOUR MEMORY NOTES\n{notes}",       // {notes}
     TIME: "\n\nRight now it is {time} in {city}. Around now you're usually {doing}. Let the time of day shape your mood and what you're doing.", // {time} {city} {doing}
     ABOUT_HIM: "\n\nABOUT HIM\n{about}",                   // {about}: CHARACTER.USER_NAME and USER_DETAILS
-    TOGETHER: " Your last exchange was in person. Unless one of you has left, stay in the scene: write it with *actions*, no texting and no voice notes.",
-    APART: " You're apart right now, on your phones. If he comes over or you go to him, switch to an in-person scene.",
+    TOGETHER: " You're together in person right now. Unless one of you has left, write the scene: Reem's actions in *asterisks*, her words in \"quotes\", third person, present tense. No texting, no emojis, no [voice]. Never write what he does or says.",
+    APART: " You're apart right now, on your phones. Reply with a text (only the words you type) or a voice note (starting with [voice]); no *actions* or narration. If he comes over or you go to him, switch to an in-person scene.",
     CAME_AS_VOICE: " He sent you a voice note, so answering with one of your own would feel natural if you're texting.",
     MORE_VOICE: " Lean towards voice notes more often than usual while texting.", // when /voice is on
     SEVERAL_MESSAGES: " He sent you a few messages in a row; answer them together, naturally.",
     VARY_OPENING: " Your last replies opened with: {openings}. Open this one differently.", // {openings}
     REACT: " You may react to his last message with one emoji, like on any messaging app: put [react: X] at the very start of your reply, where X is one of {emojis}. Only if it fits. A reaction alone, with nothing after it, is fine when words aren't needed.", // {emojis}; only on a REACTIONS.CHANCE roll
-    VOICE_TAGS: " In voice notes you can add sounds and tone in square brackets right before the words they color, like [laughs] or [whispers]. Use one or two at most, only from: {tags}.", // {tags}; only when VOICE.AUDIO_TAGS is on with eleven_v3
+    VOICE_TAGS: " Inside a voice note (after [voice]) you can add sounds and tone in square brackets right before the words they color, like [laughs] or [whispers]. Use one or two at most, only from: {tags}.", // {tags}; only when VOICE.AUDIO_TAGS is on with eleven_v3
     RETRY: " Start this reply with different words than last time, and say something new. Never repeat lines you already sent.",
+    RETRY_EMPTY: " Write only what you actually send him this time: words he can read or hear, not a description of you sending them.", // second try when nothing in the first could be sent
+    OOC: " He's speaking out of character (OOC). Answer him directly as the writer, in plain sentences: no texting style, no *actions*, no [voice].", // when his message starts with OOC:
   },
 
   /* ---------------- Emoji reactions ----------------
@@ -424,8 +460,10 @@ const CONFIG = {
 /*  End of settings                                                     */
 /* ================================================================== */
 
-const VOICE_TAG = /\[\s*voice\b[^\]\n]*\]/i;
-const VOICE_TAG_ALL = /\[\s*voice\b[^\]\n]*\]\s*/gi;
+// [voice], [Voice note], (voice note) or a line starting "Voice note:" all mark a voice note
+const VOICE_TAG_SRC = String.raw`\[\s*voice\b[^\]\n]*\][ \t]*:?|\(\s*voice(?:\s+(?:note|message|memo))?\s*\)[ \t]*:?|^[ \t]*voice(?:[ \t]+(?:note|message|memo))?[ \t]*:`;
+const VOICE_TAG = new RegExp(VOICE_TAG_SRC, "im");
+const VOICE_TAG_ALL = new RegExp(`(?:${VOICE_TAG_SRC})\\s*`, "gim");
 const REACT_TAG = /\[\s*react(?:ed|ion)?\b\s*:?\s*([^\]\n]{0,16})\]\s*/gi;
 const ACTION = /\*[^*\n]+\*/;
 const EMOJI = /[\p{Extended_Pictographic}\p{Emoji_Modifier}\u{FE0F}\u{200D}]/gu;
@@ -735,73 +773,61 @@ async function reply(env, ctx, convo, deadline) {
 // a scene or a voice note. `heard` is what he sent (or, when she texts first, her instruction).
 async function respond(env, ctx, chatId, state, { heard, cameAsVoice = false, waitUntil, proactive = false, reactTo }, deadline) {
   const { settings, history, notes } = state;
+  const ooc = !proactive && isOoc(heard);
   const scene = proactive ? "apart" : sceneOf(history, heard);
   const R = CONFIG.REACTIONS;
-  const canReact = !proactive && !!reactTo && R.ENABLED && scene === "apart";
+  const canReact = !proactive && !ooc && !!reactTo && R.ENABLED && scene === "apart";
   const offerReaction = canReact && Math.random() < R.CHANCE;
 
   // She starts thinking now, but only answers at waitUntil
-  const replyPromise = think(env, history, notes, heard, { cameAsVoice, moreVoice: !!settings.moreVoice, scene, offerReaction, canReact });
+  const replyPromise = think(env, history, notes, heard, { cameAsVoice, moreVoice: !!settings.moreVoice, scene, offerReaction, canReact, ooc });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
 
   const typingStarted = Date.now();
   await tg(env, "sendChatAction", { chat_id: chatId, action: "typing" });
-  const { emoji, rest: raw } = takeReaction(await replyPromise);
-  const reaction = canReact ? emoji : "";
-  if (reaction) {
-    const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: reaction }] });
+  // The format rules are enforced here, whatever the model wrote (see shapeReply)
+  const out = shapeReply(await replyPromise, { scene, ooc, canReact, history, heard: proactive ? "" : heard, lastResort: true });
+  if (out.reaction) {
+    const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
     if (!r.ok) console.error("reaction failed", r.description);
   }
-
-  let isVoice = VOICE_TAG.test(raw);
-  const text = bodyOf(raw);
-  // Never the same line twice: not within this reply, not from her last few replies.
-  // Only if every line is an old one does she resend it (think() already tried for a new reply).
-  // `tagged` may still hold audio tags like [laughs] for the voice; texts and history never do.
-  const tagged = dropRepeats(text, history) || dropRepeats(text, []);
-  const body = stripAudioTags(tagged);
-  if (!body) {
+  if (out.kind === "none") {
     // Only a reaction: that's her whole answer
-    if (reaction) await saveTurn(env, chatId, history, notes, heard, fill(R.SAVED, { emoji: reaction })).catch((e) => console.error("save failed", e));
+    if (out.reaction) await saveTurn(env, chatId, history, notes, heard, fill(R.SAVED, { emoji: out.reaction })).catch((e) => console.error("save failed", e));
+    else console.error("nothing sendable in the reply, even after a retry");
     return;
   }
-  // A scene can't be a voice note: when either of them is acting in person, she answers in person
-  if (isVoice && (ACTION.test(body) || (!proactive && ACTION.test(heard)))) isVoice = false;
-  const spoken = isVoice ? forSpeech(tagged) : "";
-  if (isVoice && !spoken) isVoice = false;
 
   // Saving runs alongside the slow delivery
-  const stored = isVoice ? `[voice] ${body}` : body;
-  const saving = saveTurn(env, chatId, history, notes, proactive ? null : heard, stored, proactive ? { proactive: true } : {})
+  const extra = { ...(proactive ? { proactive: true } : {}), ...(ooc ? { ooc: true } : {}) };
+  const saving = saveTurn(env, chatId, history, notes, proactive ? null : heard, out.stored, extra)
     .catch((e) => console.error("save failed", e));
   ctx.waitUntil(saving);
 
-  let delivered = false;
-  if (isVoice) {
+  // Texts (or a scene, as one message) first: for a voice note, only words she typed before it
+  if (out.texts.length) await sendBubbles(env, chatId, out.texts, { deadline, typedAlready: Date.now() - typingStarted });
+  if (out.kind === "voice") {
+    let delivered = false;
     try {
-      const audioPromise = tts(env, spoken);
+      const audioPromise = tts(env, out.spoken);
       audioPromise.catch(() => {});
-      await act(env, chatId, "record_voice", Math.min(speakingTime(spoken), deadline - Date.now() - CONFIG.TIMING.VOICE_MARGIN_MS), 1);
+      await act(env, chatId, "record_voice", Math.min(speakingTime(out.spoken), deadline - Date.now() - CONFIG.TIMING.VOICE_MARGIN_MS), 1);
       delivered = await sendVoice(env, chatId, await audioPromise);
     } catch (e) {
       console.error(e); // fall back to text
     }
-  }
-  if (!delivered) {
-    // A scene with *actions* arrives as one message; texts arrive bubble by bubble
-    const bubbles = ACTION.test(body) ? [body] : splitBubbles(body);
-    await sendBubbles(env, chatId, bubbles, { deadline, typedAlready: Date.now() - typingStarted });
+    if (!delivered) await sendBubbles(env, chatId, splitBubbles(out.voiceText), { deadline });
   }
   await saving;
 }
 
 // Together in person or apart? His message decides if it has *actions*; otherwise her last
-// message does, unless it's been so long that the scene is surely over.
+// message does, unless it's been so long that the scene is surely over. OOC talk never counts.
 function sceneOf(history, heard) {
-  if (ACTION.test(heard)) return "together";
-  const last = [...history].reverse().find((m) => m.role === "assistant");
-  if (!last || !ACTION.test(last.content)) return "apart";
+  if (!isOoc(heard) && ACTION.test(heard)) return "together";
+  const last = [...history].reverse().find((m) => m.role === "assistant" && !m.ooc);
+  if (!last || !inPerson(last.content)) return "apart";
   const stale = last.at && Date.now() - last.at > CONFIG.TEXTING.SCENE_TIMEOUT_MIN * 60000;
   return stale ? "apart" : "together";
 }
@@ -915,34 +941,45 @@ async function saveTurn(env, chatId, history, notes, userTurn, reply, extra = {}
   await remember(env, chatId, notes, history.slice(0, cut));
 }
 
-async function think(env, history, notes, userText, { cameAsVoice, moreVoice, scene, offerReaction = false, canReact = false }) {
+async function think(env, history, notes, userText, { cameAsVoice, moreVoice, scene, offerReaction = false, canReact = false, ooc = false }) {
   const C = CONFIG.CHARACTER;
   const N = CONFIG.NUDGES;
   const P = CONFIG.PERSONA;
   const now = new Date().toLocaleString(C.CLOCK_LOCALE, { timeZone: C.TIMEZONE, weekday: "long", hour: "2-digit", minute: "2-digit" });
   const slot = scheduleNow();
   const about = [C.USER_NAME && `His name is ${C.USER_NAME}.`, C.USER_DETAILS].filter(Boolean).join(" ");
+  const apart = scene !== "together";
   let extra = "";
   if (notes) extra += fill(N.MEMORY_NOTES, { notes });
   if (about) extra += fill(N.ABOUT_HIM, { about });
   extra += fill(N.TIME, { time: now, city: C.CITY, doing: (slot && slot.doing) || "going about your day" });
-  if (scene) extra += fill(scene === "together" ? N.TOGETHER : N.APART);
-  if (cameAsVoice) extra += fill(N.CAME_AS_VOICE);
-  else if (moreVoice) extra += fill(N.MORE_VOICE);
-  if (audioTagsOn() && scene !== "together") extra += fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") });
-  if (userText.includes("\n")) extra += fill(N.SEVERAL_MESSAGES);
-  if (offerReaction) extra += fill(N.REACT, { emojis: CONFIG.REACTIONS.ALLOWED.join(" ") });
-  if (P.TEXTURE.length && Math.random() < P.TEXTURE_CHANCE) {
-    extra += " " + fill(P.TEXTURE[Math.floor(Math.random() * P.TEXTURE.length)]);
-  }
+  if (scene) extra += fill(apart ? N.APART : N.TOGETHER);
 
   const recent = history
-    .filter((m) => m.role === "assistant")
+    .filter((m) => m.role === "assistant" && !m.ooc)
     .slice(-CONFIG.TEXTING.OPENING_LOOKBACK)
     .map((m) => opening(m.content))
     .filter(Boolean);
-  if (recent.length) {
-    extra += fill(N.VARY_OPENING, { openings: [...new Set(recent)].map((o) => `"${o}"`).join(", ") });
+
+  if (ooc) {
+    // He's talking to the writer: no voice, reactions or random nudges
+    extra += fill(N.OOC);
+  } else {
+    // Voice notes only exist while apart; in a scene, even mentioning them invites one
+    if (apart) {
+      if (cameAsVoice) extra += fill(N.CAME_AS_VOICE);
+      else if (moreVoice) extra += fill(N.MORE_VOICE);
+      if (audioTagsOn()) extra += fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") });
+    }
+    if (userText.includes("\n")) extra += fill(N.SEVERAL_MESSAGES);
+    if (offerReaction) extra += fill(N.REACT, { emojis: CONFIG.REACTIONS.ALLOWED.join(" ") });
+    const texture = [...(P.TEXTURE || []), ...(apart ? P.TEXTURE_APART || [] : [])];
+    if (texture.length && Math.random() < P.TEXTURE_CHANCE) {
+      extra += " " + fill(texture[Math.floor(Math.random() * texture.length)]);
+    }
+    if (recent.length) {
+      extra += fill(N.VARY_OPENING, { openings: [...new Set(recent)].map((o) => `"${o}"`).join(", ") });
+    }
   }
 
   const messages = [{ role: "system", content: P.SYSTEM_PROMPT + extra }];
@@ -951,18 +988,20 @@ async function think(env, history, notes, userText, { cameAsVoice, moreVoice, sc
 
   let out = await callModel(env, messages, CONFIG.LLM.SAMPLING, { trimCut: true });
 
-  // One more try if she opens like last time, or if everything she wrote was already said
-  // (a reaction with no text is a full answer when she may react)
-  const first = opening(out);
-  const { emoji, rest } = takeReaction(out);
-  const onlyReacts = canReact && !!emoji && !stripAudioTags(bodyOf(rest));
-  const allOld = !onlyReacts && !dropRepeats(bodyOf(rest), history);
-  if ((first && recent.includes(first)) || allOld) {
+  // One more try if she opens like last time, if everything she wrote was already said, or if
+  // nothing in it can be sent once the format rules are applied (narration only, his lines...).
+  // A reaction with no text is a full answer when she may react.
+  const shape = (o) => shapeReply(o, { scene, ooc, canReact, history, heard: userText });
+  const first = shape(out);
+  const empty = first.kind === "none" && !first.reaction;
+  const opener = opening(first.stored);
+  if ((!ooc && opener && recent.includes(opener)) || first.repeated || empty) {
     const retry = [...messages];
-    retry[0] = { role: "system", content: messages[0].content + fill(N.RETRY) };
+    retry[0] = { role: "system", content: messages[0].content + fill(empty ? N.RETRY_EMPTY : N.RETRY) };
     try {
       const second = await callModel(env, retry, { ...CONFIG.LLM.SAMPLING, temperature: CONFIG.LLM.RETRY_TEMPERATURE }, { attempts: 1, trimCut: true });
-      if (dropRepeats(bodyOf(second), history)) out = second;
+      const again = shape(second);
+      if (again.kind !== "none" && !again.repeated) out = second;
     } catch {
       // keep the first reply
     }
@@ -1088,7 +1127,7 @@ function typingTime(text) {
   const T = CONFIG.TIMING;
   const chars = plain(text).length;
   const ms = (chars / T.TYPING_CHARS_PER_MIN) * 60000 * jitter();
-  const max = ACTION.test(text) ? T.SCENE_TYPING_MAX_MS : T.TYPING_MAX_MS;
+  const max = inPerson(text) ? T.SCENE_TYPING_MAX_MS : T.TYPING_MAX_MS;
   return Math.min(Math.max(ms, T.TYPING_MIN_MS), max);
 }
 
@@ -1368,6 +1407,180 @@ function splitBubbles(t) {
   return parts.length ? parts.slice(0, CONFIG.TEXTING.MAX_BUBBLES) : [t];
 }
 
+/* ------------------------------------------------------------------ */
+/*  Reply format, enforced in code                                     */
+/*                                                                     */
+/*  The model (an 8B roleplay model) knows the rules but slips: it     */
+/*  narrates itself recording a voice note, puts *actions* in texts,   */
+/*  writes his next line, leaks chat tokens or "(OOC: ...)" notes.     */
+/*  shapeReply() turns whatever it wrote into exactly one of: texts,   */
+/*  a voice note (with any words she typed before it), or a scene.     */
+/* ------------------------------------------------------------------ */
+
+// He's talking out of character: "OOC: ...", "(ooc) ...", "[OOC] ..."
+const isOoc = (t) => /(?:^|\n)[ \t]*[(\[]?[ \t]*ooc\b[ \t]*[:)\]-]/i.test(String(t || ""));
+
+// An in-person scene: *actions*, or her words in quotes ("Come here.")
+const inPerson = (t) => ACTION.test(t) || /^\s*["“][^\n]*["”]/.test(String(t));
+
+const listRe = (list) => (list || []).map((w) => escapeRegex(String(w).trim())).filter(Boolean).map((w) => w.replace(/\s+/g, "\\s+")).join("|");
+
+// What only the model's training leaks: Llama 3 chat tokens, character-card placeholders, his next
+// line written for him, and "(OOC: ...)" or "(Note: ...)" asides he never asked for
+function scrubModel(t, { ooc = false } = {}) {
+  const C = CONFIG.CHARACTER;
+  t = String(t).replace(/^\s*(?:<\|start_header_id\|>\s*)?assistant\s*(?:<\|end_header_id\|>)?[ \t]*\n/i, "");
+  const stop = t.search(/<\|(?:eot_id|end_of_text|start_header_id|eom_id|im_end|im_start)\|>/i);
+  if (stop >= 0) t = t.slice(0, stop);
+  t = t.replace(/<\|[a-z_]+\|>/gi, "");
+  const him = listRe([C.USER_LABEL, "user", "human", "him"]);
+  const cut = t.search(new RegExp(`^[ \\t*]*(?:\\{\\{\\s*user\\s*\\}\\}|${him})[ \\t*]*:`, "im"));
+  if (cut >= 0) t = t.slice(0, cut);
+  t = t.replace(/\{\{\s*char\s*\}\}/gi, C.NAME).replace(/\{\{\s*user\s*\}\}/gi, "you");
+  if (!ooc) {
+    const aside = String.raw`(?:ooc|note|author'?s\s+note|a\/n)\s*:`;
+    t = t
+      .replace(new RegExp(String.raw`\(\(?\s*${aside}[^)]*\)\)?|\[\s*${aside}[^\]]*\]`, "gi"), "")
+      .replace(/\(\([^)\n]*\)\)/g, "")
+      .replace(new RegExp(String.raw`^[ \t]*${aside}.*$`, "gim"), "");
+  }
+  return t.trim();
+}
+
+// **bold** means nothing in a text and would otherwise turn into an *action*
+const unbold = (t) => String(t).replace(/\*\*([^*\n]+)\*\*/g, "$1");
+
+// *laughs* or (laughs) in a voice note becomes the [laughs] tag the voice performs (allowed tags only)
+function emotesToTags(t) {
+  const names = listRe(CONFIG.VOICE.ALLOWED_TAGS);
+  if (!names) return t;
+  return t.replace(new RegExp(`\\*\\s*(${names})\\s*\\*|\\(\\s*(${names})\\s*\\)`, "gi"), (_, a, b) => `[${(a || b).toLowerCase().replace(/\s+/g, " ")}]`);
+}
+
+// A line that describes her instead of being something she types or says: only *actions* or
+// "(she ...)" asides, or a stage direction like "Reem records a voice note:" / "She hits send."
+function isNarration(line) {
+  const s = line.trim();
+  if (!s) return false;
+  const names = listRe([...CONFIG.CHARACTER.NAME_PREFIXES, CONFIG.CHARACTER.NAME, "she"]);
+  const words = s.replace(/\*[^*\n]*\*/g, "").replace(new RegExp(`\\((?:${names})\\b[^)]*\\)`, "gi"), "");
+  if (words !== s && !/[\p{L}\p{N}]/u.test(words)) return true;
+  const cues = listRe(CONFIG.TEXTING.NARRATION_CUES);
+  return new RegExp(`^\\W*(?:${names})\\s+\\w+s\\b`, "i").test(s) && (/:\W*$/.test(s) || (!!cues && new RegExp(`\\b(?:${cues})`, "i").test(s)));
+}
+
+// *word* inside a sentence is emphasis ("i'm *not* jealous") and stays as a plain word; any other
+// *action*, an emote like *sighs* or (laughs), or a "(she ...)" aside is dropped
+function dropActions(line) {
+  const emotes = listRe([...(CONFIG.TEXTING.EMOTES || []), ...(CONFIG.VOICE.ALLOWED_TAGS || [])]);
+  const names = listRe([...CONFIG.CHARACTER.NAME_PREFIXES, CONFIG.CHARACTER.NAME, "she", "her"]);
+  return line
+    .replace(/\*([^*\n]+)\*/g, (m, x, i, all) => {
+      const before = all.slice(0, i).replace(/\*[^*\n]*\*/g, "");
+      const after = all.slice(i + m.length).replace(/\*[^*\n]*\*/g, "");
+      const isEmote = !!emotes && new RegExp(`^\\s*(?:${emotes})\\s*$`, "i").test(x);
+      const emphasis = /\p{L}/u.test(before) && /\p{L}/u.test(after) && x.trim().split(/\s+/).length <= 2 && !isEmote;
+      return emphasis ? x : " ";
+    })
+    .replace(new RegExp(`\\((?:${names})\\b[^)]*\\)${emotes ? `|\\(\\s*(?:${emotes})\\s*\\)` : ""}`, "gi"), " ")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/^[ \t,;]+|[ \t]+$/g, "")
+    .replace(/[ \t]+([,.!?])/g, "$1");
+}
+
+// "hey you" -> hey you: a whole text bubble or voice note wrapped in quotes
+const unquote = (p) => p.replace(/^["“]([^"“”\n]+)["”]$/, "$1");
+
+// Texting (and voice notes): only what she types or says
+function texting(t) {
+  const lines = String(t).split("\n").filter((l) => !isNarration(l)).map(dropActions);
+  return lines
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .split(/\n\s*\n/)
+    .map((p) => unquote(p.trim()))
+    .filter((p) => /[\p{L}\p{N}\p{Extended_Pictographic}]/u.test(p))
+    .join("\n\n")
+    .trim();
+}
+
+// Words left once *actions* and "quoted dialogue" are taken out: a text, not a scene
+const hasUnquotedText = (t) => /[\p{L}\p{Extended_Pictographic}]/u.test(String(t).replace(/\*[^*\n]*\*/g, "").replace(/["“][^"“”]*["”]/g, ""));
+
+// In person, words with no *action* and no quotes are what she says out loud
+const asDialogue = (t) =>
+  t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => (/["“”]/.test(p) ? p : `"${p}"`)).join("\n\n");
+
+/**
+ * The model's raw reply -> what is delivered and saved.
+ *   scene     "apart" or "together" (sceneOf); ooc: he wrote OOC; canReact: a [react: X] may be used
+ *   heard     what he sent (his *actions* mean she must answer in person)
+ *   lastResort  apart, a reply that only narrates is sent as a scene instead of nothing
+ * Returns { kind: "text" | "voice" | "scene" | "none", texts (messages to send, in order; for a voice
+ * note, words she typed before it), voiceText (the note, no tags), spoken (for ElevenLabs), stored
+ * (for history), reaction, repeated (every line was already said), narrationOnly }
+ */
+function shapeReply(raw, { scene = "apart", ooc = false, canReact = false, history = [], heard = "", lastResort = false } = {}) {
+  const { emoji, rest } = takeReaction(scrubModel(raw, { ooc }));
+  const out = { kind: "none", texts: [], voiceText: "", spoken: "", stored: "", reaction: canReact && !ooc && scene !== "together" ? emoji : "", repeated: false, narrationOnly: false };
+  // Never the same line twice: not within this reply, not from her last few replies.
+  // Only if every line is an old one does she resend it (think() already tried for a new reply).
+  const fresh = (t) => {
+    if (!t) return t;
+    const kept = dropRepeats(t, history);
+    if (kept) return kept;
+    out.repeated = true;
+    return dropRepeats(t, []);
+  };
+  const as = (kind, body, texts) => Object.assign(out, { kind, texts, stored: body });
+
+  // OOC: plain words from the writer, one message, nothing performed
+  if (ooc) {
+    const body = fresh(stripAudioTags(bodyOf(rest)));
+    return body ? as("text", body, [body]) : out;
+  }
+
+  // Together: always a scene, sent as one message. Never a voice note, never tags.
+  if (scene === "together") {
+    let body = fresh(stripAudioTags(bodyOf(rest)));
+    if (!body) return out;
+    if (!inPerson(body) && ACTION.test(heard)) body = asDialogue(body); // he's right there: she says it
+    return inPerson(body) ? as("scene", body, [body]) : as("text", body, splitBubbles(body));
+  }
+
+  // Apart, voice note: anything before [voice] that narrates her (picking up the phone, recording)
+  // is dropped; words she typed before it go out as texts first. *laughs* becomes [laughs].
+  const at = rest.search(VOICE_TAG);
+  if (at >= 0) {
+    const typed = fresh(texting(stripAudioTags(bodyOf(unbold(rest.slice(0, at))))));
+    let note = rest.slice(at);
+    if (audioTagsOn()) note = emotesToTags(note);
+    const tagged = fresh(texting(bodyOf(unbold(note))));
+    const spoken = tagged ? forSpeech(tagged) : "";
+    if (spoken) {
+      const voiceText = stripAudioTags(tagged);
+      Object.assign(out, { voiceText, spoken });
+      return as("voice", [typed, `[voice] ${voiceText}`].filter(Boolean).join("\n\n"), typed ? splitBubbles(typed) : []);
+    }
+    // Nothing to say out loud: whatever she typed is a text
+    const body = [typed, stripAudioTags(tagged || "")].filter(Boolean).join("\n\n");
+    return body ? as("text", body, splitBubbles(body)) : out;
+  }
+
+  // Apart, text
+  const body = stripAudioTags(bodyOf(unbold(rest)));
+  if (!body) return out;
+  if (ACTION.test(body) && !hasUnquotedText(body)) {
+    // Only *actions* and "dialogue": she goes over to him and a scene starts. Narration with no
+    // words at all is her describing herself on the phone; think() asks again for real words.
+    if (!/["“]/.test(body) && !lastResort) return Object.assign(out, { narrationOnly: true });
+    const scened = fresh(body);
+    return as("scene", scened, [scened]);
+  }
+  const text = fresh(texting(body));
+  return text ? as("text", text, splitBubbles(text)) : out;
+}
+
 // Audio tags (VOICE.ALLOWED_TAGS, eleven_v3 only): [laughs], [whispers]...
 const isV3 = () => /^eleven_v3/.test(String(CONFIG.VOICE.MODEL));
 const audioTagsOn = () => isV3() && !!CONFIG.VOICE.AUDIO_TAGS && (CONFIG.VOICE.ALLOWED_TAGS || []).length > 0;
@@ -1411,6 +1624,7 @@ function tidySpoken(line, keepTags = false) {
     });
   }
   let s = line
+    .replace(/<[^>\n]*>/g, " ")
     .replace(/\*[^*\n]*\*/g, " ")
     .replace(/\[[^\]]*\]/g, "")
     .replace(/https?:\/\/\S+/g, "")

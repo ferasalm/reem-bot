@@ -38,3 +38,7 @@ Locally: `CLOUDFLARE_API_TOKEN=... npx wrangler deploy`. Check the build without
 `tools/settings-panel.html` is an offline page listing every setting with its current default. Open it in a browser, change what you want: changed fields turn yellow and show up in the **Changes to make** box at the top. Screenshot that box (or press **Copy changes for Claude**) to ask for the change, or press **Copy as CONFIG_OVERRIDES JSON** to apply it yourself in the Cloudflare dashboard. Your edits are remembered in the browser until you press **Reset everything**.
 
 After changing `CONFIG` in `worker.js`, run `node tools/build-panel.mjs` so the panel's defaults match again.
+
+## Tests
+
+`node tools/test/unit.mjs` and `node tools/test/scenarios.mjs` (both fail loudly), `node tools/test/e2e.mjs` (prints a log to read). `OPENROUTER_API_KEY=... node tools/test/live.mjs` asks the real model the same situations and shows what the code had to fix.
