@@ -59,7 +59,8 @@ v10 done (branch `ccr-75e7610d-6zkheu`, not merged, not deployed): code-side nar
 ## Testing (the owner is on Android, no computer)
 - `.github/workflows/test.yml`: every push runs the mocked tests on GitHub (free). A commit whose message contains `[live]` also runs `live.mjs` against the real model, using the repository secret `OPENROUTER_API_KEY` (the owner adds it once: GitHub in the phone browser, "Desktop site" on, repo Settings > Secrets and variables > Actions > New repository secret). Once test.yml is on `main`, Actions > Tests > Run workflow also works.
 - Claude runs the live check itself: push a commit with `[live]` in the message, then read the run's log with the GitHub MCP (`actions_list` / `get_job_logs`). Don't ask the owner to run commands.
-- Status of the secret: unknown when this was written. If the live job says "No OPENROUTER_API_KEY", ask the owner to add it.
+- First live run: Actions run 36941340455 (commit 5170de0, job "live"); it was still calling the model when this was written, so the secret seems to be set. **Start the next session by reading that job's log** (results feed step 2 below). If a live job says "No OPENROUTER_API_KEY", ask the owner to add it.
+- Mocked CI passed on GitHub for 5170de0.
 
 ## Next conversation (owner's plan)
 1. **Fine-tuning** = tuning, not training: Lunaris can't be retrained through OpenRouter, and the model stays Lunaris (owner's rule). Tune with evidence: run the live check (`[live]`), read the replies, then adjust SYSTEM_PROMPT (not LIMITS & OOC), NUDGES, TEXTURE, sampling (`LLM.SAMPLING`), timing. Every slip seen → a row in scenarios.mjs + a code guard if it's format. Never tone down explicitness.
