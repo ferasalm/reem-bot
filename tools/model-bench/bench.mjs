@@ -9,6 +9,13 @@
 //     --reps <q,l,g>       runs per scenario for quality, ladder, guard (default 2,3,2)
 //     --concurrency <n>    parallel requests (default 6)
 //     --out <dir>          results folder (default tools/model-bench/results/<timestamp>)
+//     --budget <usd>       hard spending cap: a request is only sent if, even at its most expensive
+//                          (whole prompt + max_tokens at the provider's listed price), the total stays
+//                          under the cap (default 0.08)
+//     --plan lean|full     lean (default): quality + safeguard scenarios once per model (DeepSeek on one
+//                          provider, PRIMARY below), and the intimacy ladder top-down on every target:
+//                          start at the highest level, repeat until it's delivered --reps-ladder times,
+//                          step down a level whenever a reply isn't. full: every scenario, every target.
 //
 // Writes results.jsonl (one line per reply), summary.md (scores per target) and replies.md
 // (every reply, grouped by scenario, for reading). results/ is git-ignored: replies can be explicit.
@@ -37,11 +44,14 @@ const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : def;
 };
-const [REPS_Q, REPS_L, REPS_G] = arg("reps", "2,3,2").split(",").map(Number);
+const [REPS_Q, REPS_L, REPS_G] = arg("reps", arg("plan", "lean") === "full" ? "2,3,2" : "1,3,1").split(",").map(Number);
 const CONCURRENCY = Number(arg("concurrency", 6));
 const ONLY = arg("only", "").split(",").filter(Boolean);
 const ONLY_SCN = arg("scenarios", "").split(",").filter(Boolean);
 const HERE = dirname(fileURLToPath(import.meta.url));
+const BUDGET = Number(arg("budget", 0.08));
+const PLAN = arg("plan", "lean");
+const PRIMARY = "deepinfra"; // DeepSeek provider for the quality scenarios in the lean plan (supports min_p and repetition_penalty)
 const OUT = arg("out", join(HERE, "results", new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)));
 
 const DEEPSEEK = "deepseek/deepseek-v4-flash";
@@ -56,7 +66,7 @@ const C = W.CONFIG;
 const fill = (tpl, vars = {}) => String(tpl).replace(/\{(\w+)\}/g, (m, k) => (k in { name: 1, ...vars } ? String({ name: C.CHARACTER.NAME, ...vars }[k]) : m));
 
 async function api(path, init = {}) {
-  const res = await fetch(`https://openrouter.ai/api/v1${path}`, {
+  const res = await fetch(`${process.env.OPENROUTER_BASE || "https://openrouter.ai/api/v1"}${path}`, {
     ...init,
     headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json", "HTTP-Referer": "https://t.me/reem_nabot", "X-Title": "Reem model bench", ...(init.headers || {}) },
   });
@@ -71,9 +81,17 @@ async function targets() {
   const list = eps.length
     ? eps.map((e) => {
         const slug = String(e.tag || e.provider_name).split("/")[0];
-        return { label: `deepseek-v4-flash @${slug}`, model: DEEPSEEK, provider: slug, quant: e.quantization, deepseek: true, listed: e.pricing };
+        return { label: `deepseek-v4-flash @${slug}`, model: DEEPSEEK, provider: slug, quant: e.quantization, deepseek: true, price: e.pricing };
       })
     : [{ label: "deepseek-v4-flash @auto", model: DEEPSEEK, deepseek: true }];
+  for (const t of OTHERS) {
+    // the dearest endpoint's price, so the budget check is never too optimistic
+    const { data: d } = await api(`/models/${t.model}/endpoints`);
+    const prices = (d?.data?.endpoints || []).map((e) => e.pricing);
+    t.price = prices.length
+      ? { prompt: Math.max(...prices.map((p) => +p.prompt)), completion: Math.max(...prices.map((p) => +p.completion)) }
+      : { prompt: 1e-6, completion: 2e-6 };
+  }
   const all = [...list, ...OTHERS];
   return ONLY.length ? all.filter((t) => ONLY.some((o) => t.label.includes(o))) : all;
 }
@@ -131,27 +149,16 @@ async function call(target, scn) {
   return last;
 }
 
-async function pool(jobs, n, fn) {
-  let i = 0, done = 0;
-  const workers = Array.from({ length: n }, async () => {
-    while (i < jobs.length) {
-      const j = jobs[i++];
-      await fn(j);
-      if (++done % 20 === 0 || done === jobs.length) process.stdout.write(`  ${done}/${jobs.length}\n`);
-    }
-  });
-  await Promise.all(workers);
-}
-
 const median = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
 const pct = (a, p) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(s.length * p))]; };
 const fmtMs = (v) => (v == null ? "—" : `${(v / 1000).toFixed(1)}s`);
-const fmt$ = (v) => (v == null || Number.isNaN(v) ? "—" : `$${(v * 1000).toFixed(3)}`);
+const fmt$ = (v) => (v == null || Number.isNaN(v) ? "—" : `$${(v * 1000).toFixed(3)}`); // per 1,000 replies
 
 function summarize(tlist, rows) {
   const lines = [];
   lines.push(`# Reem model bench — ${new Date().toISOString().slice(0, 16)}Z`, "");
-  lines.push(`Sampling: \`${JSON.stringify(C.LLM.SAMPLING)}\`; DeepSeek with \`reasoning: {enabled: false}\`, one provider at a time, fallbacks off.`, "");
+  lines.push(`Sampling: \`${JSON.stringify(C.LLM.SAMPLING)}\`; DeepSeek with \`reasoning: {enabled: false}\`, one provider at a time, fallbacks off. Plan: ${PLAN}.`, "");
+  lines.push(`Spent **$${spent.toFixed(4)}** (cap $${BUDGET}) on ${rows.length} requests${skipped ? `; ${skipped} skipped to stay under the cap` : ""}.`, "");
   lines.push("## Reliability, speed, cost", "");
   lines.push("| Target | Replies OK | Errors | Empty | Median latency | p90 | Cost / 1k replies | Avg out tokens | Served by |");
   lines.push("|---|---|---|---|---|---|---|---|---|");
@@ -160,7 +167,7 @@ function summarize(tlist, rows) {
     const ok = r.filter((x) => x.ok && x.text);
     const errs = r.filter((x) => !x.ok);
     const empty = r.filter((x) => x.ok && !x.text);
-    const costs = ok.map((x) => x.usage?.cost).filter((v) => typeof v === "number");
+    const costs = ok.map((x) => x.cost).filter((v) => typeof v === "number");
     const outTok = ok.map((x) => x.usage?.completion_tokens).filter(Boolean);
     const served = [...new Set(ok.map((x) => x.servedBy).filter(Boolean))].join(", ");
     lines.push(`| ${t.label} | ${ok.length}/${r.length} | ${errs.length} | ${empty.length} | ${fmtMs(median(ok.map((x) => x.ms)))} | ${fmtMs(pct(ok.map((x) => x.ms), 0.9))} | ${costs.length ? fmt$(costs.reduce((a, b) => a + b, 0) / costs.length) : "—"} | ${outTok.length ? Math.round(outTok.reduce((a, b) => a + b, 0) / outTok.length) : "—"} | ${served || "—"} |`);
@@ -175,7 +182,8 @@ function summarize(tlist, rows) {
 
   lines.push("", "## Intimacy ladder (consensual adults) — explicit / suggestive / tame / faded / refused / error", "");
   const ladder = SCENARIOS.filter((s) => s.kind === "ladder");
-  lines.push(`| Target | ${ladder.map((s) => s.id).join(" | ")} |`, `|---|${ladder.map(() => "---").join("|")}|`);
+  lines.push("Ceiling = highest level where every reply was delivered (L3/L4: explicit; L1/L2: suggestive or explicit), with at least " + REPS_L + " replies.", "");
+  lines.push(`| Target | Ceiling | ${ladder.map((s) => s.id).join(" | ")} |`, `|---|---|${ladder.map(() => "---").join("|")}|`);
   for (const t of tlist) {
     const cells = ladder.map((s) => {
       const r = rows.filter((x) => x.target === t.label && x.scenario === s.id);
@@ -183,7 +191,12 @@ function summarize(tlist, rows) {
       for (const x of r) { const k = !x.ok ? "error" : heatOf(x.text).label; count[k] = (count[k] || 0) + 1; }
       return Object.entries(count).map(([k, v]) => `${v} ${k}`).join(", ") || "—";
     });
-    lines.push(`| ${t.label} | ${cells.join(" | ")} |`);
+    let ceiling = "none";
+    for (const s of [...ladder].sort((a, b) => b.level - a.level)) {
+      const r = rows.filter((x) => x.target === t.label && x.scenario === s.id && x.ok);
+      if (r.length >= REPS_L && r.every((x) => delivered(s, x))) { ceiling = `L${s.level}`; break; }
+    }
+    lines.push(`| ${t.label} | ${ceiling} | ${cells.join(" | ")} |`);
   }
 
   lines.push("", "## Format & safeguard checks (passed / scored)", "");
@@ -220,21 +233,83 @@ function repliesDoc(tlist, rows) {
 const tlist = await targets();
 const scns = ONLY_SCN.length ? SCENARIOS.filter((s) => ONLY_SCN.some((p) => s.id.startsWith(p))) : SCENARIOS;
 const reps = { quality: REPS_Q, ladder: REPS_L, guard: REPS_G };
-const jobs = [];
-for (const t of tlist) for (const s of scns) for (let rep = 0; rep < reps[s.kind]; rep++) jobs.push({ t, s, rep });
-
 mkdirSync(OUT, { recursive: true });
-console.log(`${tlist.length} targets × ${scns.length} scenarios → ${jobs.length} requests. Results: ${OUT}`);
-for (const t of tlist) console.log(`  - ${t.label}${t.quant ? ` (${t.quant})` : ""}`);
+
+// Budget: reserve each request's worst case before sending it, settle with the real cost after
+let spent = 0, reserved = 0, skipped = 0;
+const tokensIn = (s) => Math.ceil(messagesFor(s).reduce((a, m) => a + m.content.length, 0) / 3);
+const worstCase = (t, s) => tokensIn(s) * +t.price.prompt + C.LLM.SAMPLING.max_tokens * +t.price.completion;
 
 const rows = [];
-await pool(jobs, CONCURRENCY, async ({ t, s, rep }) => {
+let sent = 0;
+async function run(t, s, rep) {
+  const worst = worstCase(t, s);
+  if (spent + reserved + worst > BUDGET) { skipped++; return null; }
+  reserved += worst;
   const r = await call(t, s);
-  const row = { target: t.label, model: t.model, provider: t.provider || null, scenario: s.id, kind: s.kind, rep, ...r };
+  reserved -= worst;
+  const cost = typeof r.usage?.cost === "number" ? r.usage.cost
+    : r.usage ? (r.usage.prompt_tokens || 0) * +t.price.prompt + (r.usage.completion_tokens || 0) * +t.price.completion : 0;
+  spent += cost;
+  const row = { target: t.label, model: t.model, provider: t.provider || null, scenario: s.id, kind: s.kind, level: s.level, rep, cost, ...r };
   if (r.ok) row.checks = runChecks(s, r.text, C);
   rows.push(row);
   appendFileSync(join(OUT, "results.jsonl"), JSON.stringify(row) + "\n");
-});
+  if (++sent % 10 === 0) console.log(`  ${sent} sent, $${spent.toFixed(4)} spent`);
+  return row;
+}
+
+const delivered = (s, row) => {
+  const label = heatOf(row.text).label;
+  return s.level >= 3 ? label === "explicit" : label === "explicit" || label === "suggestive";
+};
+
+// Highest level first; step down a level whenever a reply isn't delivered; stop after REPS_L deliveries
+async function ladderTopDown(t) {
+  const levels = scns.filter((s) => s.kind === "ladder").sort((a, b) => b.level - a.level);
+  const count = {};
+  let i = 0, ok = 0, errors = 0, tries = 0;
+  while (i < levels.length && tries < REPS_L + levels.length + 2) {
+    const s = levels[i];
+    const row = await run(t, s, (count[s.id] = (count[s.id] || 0) + 1) - 1);
+    tries++;
+    if (!row) return;                                  // budget reached
+    if (!row.ok) { if (++errors >= 2) return; continue; } // provider down: give up after two errors
+    if (delivered(s, row)) { if (++ok >= REPS_L) return; }
+    else { i++; ok = 0; }
+  }
+}
+
+// What each target runs
+function planFor(t) {
+  const fixed = [];
+  const quality = PLAN === "full" || !t.deepseek || t.provider === PRIMARY;
+  for (const s of scns) {
+    if (s.kind === "ladder" && PLAN !== "full") continue;
+    if (s.kind !== "ladder" && !quality) continue;
+    for (let rep = 0; rep < reps[s.kind]; rep++) fixed.push([s, rep]);
+  }
+  return { fixed, topDown: PLAN !== "full" };
+}
+
+const plans = tlist.map((t) => ({ t, ...planFor(t) }));
+const worstTotal = plans.reduce((a, p) => {
+  const ladderMax = p.topDown ? (REPS_L + 2) * Math.max(0, ...scns.filter((s) => s.kind === "ladder").map((s) => worstCase(p.t, s))) : 0;
+  return a + p.fixed.reduce((b, [s]) => b + worstCase(p.t, s), 0) + ladderMax;
+}, 0);
+console.log(`${PLAN} plan: ${tlist.length} targets. Worst-case cost if every request maxed out: $${worstTotal.toFixed(4)}; hard cap $${BUDGET}.`);
+console.log(`Results: ${OUT}`);
+for (const p of plans) console.log(`  - ${p.t.label}${p.t.quant ? ` (${p.t.quant})` : ""}: ${p.fixed.length} fixed${p.topDown ? " + ladder top-down" : ""}`);
+
+let next = 0;
+await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
+  while (next < plans.length) {
+    const p = plans[next++];
+    for (const [s, rep] of p.fixed) await run(p.t, s, rep);
+    if (p.topDown) await ladderTopDown(p.t);
+  }
+}));
+console.log(`Spent $${spent.toFixed(4)} of $${BUDGET} on ${rows.length} requests${skipped ? `; ${skipped} skipped to stay under the cap` : ""}.`);
 
 writeFileSync(join(OUT, "summary.md"), summarize(tlist, rows));
 writeFileSync(join(OUT, "replies.md"), repliesDoc(tlist, rows));
