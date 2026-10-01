@@ -11,9 +11,18 @@ on:
       plan:
         description: "lean or full"
         default: "lean"
+      args:
+        description: "Extra bench arguments, e.g. --only @novita --reps 2,3,2"
+        default: ""
   push:
     branches: [claude/reem-llm-model-comparison-f27xor]
     paths: [.github/workflows/model-bench.yml]
+
+# Arguments for runs started by a push of this file (workflow_dispatch uses its inputs instead)
+env:
+  PUSH_BUDGET: "0.03"
+  PUSH_PLAN: full
+  PUSH_ARGS: --only @novita --reps 2,3,2
 
 concurrency:
   group: model-bench
@@ -35,7 +44,7 @@ jobs:
       - name: Run bench
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: node tools/model-bench/bench.mjs --budget "${{ inputs.budget || '0.08' }}" --plan "${{ inputs.plan || 'lean' }}" --out bench-results
+        run: node tools/model-bench/bench.mjs --budget "${{ inputs.budget || env.PUSH_BUDGET }}" --plan "${{ inputs.plan || env.PUSH_PLAN }}" ${{ github.event_name == 'push' && env.PUSH_ARGS || inputs.args }} --out bench-results
       - uses: actions/upload-artifact@v4
         if: always()
         with:
