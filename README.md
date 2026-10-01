@@ -8,7 +8,7 @@ Source for the `reem-bot` Cloudflare Worker (Telegram bot `@reem_nabot`).
 
 ## Cloudflare login (one-time)
 
-1. Cloudflare dashboard → My Profile → API Tokens → **Create Token** → template **Edit Cloudflare Workers** → pick your account → create, then copy the token.
+1. Cloudflare dashboard → My Profile → API Tokens → **Create Token** → template **Edit Cloudflare Workers** → add the permission **Account → Queues → Edit** (wrangler sets up the `reem-inbox` consumer on deploy) → pick your account → create, then copy the token.
 2. GitHub → this repo → Settings → Secrets and variables → Actions → **New repository secret**:
    - `CLOUDFLARE_API_TOKEN` = the token
    - `CLOUDFLARE_ACCOUNT_ID` = your account ID (dashboard → Workers & Pages, right sidebar)
