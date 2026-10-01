@@ -1,0 +1,51 @@
+name: Model bench
+
+# Runs tools/model-bench/bench.mjs against OpenRouter with a hard spending cap.
+# Results are uploaded as an artifact and printed to the log (the repo is private).
+on:
+  workflow_dispatch:
+    inputs:
+      budget:
+        description: "Hard spending cap in USD"
+        default: "0.08"
+      plan:
+        description: "lean or full"
+        default: "lean"
+  push:
+    branches: [claude/reem-llm-model-comparison-f27xor]
+    paths: [.github/workflows/model-bench.yml]
+
+concurrency:
+  group: model-bench
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check key
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: '[ -n "$OPENROUTER_API_KEY" ] || { echo "::error::OPENROUTER_API_KEY secret is not set"; exit 1; }'
+      - name: Run bench
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: node tools/model-bench/bench.mjs --budget "${{ inputs.budget || '0.08' }}" --plan "${{ inputs.plan || 'lean' }}" --out bench-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: model-bench-results
+          path: bench-results/
+          retention-days: 7
+      - name: Print results
+        if: always()
+        run: |
+          for f in summary.md replies.md; do
+            echo "===== $f ====="
+            cat "bench-results/$f" 2>/dev/null || echo "(missing)"
+          done
