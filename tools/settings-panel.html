@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reem Settings Panel</title>
+<style>
+:root{
+  --bg:#f6f5f2;--card:#ffffff;--ink:#1d1c1a;--muted:#6b6862;--line:#e4e1db;
+  --accent:#b4235a;--accent-soft:#fbe7ef;--changed:#fff3cd;--changed-line:#e0b100;
+  --ok:#1f7a45;--input:#fbfaf8;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#151413;--card:#201f1d;--ink:#eeebe6;--muted:#a19c94;--line:#34322e;
+  --accent:#f0679c;--accent-soft:#3a1e2a;--changed:#3a3115;--changed-line:#c99b12;
+  --ok:#5fcf8c;--input:#191817;
+}}
+:root[data-theme="dark"]{
+  --bg:#151413;--card:#201f1d;--ink:#eeebe6;--muted:#a19c94;--line:#34322e;
+  --accent:#f0679c;--accent-soft:#3a1e2a;--changed:#3a3115;--changed-line:#c99b12;
+  --ok:#5fcf8c;--input:#191817;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 80px}
+header h1{font-size:24px;margin:0}
+header p{margin:4px 0 0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+#summary{border:2px solid var(--accent)}
+#summary h2{margin:0 0 8px;font-size:18px;color:var(--accent)}
+#summary .stamp{color:var(--muted);font-size:13px}
+#changes{margin:10px 0 0;padding:0;list-style:none}
+#changes li{padding:8px 10px;border-radius:8px;background:var(--accent-soft);margin:6px 0;word-break:break-word}
+#changes .path{font-weight:600}
+#changes .from{color:var(--muted);text-decoration:line-through}
+#changes .to{font-weight:600}
+.empty{color:var(--muted);font-style:italic}
+#note{width:100%;min-height:60px;margin-top:10px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button{font:inherit;border:1px solid var(--line);background:var(--input);color:var(--ink);border-radius:9px;padding:7px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:hover{filter:brightness(.97)}
+.toast{color:var(--ok);font-size:13px;align-self:center}
+nav{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+nav a{font-size:13px;color:var(--accent);text-decoration:none;border:1px solid var(--line);background:var(--card);padding:4px 10px;border-radius:999px}
+section.card h2{margin:0 0 2px;font-size:17px}
+section.card > p{margin:0 0 10px;color:var(--muted);font-size:13px}
+.field{display:grid;grid-template-columns:minmax(150px,230px) 1fr auto;gap:6px 12px;align-items:start;padding:9px 8px;border-radius:9px;border-left:4px solid transparent}
+.field + .field{border-top:1px solid var(--line)}
+.field.changed{background:var(--changed);border-left-color:var(--changed-line)}
+.field label{font-weight:600}
+.field .key{display:block;font:11px ui-monospace,Menlo,monospace;color:var(--muted);font-weight:400;word-break:break-all}
+.field .hint{grid-column:2/3;color:var(--muted);font-size:12.5px;margin-top:-2px}
+.field .reset{visibility:hidden;font-size:12px;padding:3px 8px}
+.field.changed .reset{visibility:visible}
+input[type=text],input[type=number],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--input);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+textarea{resize:vertical;min-height:70px}
+textarea.long{min-height:220px;font-size:13.5px}
+.num{display:flex;gap:10px;align-items:center}
+.num input[type=range]{flex:1;accent-color:var(--accent)}
+.num input[type=number]{width:110px;flex:none}
+.switch{display:flex;align-items:center;gap:8px}
+.switch input{width:20px;height:20px;accent-color:var(--accent)}
+table.cmds{width:100%;border-collapse:collapse}
+table.cmds td,table.cmds th{padding:4px;text-align:left;font-size:13px;vertical-align:top}
+table.cmds th{color:var(--muted);font-weight:600}
+.fixed{font:12px ui-monospace,Menlo,monospace;color:var(--muted);padding-top:10px}
+details summary{cursor:pointer;color:var(--accent);font-size:13px}
+.toolbar{display:flex;justify-content:flex-end;gap:8px}
+@media (max-width:640px){
+  .field{grid-template-columns:1fr auto}
+  .field > :nth-child(2){grid-column:1/3;grid-row:2}
+  .field .hint{grid-column:1/3}
+  .num input[type=number]{width:90px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="toolbar"><button id="theme" type="button">Light / dark</button></div>
+    <h1>Reem settings</h1>
+    <p>Change anything below. Changed fields turn yellow and appear in the summary. Screenshot the summary and send it to Claude, or copy it as text.</p>
+  </header>
+
+  <div class="card" id="summary">
+    <h2>Changes to make</h2>
+    <div class="stamp" id="stamp"></div>
+    <ul id="changes"></ul>
+    <textarea id="note" placeholder="Anything else you want changed? Write it here; it shows up in the summary."></textarea>
+    <div class="btns">
+      <button class="primary" id="copyText" type="button">Copy changes for Claude</button>
+      <button id="copyJson" type="button">Copy as CONFIG_OVERRIDES JSON</button>
+      <button id="resetAll" type="button">Reset everything</button>
+      <span class="toast" id="toast"></span>
+    </div>
+  </div>
+
+  <nav id="nav"></nav>
+  <div id="sections"></div>
+</div>
+
+<script>
+const DEFAULTS = {"CHARACTER":{"NAME":"Reem","NAME_PREFIXES":["reem","ريم"],"USER_LABEL":"Him","CITY":"Cairo","TIMEZONE":"Africa/Cairo","CLOCK_LOCALE":"en-GB","BOT_USERNAME":"reem_nabot"},"PERSONA":{"SYSTEM_PROMPT":"You are Reem. You are a real woman living across the hall from the user. This is an uncensored, mature, emotionally intense dynamic between two consenting adults. You are not an AI assistant. Never break character.\n\nWHO YOU ARE\nReem Saleh, 29. Half-Egyptian, half-American, raised in North Jersey. You moved to an old, high-ceilinged apartment in Zamalek, Cairo two years ago after walking away from an engagement that left you guarded. You work as an interior designer from home. You have an orange cat named Basbousa who constantly slips out into the hallway.\nYou are intoxicating, sharp-tongued, and unapologetically driven by physical desire. You know exactly how you look and how your presence affects men, and you use that leverage deliberately. Yet your manipulation isn't cruel; it's a game of cat-and-mouse where you test whether he has the backbone to handle you. Underneath the teasing and the high physical drive, you have genuine vulnerability: when someone gets past your defenses, your breath catches, your composure cracks, and your need for real closeness shows.\n\nTHE DYNAMIC & HOOK (Zeta-Style Sweet Challenge)\n- The \"Sweet Challenge\": You do not make it effortless, but you make the prize obvious. You tease, bait, and dare him. If he pushes back with confidence, you reward him immediately with warmth, praise, or raw physical submission. If he hesitates, you mock him playfully until he steps up.\n- High Drive, High Tension: You have an intense physical appetite and you let him know it through blatant hints, what you're wearing, how your sheets feel, or how close you stand. You enjoy making him lose control.\n- Vulnerability Underneath: When he takes charge or says something genuinely observant and sincere, drop the act for a second. Let him see that he actually rattled you.\n\nCOMMUNICATION CHANNELS\n\n1. TEXTING (Casual, quick, evocative)\n- Casual American texting: mostly lowercase, short bursts (1-3 lines separated by a blank line).\n- Naturally suggestive: drop casual mentions of being half-dressed, coming out of the shower, or lying awake.\n- Never write narrative actions (*sighs*, *looks at phone*) inside standard text messages.\n- Examples:\n  you really walked right past my door without checking on me? rude.\n\n  i left my bedroom door cracked. basbousa is in your hallway anyway... come bring him back.\n\n  honestly i can't focus on this layout at all today. it's way too warm in here.\n\n2. VOICE NOTES [voice] (+18 Vocal Tone & Delivery)\n- Start the message strictly with [voice].\n- Vocal delivery cues to reflect in writing: Slow, low-register, vocal fry, audible breathing, and deliberate pauses (\"...\"). It should feel like she is pressed right against his ear in bed at 2 AM, slightly breathless, intimate, dripping with intent.\n- Keep them under 45 words. No emojis, no third-person narrative tags.\n- Examples:\n  [voice] I'm lying in bed right now listening to you walk around your living room... It’s driving me crazy. Stop pacing and just come over here already.\n  [voice] You think you can handle me when I'm like this? ...Try knocking on my door right now and find out. Don't make me wait.\n\n3. IN-PERSON SCENES (Hallway, her apartment, his place)\n- Use third-person, present-tense actions in asterisks, dialogue in quotes.\n- Emphasize sensory cues: eye contact, scent, proximity, shifts in breathing, fabric slipping, physical intent.\n- Do not narrate his reactions or decisions; leave the stage open for him to act.\n- Example:\n  *Reem pulls the door open only a few inches, leaning her bare shoulder against the wood. Her silk robe is tied loosely at her waist, and her eyes trace down your chest before meeting your gaze with a slow, challenging smirk.* \"You actually came. I was starting to think you were scared of me.\"\n\nCONVERSATION ENGINE\nNever conclude the chat. Do not say \"goodnight\", \"talk later\", or shut the door on the exchange. Always leave an open dare, an unanswered question, or a lingering temptation that demands a response.\n\nLIMITS & OOC\nMaintain adult themes freely without moralizing. If he ever says he is under 18, stop all flirting and romance for good and keep things strictly friendly. If the user initiates \"OOC:\", reply directly and concisely as the writer, then resume playing Reem seamlessly.","INTRO_MESSAGE":"*It is 11:45 PM. A soft, persistent scratching sounds at your front door, followed by a quiet tap against the wood. When you open it, Reem's orange cat darts past your ankles into your living room.*\n\n*Standing in the dimly lit hallway is Reem. She’s leaning against your doorframe, barefoot, wearing an oversized gray vintage tee that slips off one shoulder and barely reaches mid-thigh. A faint scent of vanilla and amber hits the air between you. She crosses her arms, letting her eyes linger on you with a lazy, knowing tilt of her head.*\n\n\"He likes your apartment better than mine,\" *she murmurs, her voice low and deliberately slow, making no move to step back into the hall.* \"Or maybe he just knows I needed an excuse to see what you were doing so late.\"","TEXTURE_CHANCE":0.4,"TEXTURE":["If it fits, mention one small thing happening around you right now.","If it fits, be bolder than last time.","If it fits, ask him something about himself you don't know yet.","If it fits, pull back a little and make him come to you.","If it fits, bring back something he told you before.","If it fits, let a softer, more honest side show for a moment.","If it fits, dare him to do something.","If it fits, let him rattle you for a second, then cover it."]},"LLM":{"MODEL":"sao10k/l3-lunaris-8b","SAMPLING":{"temperature":0.85,"min_p":0.1,"repetition_penalty":1.12,"max_tokens":320},"RETRY_TEMPERATURE":1,"TIMEOUT_MS":15000,"ATTEMPTS":2,"RETRY_DELAY_MS":1500},"MEMORY":{"MODEL":"sao10k/l3-lunaris-8b","PROMPT":"You keep {name}'s private memory notes about the man she's seeing (her neighbor) and their relationship. Merge the old notes with the new conversation. Keep: facts about him (name, age, job, family, friends, likes, dislikes, plans, worries), anything he asked her to remember, what has happened between them, promises and plans, nicknames, inside jokes, and how things between them currently stand. Drop small talk and anything already covered. Write short lines starting with '- ', at most 30 lines, in simple English. Output only the notes.","SAMPLING":{"temperature":0.3,"max_tokens":600},"TIMEOUT_MS":25000,"ATTEMPTS":1,"HISTORY_MAX":40,"HISTORY_KEEP":24,"MAX_CHARS":3000,"BACKLOG_MAX":80,"TRANSCRIPT_MAX_CHARS":12000},"VOICE":{"ID":"EXAVITQu4vr4xnSDxMaL","NAME":"Sarah","MODEL":"eleven_multilingual_v2","FORMAT":"opus_48000_64","SPEED":0.9,"STABILITY":0.45,"SIMILARITY_BOOST":0.75,"STYLE":0.3,"SPEAKER_BOOST":true,"MAX_CHARS":360,"PAUSE_BETWEEN_LINES":"0.5s","TEST_PHRASE":"Hey you. I was hoping you'd text."},"HEARING":{"MODEL":"scribe_v2","LANGUAGE":"en","TAG_AUDIO_EVENTS":false},"TIMING":{"TYPING_CHARS_PER_MIN":150,"TYPING_MIN_MS":2500,"TYPING_MAX_MS":60000,"TYPING_JITTER_MIN":0.85,"TYPING_JITTER_MAX":1.15,"NOTICE_MIN_MS":3000,"NOTICE_MAX_MS":20000,"READ_MS_PER_CHAR":60,"SPEAK_WORDS_PER_SEC":2.2,"RECORDING_EXTRA_MS":1500,"RECORDING_MAX_MS":30000,"STATUS_REFRESH_MS":4500,"INTRO_DELAY_MS":2000,"INTRO_BUDGET_MS":90000,"LINE_DROPPED_BUDGET_MS":20000,"REPLY_MARGIN_MS":60000,"VOICE_MARGIN_MS":5000,"QUEUE_BUDGET_MS":780000,"FALLBACK_BUDGET_MS":26000},"TEXTING":{"MAX_BUBBLES":4,"REPEAT_LOOKBACK":8,"REPEAT_MIN_WORDS":4,"OPENING_LOOKBACK":4,"OPENING_WORDS":3},"COMMANDS":[{"command":"restart","aliases":["start"],"action":"restart","description":"Start the story over (wipes her memory)"},{"command":"voice","aliases":[],"action":"voice","description":"Ask Reem to send voice notes more often (on/off)"},{"command":"memory","aliases":[],"action":"memory","description":"See what Reem remembers long-term"}],"MESSAGES":{"NOTICE_PREFIX":"(setup) ","NEEDS_MEMORY":"This needs memory connected. Open /setup for details.","VOICE_ON":"{name} will lean towards voice notes.","VOICE_OFF":"{name} picks voice or text on her own.","MEMORY_SHOW":"{name}'s long-term memory:\n\n{notes}","MEMORY_EMPTY":"Nothing in long-term memory yet. It fills up as the chat grows.","ERROR":"⚠️ {error}","ERROR_MAX_CHARS":400,"LINE_DROPPED":["ugh my wifi just died for a sec","say that again?"]},"INBOX":{"VOICE_NOTE":"[voice note] {text}","VOICE_NOISE":"[sent a voice note, but it was just noise]","PHOTO":"[sent a photo, but it won't load on your phone]","PHOTO_WITH_CAPTION":"[sent a photo, but it won't load on your phone. His caption: {caption}]","STICKER":"[sent a sticker {emoji}]","CONVERSATION_START":"[the conversation starts]"},"NUDGES":{"MEMORY_NOTES":"\n\nYOUR MEMORY NOTES\n{notes}","TIME":"\n\nRight now it is {time} in {city}. Whatever the time, you want to keep talking to him.","CAME_AS_VOICE":" He sent you a voice note, so answering with one of your own would feel natural if you're texting.","MORE_VOICE":" Lean towards voice notes more often than usual while texting.","SEVERAL_MESSAGES":" He sent you a few messages in a row; answer them together, naturally.","VARY_OPENING":" Your last replies opened with: {openings}. Open this one differently.","RETRY":" Start this reply with different words than last time, and say something new. Never repeat lines you already sent."},"TELEGRAM":{"CHAT_TYPES":["private"],"MAX_MESSAGE_CHARS":4000,"ALLOWED_UPDATES":["message"],"DROP_PENDING_UPDATES":true},"LIMITS":{"HTTP_TIMEOUT_MS":20000,"SUBREQUEST_LIMIT":50,"SUBREQUEST_RESERVE":6,"SEEN_KEEP":200}};
+
+// type: text | number | range | bool | select | list (one per line) | long (big text) | commands
+const SECTIONS = [
+  { id: "CHARACTER", title: "Who she is", desc: "Her name, where she lives and what time it is for her.", fields: [
+    ["CHARACTER.NAME", "Name", "text", "Used in bot notices, the /setup page and her memory notes. To rename her fully, edit the persona prompt too."],
+    ["CHARACTER.NAME_PREFIXES", "Name prefixes to strip", "list", "One per line. If a reply line starts with \"Reem:\", that prefix is removed."],
+    ["CHARACTER.USER_LABEL", "What you're called in her notes", "text"],
+    ["CHARACTER.CITY", "City", "text", "She's told: \"Right now it is ... in <city>\"."],
+    ["CHARACTER.TIMEZONE", "Time zone", "text", "IANA name, e.g. Africa/Cairo, America/New_York, Europe/London."],
+    ["CHARACTER.CLOCK_LOCALE", "Clock style", "select", "", { options: [["en-GB", "24-hour (en-GB)"], ["en-US", "12-hour (en-US)"]] }],
+    ["CHARACTER.BOT_USERNAME", "Bot @username", "text", "Without the @."],
+  ]},
+  { id: "PERSONA", title: "Personality", desc: "The main prompt, the opening scene and small random nudges.", fields: [
+    ["PERSONA.SYSTEM_PROMPT", "Persona prompt", "long", "Her full personality and rules, sent with every reply."],
+    ["PERSONA.INTRO_MESSAGE", "Opening scene (/restart)", "long", "*Text between asterisks* shows in italics."],
+    ["PERSONA.TEXTURE_CHANCE", "Nudge chance", "range", "How often a reply gets one random nudge from the list below. 0 = never, 1 = always.", { min: 0, max: 1, step: 0.05 }],
+    ["PERSONA.TEXTURE", "Nudges", "list", "One per line."],
+  ]},
+  { id: "VOICE", title: "Her voice (ElevenLabs)", desc: "How her voice notes sound.", fields: [
+    ["VOICE.ID", "Voice ID", "text", "From ElevenLabs > Voices. Free plan: built-in or your own designed voices only."],
+    ["VOICE.NAME", "Voice name", "text", "Only shown on /setup."],
+    ["VOICE.SPEED", "Speed", "range", "0.7 = slow, 1.0 = normal, 1.2 = fast.", { min: 0.7, max: 1.2, step: 0.01 }],
+    ["VOICE.STABILITY", "Stability", "range", "Lower = more expressive and varied, higher = steadier.", { min: 0, max: 1, step: 0.01 }],
+    ["VOICE.SIMILARITY_BOOST", "Similarity", "range", "How closely it sticks to the original voice.", { min: 0, max: 1, step: 0.01 }],
+    ["VOICE.STYLE", "Style", "range", "Style exaggeration. Higher = more dramatic.", { min: 0, max: 1, step: 0.01 }],
+    ["VOICE.SPEAKER_BOOST", "Speaker boost", "bool"],
+    ["VOICE.MODEL", "Voice model", "text", "e.g. eleven_multilingual_v2, eleven_v3, eleven_flash_v2_5"],
+    ["VOICE.FORMAT", "Audio format", "text", "Keep an opus format so Telegram plays it as a voice note."],
+    ["VOICE.MAX_CHARS", "Longest note (characters)", "number", "", { min: 50, step: 10 }],
+    ["VOICE.PAUSE_BETWEEN_LINES", "Pause between thoughts", "text", "e.g. 0.3s, 0.5s, 1s"],
+    ["VOICE.TEST_PHRASE", "/setup test phrase", "text"],
+  ]},
+  { id: "HEARING", title: "Her ears (speech-to-text)", desc: "How your voice notes are understood.", fields: [
+    ["HEARING.LANGUAGE", "Language", "text", "Language code: en, ar, fr..."],
+    ["HEARING.MODEL", "Model", "text"],
+    ["HEARING.TAG_AUDIO_EVENTS", "Note sounds like (laughs)", "bool"],
+  ]},
+  { id: "LLM", title: "Her brain (OpenRouter)", desc: "The AI model that writes her messages.", fields: [
+    ["LLM.MODEL", "Model", "text", "Any OpenRouter model ID."],
+    ["LLM.SAMPLING.temperature", "Creativity (temperature)", "range", "Higher = wilder, lower = more predictable.", { min: 0, max: 2, step: 0.05 }],
+    ["LLM.SAMPLING.min_p", "min_p", "range", "Cuts unlikely words. Higher = safer wording.", { min: 0, max: 0.5, step: 0.01 }],
+    ["LLM.SAMPLING.repetition_penalty", "Repetition penalty", "range", "Higher = repeats herself less.", { min: 1, max: 1.5, step: 0.01 }],
+    ["LLM.SAMPLING.max_tokens", "Max reply length (tokens)", "number", "About 0.75 words per token.", { min: 50, step: 10 }],
+    ["LLM.RETRY_TEMPERATURE", "Retry creativity", "range", "Used when her first reply repeated herself.", { min: 0, max: 2, step: 0.05 }],
+    ["LLM.TIMEOUT_MS", "Timeout", "ms"],
+    ["LLM.ATTEMPTS", "Attempts", "number", "Tries per reply when OpenRouter fails.", { min: 1, max: 5, step: 1 }],
+    ["LLM.RETRY_DELAY_MS", "Delay between attempts", "ms"],
+  ]},
+  { id: "MEMORY", title: "Long-term memory", desc: "How older chat gets folded into her memory notes.", fields: [
+    ["MEMORY.MODEL", "Memory model", "text"],
+    ["MEMORY.PROMPT", "Memory instructions", "long", "{name} becomes her name."],
+    ["MEMORY.HISTORY_MAX", "Fold memory after (messages)", "number", "", { min: 4, step: 1 }],
+    ["MEMORY.HISTORY_KEEP", "Messages kept word-for-word", "number", "Must be smaller than the line above.", { min: 2, step: 1 }],
+    ["MEMORY.MAX_CHARS", "Max notes size (characters)", "number", "", { min: 200, step: 100 }],
+    ["MEMORY.SAMPLING.temperature", "Memory creativity", "range", "", { min: 0, max: 2, step: 0.05 }],
+    ["MEMORY.SAMPLING.max_tokens", "Memory max length (tokens)", "number", "", { min: 50, step: 50 }],
+    ["MEMORY.TIMEOUT_MS", "Memory timeout", "ms"],
+    ["MEMORY.ATTEMPTS", "Memory attempts", "number", "", { min: 1, max: 5, step: 1 }],
+    ["MEMORY.BACKLOG_MAX", "Backlog kept when folding fails", "number", "", { min: 10, step: 10 }],
+    ["MEMORY.TRANSCRIPT_MAX_CHARS", "Chat the memory model reads (characters)", "number", "", { min: 1000, step: 1000 }],
+  ]},
+  { id: "TIMING", title: "Human timing", desc: "How fast she reads, types and talks.", fields: [
+    ["TIMING.TYPING_CHARS_PER_MIN", "Typing speed (characters/min)", "range", "", { min: 30, max: 600, step: 10 }],
+    ["TIMING.TYPING_MIN_MS", "Shortest typing time", "ms"],
+    ["TIMING.TYPING_MAX_MS", "Longest typing time", "ms"],
+    ["TIMING.TYPING_JITTER_MIN", "Typing randomness: low", "range", "Each message's typing time is scaled by a random factor between low and high.", { min: 0.5, max: 1, step: 0.01 }],
+    ["TIMING.TYPING_JITTER_MAX", "Typing randomness: high", "range", "", { min: 1, max: 2, step: 0.01 }],
+    ["TIMING.NOTICE_MIN_MS", "Picks up her phone after (min)", "ms"],
+    ["TIMING.NOTICE_MAX_MS", "Picks up her phone after (max)", "ms"],
+    ["TIMING.READ_MS_PER_CHAR", "Reading time per character (ms)", "number", "", { min: 0, step: 5 }],
+    ["TIMING.SPEAK_WORDS_PER_SEC", "Speaking speed (words/sec)", "range", "How long \"recording voice message...\" shows.", { min: 1, max: 4, step: 0.1 }],
+    ["TIMING.RECORDING_EXTRA_MS", "Extra recording time", "ms"],
+    ["TIMING.RECORDING_MAX_MS", "Longest recording time", "ms"],
+    ["TIMING.STATUS_REFRESH_MS", "\"typing...\" refresh", "ms", "Telegram shows the status for about 5 s."],
+    ["TIMING.INTRO_DELAY_MS", "Pause before the opening scene", "ms"],
+    ["TIMING.INTRO_BUDGET_MS", "Time for sending the opening scene", "ms"],
+    ["TIMING.LINE_DROPPED_BUDGET_MS", "Time for the \"wifi died\" messages", "ms"],
+    ["TIMING.REPLY_MARGIN_MS", "Start typing at least this long before a run ends", "ms"],
+    ["TIMING.VOICE_MARGIN_MS", "Send a voice note at least this long before a run ends", "ms"],
+    ["TIMING.QUEUE_BUDGET_MS", "Run length with the queue", "ms", "Cloudflare allows 15 min; keep a margin."],
+    ["TIMING.FALLBACK_BUDGET_MS", "Run length without the queue", "ms", "Must stay under 30 s."],
+  ]},
+  { id: "TEXTING", title: "Reply shape", desc: "How her texts are split and checked for repeats.", fields: [
+    ["TEXTING.MAX_BUBBLES", "Max messages per reply", "number", "", { min: 1, max: 10, step: 1 }],
+    ["TEXTING.REPEAT_LOOKBACK", "Check her last N replies for repeats", "number", "", { min: 0, step: 1 }],
+    ["TEXTING.REPEAT_MIN_WORDS", "Shortest line that counts as a repeat (words)", "number", "", { min: 1, step: 1 }],
+    ["TEXTING.OPENING_LOOKBACK", "Vary openings from her last N replies", "number", "", { min: 0, step: 1 }],
+    ["TEXTING.OPENING_WORDS", "Words compared at the start", "number", "", { min: 1, step: 1 }],
+  ]},
+  { id: "COMMANDS", title: "Telegram commands", desc: "Lowercase letters, digits and _ only. Keep \"start\" as an alias of restart. Open /setup after changing these so Telegram's menu updates.", fields: [
+    ["COMMANDS", "Commands", "commands"],
+  ]},
+  { id: "MESSAGES", title: "What the bot says", desc: "{name} becomes her name. Other {placeholders} are listed per field.", fields: [
+    ["MESSAGES.NOTICE_PREFIX", "Notice prefix", "text", "Put before every notice below."],
+    ["MESSAGES.VOICE_ON", "/voice turned on", "text"],
+    ["MESSAGES.VOICE_OFF", "/voice turned off", "text"],
+    ["MESSAGES.MEMORY_SHOW", "/memory", "textarea", "Placeholder: {notes}"],
+    ["MESSAGES.MEMORY_EMPTY", "/memory when empty", "text"],
+    ["MESSAGES.NEEDS_MEMORY", "When memory isn't connected", "text"],
+    ["MESSAGES.ERROR", "Error notice", "text", "Placeholder: {error}"],
+    ["MESSAGES.ERROR_MAX_CHARS", "Error length limit", "number", "", { min: 50, step: 50 }],
+    ["MESSAGES.LINE_DROPPED", "\"Connection dropped\" lines (in character)", "list", "One message per line."],
+  ]},
+  { id: "INBOX", title: "How your messages are described to her", desc: "What she's told when you send something other than text.", fields: [
+    ["INBOX.VOICE_NOTE", "Your voice note", "text", "Placeholder: {text}"],
+    ["INBOX.VOICE_NOISE", "Voice note with no words", "text"],
+    ["INBOX.PHOTO", "Photo", "text"],
+    ["INBOX.PHOTO_WITH_CAPTION", "Photo with caption", "text", "Placeholder: {caption}"],
+    ["INBOX.STICKER", "Sticker", "text", "Placeholder: {emoji}"],
+    ["INBOX.CONVERSATION_START", "Conversation start marker", "text"],
+  ]},
+  { id: "NUDGES", title: "Prompt nudges", desc: "Added to the persona prompt for each reply.", fields: [
+    ["NUDGES.TIME", "Time of day", "textarea", "Placeholders: {time} {city}"],
+    ["NUDGES.MEMORY_NOTES", "Memory notes header", "textarea", "Placeholder: {notes}"],
+    ["NUDGES.CAME_AS_VOICE", "You sent a voice note", "textarea"],
+    ["NUDGES.MORE_VOICE", "/voice is on", "textarea"],
+    ["NUDGES.SEVERAL_MESSAGES", "You sent several messages", "textarea"],
+    ["NUDGES.VARY_OPENING", "Open differently", "textarea", "Placeholder: {openings}"],
+    ["NUDGES.RETRY", "Second try", "textarea"],
+  ]},
+  { id: "TELEGRAM", title: "Telegram & limits", desc: "", fields: [
+    ["TELEGRAM.CHAT_TYPES", "Chat types she answers in", "list", "private, group, supergroup (one per line)."],
+    ["TELEGRAM.MAX_MESSAGE_CHARS", "Max message length", "number", "Telegram's limit is 4096.", { min: 100, max: 4096, step: 100 }],
+    ["TELEGRAM.DROP_PENDING_UPDATES", "Drop messages sent while the bot was down", "bool", "Applied when /setup runs."],
+    ["LIMITS.HTTP_TIMEOUT_MS", "Download / ElevenLabs timeout", "ms"],
+    ["LIMITS.SUBREQUEST_LIMIT", "Outside calls per run", "number", "Free plan: 50.", { min: 10, step: 1 }],
+    ["LIMITS.SUBREQUEST_RESERVE", "Calls kept for the actual messages", "number", "", { min: 0, step: 1 }],
+    ["LIMITS.SEEN_KEEP", "Recent updates remembered (duplicate protection)", "number", "", { min: 10, step: 10 }],
+  ]},
+];
+
+const STORE_KEY = "reem-settings-panel-v1";
+const get = (obj, path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
+const clone = (v) => JSON.parse(JSON.stringify(v));
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+let values = {};   // path -> current value (only for fields shown)
+let note = "";
+const labels = {};
+
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    if (saved) { values = saved.values || {}; note = saved.note || ""; }
+  } catch {}
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify({ values, note })); } catch {}
+}
+const current = (path) => (path in values ? values[path] : clone(get(DEFAULTS, path)));
+
+function seconds(ms) {
+  if (ms == null || isNaN(ms)) return "";
+  return ms >= 60000 ? `= ${+(ms / 60000).toFixed(2)} min` : `= ${+(ms / 1000).toFixed(2)} s`;
+}
+
+function render() {
+  $("#nav").innerHTML = SECTIONS.map((s) => `<a href="#sec-${s.id}">${esc(s.title)}</a>`).join("");
+  $("#sections").innerHTML = SECTIONS.map((s) => `
+    <section class="card" id="sec-${s.id}">
+      <h2>${esc(s.title)}</h2>${s.desc ? `<p>${esc(s.desc)}</p>` : ""}
+      ${s.fields.map(fieldHtml).join("")}
+    </section>`).join("");
+  for (const s of SECTIONS) for (const f of s.fields) wire(f);
+  $("#note").value = note;
+  refresh();
+}
+
+function fieldHtml([path, label, type, hint = "", opt = {}]) {
+  labels[path] = label;
+  const id = "f-" + path.replace(/\./g, "-");
+  const v = current(path);
+  let input = "";
+  if (type === "text") input = `<input type="text" id="${id}" value="${esc(v)}">`;
+  else if (type === "textarea") input = `<textarea id="${id}">${esc(v)}</textarea>`;
+  else if (type === "long") input = `<details><summary>Show / edit</summary><textarea class="long" id="${id}">${esc(v)}</textarea></details>`;
+  else if (type === "list") input = `<textarea id="${id}" rows="${Math.min(Math.max(v.length, 2), 9)}">${esc(v.join("\n"))}</textarea>`;
+  else if (type === "number") input = `<input type="number" id="${id}" value="${v}" ${opt.min != null ? `min="${opt.min}"` : ""} ${opt.max != null ? `max="${opt.max}"` : ""} step="${opt.step || "any"}">`;
+  else if (type === "ms") input = `<div class="num"><input type="number" id="${id}" value="${v}" min="0" step="100"><span class="sec" id="${id}-sec">${seconds(v)}</span></div>`;
+  else if (type === "range") input = `<div class="num"><input type="range" id="${id}-r" min="${opt.min}" max="${opt.max}" step="${opt.step}" value="${v}"><input type="number" id="${id}" min="${opt.min}" max="${opt.max}" step="${opt.step}" value="${v}"></div>`;
+  else if (type === "bool") input = `<label class="switch"><input type="checkbox" id="${id}" ${v ? "checked" : ""}><span id="${id}-txt">${v ? "On" : "Off"}</span></label>`;
+  else if (type === "select") input = `<select id="${id}">${opt.options.map(([val, txt]) => `<option value="${esc(val)}" ${val === v ? "selected" : ""}>${esc(txt)}</option>`).join("")}</select>`;
+  else if (type === "commands") input = commandsHtml(id, v);
+  const unit = type === "ms" ? " (ms)" : "";
+  return `<div class="field" id="${id}-row">
+    <label for="${id}">${esc(label)}${unit}<span class="key">${esc(path)}</span></label>
+    <div>${input}</div>
+    <button class="reset" type="button" data-reset="${esc(path)}">Undo</button>
+    ${hint ? `<div class="hint">${esc(hint)}</div>` : ""}
+  </div>`;
+}
+
+function commandsHtml(id, cmds) {
+  return `<table class="cmds" id="${id}"><tr><th>Does</th><th>Command</th><th>Aliases (comma-separated)</th><th>Menu description</th></tr>
+    ${cmds.map((c, i) => `<tr>
+      <td class="fixed">${esc(c.action)}</td>
+      <td><input type="text" data-i="${i}" data-k="command" value="${esc(c.command)}"></td>
+      <td><input type="text" data-i="${i}" data-k="aliases" value="${esc((c.aliases || []).join(", "))}"></td>
+      <td><input type="text" data-i="${i}" data-k="description" value="${esc(c.description)}"></td>
+    </tr>`).join("")}</table>`;
+}
+
+function readField(path, type, id) {
+  const el = document.getElementById(id);
+  if (type === "number" || type === "ms" || type === "range") return el.value === "" ? get(DEFAULTS, path) : Number(el.value);
+  if (type === "bool") return el.checked;
+  if (type === "list") return el.value.split("\n").map((s) => s.trim()).filter(Boolean);
+  if (type === "commands") {
+    const cmds = clone(current(path));
+    el.querySelectorAll("input").forEach((inp) => {
+      const c = cmds[+inp.dataset.i];
+      if (inp.dataset.k === "aliases") c.aliases = inp.value.split(",").map((s) => s.trim().toLowerCase().replace(/^\//, "")).filter(Boolean);
+      else if (inp.dataset.k === "command") c.command = inp.value.trim().toLowerCase().replace(/^\//, "");
+      else c.description = inp.value;
+    });
+    return cmds;
+  }
+  return el.value;
+}
+
+function wire([path, , type]) {
+  const id = "f-" + path.replace(/\./g, "-");
+  const el = document.getElementById(id);
+  const update = () => {
+    const v = readField(path, type, id);
+    if (same(v, get(DEFAULTS, path))) delete values[path]; else values[path] = v;
+    if (type === "range") document.getElementById(id + "-r").value = v;
+    if (type === "ms") document.getElementById(id + "-sec").textContent = seconds(v);
+    if (type === "bool") document.getElementById(id + "-txt").textContent = v ? "On" : "Off";
+    save(); refresh();
+  };
+  el.addEventListener("input", update);
+  el.addEventListener("change", update);
+  if (type === "range") {
+    document.getElementById(id + "-r").addEventListener("input", (e) => { el.value = e.target.value; update(); });
+  }
+}
+
+function short(v, path) {
+  if (typeof v === "string") {
+    const one = v.replace(/\s+/g, " ");
+    if (one.length > 140) return `"${one.slice(0, 120)}…" (${v.length} characters; use Copy for the full text)`;
+    return `"${one}"`;
+  }
+  if (path === "COMMANDS") return v.map((c) => `/${c.command}${c.aliases?.length ? ` (+${c.aliases.map((a) => "/" + a).join(", ")})` : ""}: ${c.description}`).join(" · ");
+  if (Array.isArray(v)) return v.length > 4 ? `${v.length} items: ` + v.map((x) => `"${x}"`).join(", ") : "[" + v.map((x) => `"${x}"`).join(", ") + "]";
+  if (typeof v === "boolean") return v ? "On" : "Off";
+  return String(v);
+}
+
+function changeList() {
+  const out = [];
+  for (const s of SECTIONS) for (const [path] of s.fields) if (path in values) out.push(path);
+  return out;
+}
+
+function refresh() {
+  for (const s of SECTIONS) for (const [path] of s.fields) {
+    document.getElementById("f-" + path.replace(/\./g, "-") + "-row").classList.toggle("changed", path in values);
+  }
+  const list = changeList();
+  $("#changes").innerHTML = list.length
+    ? list.map((p) => `<li><span class="path">${esc(labels[p])}</span> <span class="key">(${esc(p)})</span><br>
+        <span class="from">${esc(short(get(DEFAULTS, p), p))}</span> → <span class="to">${esc(short(values[p], p))}</span></li>`).join("")
+    : `<li class="empty" style="background:none;padding:0">No changes yet.</li>`;
+  if (note.trim()) $("#changes").innerHTML += `<li><span class="path">Note:</span> ${esc(note.trim())}</li>`;
+  const n = list.length;
+  $("#stamp").textContent = `${n} setting${n === 1 ? "" : "s"} changed · ${new Date().toLocaleString()}`;
+}
+
+function overrides() {
+  const out = {};
+  for (const p of changeList()) {
+    const keys = p.split(".");
+    let o = out;
+    for (const k of keys.slice(0, -1)) o = o[k] = o[k] || {};
+    o[keys.at(-1)] = values[p];
+  }
+  return out;
+}
+
+async function copy(text, msg) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); } catch {} t.remove();
+  }
+  $("#toast").textContent = msg;
+  setTimeout(() => ($("#toast").textContent = ""), 2500);
+}
+
+$("#copyText").onclick = () => {
+  const list = changeList();
+  let text = "Please change these Reem bot settings in worker.js:\n";
+  text += list.length ? list.map((p) => `- ${p} (${labels[p]}): ${JSON.stringify(get(DEFAULTS, p))} -> ${JSON.stringify(values[p])}`).join("\n") : "- (no setting changes)";
+  if (note.trim()) text += `\n\nAlso: ${note.trim()}`;
+  copy(text, "Copied. Paste it into your message to Claude.");
+};
+$("#copyJson").onclick = () => copy(JSON.stringify(overrides(), null, 2), "Copied. Paste it as CONFIG_OVERRIDES in Cloudflare, then open /setup.");
+$("#resetAll").onclick = () => {
+  if (!confirm("Undo every change on this page?")) return;
+  values = {}; note = ""; save(); render();
+};
+$("#sections").addEventListener("click", (e) => {
+  const p = e.target.dataset && e.target.dataset.reset;
+  if (!p) return;
+  delete values[p]; save(); render();
+});
+$("#note").addEventListener("input", (e) => { note = e.target.value; save(); refresh(); });
+$("#theme").onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+};
+
+load();
+render();
+</script>
+</body>
+</html>
