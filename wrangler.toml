@@ -1,10 +1,15 @@
+# Cloudflare Worker config for reem-bot (deployed by .github/workflows/deploy.yml)
 name = "reem-bot"
 main = "worker.js"
 compatibility_date = "2026-10-01"
+workers_dev = true
+
+# Keep variables set in the dashboard; secrets are never touched by deploys
+keep_vars = true
 
 [[kv_namespaces]]
 binding = "REEM_KV"
-id = "0986ed4bf1964b0c9791c8a93179e639"
+id = "0986ed4bf1964b0c9791c8a93179e639" # namespace "reem"
 
 [[queues.producers]]
 binding = "REEM_QUEUE"
