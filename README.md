@@ -3,7 +3,7 @@
 Source for the `reem-bot` Cloudflare Worker (Telegram bot `@reem_nabot`).
 
 - `worker.js` – the Worker
-- `wrangler.toml` – name, KV binding `REEM_KV` (namespace `reem`), queue `reem-inbox` (producer + consumer)
+- `wrangler.toml` – name, KV binding `REEM_KV` (namespace `reem`), queue `reem-inbox` (producer + consumer), and a 15-minute cron trigger that lets her text first
 - `.github/workflows/deploy.yml` – deploys to Cloudflare on every push to `main` (or run it by hand from the Actions tab)
 
 ## Cloudflare login (one-time)
@@ -36,3 +36,5 @@ Locally: `CLOUDFLARE_API_TOKEN=... npx wrangler deploy`. Check the build without
 ## Settings panel
 
 `tools/settings-panel.html` is an offline page listing every setting with its current default. Open it in a browser, change what you want: changed fields turn yellow and show up in the **Changes to make** box at the top. Screenshot that box (or press **Copy changes for Claude**) to ask for the change, or press **Copy as CONFIG_OVERRIDES JSON** to apply it yourself in the Cloudflare dashboard. Your edits are remembered in the browser until you press **Reset everything**.
+
+After changing `CONFIG` in `worker.js`, run `node tools/build-panel.mjs` so the panel's defaults match again.
