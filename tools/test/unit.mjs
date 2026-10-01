@@ -77,4 +77,24 @@ eq(W.takeReaction("just text"), { emoji: "", rest: "just text" }, "no tag");
 W.applyOverrides({ CONFIG_OVERRIDES: JSON.stringify({ VOICE: { PRONUNCIATIONS: { ya3ni: "yani" } } }) });
 eq(Object.keys(W.CONFIG.VOICE.PRONUNCIATIONS), ["ya3ni"], "pronunciations replaced whole");
 eq(W.forSpeech("ya3ni 7abibi"), "Yani habibi.", "override + fallback");
+// OpenRouter routing goes with LLM.MODEL only
+const ds = W.openRouterBody(W.CONFIG.LLM.MODEL, [], { max_tokens: 5 });
+eq({ provider: ds.provider, reasoning: ds.reasoning }, { provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "DeepSeek: provider + reasoning");
+eq(Object.keys(W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "backup model: no routing");
+eq(W.CONFIG.MEMORY.MODEL === W.CONFIG.LLM.MODEL, true, "memory uses the chat model (same routing)");
+{
+  const saved = structuredClone(W.CONFIG.LLM);
+  W.CONFIG.LLM.PROVIDER.ignore = [];
+  W.CONFIG.LLM.REASONING = {};
+  const b = W.openRouterBody(W.CONFIG.LLM.MODEL, [], {});
+  eq({ ignore: "ignore" in b.provider, reasoning: "reasoning" in b }, { ignore: false, reasoning: false }, "empty routing values dropped");
+  W.CONFIG.LLM = saved;
+}
+// overrides reach the new LLM keys; PROVIDER/REASONING take new OpenRouter keys, LLM itself doesn't
+{
+  const copy = structuredClone(W.CONFIG), unknown = [];
+  W.mergeSettings(copy, { LLM: { PROVIDER: { order: ["baidu"], ignore: ["novita"], allow_fallbacks: true, sort: "latency" }, REASONING: { enabled: true, effort: "low" }, BACKUP_MODEL: "", FOO: 1 } }, "", unknown);
+  eq([copy.LLM.PROVIDER, copy.LLM.REASONING, copy.LLM.BACKUP_MODEL], [{ order: ["baidu"], ignore: ["novita"], allow_fallbacks: true, sort: "latency" }, { enabled: true, effort: "low" }, ""], "LLM routing overrides");
+  eq(unknown, ["LLM.FOO"], "unknown LLM key rejected");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");

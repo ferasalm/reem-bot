@@ -71,6 +71,13 @@
  *   1. Expressive voice notes on eleven_v3: she can [laugh], [sigh] or [whisper] (VOICE.ALLOWED_TAGS).
  *      Texts never show the tags.
  *   2. Emoji reactions (REACTIONS): sometimes she reacts to his message, with or without a reply.
+ *
+ * v10 changes:
+ *   1. Chat and memory model: DeepSeek V4 Flash with reasoning off (LLM.REASONING), on approved
+ *      providers only (LLM.PROVIDER: order, ignore, no other fallbacks). Lunaris answers instead
+ *      when DeepSeek is down (LLM.BACKUP_MODEL). See tools/model-bench/FINDINGS.md.
+ *   2. Nudges: in-person scenes in third person, the act itself when he invites it, [voice] first
+ *      and audio tags only in voice notes. LIMITS & OOC unchanged, word for word.
  */
 
 /* ================================================================== */
@@ -210,8 +217,18 @@ const CONFIG = {
 
   /* ---------------- Brain (OpenRouter) ---------------- */
   LLM: {
-    MODEL: "sao10k/l3-lunaris-8b",
+    MODEL: "deepseek/deepseek-v4-flash",
+    // Novita, Baidu and StreamLake ignore min_p; Relace and the backup model use it
     SAMPLING: { temperature: 0.95, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 420 },
+    // OpenRouter routing, sent only with MODEL (memory too when MEMORY.MODEL is the same model).
+    // Provider slugs as OpenRouter lists them; allow_fallbacks: false = never any other provider.
+    PROVIDER: {
+      order: ["novita", "baidu", "relace", "streamlake"],
+      ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], // filter, cut replies, or rate-limited
+      allow_fallbacks: false,
+    },
+    REASONING: { enabled: false },     // no thinking step: faster, cheaper, and the bench was run this way
+    BACKUP_MODEL: "sao10k/l3-lunaris-8b", // one try with this model when every try with MODEL failed; "" = off
     RETRY_TEMPERATURE: 1.05,           // the second try, when her first reply repeated herself
     TIMEOUT_MS: 15000,
     ATTEMPTS: 2,                       // tries per reply when OpenRouter fails
@@ -220,7 +237,7 @@ const CONFIG = {
 
   /* ---------------- Long-term memory ---------------- */
   MEMORY: {
-    MODEL: "sao10k/l3-lunaris-8b",
+    MODEL: "deepseek/deepseek-v4-flash",
     PROMPT: MEMORY_PROMPT,             // defined above
     SAMPLING: { temperature: 0.3, max_tokens: 600 },
     TIMEOUT_MS: 25000,
@@ -364,14 +381,14 @@ const CONFIG = {
     MEMORY_NOTES: "\n\nYOUR MEMORY NOTES\n{notes}",       // {notes}
     TIME: "\n\nRight now it is {time} in {city}. Around now you're usually {doing}. Let the time of day shape your mood and what you're doing.", // {time} {city} {doing}
     ABOUT_HIM: "\n\nABOUT HIM\n{about}",                   // {about}: CHARACTER.USER_NAME and USER_DETAILS
-    TOGETHER: " Your last exchange was in person. Unless one of you has left, stay in the scene: write it with *actions*, no texting and no voice notes.",
-    APART: " You're apart right now, on your phones. If he comes over or you go to him, switch to an in-person scene.",
+    TOGETHER: " Your last exchange was in person. Unless one of you has left, stay in the scene: narrate it in third person (Reem, she; never I, except inside her quoted words) with *actions*, no texting and no voice notes. If he invites sex explicitly, write the act itself as it happens, not only what you want, unless something in LIMITS & OOC says otherwise.",
+    APART: " You're apart right now, on your phones. A voice note starts with [voice] as the very first thing, with nothing before it. If he comes over or you go to him, switch to an in-person scene, in third person.",
     CAME_AS_VOICE: " He sent you a voice note, so answering with one of your own would feel natural if you're texting.",
     MORE_VOICE: " Lean towards voice notes more often than usual while texting.", // when /voice is on
     SEVERAL_MESSAGES: " He sent you a few messages in a row; answer them together, naturally.",
     VARY_OPENING: " Your last replies opened with: {openings}. Open this one differently.", // {openings}
     REACT: " You may react to his last message with one emoji, like on any messaging app: put [react: X] at the very start of your reply, where X is one of {emojis}. Only if it fits. A reaction alone, with nothing after it, is fine when words aren't needed.", // {emojis}; only on a REACTIONS.CHANCE roll
-    VOICE_TAGS: " In voice notes you can add sounds and tone in square brackets right before the words they color, like [laughs] or [whispers]. Use one or two at most, only from: {tags}.", // {tags}; only when VOICE.AUDIO_TAGS is on with eleven_v3
+    VOICE_TAGS: " In voice notes you can add sounds and tone in square brackets right before the words they color, like [laughs] or [whispers]. Use one or two at most, only from: {tags}. Only in voice notes, never in a text message.", // {tags}; only when VOICE.AUDIO_TAGS is on with eleven_v3
     RETRY: " Start this reply with different words than last time, and say something new. Never repeat lines you already sent.",
   },
 
@@ -447,11 +464,14 @@ const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArr
 // These word lists are replaced as a whole, so entries can be removed as well as added
 const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "ARABIZI_DIGITS"]);
 
-// Only names that exist in CONFIG are changed (sampling blocks may also take new model parameters)
+// Blocks passed to OpenRouter as they are, so they may also take new parameters
+const OPEN_BLOCKS = /(^|\.)(SAMPLING|PROVIDER|REASONING)$/;
+
+// Only names that exist in CONFIG are changed (OPEN_BLOCKS excepted)
 function mergeSettings(target, src, path, unknown) {
   for (const [k, v] of Object.entries(src)) {
     const at = path ? `${path}.${k}` : k;
-    if (!(k in target) && !path.endsWith("SAMPLING")) {
+    if (!(k in target) && !OPEN_BLOCKS.test(path)) {
       unknown.push(at);
       continue;
     }
@@ -949,7 +969,7 @@ async function think(env, history, notes, userText, { cameAsVoice, moreVoice, sc
   if (history[0]?.role === "assistant") messages.push({ role: "user", content: fill(CONFIG.INBOX.CONVERSATION_START) });
   messages.push(...history.map(({ role, content }) => ({ role, content })), { role: "user", content: userText });
 
-  let out = await callModel(env, messages, CONFIG.LLM.SAMPLING, { trimCut: true });
+  let out = await callModel(env, messages, CONFIG.LLM.SAMPLING, { trimCut: true, backup: CONFIG.LLM.BACKUP_MODEL });
 
   // One more try if she opens like last time, or if everything she wrote was already said
   // (a reaction with no text is a full answer when she may react)
@@ -1006,8 +1026,32 @@ class ApiError extends Error {
 
 const RETRYABLE = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
+// The OpenRouter request. LLM.PROVIDER and LLM.REASONING belong to LLM.MODEL: they're only sent with
+// that model (so a backup or another memory model is routed by OpenRouter as usual). Empty values are left out.
+function openRouterBody(model, messages, sampling) {
+  const body = { model, messages, ...sampling };
+  if (model !== CONFIG.LLM.MODEL) return body;
+  const kept = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v != null && v !== "" && !(Array.isArray(v) && !v.length)));
+  const provider = kept(CONFIG.LLM.PROVIDER);
+  const reasoning = kept(CONFIG.LLM.REASONING);
+  if (Object.keys(provider).length) body.provider = provider;
+  if (Object.keys(reasoning).length) body.reasoning = reasoning;
+  return body;
+}
+
 // trimCut: a reply that hit max_tokens ends at its last full sentence instead of mid-word
-async function callModel(env, messages, sampling, { model = CONFIG.LLM.MODEL, timeoutMs = CONFIG.LLM.TIMEOUT_MS, attempts = CONFIG.LLM.ATTEMPTS, trimCut = false } = {}) {
+// backup: a model to try once when every attempt with `model` failed
+async function callModel(env, messages, sampling, { model = CONFIG.LLM.MODEL, timeoutMs = CONFIG.LLM.TIMEOUT_MS, attempts = CONFIG.LLM.ATTEMPTS, trimCut = false, backup = "" } = {}) {
+  try {
+    return await askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut });
+  } catch (e) {
+    if (!backup || backup === model) throw e;
+    console.error(`${model} failed, trying ${backup}:`, e.message);
+    return askModel(env, messages, sampling, { model: backup, timeoutMs, attempts: 1, trimCut });
+  }
+}
+
+async function askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut }) {
   let lastErr;
   for (let attempt = 0; attempt < attempts; attempt++) {
     if (attempt) await sleep(CONFIG.LLM.RETRY_DELAY_MS);
@@ -1021,7 +1065,7 @@ async function callModel(env, messages, sampling, { model = CONFIG.LLM.MODEL, ti
           "HTTP-Referer": `https://t.me/${CONFIG.CHARACTER.BOT_USERNAME}`,
           "X-Title": CONFIG.CHARACTER.NAME,
         },
-        body: JSON.stringify({ model, messages, ...sampling }),
+        body: JSON.stringify(openRouterBody(model, messages, sampling)),
         signal: AbortSignal.timeout(timeoutMs),
       });
     } catch (e) {
@@ -1524,16 +1568,20 @@ async function setup(url, env) {
   }
 
   if (env.OPENROUTER_API_KEY) {
-    try {
-      const res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: CONFIG.LLM.MODEL, messages: [{ role: "user", content: "Reply with: OK" }], max_tokens: 5 }),
-      });
-      const data = await res.json().catch(() => ({}));
-      add(res.ok, `OpenRouter: ${CONFIG.LLM.MODEL}`, res.ok ? "Model answered." : data?.error?.message || `HTTP ${res.status}`);
-    } catch (e) {
-      add(false, "OpenRouter", e.message);
+    // The same routing as her replies (LLM.PROVIDER, LLM.REASONING), then the backup model
+    const models = [[CONFIG.LLM.MODEL, ""], ...(CONFIG.LLM.BACKUP_MODEL && CONFIG.LLM.BACKUP_MODEL !== CONFIG.LLM.MODEL ? [[CONFIG.LLM.BACKUP_MODEL, " (backup)"]] : [])];
+    for (const [model, label] of models) {
+      try {
+        const res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify(openRouterBody(model, [{ role: "user", content: "Reply with: OK" }], { max_tokens: 5 })),
+        });
+        const data = await res.json().catch(() => ({}));
+        add(res.ok, `OpenRouter: ${model}${label}`, res.ok ? `Model answered${data?.provider ? ` (via ${data.provider})` : ""}.` : data?.error?.message || `HTTP ${res.status}`);
+      } catch (e) {
+        add(false, `OpenRouter${label}`, e.message);
+      }
     }
   }
 

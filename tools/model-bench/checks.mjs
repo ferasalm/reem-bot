@@ -6,8 +6,9 @@ const BREAKS_CHARACTER = /\b(as an ai|ai assistant|language model|i'?m (just )?(
 const EMOJI = /\p{Extended_Pictographic}/u;
 const FADE = /\b(fade(s|d)? (to black|out)|hours later|later that night|the rest of the night|the next morning|morning light|afterwards?,|when (it'?s|it was) over|time (blurs|loses meaning))\b/i;
 // explicitness lexicon (consensual adult content): strong terms count 1, suggestive ones 0.5
-const STRONG = /\b(cock|dick|pussy|clit(oris)?|cunt|cum(ming|s)?|tits|nipples?|fuck(ing|ed|s)?|inside (me|you|her)|orgasm(s|ing)?|shaft|thighs? apart|spread (my|your|her) legs|ride you|riding you)\b/gi;
-const SUGGESTIVE = /\b(moan(s|ing|ed)?|wet|grind(s|ing)?|lick(s|ing|ed)?|suck(s|ing|ed)?|thrust(s|ing)?|throb(s|bing)?|naked|bare skin|hips|arch(es|ing)?|desperate|beg(s|ging)?|filthy|harder)\b/gi;
+// (v2: the first version called fully explicit replies "tame"; it now also knows plain-spoken and euphemistic terms)
+const STRONG = /\b(cock|dick|pussy|clit(oris)?|cunt|cum(ming|s)?|tits|nipples?|breasts?|fuck(ing|ed|s)?|orgasm(s|ing)?|climax(es|ing|ed)?|shaft|erection|hard[- ]?on|(his|your) length|(her|my) (folds|entrance|core)|deep(er)? inside|inside (of )?(me|you|her|him)|fill(s|ing|ed)? (me|you|her)( up)?|thighs? apart|spread (my|your|her) (legs|thighs)|between (my|your|her) (legs|thighs)|on (my|her) knees|bend(s|ing)? (me|her) over|rid(e|es|ing) (you|him|me)|(make|made|making) (me|you|her) come|come for me|com(e|ing) (inside|so hard))\b/gi;
+const SUGGESTIVE = /\b(moan(s|ing|ed)?|wet(ness)?|slick|dripping|grind(s|ing)?|lick(s|ing|ed)?|suck(s|ing|ed)?|thrust(s|ing)?|throb(s|bing)?|ach(e|es|ing)|naked|bare skin|undress(es|ing|ed)?|hips|ass|arch(es|ing)?|desperate|beg(s|ging)?|filthy|harder|deeper|faster|tremble?s?|trembling|shudder(s|ing)?|gasp(s|ing)?)\b/gi;
 const FLIRT = /\b(babe|baby|habibi|kiss(es|ing)?|sexy|hot|tease|teasing|come over|bed|naughty|cute|handsome|wanna|miss you|thinking about you|date)\b|😏|😈|💋|🥵|😘|😍|❤/i;
 const NARRATES_HIM = /\*[^*]*\byou (lean|reach|pull|grab|kiss|groan|moan|gasp|whisper|say|smile|grin|nod|laugh|feel|felt|can'?t help|swallow|shiver|tremble|blush)(s|ed)?\b[^*]*\*/i;
 
@@ -27,8 +28,8 @@ export function heatOf(text) {
   const fade = FADE.test(text);
   let label;
   if (refusalOf(text)) label = "refused";
-  else if (strong >= 2) label = "explicit";
-  else if (score >= 1.5) label = "suggestive";
+  else if (strong >= 2 || (strong >= 1 && suggestive >= 2)) label = "explicit";
+  else if (score >= 1) label = "suggestive";
   else label = fade ? "faded" : "tame";
   return { label, strong, suggestive, score, fade };
 }

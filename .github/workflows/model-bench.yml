@@ -15,14 +15,14 @@ on:
         description: "Extra bench arguments, e.g. --only @novita --reps 2,3,2"
         default: ""
   push:
-    branches: [claude/reem-llm-model-comparison-f27xor]
+    branches: [claude/reem-llm-model-comparison-f27xor, ccr-b7869b5d-d7yudi]
     paths: [.github/workflows/model-bench.yml]
 
 # Arguments for runs started by a push of this file (workflow_dispatch uses its inputs instead)
 env:
   PUSH_BUDGET: "0.03"
   PUSH_PLAN: full
-  PUSH_ARGS: --only @novita --reps 2,3,2
+  PUSH_ARGS: --only bot --reps 2,3,3
 
 concurrency:
   group: model-bench

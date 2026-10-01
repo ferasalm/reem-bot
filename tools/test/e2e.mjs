@@ -34,7 +34,7 @@ let uid = 1;
 const msg = (m) => ({ body: { update_id: uid, message: { message_id: 1000 + uid++, chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock/1000, ...m } }, ack(){} });
 const run = (...ms) => mod.queue({ messages: ms }, env, ctx);
 const step = (t) => log.push(`--- ${t}`);
-const sys = () => prompts.at(-1).messages[0].content.split("LIMITS & OOC")[1];
+const sys = () => { const c = prompts.at(-1).messages[0].content; return c.slice(c.indexOf("LIMITS & OOC") + 12); }; // nudges (TOGETHER also names LIMITS & OOC)
 
 step("old history without times (pre-v8)");
 store.set("h:7", JSON.stringify([{ role: "assistant", content: "old hi" }]));
@@ -45,6 +45,7 @@ step("in person: he acts");
 llm = [{ content: "[voice] come here... ya3ni" }];
 await run(msg({ text: "*steps closer*" }));
 console.log("scene nudge:", sys().includes("Your last exchange was in person"), "| voice blocked in scene:", !log.some(l => l.includes("sendVoice")));
+console.log("scene nudge: third person:", sys().includes("narrate it in third person"), "| the act itself:", sys().includes("write the act itself"));
 step("cut-off scene");
 llm = [{ content: "*She pulls you in. Her lips brush your ear as she whis", finish: "length" }];
 await run(msg({ text: "*kisses her*" }));
@@ -54,6 +55,7 @@ clock += 3 * 3600e3;
 llm = [{ content: "[voice] ya3ni... 7abibi you left so fast. it's 3am energy already" }];
 await run(msg({ voice: { file_id: "f", duration: 4 } }));
 console.log("apart nudge:", sys().includes("You're apart right now"), "| doing:", /usually ([^.]*)/.exec(sys())[1]);
+console.log("apart nudge: [voice] first:", sys().includes("[voice] as the very first thing"), "| scene in third person:", sys().includes("in-person scene, in third person"));
 console.log("tts:", log.find(l => l.includes("text-to-speech")).slice(0, 140));
 console.log("stt lang omitted:", !log.find(l => l.includes("speech-to-text")).includes("language_code"), "| tagged:", log.find(l => l.includes("speech-to-text")).includes('"tag_audio_events":"true"'));
 step("cron: too soon"); queued.length = 0; await mod.scheduled({}, env, ctx); console.log("queued too soon:", queued.length);
@@ -65,6 +67,7 @@ const h = JSON.parse(store.get("h:7")); console.log("last entry proactive:", h.a
 step("cron again: unanswered"); await mod.scheduled({}, env, ctx); console.log("queued while unanswered:", queued.length);
 step("he answers"); await run(msg({ text: "sorry was at work" }));
 console.log("sampling:", JSON.stringify({ t: prompts.at(-1).temperature, rp: prompts.at(-1).repetition_penalty, mt: prompts.at(-1).max_tokens, model: prompts.at(-1).model }));
+console.log("routing:", JSON.stringify({ provider: prompts.at(-1).provider, reasoning: prompts.at(-1).reasoning }));
 step("v3 audio tags: voice note");
 llm = [{ content: "[voice] [laughs] ya3ni you're ridiculous\n[whispers] come over" }];
 await run(msg({ text: "i miss you" }));
@@ -97,6 +100,24 @@ await run(msg({ text: "*knocks on your door*" }));
 console.log("scene: no reaction:", reacts().length === nReacts, "| no react nudge:", !sys().includes("[react: X]"));
 W.CONFIG.REACTIONS.CHANCE = 0.25;
 
+step("memory folding: same model and routing");
+const [hMax, hKeep] = [W.CONFIG.MEMORY.HISTORY_MAX, W.CONFIG.MEMORY.HISTORY_KEEP];
+W.CONFIG.MEMORY.HISTORY_MAX = 4; W.CONFIG.MEMORY.HISTORY_KEEP = 2;
+await run(msg({ text: "tell me about your day" }));
+W.CONFIG.MEMORY.HISTORY_MAX = hMax; W.CONFIG.MEMORY.HISTORY_KEEP = hKeep;
+const memoryCalls = prompts.filter(b => !b.messages[0].content.includes("HOW YOU TALK"));
+console.log("memory folds:", memoryCalls.length, "| all DeepSeek + routed:", memoryCalls.length > 0 && memoryCalls.every(b => b.model === "deepseek/deepseek-v4-flash" && b.provider?.allow_fallbacks === false && b.reasoning?.enabled === false));
+
+step("DeepSeek down: backup model answers");
+const realFetch = globalThis.fetch;
+globalThis.fetch = async (url, init) => url.includes("openrouter") && JSON.parse(init.body).model === W.CONFIG.LLM.MODEL ? new Response("{}", { status: 503 }) : realFetch(url, init);
+const nPrompts = prompts.length, nSent = log.filter(l => l.includes("sendMessage")).length;
+llm = [{ content: "sorry my phone died lol\n\nwhat did i miss" }];
+await run(msg({ text: "hello??" }));
+console.log("backup:", JSON.stringify({ model: prompts.at(-1).model, provider: prompts.at(-1).provider ?? null, reasoning: prompts.at(-1).reasoning ?? null }), "| backup calls:", prompts.length - nPrompts, "| replied:", log.filter(l => l.includes("sendMessage")).length > nSent);
+globalThis.fetch = realFetch;
+
+step("everything down: fallback line");
 globalThis.fetch = ((f) => async (url, init) => url.includes("openrouter") ? new Response("{}", { status: 503 }) : f(url, init))(globalThis.fetch);
 await run(msg({ text: "you there?" }));
 console.log(log.filter(l => l.startsWith("---") || l.includes("setMessageReaction") || l.includes("sendMessage") || l.includes("sendVoice") || l.includes("text-to-speech")).join("\n"));

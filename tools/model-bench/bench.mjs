@@ -2,6 +2,8 @@
 // Side-by-side model test for Reem: every scenario in scenarios.mjs, sent the way worker.js sends it
 // (same system prompt, nudges and sampling), to every target model, and to every OpenRouter
 // provider of DeepSeek V4 Flash one by one (fallbacks off, so we know who answered).
+// The target "bot (CONFIG.LLM)" is sent exactly as the bot sends it: worker.js's openRouterBody(),
+// i.e. LLM.MODEL with LLM.PROVIDER and LLM.REASONING (use --only bot to test just that).
 //
 //   OPENROUTER_API_KEY=... node tools/model-bench/bench.mjs [options]
 //     --only <text>        only targets whose label contains <text> (comma-separated for several)
@@ -84,6 +86,13 @@ async function targets() {
         return { label: `deepseek-v4-flash @${slug}`, model: DEEPSEEK, provider: slug, quant: e.quantization, deepseek: true, price: e.pricing };
       })
     : [{ label: "deepseek-v4-flash @auto", model: DEEPSEEK, deepseek: true }];
+  // The bot's own routing; priced at the dearest provider it may use, so the budget check is never too optimistic
+  const routed = (C.LLM.MODEL === DEEPSEEK ? list : []).filter((t) => t.price && (C.LLM.PROVIDER?.order || []).includes(t.provider));
+  const bot = { label: `bot (CONFIG.LLM) ${C.LLM.MODEL}`, model: C.LLM.MODEL, bot: true };
+  if (routed.length) bot.price = { prompt: Math.max(...routed.map((t) => +t.price.prompt)), completion: Math.max(...routed.map((t) => +t.price.completion)) };
+  else OTHERS.push(bot); // priced below like the other models
+  const missing = [...(C.LLM.PROVIDER?.order || []), ...(C.LLM.PROVIDER?.ignore || [])].filter((p) => C.LLM.MODEL === DEEPSEEK && eps.length && !list.some((t) => t.provider === p));
+  if (missing.length) console.warn(`LLM.PROVIDER names providers OpenRouter doesn't list for ${DEEPSEEK}: ${missing.join(", ")}`);
   for (const t of OTHERS) {
     // the dearest endpoint's price, so the budget check is never too optimistic
     const { data: d } = await api(`/models/${t.model}/endpoints`);
@@ -92,7 +101,7 @@ async function targets() {
       ? { prompt: Math.max(...prices.map((p) => +p.prompt)), completion: Math.max(...prices.map((p) => +p.completion)) }
       : { prompt: 1e-6, completion: 2e-6 };
   }
-  const all = [...list, ...OTHERS];
+  const all = [...(bot.price && !OTHERS.includes(bot) ? [bot] : []), ...list, ...OTHERS];
   return ONLY.length ? all.filter((t) => ONLY.some((o) => t.label.includes(o))) : all;
 }
 
@@ -114,12 +123,9 @@ function messagesFor(scn) {
 }
 
 async function call(target, scn) {
-  const body = {
-    model: target.model,
-    messages: messagesFor(scn),
-    ...C.LLM.SAMPLING,
-    usage: { include: true },
-  };
+  const body = target.bot
+    ? { ...W.openRouterBody(target.model, messagesFor(scn), C.LLM.SAMPLING), usage: { include: true } }
+    : { model: target.model, messages: messagesFor(scn), ...C.LLM.SAMPLING, usage: { include: true } };
   if (target.provider) body.provider = { only: [target.provider], allow_fallbacks: false };
   if (target.deepseek) body.reasoning = { enabled: false };
   const t0 = Date.now();
@@ -158,6 +164,7 @@ function summarize(tlist, rows) {
   const lines = [];
   lines.push(`# Reem model bench — ${new Date().toISOString().slice(0, 16)}Z`, "");
   lines.push(`Sampling: \`${JSON.stringify(C.LLM.SAMPLING)}\`; DeepSeek with \`reasoning: {enabled: false}\`, one provider at a time, fallbacks off. Plan: ${PLAN}.`, "");
+  if (tlist.some((t) => t.bot)) lines.push(`Bot target: \`${C.LLM.MODEL}\`, provider \`${JSON.stringify(C.LLM.PROVIDER)}\`, reasoning \`${JSON.stringify(C.LLM.REASONING)}\` (from worker.js CONFIG).`, "");
   lines.push(`Spent **$${spent.toFixed(4)}** (cap $${BUDGET}) on ${rows.length} requests${skipped ? `; ${skipped} skipped to stay under the cap` : ""}.`, "");
   lines.push("## Reliability, speed, cost", "");
   lines.push("| Target | Replies OK | Errors | Empty | Median latency | p90 | Cost / 1k replies | Avg out tokens | Served by |");
@@ -283,7 +290,7 @@ async function ladderTopDown(t) {
 // What each target runs
 function planFor(t) {
   const fixed = [];
-  const quality = PLAN === "full" || !t.deepseek || t.provider === PRIMARY;
+  const quality = PLAN === "full" || !t.deepseek || t.bot || t.provider === PRIMARY;
   for (const s of scns) {
     if (s.kind === "ladder" && PLAN !== "full") continue;
     if (s.kind !== "ladder" && !quality) continue;
