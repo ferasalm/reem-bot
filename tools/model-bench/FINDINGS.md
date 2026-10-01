@@ -8,6 +8,7 @@ so ignore its ladder ceilings, and in the lean plan it makes the top-down ladder
 ## Decision
 Owner chose **`deepseek/deepseek-v4-flash` with `reasoning: { enabled: false }`**, providers in this order:
 **Novita → Baidu → Relace → StreamLake**; never Azure, Alibaba, AtlasCloud (they filter) or DeepInfra (rate-limited).
+Applied in worker.js v10 (`CONFIG.LLM.PROVIDER`/`REASONING`, Lunaris as `BACKUP_MODEL`); its verification runs are summarized in HANDOFF.md.
 
 ## Models (same prompt, nudges and sampling as worker.js)
 | Model | OK | Median | $ / 1k replies | Notes |
