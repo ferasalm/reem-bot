@@ -1,0 +1,45 @@
+name: Tests
+
+# Mocked tests run on every push (free). The live check against the real model (a few cents on
+# OpenRouter) only runs when a commit message contains [live], or by hand from the Actions tab
+# (the "Run workflow" button appears once this file is on main). It needs the repository secret
+# OPENROUTER_API_KEY. Neither job deploys anything.
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: "Tries per situation"
+        default: "3"
+      only:
+        description: "Only these situations (comma-separated ids, empty = all)"
+        default: ""
+
+jobs:
+  mocked:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check worker.js
+      - run: node tools/test/unit.mjs
+      - run: node tools/test/scenarios.mjs
+      - run: node tools/test/e2e.mjs > /dev/null
+
+  live:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[live]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Ask the real model (see the log for every reply)
+        run: node tools/test/live.mjs
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          LIVE_RUNS: ${{ github.event.inputs.runs || '3' }}
+          LIVE_ONLY: ${{ github.event.inputs.only || '' }}

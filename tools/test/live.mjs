@@ -8,8 +8,10 @@ import { loadWorker } from "./load-worker.mjs";
 
 const key = process.env.OPENROUTER_API_KEY;
 if (!key) {
-  console.log("Set OPENROUTER_API_KEY to run the live check (the mocked tests are scenarios.mjs).");
-  process.exit(0);
+  console.log(process.env.CI
+    ? "No OPENROUTER_API_KEY: add it in GitHub > Settings > Secrets and variables > Actions > New repository secret."
+    : "Set OPENROUTER_API_KEY to run the live check (the mocked tests are scenarios.mjs).");
+  process.exit(process.env.CI ? 1 : 0);
 }
 const RUNS = Number(process.env.LIVE_RUNS) || 3;
 const ONLY = (process.env.LIVE_ONLY || "").split(",").filter(Boolean);

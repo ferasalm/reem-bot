@@ -78,3 +78,4 @@ W.applyOverrides({ CONFIG_OVERRIDES: JSON.stringify({ VOICE: { PRONUNCIATIONS: {
 eq(Object.keys(W.CONFIG.VOICE.PRONUNCIATIONS), ["ya3ni"], "pronunciations replaced whole");
 eq(W.forSpeech("ya3ni 7abibi"), "Yani habibi.", "override + fallback");
 console.log(fails ? `${fails} FAILED` : "all passed");
+process.exit(fails ? 1 : 0);

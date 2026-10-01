@@ -41,4 +41,6 @@ After changing `CONFIG` in `worker.js`, run `node tools/build-panel.mjs` so the 
 
 ## Tests
 
-`node tools/test/unit.mjs` and `node tools/test/scenarios.mjs` (both fail loudly), `node tools/test/e2e.mjs` (prints a log to read). `OPENROUTER_API_KEY=... node tools/test/live.mjs` asks the real model the same situations and shows what the code had to fix.
+Every push runs the tests on GitHub (Actions tab → **Tests**). To also check the real model, add the repository secret `OPENROUTER_API_KEY` (Settings → Secrets and variables → Actions) and push a commit with `[live]` in its message, or use **Run workflow** once this is on `main`. Every reply it got is in the run's log.
+
+Locally: `node tools/test/unit.mjs`, `node tools/test/scenarios.mjs`, `node tools/test/e2e.mjs` (prints a log to read), `OPENROUTER_API_KEY=... node tools/test/live.mjs`.
