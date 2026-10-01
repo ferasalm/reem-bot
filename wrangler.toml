@@ -1,0 +1,18 @@
+name = "reem-bot"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[[kv_namespaces]]
+binding = "REEM_KV"
+id = "0986ed4bf1964b0c9791c8a93179e639"
+
+[[queues.producers]]
+binding = "REEM_QUEUE"
+queue = "reem-inbox"
+
+[[queues.consumers]]
+queue = "reem-inbox"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 0
+max_concurrency = 1
