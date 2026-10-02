@@ -34,6 +34,14 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
+- **2026-10-03: voice notes less often — on `dev` (aba696d), NOT deployed** (owner: "sending voice messages TOO
+  often"). Cause: `VOICE.CHANCE` 0.2 plus every `[voice]` she chose herself, and old `[voice] ...` lines in the
+  history pull her to more. Now `VOICE.CHANCE` 0.1 and `VOICE.SELF_CHOICE_GAP` 4 (`mayChooseVoice` in shapeReply:
+  her own `[voice]` with a voice note in her last 4 replies goes out as text). Unit, scenarios (3 rows), e2e green.
+- **2026-10-03: pictures stop after a lingerie pic — open, owner decides.** /setup's last AI error: `5006:
+  Additional or unevaluated properties '/seed' at '/' not allowed` (neurons 890/9000). A refused klein draw went to
+  the FLUX.1 schnell backup with a `seed`, which schnell rejects. Also seen: the shot type she writes overrides the
+  one he named (belfie). No code change made; waiting on the owner.
 - **2026-10-02 (late night): pictures v3 deployed** (owner: "merge and deploy"; the first push to `main` was held by
   the session's auto-mode check until the owner allowed it): `main` fast-forwarded to 04f23b8. Deploy run
   37071745296 green: bindings KV, queue, AI; version `be5f7c44-133b-49df-8087-b4d739c09639`. /health: klein drew
@@ -199,6 +207,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-03 — **Fewer voice notes** (owner: "fix those bugs"): `VOICE.CHANCE` 0.1, `VOICE.SELF_CHOICE_GAP` 4
+  (Claude's values, tunable on the panel). Not deployed.
 - 2026-10-02 — **Deploy pictures v3** (owner: "merge and deploy").
 - 2026-10-02 — **Under-16 replies: no prompt change** (owner: "ignore this completely keep it unchanged, I don't
   see it as a risk"), about her sometimes answering "what are you wearing" or teasing after "i'm 16" in live runs.
