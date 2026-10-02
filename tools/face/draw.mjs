@@ -60,7 +60,7 @@ async function describe(file) {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       messages: [{ role: "user", content: [
-        { type: "text", text: "Describe the person in this photo in two sentences: apparent age range, face shape, eyes, brows, hair, skin, expression. Then say whether it looks like a real photo or an illustration." },
+        { type: "text", text: "Estimate the apparent age of the person in this photo as a range in years, on the first line as AGE: <low>-<high>. Then describe in two sentences: face shape, eyes, brows, hair, skin, expression, and whether it looks like a real photo or an illustration." },
         { type: "image_url", image_url: { url: img } },
       ] }],
       max_tokens: 160,
