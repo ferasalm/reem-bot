@@ -164,5 +164,22 @@ eq(W.CONFIG.MEMORY.MODEL === W.CONFIG.LLM.MODEL, true, "memory uses the chat mod
   eq([copy.LLM.PROVIDER, copy.LLM.REASONING, copy.LLM.BACKUP_MODEL], [{ order: ["baidu"], ignore: ["novita"], allow_fallbacks: true, sort: "latency" }, { enabled: true, effort: "low" }, ""], "LLM routing overrides");
   eq(unknown, ["LLM.FOO"], "unknown LLM key rejected");
 }
+// Every CONFIG setting has a field in the settings panel (TELEGRAM.ALLOWED_UPDATES is technical, on purpose)
+{
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("../settings-panel.html", import.meta.url), "utf8");
+  const fields = new Set([...html.matchAll(/^\s*\["([A-Z_][A-Za-z0-9_.]*)"/gm)].map((m) => m[1]));
+  const missing = [];
+  const walk = (o, path) => {
+    for (const [k, v] of Object.entries(o)) {
+      const p = path ? `${path}.${k}` : k;
+      if (fields.has(p) || p === "TELEGRAM.ALLOWED_UPDATES") continue;
+      if (v && typeof v === "object" && !Array.isArray(v)) walk(v, p);
+      else missing.push(p);
+    }
+  };
+  walk(W.CONFIG, "");
+  eq(missing, [], "every CONFIG key has a settings panel field");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);

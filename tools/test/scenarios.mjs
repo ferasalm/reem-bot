@@ -97,6 +97,23 @@ const L3 = [
   ["OOC: plain answer, one message", "OOC: Sure, I'll keep the scenes shorter.\n\nAnything else?", { ooc: true },
     { kind: "text", texts: ["OOC: Sure, I'll keep the scenes shorter.\n\nAnything else?"] }],
   ["OOC: never a voice note", "[voice] Sure, noted.", { ooc: true }, { kind: "text", spoken: "" }],
+  ["OOC: only acting -> asked again", "*Reem's smirk fades as she crosses her arms.* \"Seriously, you just stood there?\"", { ooc: true }, { kind: "none", repaired: true }],
+  ["OOC: only acting, last resort -> the scene", "*Reem's smirk fades.* \"Seriously?\"", { ooc: true, lastResort: true }, { kind: "scene" }],
+  ["OOC: her name is fine as the writer", "Sure, Reem will keep the scenes shorter.", { ooc: true }, { kind: "text", texts: ["Sure, Reem will keep the scenes shorter."], repaired: false }],
+
+  // --- seen in the live check (2026-10-01, Lunaris) and the PR #6 chats
+  ["live: bracket cues in a text", "Oh okay, if you insist... [laughs softly] Fine, I'm recording this... [clears throat, then in normal tone] You want to hear me", {},
+    { kind: "text", texts: ["Oh okay, if you insist... Fine, I'm recording this... You want to hear me"] }],
+  ["live: bracket cues, voice decided by code", "[exhales] Oh okay... [clears throat, then in normal tone] here I am [chuckles]", { mode: "voice" },
+    { kind: "voice", spoken: "[exhales] Oh okay... Here I am. [chuckles]", stored: "[voice] Oh okay... here I am" }],
+  ["live: two versions offered, (or)", "mrs fahmy changed the curtains again. how about you?\n\n(or)\n\n[voice] So I got that meeting done", {},
+    { kind: "text", texts: ["mrs fahmy changed the curtains again. how about you?"] }],
+  ["live: empty () dropped", "I'm getting that ()\n\nok", {}, { kind: "text", texts: ["I'm getting that", "ok"] }],
+  ["live: her own name in a text (narration)", "Reem raises an eyebrow at her screen. studying reference images", {}, { kind: "text", texts: ["studying reference images"], repaired: true }],
+  ["live: voice note decided, model forgot [voice]", "ok fine. laughs softly Just for you.", { mode: "voice" }, { kind: "voice", spoken: "Ok fine. [laughs] Just for you." }],
+  ["live: voice note decided, model narrates the line", "The connection ends with a soft click. Close your eyes... I'm right here.", { mode: "voice" }, { kind: "voice", voiceText: "Close your eyes... I'm right here." }],
+  ["live: scene narration without asterisks", "She takes the glass and smiles. \"Thanks.\"", { scene: "together" }, { kind: "scene", texts: ["*She takes the glass and smiles.* \"Thanks.\""] }],
+  ["live: multi-line scene narration stays on its lines", "Reem steps back.\nShe laughs. \"no.\"", { scene: "together" }, { kind: "scene", texts: ["*Reem steps back.*\n*She laughs.* \"no.\""] }],
   ["OOC: never a reaction", "[react: ❤] Got it.", { ooc: true, canReact: true }, { kind: "text", reaction: "" }],
 ];
 
@@ -261,6 +278,9 @@ eq(r.texts.length, 1, "one message");
 yes(r.system[0].includes("speaking out of character"), "OOC nudge");
 yes(!r.system[0].includes("Open this one differently"), "no opening nudge for OOC");
 eq(r.saved.ooc, true, "OOC answer flagged in history");
+r = await turn("OOC: was that too much?", ["*She smirks and steps closer.* \"you tell me.\"", "Not at all, it fits the story. Want me to slow it down?"], { history: SCENE });
+yes(r.system[1]?.includes("Your last try stayed in the story"), "an OOC answer that only acts is asked again (RETRY_OOC)");
+eq(r.texts, ["Not at all, it fits the story. Want me to slow it down?"], "the writer's plain answer is sent");
 r = await turn("*pulls you inside*", ["*She laughs as the door shuts behind you.*"]);
 yes(r.system[0].includes("You're together in person"), "scene resumes after OOC");
 r = await turn("hey", ["*She tilts her head.* \"hey yourself.\""]);
