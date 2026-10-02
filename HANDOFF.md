@@ -34,7 +34,14 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
-- **2026-10-02 (night): pictures v2, built and tested, NOT deployed** (owner's rules below; replaces v1's photo pack).
+- **2026-10-02 (night): pictures v2 deployed** (owner: "Deploy"): `main` fast-forwarded to ec31167. Deploy run
+  37047760498 green: bindings KV, queue, **AI**; version `41c336fb-1734-476a-9e10-3d3d3dae8777`. Its /health step on
+  the live Worker: **klein drew from her built-in face through the binding** (51 KB, 10 s). Vision answered "I can't
+  identify people" because /health asked "who is in this picture?" (an identity question); /health now uses
+  `VISION.PROMPT` and treats a refusal as not OK (on `dev`, not deployed: it only changes /health). His real photos
+  use the descriptive prompt, which described all 18 face candidates through the REST API. Not yet seen: a
+  picture or photo in the real chat (owner's /setup + first pic).
+- **Pictures v2 (details)** (owner's rules below; replaces v1's photo pack).
   - **Every picture is drawn new** (owner: "same picture sent more than once is a hard no"): FLUX.2 klein 4B on
     Workers AI (`PICTURE.MODEL`) from her **reference face** (`face.js` = `tools/face/reference.jpg`, multipart
     `input_image_0`), 640 px; FLUX.1 schnell from `LOOKS` when klein is unavailable (403/5035). Exact-same bytes
@@ -310,9 +317,8 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
-0. Pictures v2 (on `dev`, not deployed): deploy when the owner asks. Then read the Deploy run's "/health" step
-   (draw ok + vision ok = the binding works); if it fails, the error is in the log and in KV `ai_error` (/setup).
-   Owner, after deploying: /setup once (also turns on v10 edits and /auto buttons), send her a photo, ask for a
+0. Pictures v2 (deployed 2026-10-02): the /health fix (descriptive prompt) goes live with the next deploy; that
+   Deploy run's /health step should then show vision ok. Owner, now: /setup once (also turns on v10 edits and /auto buttons), send her a photo, ask for a
    pic, and "let me see you" mid-scene. `/face` if her face should change.
 1. Owner: set `dev` as the GitHub default branch (Settings > General > Default branch; "Desktop site" on).
    Then delete the six branches in `tools/retired-branches.txt` (repo > Branches > trash icon) and empty that list.

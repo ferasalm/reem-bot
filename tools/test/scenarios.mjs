@@ -491,6 +491,13 @@ section("pictures: his photos (Workers AI vision)");
   eq(calls.filter((x) => x.url.includes("/health")).length, 0, "...without touching Telegram");
   h = await (await W.default.fetch(new Request("https://x.dev/health"), env, ctx)).json();
   yes(h.skipped && h.last && h.last.ok, "at most once per 10 minutes (the last result is shown)");
+  store.delete("health_at");
+  visionError = null;
+  const realRun = env.AI.run;
+  env.AI.run = async (model, input) => (model.includes("flux") ? realRun(model, input) : { response: "I can't identify people based on their image." });
+  h = await (await W.default.fetch(new Request("https://x.dev/health"), env, ctx)).json();
+  yes(!h.ok && h.draw.ok && !h.vision.ok, "a refusal from the vision model is not OK (seen live after the deploy)", JSON.stringify(h));
+  env.AI.run = realRun;
 
   delete env.AI;
   Object.assign(W.CONFIG.PICTURE, { CHANCE: 0.05, CHANCE_AFTER_PHOTO: 0.3, CHANCE_MORE: 0.15, SCENE_CHANCE: 0.08 });

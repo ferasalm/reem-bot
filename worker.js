@@ -2521,10 +2521,12 @@ async function health(env) {
     result.draw = { ok: true, model: drawn.model, bytes: drawn.bytes.length, ms: Date.now() - t0 };
     const t1 = Date.now();
     const out = await aiRun(env, CONFIG.VISION.MODEL, {
-      messages: [{ role: "user", content: [{ type: "text", text: "In one sentence: who is in this picture?" }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(drawn.bytes)}` } }] }],
-      max_tokens: 60,
+      // The same prompt as his photos get (asking "who is this" gets a refusal, not a description)
+      messages: [{ role: "user", content: [{ type: "text", text: fill(CONFIG.VISION.PROMPT) }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(drawn.bytes)}` } }] }],
+      max_tokens: CONFIG.VISION.MAX_TOKENS,
     }, CONFIG.VISION.TIMEOUT_MS);
-    result.vision = { ok: !!aiText(out), model: CONFIG.VISION.MODEL, said: aiText(out).slice(0, 200), ms: Date.now() - t1 };
+    // ok only for a real description (tidyDescription turns a refusal into "")
+    result.vision = { ok: !!tidyDescription(aiText(out)), model: CONFIG.VISION.MODEL, said: aiText(out).slice(0, 300), ms: Date.now() - t1 };
     result.ok = result.vision.ok;
   } catch (e) {
     error = e;
