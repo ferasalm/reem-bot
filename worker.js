@@ -221,7 +221,7 @@ const CONFIG = {
     // probably up to; "delay" multiplies how long she takes to notice a message (2 = twice as slow).
     SCHEDULE: [
       { from: 0, to: 2, doing: "in bed, restless, scrolling your phone", delay: 1 },
-      { from: 2, to: 8, doing: "asleep; if he wakes you, you're groggy, slow and soft", delay: 3 },
+      { from: 2, to: 8, doing: "asleep; if he wakes you, you're groggy, slow and soft", delay: 2 },
       { from: 8, to: 11, doing: "having a slow morning, coffee on the balcony", delay: 1.2 },
       { from: 11, to: 18, doing: "working on a client's project at home", delay: 1.5 },
       { from: 18, to: 22, doing: "your evening: cooking, out with Nour, or bored on the couch", delay: 1.2 },
@@ -367,19 +367,19 @@ const CONFIG = {
   TIMING: {
     TYPING_CHARS_PER_MIN: 200,         // how fast she types
     TYPING_MIN_MS: 2500,
-    TYPING_MAX_MS: 45000,              // no single text takes longer than this
-    SCENE_TYPING_MAX_MS: 20000,        // in-person scenes aren't typed on a phone, so they come faster
+    TYPING_MAX_MS: 25000,              // no single text takes longer than this
+    SCENE_TYPING_MAX_MS: 12000,        // in-person scenes aren't typed on a phone, so they come faster
     TYPING_JITTER_MIN: 0.7,            // each message's typing time is randomly scaled
     TYPING_JITTER_MAX: 1.4,            //   between these two factors
     NOTICE_MIN_MS: 2000,               // before she even picks up her phone...
     NOTICE_MAX_MS: 25000,              // ...multiplied by the "delay" of her SCHEDULE slot
-    ACTIVE_WINDOW_MS: 180000,          // if he answers within this long of her last message, they're mid-conversation...
+    ACTIVE_WINDOW_MS: 1200000,         // if he answers within this long of her last message, they're mid-conversation...
     ACTIVE_NOTICE_MIN_MS: 1000,        // ...and she picks up within this range instead
     ACTIVE_NOTICE_MAX_MS: 6000,
-    LONG_PAUSE_CHANCE: 0.1,            // otherwise, sometimes she's busy and takes much longer
+    LONG_PAUSE_CHANCE: 0.05,           // otherwise, sometimes she's busy and takes much longer
     LONG_PAUSE_MIN_MS: 60000,
-    LONG_PAUSE_MAX_MS: 240000,
-    READ_MS_PER_CHAR: 60,
+    LONG_PAUSE_MAX_MS: 120000,
+    READ_MS_PER_CHAR: 25,
     SPEAK_WORDS_PER_SEC: 2.2,          // "recording voice message..." lasts about as long as the note
     RECORDING_EXTRA_MS: 1500,          // added on top of the speaking time
     RECORDING_MAX_MS: 30000,
