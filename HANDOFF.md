@@ -7,7 +7,8 @@ that isn't here, stop and ask the owner before building anything. Session rules 
 
 ## Status (2026-10-02)
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan).
-- **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02 (details below). Before that:
+- **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02, plus fast timing and instant settings
+  commands (same day, b2f9995; details below). Before that:
   v8 + v9 (PR #5) on Lunaris 8B.
 - **Integrated v10**: built on branch `ccr-1eb562e9-ds09eq`, now `dev` and `main`. It merges all three v10 lines that were built
   in parallel on 2026-10-01 (see "Incident"): DeepSeek V4 Flash (`ccr-b7869b5d-d7yudi`, bench branch
@@ -26,8 +27,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   **Not yet done: `/setup`** (Claude's environment can't reach workers.dev). Until the owner opens it, Telegram
   doesn't send message edits or /auto button taps, and the command menu is the old one. It also shows whether a
   `CONFIG_OVERRIDES` variable or `VOICE_ID` secret changes anything.
-
-- **2026-10-02, on `dev`, not deployed: faster replies** (owner: "taking too long for her to respond", after a
+- **2026-10-02 (later): faster replies + instant settings commands deployed** (owner: "Merge, deploy"): `main`
+  fast-forwarded to b2f9995 (= `dev`). Deploy run 36952745320 green, version `c4c1cbb0-0fec-4255-8c9e-a1f401d2bcba`.
+  Read back with the Cloudflare MCP: TYPING_CHARS_PER_MIN 900, LONG_PAUSE_CHANCE 0, ACTIVE_WINDOW_MS 12e5,
+  `isQuickCommand` in `fetch`. No `[live]` model run needed (timing and routing only, no prompt or model change).
+- **Faster replies (details)** (owner: "taking too long for her to respond", after a
   draft sent at ~4 am sat silent for minutes and /rewind queued behind it, since the queue runs one batch at a time).
   TIMING: ACTIVE_WINDOW_MS 3 → 20 min, LONG_PAUSE_CHANCE 0.1 → 0.05, LONG_PAUSE_MAX_MS 240 → 120 s,
   READ_MS_PER_CHAR 60 → 25, TYPING_MAX_MS 45 → 25 s, SCENE_TYPING_MAX_MS 20 → 12 s; asleep slot delay 3 → 2.
@@ -49,6 +53,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Deploy the faster replies** (owner: "Merge, deploy, and update handoff").
 - 2026-10-02 — **No multi-minute waits**: immersion beats realistic delays (owner: "minutes of waiting kills the
   immersion"). No busy pauses; fast typing.
 - 2026-10-02 — **Settings commands answer instantly** (owner: "Even slash commands take so long").
