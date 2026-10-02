@@ -354,26 +354,31 @@ section("pictures: his photos (Workers AI vision)");
   yes(r.system[0].includes("He's asking for a picture of you, and you send one"), "he asks: always (FORMAT_ASKED), like a voice note");
   eq(r.order, ["sendMessage", "sendPhoto"], "her words, then the picture");
   const f1 = ai.find((a) => a.model === W.CONFIG.PICTURE.MODEL).fields;
-  yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("mirror selfie in the hallway, black slip dress.") && f1.prompt.endsWith(W.CONFIG.PICTURE.SAFE), "prompt: style + what she wrote + SAFE");
+  yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a hallway mirror") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
+  yes(f1.prompt.includes(W.CONFIG.PICTURE.MIRROR_PHONE), "a mirror selfie: the iPhone rule");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
   eq([f1.width, f1.height], ["640", "640"], "drawn at PICTURE.SIZE (cheaper and faster than 1024)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
-  eq(r.saved.content, "here 😏\n\n[selfie: mirror selfie in the hallway, black slip dress]", "history: her words and [selfie: ...]");
+  eq(r.saved.content, "here 😏\n\n[selfie: mirror, in the hallway, black slip dress]", "history: her words and [selfie: type, what]");
   yes(typeof r.saved.parts.at(-1).id === "number", "the picture has its message id, so /rewind and /retry delete it");
   eq(ledger().neurons, 3 * W.CONFIG.AI_BUDGET.PHOTO_NEURONS + W.CONFIG.AI_BUDGET.PICTURE_NEURONS, "the picture is counted");
   r = await turn("show me a selfie", ["no. earn it"], { history: APART });
   eq(r.photos.length, 1, "asked and she only teased: a picture comes anyway");
-  yes(/^\[selfie: .+\]$/.test(r.saved.parts.at(-1).text), "...showing what she's doing or a VARIETY", r.saved.parts.at(-1).text);
+  yes(/^\[selfie: .+\]$/.test(r.saved.parts.at(-1).text), "...a shot the code picked, with its wardrobe and place", r.saved.parts.at(-1).text);
   r = await turn("good morning", ["morning\n\n[selfie: coffee on my balcony]"], { history: APART });
-  yes(r.system[0].includes(W.CONFIG.PICTURE.SELF_CHOICE.trim()), "apart she may choose one herself (SELF_CHOICE), like [voice]");
+  yes(r.system[0].includes("[selfie: type, what it shows]") && r.system[0].includes("Types: close, selfie, mirror, cozy, detail, golden") && r.system[0].includes("mirror-back, neckline, legs, waist"), "apart she may choose one herself (SELF_CHOICE) and its type, sexier ones too", r.system[0].slice(-600));
   eq(r.photos.length, 1, "...and her own [selfie] is sent");
-  yes(r.system[0].includes("Your last pictures showed:") && r.system[0].includes("mirror selfie in the hallway"), "she's reminded of her recent pictures (RECENT)");
+  yes(r.system[0].includes("Your last pictures showed:") && r.system[0].includes("mirror, in the hallway, black slip dress"), "she's reminded of her recent pictures (RECENT)");
   r = await turn("hey", ["hey you\n\n[selfie: mirror selfie in the hallway, black slip dress]"], { history: APART });
   const f2 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
-  yes(!f2.prompt.includes("mirror selfie in the hallway"), "the same picture as a recent one: a different subject is drawn", f2.prompt);
+  yes(!f2.prompt.includes("black slip dress"), "the same picture as a recent one: other clothes and place are drawn", f2.prompt);
+  // Pictures v3 (owner 2026-10-02): sexy by pose or wardrobe is fine, nudity never
   r = await turn("hey", ["hi\n\n[selfie: me in lingerie on the bed]"], { history: APART });
   const f3 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
-  yes(!/lingerie|bed/.test(f3.prompt) && f3.prompt.endsWith(W.CONFIG.PICTURE.SAFE), "never drawn sexual: another subject, SAFE always");
+  yes(f3.prompt.includes(", in lingerie on the bed,") && f3.prompt.endsWith("No nudity.") && !/fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it; SAFE is only 'No nudity.'", f3.prompt);
+  r = await turn("hey", ["hi\n\n[selfie: me naked in bed]"], { history: APART });
+  const f3b = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
+  yes(!/naked/.test(f3b.prompt) && W.CONFIG.PICTURE.WARDROBE.BOUDOIR.some((w) => f3b.prompt.includes(w.split("|")[0].trim())), "nudity never drawn: the sexiest allowed picture instead (boudoir wardrobe)", f3b.prompt);
   W.CONFIG.PICTURE.CHANCE = 1;
   r = await turn("what are you up to", ["just chilling"], { history: APART });
   yes(r.system[0].includes("This reply comes with a picture of you"), "on PICTURE.CHANCE: FORMAT");
@@ -393,16 +398,84 @@ section("pictures: his photos (Workers AI vision)");
   eq(JSON.parse(store.get("s:7")).morePics, false, "/pics again turns it off");
 
   // seen in the live check 2026-10-02 (run 37045907764): a selfie written to him, and no [selfie] when the code decided one
-  eq(W.selfieSubject("dim bedroom, city lights behind you, phone angled just above your eyes", []), "dim bedroom, city lights behind her, phone angled just above her eyes", "live: 'you' in her [selfie] becomes 'her'");
-  eq(W.selfieSubject(null, [], "nothing. just finished dinner, basbousa is judging me from the counter\n\nyou? bored? curious?"), "just finished dinner, basbousa is judging her from the counter", "live: no [selfie]: the picture shows what she just said she's doing");
+  eq(W.selfieSubject("dim bedroom, city lights behind you, phone angled just above your eyes", []).words, "dim bedroom, city lights behind her, phone angled just above her eyes", "live: 'you' in her [selfie] becomes 'her'");
+  eq(W.selfieSubject(null, [], "nothing. just finished dinner, basbousa is judging me from the counter\n\nyou? bored? curious?").doing, "just finished dinner, basbousa is judging her from the counter", "live: no [selfie]: the picture shows what she just said she's doing");
   W.CONFIG.PICTURE.CHANCE = 1;
   r = await turn("what are you up to", ["just finished dinner, basbousa is judging me from the counter\n\nyou?"], { history: APART });
   W.CONFIG.PICTURE.CHANCE = 0;
-  yes(r.prompts[0].messages.at(-1).content === W.CONFIG.PICTURE.REMINDER, "the picture reminder is the last thing she reads before writing");
+  yes(r.prompts[0].messages.at(-1).content.startsWith("[This reply comes with a picture of you: put [selfie: ") && r.prompts[0].messages.at(-1).role === "system", "the picture reminder (with its shot) is the last thing she reads before writing", r.prompts[0].messages.at(-1).content);
   yes(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt.includes("just finished dinner, basbousa is judging her from the counter"), "...and with no marker the picture matches her words");
   eq(W.scenePicturePrompt("*Reem's playful smirk falters for a second, caught off guard. The air between them goes sharp. She tilts her head, dark waves slipping over her collarbone.*"), "Her playful smirk falters for a second, caught off guard. She tilts her head, dark waves slipping over her collarbone.", "live: 'Reem's' becomes 'Her'; sentences about them both are left out");
 
   eq(W.scenePicturePrompt("*She tilts her head, a slow smile curving her lips as she pushes off the doorframe.* \"I said...\" *she murmurs, almost to herself. A small laugh escapes her, soft and warm.*"), "She tilts her head, a slow smile curving her lips as she pushes off the doorframe. A small laugh escapes her, soft and warm.", "live: speech-tag fragments ('she murmurs, ...') left out of scene pictures");
+
+  section("pictures v3: the shot catalog");
+  {
+    const P = W.CONFIG.PICTURE;
+    const tiers = ["everyday", "flirty", "boudoir"];
+    const lights = Object.values(P.LIGHT).flat();
+    const bad = [];
+    for (const tier of tiers) for (const shot of W.tierShots(tier)) for (let k = 0; k < 40; k++) {
+      const hour = k % 24;
+      const pic = W.composePicture({ tier, shot, hour });
+      const T = tier.toUpperCase();
+      const p = pic.prompt;
+      const n = p.split(/\s+/).length;
+      if (/\{(?!who\})/.test(p) || /,\s*[,.]/.test(p)) bad.push(`placeholder or stray comma: ${p}`);
+      if (n < 40 || n > 110) bad.push(`${n} words: ${p}`);
+      if (P.SHOTS[shot].includes("{expression}") && !P.EXPRESSIONS[T].some((e) => p.includes(e))) bad.push(`expression not of ${tier}: ${p}`);
+      if (!P.WARDROBE[T].some((w) => p.includes(w.split("|")[0].trim()))) bad.push(`wardrobe not of ${tier}: ${p}`);
+      if (P.SHOTS[shot].includes("{light}") && !lights.some((l) => p.includes(l))) bad.push(`no light: ${p}`);
+      if (pic.angle && !Object.hasOwn(P.ANGLES, pic.angle)) bad.push(`angle ${pic.angle}`);
+      if (P.SHOTS[shot].includes("{angle}") !== !!pic.angle) bad.push(`angle where there's none: ${shot}`);
+      if (!p.endsWith(`${P.CRAFT} ${P.SAFE}`)) bad.push(`no CRAFT + SAFE: ${p}`);
+    }
+    eq(bad.slice(0, 3), [], "every shot x tier: slots from the tier's lists, light, angle only where the shot has one, 40-110 words, CRAFT + SAFE last");
+    // The owner's phone rules: selfies never show the phone or her hand; mirror selfies an iPhone
+    const cams = Object.entries(P.SHOTS).map(([t, tpl]) => [t, (tpl.match(/\{(selfie|mirror|pov)\}/g) || []).join("")]);
+    eq(cams.filter(([, c]) => !["{selfie}", "{mirror}", "{pov}"].includes(c)), [], "every shot starts from exactly one phone rule");
+    yes(P.SELFIE_PHONE.includes("the phone and her hand are not visible") && P.MIRROR_PHONE.includes("iPhone") && P.MIRROR_PHONE.includes("visible in the mirror"), "phone rules: selfie no phone or hand; mirror an iPhone, visible");
+    const mirrorShots = cams.filter(([, c]) => c === "{mirror}").map(([t]) => t);
+    eq(mirrorShots, ["mirror", "mirror-back", "waist"], "mirror shots: mirror, mirror-back, waist");
+    yes(mirrorShots.every((s) => W.composePicture({ tier: "boudoir", shot: s }).prompt.includes("iPhone")) && ["close", "selfie", "neckline", "golden"].every((s) => { const p = W.composePicture({ tier: "everyday", shot: s }).prompt; return p.includes(P.SELFIE_PHONE) && !p.includes("iPhone"); }), "...and in the prompts");
+    // Slots picked in code, by weight
+    const counts = {};
+    for (let k = 0; k < 4000; k++) { const a = W.pickWeighted(P.ANGLE_WEIGHTS); counts[a] = (counts[a] || 0) + 1; }
+    yes(Object.entries(P.ANGLE_WEIGHTS).every(([a, w]) => Math.abs(counts[a] / 4000 - w) < 0.04), "angles follow ANGLE_WEIGHTS (high .45, eye .35, low .1, over .1)", JSON.stringify(counts));
+    // Not the same type or angle as the last pictures
+    const recentShots = [{ shot: "close", angle: "eye" }, { shot: "selfie", angle: "high" }];
+    const shots = new Set(Array.from({ length: 200 }, () => W.pickShot("everyday", recentShots, 12)));
+    yes(!shots.has("close") && !shots.has("selfie") && shots.size >= 3, "recent shot types avoided (RECENT_SHOTS)", [...shots]);
+    const angles = new Set(Array.from({ length: 200 }, () => W.composePicture({ tier: "everyday", shot: "selfie", recentShots }).angle));
+    yes(!angles.has("high") && angles.has("eye"), "the last picture's angle avoided", [...angles]);
+    yes(new Set(Array.from({ length: 200 }, () => W.pickShot("everyday", [], 2))).has("golden") === false && new Set(Array.from({ length: 300 }, () => W.pickShot("everyday", [], 17))).has("golden"), "golden only at golden hour (SHOT_HOURS)");
+    // Tier: what he asks for, else the chat's heat
+    const tiersOf = (o, n = 300) => new Set(Array.from({ length: n }, () => W.pickTier(o)));
+    yes(!tiersOf({ asked: "send me a sexy pic" }).has("everyday"), "he asks for a sexy one: never everyday");
+    eq([...tiersOf({ asked: "send me a pic in lingerie" })], ["boudoir"], "he asks for lingerie: boudoir");
+    eq([...tiersOf({ asked: "send me a belfie", shot: "mirror-back" })].filter((t) => t === "everyday"), [], "a shot only in sexier tiers never comes as everyday");
+    eq([W.chatHeat([], "hi", 12), W.chatHeat([], "hi", 23), W.chatHeat([{ content: "i want you in my bed" }], "come over", 12), W.chatHeat([{ content: "kiss me. your lips. your body. i want you" }], "", 12)], [0, 1, 1, 2], "heat: calm; late = warm; heat words warm, many hot");
+    const calm = tiersOf({ heat: 0 }, 1000);
+    yes(calm.has("everyday") && calm.has("flirty"), "calm chat: mostly everyday, sometimes flirty (her own choice by mood)");
+    eq(W.shotNamed("send me a belfie"), "mirror-back", "he names a shot: belfie = mirror-back");
+    eq(W.planShot({ asked: "show me your legs", history: [] }).shot, "legs", "he asks for her legs: the legs shot");
+    eq([W.selfieSubject("mirror-back, black leggings").shot, W.selfieSubject("mirror-back, black leggings").words], ["mirror-back", "black leggings"], "she names the type first in her marker");
+    // Nudity words only
+    yes(["black lace lingerie on the bed", "a string bikini", "kissing the mirror", "in the shower"].every(W.mayDraw), "lingerie, bikini, bed, kiss, shower are drawn now");
+    yes(["naked in bed", "topless", "a see-through top", "sheer robe", "nude"].every((t) => !W.mayDraw(t)), "nudity words never drawn (NOT_DRAWN)");
+    eq(W.scenePicturePrompt("*She lets the silk robe slip off one shoulder, standing by the bed in black lace lingerie. She is naked under it.*"), "She lets the silk robe slip off one shoulder, standing by the bed in black lace lingerie.", "scene pictures drop only explicit sentences");
+  }
+  ai.length = 0;
+  r = await turn("send me a belfie 😏", ["fine. don't say i never spoil you\n\n[selfie: mirror-back, black leggings]"], { history: APART });
+  yes(r.system[0].includes("[selfie: mirror-back, what it shows]") && r.system[0].includes(W.CONFIG.PICTURE.TIER_HINTS.flirty.trim()), "he asks for a belfie: she's told the shot and to make it flirty", r.system[0].slice(-500));
+  const fb = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
+  yes(fb.prompt.includes("her back to the mirror") && fb.prompt.includes("black leggings") && fb.prompt.includes("iPhone"), "drawn as a mirror-back with her words", fb.prompt);
+  eq(r.saved.parts.at(-1).text, "[selfie: mirror-back, black leggings]", "history: [selfie: type, what]");
+  r = await turn("send me a pic in your lingerie", ["greedy\n\n[selfie: in black lace, sitting on the edge of my bed]"], { history: APART });
+  yes(r.system[0].includes(W.CONFIG.PICTURE.TIER_HINTS.boudoir.trim()), "lingerie asked: boudoir hint");
+  yes(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt.includes("in black lace, sitting on the edge of her bed"), "...her words drawn");
+  r = await turn("send me a pic of you", ["here\n\n[selfie: wearing nothing at all]"], { history: APART });
+  yes(!/nothing at all/.test(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt), "'wearing nothing' is never drawn");
 
   section("pictures: in person");
   r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\" *Her eyes move over you.*"], { history: SCENE });
@@ -427,6 +500,8 @@ section("pictures: his photos (Workers AI vision)");
   eq(JSON.parse(store.get("s:7")).minor, true, "...remembered");
   r = await turn("send me a pic pls", ["no"], { history: APART });
   yes(r.photos.length === 0 && !r.system[0].includes("[selfie:"), "...never again, not even offered");
+  r = await turn("send me a sexy pic in lingerie", ["no. friends, remember?"], { history: APART });
+  yes(r.photos.length === 0 && !r.system[0].includes("[selfie:") && !r.system[0].includes("lingerie, satin or swimwear"), "...a sexy ask neither (pictures v3)");
   store.set("s:7", JSON.stringify({}));
   const minor = ["i'm 16", "I am 17 years old", "under 18 lol", "im sixteen", "i'm fifteen y/o", "i'm in 10th grade", "im in high school", "15 yo here"];
   // Errs on the safe side: "back when I was in high school" also matches (it only stops pictures)

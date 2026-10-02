@@ -614,11 +614,14 @@ Changing the story
   /* ---------------- Her pictures (Cloudflare Workers AI) ----------------
    * Same rules as voice notes, less often (pictures cost more): apart she sends a selfie when he asks
    * (ASK_PATTERN) or on CHANCE (CHANCE_AFTER_PHOTO after he sent one, CHANCE_MORE with /pics); she may also
-   * choose one herself with [selfie: what it shows]. In person, a picture of the moment (seen from his eyes)
-   * when he asks to see (SCENE_ASK_PATTERN) or on SCENE_CHANCE. Never OOC.
+   * choose one herself with [selfie: type, what it shows]. In person, a picture of the moment (seen from his
+   * eyes) when he asks to see (SCENE_ASK_PATTERN) or on SCENE_CHANCE. Never OOC.
    * Every picture is drawn new (never a picture sent before), from her reference face (/face, else face.js),
-   * always clothed (SAFE; sentences or descriptions with NOT_DRAWN words aren't drawn), never once he says he's
-   * under 18 (MINOR_PATTERN), and only within AI_BUDGET.
+   * never once he says he's under 18 (MINOR_PATTERN), and only within AI_BUDGET.
+   * Pictures v3 (shot catalog): a selfie is one of SHOTS (a camera + framing), in a tier (everyday, flirty,
+   * boudoir) picked by the code from the chat (TIER_WEIGHTS, heat, late hours, what he asks for); the angle,
+   * expression, wardrobe, place and light are picked by the code too (models don't roll dice). May be sexy by
+   * pose or wardrobe, never nude (SAFE; descriptions or scene sentences with NOT_DRAWN words aren't drawn).
    */
   PICTURE: {
     ENABLED: true,
@@ -632,32 +635,107 @@ Changing the story
     CHANCE_MORE: 0.15,                 // ...when /pics is on (voice: 0.5 with /voice)
     SCENE_CHANCE: 0.08,                // in person, per reply (voice clip: 0.25)
     // He asks for a picture (apart) or to see her (in person): a regular expression, any case. Only his own words count.
-    ASK_PATTERN: "\\b(?:send|show|give)\\b[^.?!\\n]{0,20}\\b(?:pic|pics|picture|pictures|photo|photos|selfie|selfies|snap)\\b|\\bselfie\\b|\\b(?:pic|picture|photo) of (?:you|u|yourself)\\b|\\blet me see you\\b",
+    ASK_PATTERN: "\\b(?:send|show|give)\\b[^.?!\\n]{0,20}\\b(?:pic|pics|picture|pictures|photo|photos|selfie|selfies|snap|nudes?)\\b|\\bselfie\\b|\\bbelfie\\b|\\b(?:pic|picture|photo) of (?:you|u|yourself)\\b|\\blet me see you\\b|\\b(?:show|send) me (?:your|ur|that) (?:legs|booty|butt|ass|cleavage|body|curves|outfit|fit)\\b",
     SCENE_ASK_PATTERN: "\\blet me see (?:you|it|that)\\b|\\bshow me\\b|\\bi (?:wanna|want to|need to) see (?:you|it)\\b|\\b(?:take|snap) a (?:pic|picture|photo)\\b",
-    // Prompts. With her reference face: REFERENCE + what it shows + SAFE; without: LOOKS + what it shows + SAFE
+    // ...and he asks for a sexy one: never an everyday picture. BOUDOIR_ASK_PATTERN: lingerie, satin or swimwear.
+    SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
+    BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
+    // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
     REFERENCE: "The woman from image 0, with exactly the same face, a 29-year-old woman.",
     LOOKS: "A 29-year-old half-Egyptian half-American woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair parted slightly off-center, thin gold rings.",
-    SELFIE_STYLE: "Realistic candid smartphone selfie she took herself:",
+    SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
-    SAFE: "She is fully clothed. Non-sexual, tasteful.",
-    // Never drawn: a description or scene sentence with one of these words (whole words, any case)
-    NOT_DRAWN: ["nude", "naked", "topless", "bottomless", "lingerie", "underwear", "bra", "panties", "thong", "nipple", "nipples", "breast", "breasts", "boobs", "explicit", "nsfw", "sex", "sexy", "porn", "shower", "bath", "bikini", "towel", "undress", "undresses", "undressing", "unbuttons", "strips", "moans", "thighs", "hips", "bed", "sheets", "kiss", "kisses", "kissing"],
+    CRAFT: "Natural skin texture, slight grain.",
+    SAFE: "No nudity.",
+    // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
+    NOT_DRAWN: ["nude", "nudes", "naked", "topless", "bottomless", "nipple", "nipples", "areola", "areolas", "genitals", "genital", "pussy", "vagina", "penis", "cock", "dick", "sheer", "see-through", "see through", "transparent", "sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "undressed", "nothing on", "wearing nothing"],
     MIN_SCENE_WORDS: 8,                // a scene picture needs at least this many words about her
     // He says he's under 18: no pictures from then on (stored with his settings)
     MINOR_PATTERN: "\\b(?:i'?m|i am|im)\\s+(?:only\\s+|just\\s+)?(?:1[0-7]|thirteen|fourteen|fifteen|sixteen|seventeen)\\b(?!\\s*(?:min|mins|minutes|hours|hrs|secs|seconds|%|km|miles|percent|days|weeks))|\\bunder\\s*18\\b|\\b(?:1[0-7]|thirteen|fourteen|fifteen|sixteen|seventeen)\\s*(?:yo|y\\/o|y\\.o\\.?|years?\\s+old|year-old)\\b|\\b(?:in|at)\\s+(?:high\\s+school|middle\\s+school|(?:7|8|9|10|11|12)(?:th)?\\s+grade|grade\\s+(?:7|8|9|10|11|12))\\b|\\bi'?m\\s+a\\s+(?:minor|freshman in high school|sophomore in high school)\\b",
-    // What she's told. FORMAT: this reply comes with a picture (decided by the code, like a voice note)
-    FORMAT: " This reply comes with a picture of you, like anyone texting: put [selfie: what it shows] on its own line, a few words on where you are, what you're wearing and doing. Your words go with it as usual.",
-    FORMAT_ASKED: " He's asking for a picture of you, and you send one: put [selfie: what it shows] on its own line, a few words on where you are, what you're wearing and doing, and a short text with it if you like.",
+
+    // The shot catalog: type = camera + framing. Filled in by the code: {selfie} {mirror} {pov} (the phone
+    // rules below), {angle} {expression} {wearing} {where} {light}, and {a|b|c} (one is picked; the one her
+    // words mention, if any). {wearing} is what she wrote in [selfie: ...] when she wrote something.
+    SHOTS: {
+      close: "{selfie} Close-up of her face and shoulders, {angle}, {expression}, {wearing}{where}, {light}.",
+      selfie: "{selfie} Chest-up, {angle}, {expression}, {wearing}{where}, {light}.",
+      mirror: "{mirror} Full-body reflection in a {bathroom|hallway|bedroom} mirror, the room behind her, {expression}, {wearing}, a little flash glare on the glass, {light}.",
+      cozy: "{selfie} Chest-up, {angle}, curled up {on the couch with Basbousa, her fluffy golden-brown tabby|under a blanket on the couch|in bed against the pillows}, {expression}, {wearing}, {light}.",
+      detail: "{pov} Close-up of {her hand with thin gold rings around a coffee cup|her bare feet up on the balcony railing|her hand on fabric samples spread across her desk}, her face out of frame, {wearing}, {light}.",
+      golden: "{selfie} Chest-up on her balcony in Zamalek at golden hour, warm low sun on her face, the Nile behind her, {angle}, {expression}, {wearing}.",
+      "mirror-back": "{mirror} 3/4-body reflection in a {bedroom|hallway|bathroom} mirror, her back to the mirror, looking back over her shoulder at it, hip slightly turned, {expression}, {wearing}, {light}.",
+      neckline: "{selfie} Taken from above, chest-up, her collarbones and neckline in the frame, {expression}, {wearing}{where}, {light}.",
+      legs: "{pov} Looking down at her own legs {stretched out on the couch|crossed on the bed|up on the balcony chair}, her face out of frame, {wearing}, {light}.",
+      waist: "{mirror} 3/4-body reflection in a {bedroom|bathroom} mirror, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
+    },
+    // The phone rules (owner): selfies never show the phone or her hand; mirror selfies always show an iPhone
+    SELFIE_PHONE: "Selfie taken with the front camera at arm's length; the phone and her hand are not visible.",
+    MIRROR_PHONE: "Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible.",
+    POV_PHONE: "Photo taken from her own point of view; no phone and no hand holding a phone visible.",
+    // Which shots each tier uses
+    TIERS: {
+      EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden"],
+      FLIRTY: ["mirror-back", "neckline", "legs", "waist"],
+      BOUDOIR: ["selfie", "mirror", "mirror-back", "neckline", "legs", "waist", "cozy"],
+    },
+    // How likely each tier is when the code picks, by how hot the chat is (HEAT_WORDS, late hours)
+    TIER_WEIGHTS: {
+      CALM: { everyday: 0.85, flirty: 0.13, boudoir: 0.02 },
+      WARM: { everyday: 0.5, flirty: 0.38, boudoir: 0.12 },
+      HOT: { everyday: 0.15, flirty: 0.45, boudoir: 0.4 },
+    },
+    HEAT_WORDS: ["kiss", "kissing", "bed", "sexy", "hot", "naked", "touch", "lingerie", "horny", "fuck", "want you", "need you", "turn me on", "body", "lips", "moan", "moans", "undress", "tease", "come over", "thighs", "wet", "hard", "bite", "taste"],
+    HEAT_MESSAGES: 6,                  // how many recent messages (his and hers) are read for HEAT_WORDS
+    HEAT_HOT: 4,                       // this many HEAT_WORDS = hot (1 or more = warm)
+    LATE_FROM_HOUR: 22,                // late at night (her time) the chat counts one step hotter
+    LATE_TO_HOUR: 3,
+    // Told to her with the picture's shot: {hint} in FORMAT, FORMAT_ASKED and REMINDER
+    TIER_HINTS: { everyday: "", flirty: " Make it a little flirty.", boudoir: " You're in lingerie, satin or swimwear." },
+    // Words in his ask or her [selfie: ...] that name a shot (the longest match counts)
+    SHOT_WORDS: { "close-up": "close", "close up": "close", face: "close", "mirror selfie": "mirror", mirror: "mirror", "full body": "mirror", outfit: "mirror", fit: "mirror", ootd: "mirror", belfie: "mirror-back", booty: "mirror-back", butt: "mirror-back", ass: "mirror-back", "from behind": "mirror-back", "over the shoulder": "mirror-back", cleavage: "neckline", neckline: "neckline", chest: "neckline", legs: "legs", thighs: "legs", waist: "waist", curves: "waist", cozy: "cozy", couch: "cozy", "golden hour": "golden", sunset: "golden", detail: "detail" },
+    SHOT_HOURS: { golden: "15-19" },   // shots only picked by the code in these hours (her time)
+    // The slots, picked by the code. ANGLES only go where a shot has {angle}; ANGLE_WEIGHTS: how often each
+    ANGLES: { high: "camera held a little above her eyes, tilted down", eye: "camera at eye level", low: "camera a little below her chin, tilted up", over: "shot over her shoulder as she glances back at the camera" },
+    ANGLE_WEIGHTS: { high: 0.45, eye: 0.35, low: 0.1, over: 0.1 },
+    EXPRESSIONS: {
+      EVERYDAY: ["a soft half smile", "laughing, eyes crinkled almost shut", "a raised-eyebrow smirk", "an unimpressed deadpan look", "biting back a smile", "a sleepy, lazy smile"],
+      FLIRTY: ["a slow, knowing smile", "a teasing smirk", "lips slightly parted, eyes on the camera", "a daring look straight into the camera", "biting her lower lip"],
+      BOUDOIR: ["heavy-lidded eyes, lips slightly parted", "a slow, knowing smile", "a soft, inviting look", "a teasing half smile, chin lowered", "a daring look straight into the camera"],
+    },
+    // From her persona. "clothes | place" brings its own place (only for shots with {where})
+    WARDROBE: {
+      EVERYDAY: ["an oversized gray knit cardigan sliding off one shoulder over a black tank top", "a fitted black t-shirt and jeans", "a black linen shirt dress", "a black ribbed tank top", "an oversized gray vintage tee", "a black turtleneck and small gold hoops", "a simple black sundress"],
+      FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh"],
+      BOUDOIR: ["black lace lingerie", "a black satin slip with thin straps", "a matching black lace bralette and high-waisted briefs", "a short black silk robe tied loosely at the waist", "a black one-shoulder swimsuit | by a pool in Sahel, bright sun", "a black string bikini | on a beach in Sahel, bright sun"],
+    },
+    PLACES: {
+      EVERYDAY: ["on her balcony in Zamalek", "in her kitchen", "at a café in Zamalek with an iced coffee", "at her desk surrounded by fabric samples", "in her high-ceilinged living room", "by her window with the city behind her", "in the hallway outside her door"],
+      FLIRTY: ["in her bedroom", "in her living room", "on her balcony", "in her hallway, leaning on the doorframe"],
+      BOUDOIR: ["on her bed with rumpled white sheets", "by her bedroom window", "sitting on the edge of her bed", "in her bedroom"],
+    },
+    // Light by her time of day (TIMES: hours, her time)
+    TIMES: { morning: "5-11", afternoon: "11-17", evening: "17-21", night: "21-5" },
+    LIGHT: {
+      MORNING: ["soft morning daylight", "bright morning sun through the window"],
+      AFTERNOON: ["bright afternoon daylight", "soft window light"],
+      EVENING: ["warm lamp light", "the last of the evening light"],
+      NIGHT: ["warm lamp light in a dark room", "dim light from a bedside lamp"],
+    },
+    RECENT_SHOTS: 2,                   // the code avoids the shot types and angle of this many recent pictures
+
+    // What she's told. FORMAT: this reply comes with a picture (decided by the code, like a voice note).
+    // {shot}: the shot the code picked, {hint}: TIER_HINTS
+    FORMAT: " This reply comes with a picture of you, like anyone texting: put [selfie: {shot}, what it shows] on its own line, a few words on where you are and what you're wearing.{hint} Your words go with it as usual.",
+    FORMAT_ASKED: " He's asking for a picture of you, and you send one: put [selfie: {shot}, what it shows] on its own line, a few words on where you are and what you're wearing.{hint} A short text with it if you like.",
     // Sent right before she writes (like NUDGES.FORMAT_*), where the model pays the most attention
-    REMINDER: "[This reply comes with a picture of you: put [selfie: what it shows] on its own line, in a few words about you (\"she\", never \"you\").]",
-    SELF_CHOICE: " Now and then you may send him a picture of yourself instead of describing it: [selfie: what it shows] on its own line.", // while apart, when a picture is possible
+    REMINDER: "[This reply comes with a picture of you: put [selfie: {shot}, what it shows] on its own line, in a few words about you (\"she\", never \"you\").]",
+    // While apart, when a picture is possible. {everyday}, {flirty}: the TIERS' shot types
+    SELF_CHOICE: " Now and then you may send him a picture of yourself instead of describing it: [selfie: type, what it shows] on its own line. Types: {everyday}. When you feel like it, pick a sexier one: {flirty}, or any of them in lingerie, satin or swimwear. Your pictures never show you fully naked.",
     RECENT: " Your last pictures showed: {list}. Show something different this time.", // {list}
-    // When she leaves [selfie] out or repeats a recent one, the picture gets one of these (or what she's doing now)
-    VARIETY: ["on her balcony in Zamalek at golden hour", "in her kitchen, cooking", "mirror selfie in her hallway", "at a café in Zamalek with an iced coffee", "on the couch with Basbousa the tabby cat", "at her desk surrounded by fabric samples", "walking by the Nile in the evening", "by her window with the city lights behind her", "getting ready to go out with Nour", "at the market in the afternoon"],
     SIMILAR: 0.6,                      // word overlap with a recent picture that counts as the same picture
     REMEMBER: 8,                       // how many recent picture descriptions she's reminded of
-    STORED: "[selfie: {what}]",        // {what}; in her chat history (scene pictures store nothing)
+    STORED: "[selfie: {what}]",        // {what}: "type, what it shows"; in her chat history (scene pictures store nothing)
     FAILED_TEXT: "ugh my pic won't send. later", // sent when the picture was her whole reply and it failed
     FACE_DRAFTS: 3,                    // how many faces /face draws
   },
@@ -725,7 +803,7 @@ function fill(template, vars = {}) {
 const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 
 // These word lists are replaced as a whole, so entries can be removed as well as added
-const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "ARABIZI_DIGITS", "STAGE_DIRECTIONS"]);
+const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "ARABIZI_DIGITS", "STAGE_DIRECTIONS", "SHOTS", "SHOT_WORDS", "SHOT_HOURS", "ANGLES", "ANGLE_WEIGHTS"]);
 
 // Blocks passed to OpenRouter as they are, so they may also take new parameters
 const OPEN_BLOCKS = /(^|\.)(SAMPLING|PROVIDER|REASONING)$/;
@@ -1472,6 +1550,9 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   const ledger = env.AI ? await loadLedger(env) : null;
   const canPicture = picturesAllowed(env, { ooc, settings, ledger });
   const picture = canPicture ? pictureMode({ scene, said, proactive, cameAsPhoto: !!(userParts && userParts.some((p) => p.photo)), morePics: !!settings.morePics }) : null;
+  // A selfie the code decided: its shot and tier are picked now, so she's told which one she sends
+  const asked = picture && picture.asked ? said : "";
+  if (picture && picture.kind === "selfie") picture.plan = planShot({ asked, history, recentShots: ledger.shots });
 
   // She starts thinking now, but only answers at waitUntil
   const sceneVoice = mode === "scene" && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
@@ -1487,7 +1568,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   // [selfie] out) or she wrote one herself; in person, the moment from the scene
   let drawing = null;
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
-    drawing = startPicture(env, ledger, "selfie", out.selfie || null, [...out.texts, out.voiceText].filter(Boolean).join(" "));
+    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join(" "), plan: picture && picture.plan, history, asked });
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
     drawing = startPicture(env, ledger, "scene", out.texts.join("\n"));
   }
@@ -1798,8 +1879,8 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
     if (offerReaction) extra += fill(N.REACT, { emojis: CONFIG.REACTIONS.ALLOWED.join(" ") });
     // Pictures: told when this reply comes with one (like FORMAT_VOICE); otherwise, apart, she may choose one
     const PIC = CONFIG.PICTURE;
-    if (picture && picture.kind === "selfie") extra += fill(picture.asked ? PIC.FORMAT_ASKED : PIC.FORMAT);
-    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE);
+    if (picture && picture.kind === "selfie") extra += fill(picture.asked ? PIC.FORMAT_ASKED : PIC.FORMAT, shotVars(picture.plan));
+    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE, { everyday: tierShots("everyday").join(", "), flirty: tierShots("flirty").join(", ") });
     if (((picture && picture.kind === "selfie") || (canPicture && apart)) && recentPictures.length) {
       extra += fill(PIC.RECENT, { list: recentPictures.slice(-(Number(PIC.REMEMBER) || 8)).map((r) => `"${r}"`).join(", ") });
     }
@@ -1826,7 +1907,7 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
     if (kept[0]?.role === "assistant") messages.push({ role: "user", content: fill(CONFIG.INBOX.CONVERSATION_START) });
     messages.push(...kept.map(({ role, content }) => ({ role, content })), { role: "user", content: userText });
     if (format) messages.push({ role: "system", content: format });
-    if (picture && picture.kind === "selfie" && CONFIG.PICTURE.REMINDER) messages.push({ role: "system", content: fill(CONFIG.PICTURE.REMINDER) });
+    if (picture && picture.kind === "selfie" && CONFIG.PICTURE.REMINDER) messages.push({ role: "system", content: fill(CONFIG.PICTURE.REMINDER, shotVars(picture.plan)) });
     return messages;
   };
 
@@ -2134,6 +2215,7 @@ async function loadLedger(env) {
     out: fresh ? !!saved.out : false,
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
     recent: Array.isArray(saved.recent) ? saved.recent : [],
+    shots: Array.isArray(saved.shots) ? saved.shots : [], // { shot, angle, tier } of her recent selfies
   };
 }
 
@@ -2141,6 +2223,7 @@ async function saveLedger(env, ledger) {
   if (!env.REEM_KV) return;
   ledger.hashes = ledger.hashes.slice(-300);
   ledger.recent = ledger.recent.slice(-20);
+  ledger.shots = ledger.shots.slice(-20);
   await env.REEM_KV.put("pics", JSON.stringify(ledger)).catch((e) => console.error("couldn't save the picture ledger", e));
 }
 
@@ -2268,7 +2351,7 @@ function pictureMode({ scene, said, proactive = false, cameAsPhoto = false, more
   return asked || Math.random() < (Number(chance) || 0) ? { kind: "selfie", asked } : null;
 }
 
-/* --- what a picture shows --- */
+/* --- what a picture shows (pictures v3: the shot catalog) --- */
 
 const COMMON_WORDS = new Set(["selfie", "selfies", "photo", "pic", "picture", "image", "me", "my", "her", "she", "the", "a", "an", "of", "in", "on", "at", "with", "and", "to", "just", "you", "your", "is", "it", "this", "that"]);
 const wordsOf = (t) => (String(t || "").toLowerCase().match(/\p{L}+/gu) || []).filter((w) => w.length > 2 && !COMMON_WORDS.has(w));
@@ -2283,31 +2366,184 @@ function overlap(a, b) {
   return both / Math.min(x.size, y.size);
 }
 
-// A description with a PICTURE.NOT_DRAWN word is never drawn
+// A whole word or phrase in a text, any case ("see-through", "in bed")
+const hasWord = (text, w) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegex(String(w).toLowerCase())}(?![\\p{L}\\p{N}])`, "u").test(String(text || "").toLowerCase());
+
+// A description with a PICTURE.NOT_DRAWN word or phrase is never drawn
 function mayDraw(text) {
-  const words = new Set(String(text).toLowerCase().match(/\p{L}+/gu) || []);
-  return !(CONFIG.PICTURE.NOT_DRAWN || []).some((w) => words.has(String(w).toLowerCase()));
+  return !(CONFIG.PICTURE.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
 }
 
-// What her selfie shows: what she wrote, unless it's missing, not drawable or too close to a recent picture;
-// then what she's doing now, or a VARIETY she hasn't shown lately
+const pickOne = (list) => (Array.isArray(list) && list.length ? list[Math.floor(Math.random() * list.length)] : "");
+
+// A key of {key: weight}, by weight (models don't roll dice); keys in `avoid` only when nothing else is left
+function pickWeighted(weights, avoid = []) {
+  let entries = Object.entries(weights || {}).map(([k, w]) => [k, Number(w) || 0]).filter(([, w]) => w > 0);
+  const fresh = entries.filter(([k]) => !avoid.includes(k));
+  if (fresh.length) entries = fresh;
+  const total = entries.reduce((t, [, w]) => t + w, 0);
+  if (!total) return null;
+  let r = Math.random() * total;
+  for (const [k, w] of entries) if ((r -= w) < 0) return k;
+  return entries[entries.length - 1][0];
+}
+
+// "15-19" (her hours, across midnight too); anything else = any hour
+function inRange(hour, range) {
+  const m = /^\s*(\d+)\s*-\s*(\d+)\s*$/.exec(String(range ?? ""));
+  return !m || inHours(hour, +m[1], +m[2]);
+}
+
+const TIER_NAMES = ["everyday", "flirty", "boudoir"];
+// The shot types of a tier (PICTURE.TIERS), only those in SHOTS
+const tierShots = (tier) => ((CONFIG.PICTURE.TIERS || {})[String(tier).toUpperCase()] || []).filter((t) => Object.hasOwn(CONFIG.PICTURE.SHOTS, t));
+
+// The shot a text names (SHOT_WORDS or a type's own name; the longest match, "selfie" last). null when none.
+function shotNamed(text) {
+  const P = CONFIG.PICTURE;
+  if (!text) return null;
+  const names = { ...Object.fromEntries(Object.keys(P.SHOTS).map((t) => [t, t])), ...(P.SHOT_WORDS || {}) };
+  const found = Object.keys(names)
+    .filter((w) => Object.hasOwn(P.SHOTS, names[w]) && hasWord(text, w))
+    .sort((a, b) => (names[a] === "selfie") - (names[b] === "selfie") || b.length - a.length);
+  return found.length ? names[found[0]] : null;
+}
+
+// How hot the chat is: 0 calm, 1 warm, 2 hot. HEAT_WORDS in the last HEAT_MESSAGES and his message;
+// late at night (LATE_FROM_HOUR to LATE_TO_HOUR) one step hotter.
+function chatHeat(history = [], said = "", hour = herHour()) {
+  const P = CONFIG.PICTURE;
+  const n = Number(P.HEAT_MESSAGES) || 0;
+  const text = [...(n ? history.slice(-n) : []).map((m) => m.content || ""), said].join("\n");
+  const hits = (P.HEAT_WORDS || []).filter((w) => String(w).trim() && hasWord(text, w)).length;
+  let heat = hits >= (Number(P.HEAT_HOT) || Infinity) ? 2 : hits > 0 ? 1 : 0;
+  if (inHours(hour, Number(P.LATE_FROM_HOUR), Number(P.LATE_TO_HOUR))) heat++;
+  return Math.min(heat, 2);
+}
+
+// The tier of a picture: he asks for lingerie/swimwear (BOUDOIR_ASK_PATTERN) → boudoir, for something sexy
+// (SEXY_ASK_PATTERN) → never everyday; otherwise by TIER_WEIGHTS for the chat's heat. Only tiers with `shot`.
+function pickTier({ asked = "", heat = 0, shot = null } = {}) {
+  const P = CONFIG.PICTURE;
+  let weights = { ...((P.TIER_WEIGHTS || {})[["CALM", "WARM", "HOT"][heat] || "CALM"] || {}) };
+  if (testPattern("BOUDOIR_ASK_PATTERN", asked)) weights = { boudoir: 1 };
+  else if (testPattern("SEXY_ASK_PATTERN", asked)) weights.everyday = 0;
+  if (shot) for (const t of Object.keys(weights)) if (!tierShots(t).includes(shot)) weights[t] = 0;
+  return pickWeighted(weights) || (shot && TIER_NAMES.find((t) => tierShots(t).includes(shot))) || "everyday";
+}
+
+// A shot of the tier for this hour (SHOT_HOURS), not one of the last RECENT_SHOTS types if there's another
+function pickShot(tier, recentShots = [], hour = herHour()) {
+  const P = CONFIG.PICTURE;
+  const n = Number(P.RECENT_SHOTS) || 0;
+  const avoid = n ? recentShots.slice(-n).map((s) => s && s.shot) : [];
+  const shots = tierShots(tier);
+  const now = shots.filter((t) => inRange(hour, (P.SHOT_HOURS || {})[t]));
+  return pickWeighted(Object.fromEntries((now.length ? now : shots).map((t) => [t, 1])), avoid) || Object.keys(P.SHOTS)[0];
+}
+
+// The picture the code decided for this reply (she's told its shot in FORMAT): { tier, shot }. `asked` is his
+// message when he asked for a picture: a shot he names ("belfie", "your legs") is the one he gets.
+function planShot({ asked = "", history = [], recentShots = [], hour = herHour() } = {}) {
+  const named = shotNamed(asked);
+  const tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot: named });
+  return { tier, shot: named && tierShots(tier).includes(named) ? named : pickShot(tier, recentShots, hour) };
+}
+
+// {shot} and {hint} for what she's told about the picture the code decided
+const shotVars = (plan) => ({ shot: (plan && plan.shot) || "selfie", hint: (plan && (CONFIG.PICTURE.TIER_HINTS || {})[plan.tier]) || "" });
+
+// The picture is of her: "you"/"I" in what the model wrote become "her"/"she"
+const aboutHer = (t) => String(t || "").replace(/\byour\b/gi, "her").replace(/\byou\b/gi, "her").replace(/\bmy\b/gi, "her").replace(/\bme\b/gi, "her").replace(/\bi'?m\b/gi, "she is").replace(/\bi\b/gi, "she").replace(/[{}[\]]/g, "").trim();
+
+// What her [selfie: ...] says, ready for composePicture: { shot, words, doing, explicit }.
+// She may name the shot first ("mirror-back, black leggings"). Words with a NOT_DRAWN word aren't drawn
+// (explicit: the sexiest allowed picture instead); words too close to a recent picture aren't either.
+// No [selfie] at all: `doing` is what she just said she's doing ("just finished dinner"), if drawable.
 function selfieSubject(want, recent = [], said = "") {
   const P = CONFIG.PICTURE;
-  const fresh = (w) => w && mayDraw(w) && !recent.some((r) => overlap(w, r) > P.SIMILAR);
-  // The model sometimes writes it to him ("the city lights behind you"): the picture is of her
-  const third = (t) => String(t || "").replace(/\byour\b/gi, "her").replace(/\byou\b/gi, "her").replace(/\bmy\b/gi, "her").replace(/\bme\b/gi, "her").replace(/\bi'?m\b/gi, "she is").replace(/\bi\b/gi, "she").trim();
-  want = third(want);
-  if (fresh(want)) return want;
-  // No [selfie] (DeepSeek often leaves it out when he didn't ask): the picture shows what she just said she's doing
-  const sentence = String(said).split(/\n+|(?<=[.!?])\s+/).map((x) => x.trim()).find((x) => wordsOf(x).length >= 3) || "";
-  const words = third(sentence).replace(/[?!.,]+$/, "");
-  if (!want && fresh(words) && words.length <= 160) return words;
-  const slot = scheduleNow();
-  const options = [...(want ? [] : [slot && slot.doing ? `at home, ${slot.doing.replace(/\byou(r)?\b/g, "her").split(";")[0]}` : ""]), ...(P.VARIETY || [])]
-    .filter((v) => fresh(v));
-  if (options.length) return options[Math.floor(Math.random() * options.length)];
-  const any = (P.VARIETY || []).filter((v) => mayDraw(v));
-  return any.length ? any[Math.floor(Math.random() * any.length)] : "at home";
+  let words = aboutHer(want);
+  let shot = null;
+  // Only a label ("mirror-back", "a mirror selfie") is taken off; "mirror selfie in the hallway" stays whole
+  const [first, ...rest] = words.split(",");
+  const named = shotNamed(first);
+  const label = Object.entries({ [named]: named, ...(P.SHOT_WORDS || {}) }).filter(([, t]) => t === named).map(([w]) => w);
+  if (named && !wordsOf(label.reduce((t, w) => t.replace(new RegExp(escapeRegex(w), "gi"), " "), first)).length) {
+    shot = named;
+    words = rest.join(",").trim();
+  } else if (words) {
+    shot = shotNamed(words) === "selfie" ? null : shotNamed(words);
+    // "mirror selfie in the hallway": the shot says the first part already
+    const lead = shot && Object.entries({ [shot]: shot, ...(P.SHOT_WORDS || {}) }).filter(([, t]) => t === shot).map(([w]) => w)
+      .sort((a, b) => b.length - a.length).find((w) => new RegExp(`^(?:an?\\s+)?${escapeRegex(w)}(?:\\s+selfie)?\\b`, "i").test(words));
+    if (lead) words = words.replace(new RegExp(`^(?:an?\\s+)?${escapeRegex(lead)}(?:\\s+selfie)?\\b[\\s,]*`, "i"), "");
+  }
+  words = words.replace(/^(?:an?\s+)?selfie\b[\s,:-]*/i, "").replace(/^(?:her|she)\s+(?=(?:in|on|at|with|wearing|by|lying|sitting)\b)/i, "");
+  let explicit = false;
+  if (words && !mayDraw(words)) {
+    words = "";
+    explicit = true;
+  }
+  if (words && recent.some((r) => overlap(words, r) > P.SIMILAR)) words = "";
+  let doing = "";
+  if (!want) {
+    const sentence = String(said).split(/\n+|(?<=[.!?])\s+/).map((x) => x.trim()).find((x) => wordsOf(x).length >= 3) || "";
+    const d = aboutHer(sentence).replace(/[?!.,]+$/, "");
+    if (d && d.length <= 160 && mayDraw(d) && !recent.some((r) => overlap(d, r) > P.SIMILAR)) doing = d;
+  }
+  return { shot, words: words.replace(/[.\s]+$/, ""), doing, explicit };
+}
+
+// The drawing prompt of a selfie: the shot's template with the slots picked here (angle by ANGLE_WEIGHTS,
+// expression, wardrobe and place of the tier, light for her time of day) and the phone rule; her own words
+// (`words`) replace wardrobe and place, `doing` comes before the wardrobe. {who} is left for drawPicture.
+// Returns { prompt, shot, tier, angle, what } (what: "type, her words or the wardrobe and place", for history).
+function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [] } = {}) {
+  const P = CONFIG.PICTURE;
+  const T = String(tier).toUpperCase();
+  const template = P.SHOTS[shot] || P.SHOTS.selfie || Object.values(P.SHOTS)[0] || "{selfie} {wearing}{where}, {light}.";
+  const lastAngle = (Number(P.RECENT_SHOTS) || 0) ? recentShots.slice(-1).map((s) => s && s.angle).filter(Boolean) : [];
+  const angle = template.includes("{angle}") ? pickWeighted(P.ANGLE_WEIGHTS, lastAngle) : null;
+  const time = Object.keys(P.TIMES || {}).find((k) => inRange(hour, P.TIMES[k])) || "evening";
+  const hasWhere = template.includes("{where}");
+  // "clothes | place" brings its own place, so only for shots with {where}
+  const wardrobe = ((P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
+  const [clothes = "", ownPlace = ""] = pickOne(wardrobe).split("|").map((x) => x.trim());
+  const place = hasWhere ? ownPlace || pickOne((P.PLACES || {})[T]) : "";
+  const wearing = words || [doing, clothes && `wearing ${clothes}`].filter(Boolean).join(", ");
+  const where = words || doing || !place ? "" : `, ${place}`;
+  // {a|b|c}: the one her words mention, else any
+  const chosen = template.replace(/\{([^{}|]+(?:\|[^{}|]+)+)\}/g, (_, alts) => {
+    const list = alts.split("|").map((a) => a.trim());
+    const said = wordsOf(`${words} ${doing}`);
+    return list.find((a) => wordsOf(a).some((w) => said.includes(w))) || pickOne(list);
+  });
+  const vars = {
+    selfie: P.SELFIE_PHONE, mirror: P.MIRROR_PHONE, pov: P.POV_PHONE,
+    angle: angle ? (P.ANGLES || {})[angle] || "" : "",
+    expression: pickOne((P.EXPRESSIONS || {})[T]),
+    wearing, where,
+    light: pickOne((P.LIGHT || {})[time.toUpperCase()]),
+  };
+  const body = chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k] || "") : m))
+    .replace(/(?:,\s*)+(?=[,.])/g, "").replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
+  const shown = words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", ");
+  // In history and her recent pictures as "type, what" (just "what" when it already names the type)
+  const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what };
+}
+
+// Her selfie for this reply, from her [selfie: ...] (`want`, null when she wrote none), the code's plan (when
+// the code decided the picture) and the chat. Returns composePicture's answer.
+function selfiePicture({ want = null, said = "", plan = null, history = [], asked = "", recent = [], recentShots = [], hour = herHour() } = {}) {
+  const P = CONFIG.PICTURE;
+  const s = selfieSubject(want, recent, said);
+  let tier = s.explicit || (s.words && testPattern("BOUDOIR_ASK_PATTERN", s.words)) ? "boudoir" : null;
+  let shot = s.shot;
+  if (!tier && plan && (!shot || tierShots(plan.tier).includes(shot))) tier = plan.tier;
+  if (!tier) tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot });
+  if (!shot) shot = plan && plan.tier === tier && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : pickShot(tier, recentShots, hour);
+  return composePicture({ tier, shot, words: s.words, doing: s.doing, hour, recentShots });
 }
 
 // The prompt for a picture of the moment in person, from the scene's narration about her: only sentences
@@ -2345,17 +2581,18 @@ async function imageBytes(out) {
   throw new Error("the image model returned no image");
 }
 
-// A new picture: JPEG/PNG bytes and the model that drew it. `what` is the scene; `face` false = no reference.
+// A new picture: JPEG/PNG bytes and the model that drew it. `prompt` is the whole prompt (composePicture),
+// with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no reference.
 // FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
 // FLUX.1 schnell draws from LOOKS instead.
-async function drawPicture(env, what, { style = CONFIG.PICTURE.SELFIE_STYLE, size = CONFIG.PICTURE.SIZE, face = true } = {}) {
+async function drawPicture(env, prompt, { size = CONFIG.PICTURE.SIZE, face = true } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const seed = Math.floor(Math.random() * 2147483647);
-  const end = (t) => String(t).trim().replace(/[.\s]*$/, ".");
+  const who = (w) => (String(prompt).includes("{who}") ? String(prompt).replace("{who}", w) : `${w} ${prompt}`).replace(/\s{2,}/g, " ").trim();
   try {
     const form = new FormData();
-    form.append("prompt", `${style} ${ref ? P.REFERENCE : P.LOOKS} ${end(what)} ${P.SAFE}`);
+    form.append("prompt", who(ref ? P.REFERENCE : P.LOOKS));
     form.append("width", String(size));
     form.append("height", String(size));
     form.append("seed", String(seed));
@@ -2366,7 +2603,7 @@ async function drawPicture(env, what, { style = CONFIG.PICTURE.SELFIE_STYLE, siz
   } catch (e) {
     if (!P.BACKUP_MODEL || !aiUnavailable(e)) throw e;
     await aiFailed(env, `drawing with ${P.MODEL}: ${aiText_(e)}; used ${P.BACKUP_MODEL}`);
-    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: `${style} ${P.LOOKS} ${end(what)} ${P.SAFE}`, steps: P.BACKUP_STEPS, seed }, P.TIMEOUT_MS);
+    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: who(P.LOOKS), steps: P.BACKUP_STEPS, seed }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.BACKUP_MODEL };
   }
 }
@@ -2388,27 +2625,26 @@ async function sendPhoto(env, chatId, bytes, caption = "") {
   }
 }
 
-// Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what } or
-// null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null); "scene": the scene.
-function startPicture(env, ledger, kind, want, said = "") {
+// Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
+// or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
+// `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
+function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "" } = {}) {
   const P = CONFIG.PICTURE;
-  let what;
-  let style;
+  let pic;
   if (kind === "scene") {
-    what = scenePicturePrompt(want);
-    style = P.SCENE_STYLE;
+    const what = scenePicturePrompt(want);
     if (!what) return null;
+    pic = { prompt: [P.SCENE_STYLE, "{who}", what.replace(/[.\s]*$/, "."), P.CRAFT, P.SAFE].filter(Boolean).join(" "), what };
   } else {
-    what = selfieSubject(want, ledger.recent.slice(-(Number(P.REMEMBER) || 8)), said);
-    style = P.SELFIE_STYLE;
+    pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
   }
   const drawing = (async () => {
     let error = null;
     let model = P.MODEL;
     try {
-      const drawn = await drawPicture(env, what, { style });
+      const drawn = await drawPicture(env, pic.prompt);
       model = drawn.model;
-      return { bytes: drawn.bytes, what, kind };
+      return { ...pic, bytes: drawn.bytes, kind };
     } catch (e) {
       error = e;
       await aiFailed(env, `drawing a picture: ${aiText_(e)}`);
@@ -2436,7 +2672,10 @@ async function deliverPicture(env, chatId, ledger, drawing) {
     const id = await sendPhoto(env, chatId, pic.bytes);
     if (id == null) return null;
     ledger.hashes.push(hash);
-    if (pic.kind === "selfie") ledger.recent.push(pic.what);
+    if (pic.kind === "selfie") {
+      ledger.recent.push(pic.what);
+      ledger.shots.push({ shot: pic.shot, angle: pic.angle || null, tier: pic.tier });
+    }
     return { id, text: pic.kind === "selfie" ? fill(P.STORED, { what: pic.what }) : "" };
   } finally {
     if (drawing) await saveLedger(env, ledger);
@@ -2485,7 +2724,7 @@ async function faceCommand(env, chatId, args, msg = {}) {
       await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
       let drawn;
       try {
-        drawn = await drawPicture(env, P.PORTRAIT, { style: "", size: 480, face: false });
+        drawn = await drawPicture(env, `{who} ${P.PORTRAIT} ${P.SAFE}`, { size: 480, face: false });
         aiSpent(ledger, CONFIG.AI_BUDGET.PICTURE_NEURONS);
       } catch (e) {
         aiSpent(ledger, 0, e);
@@ -2517,7 +2756,7 @@ async function health(env) {
   let error = null;
   try {
     const t0 = Date.now();
-    const drawn = await drawPicture(env, "smiling at the camera in her living room", { size: 256 });
+    const drawn = await drawPicture(env, composePicture({ tier: "everyday", shot: "selfie", words: "smiling at the camera in her living room" }).prompt, { size: 256 });
     result.draw = { ok: true, model: drawn.model, bytes: drawn.bytes.length, ms: Date.now() - t0 };
     const t1 = Date.now();
     const out = await aiRun(env, CONFIG.VISION.MODEL, {

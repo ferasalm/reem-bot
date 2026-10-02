@@ -60,7 +60,7 @@ async function describe(file) {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       messages: [{ role: "user", content: [
-        { type: "text", text: "Estimate the apparent age of the person in this photo as a range in years, on the first line as AGE: <low>-<high>. Then describe in two sentences: face shape, eyes, brows, hair, skin, expression, and whether it looks like a real photo or an illustration." },
+        { type: "text", text: "Estimate the apparent age of the person in this photo as a range in years, on the first line as AGE: <low>-<high>. Then describe in three sentences: face shape, eyes, brows, hair, skin, expression; what she is wearing and whether a phone or a hand holding one is visible; and whether it looks like a real photo or an illustration." },
         { type: "image_url", image_url: { url: img } },
       ] }],
       max_tokens: 160,
@@ -76,7 +76,7 @@ for (const [p, prompt] of job.prompts.entries()) {
     n++;
     const seed = 1000 + n * 7919;
     const jpg = `${out}/${String(n).padStart(2, "0")}.jpg`;
-    console.log(`\n#${n} prompt ${p + 1}, seed ${seed}${job.reference ? `, reference ${job.reference}` : ""}`);
+    console.log(`\n#${n} prompt ${p + 1}${job.labels ? ` (${job.labels[p]})` : ""}, seed ${seed}${job.reference ? `, reference ${job.reference}` : ""}`);
     let bytes = null;
     try {
       if (cloudflare) bytes = await drawCloudflare(prompt, seed);
