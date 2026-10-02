@@ -80,6 +80,10 @@ eq(W.parseCommand("/start"), { action: "restart", args: "" }, "alias");
 // her voice in a scene: only her quoted words, tagged from the narration around them
 eq(W.sceneSpeech('*Reem pulls you closer.* "Come here," *she whispers.* "Now."'), "[whispers] Come here.\nNow.", "scene clip: words only, whisper tag");
 eq(W.sceneSpeech('*She laughs, shaking her head.* "You\'re impossible."'), "[laughs] You're impossible.", "scene clip: tag from the sentence before");
+// seen live 2026-10-02 (DeepSeek): a line resumed after narration, and "almost a whisper" / "a little breathless"
+eq(W.sceneSpeech('"I was starting to think..." *She trails off.* "—you didn\'t know what you were missing."'), "I was starting to think...\nyou didn't know what you were missing.", "scene clip: resumed line loses its dash");
+eq(W.sceneSpeech('"Took. You. Long. Enough." *Her voice drops lower on each word, the last one almost a whisper.* "Better?"'), "Took. You. Long. Enough.\n[whispers] Better?", "scene clip: almost a whisper");
+eq(W.sceneSpeech('*Her voice drops low, a little breathless.* "Show me."'), "[breathless] Show me.", "scene clip: the direction nearest her words wins");
 eq(W.sceneSpeech("*Reem leans in and kisses you slowly.*"), "", "scene clip: nothing to say without quotes");
 eq(["let me hear you", "say it again", "say that out loud", "send me a voice note", "*kisses you*", "i want you"].map(W.asksToHear), [true, true, true, true, false, false], "scene: he asks to hear her");
 const upd = (text) => ({ update_id: 1, message: { message_id: 1, chat: { id: 7, type: "private" }, from: { id: 7 }, text } });

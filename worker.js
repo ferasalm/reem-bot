@@ -341,7 +341,7 @@ const CONFIG = {
     STAGE_DIRECTIONS: {
       laughs: "laughs", laughing: "laughs", giggles: "giggles", chuckles: "chuckles", sighs: "sighs",
       whispers: "whispers", exhales: "exhales", murmurs: "softly", yawns: "sleepy", moans: "moans softly",
-      breathes: "exhales", pauses: "", "there's a pause": "", "a pause": "", smiles: "", grins: "", hums: "",
+      breathes: "exhales", breathless: "breathless", "a whisper": "whispers", "voice drops": "softly", pauses: "", "there's a pause": "", "a pause": "", smiles: "", grins: "", hums: "",
       "sends another voice note": "", "sends a voice note": "", "clears her throat": "",
     },
     PAUSE_BETWEEN_LINES: "0.4s",       // pause between separate thoughts in a note (eleven_v3 uses "..." instead)
@@ -1434,16 +1434,21 @@ function asksToHear(text) {
 function sceneSpeech(scene) {
   const map = CONFIG.VOICE.STAGE_DIRECTIONS || {};
   const keys = Object.keys(map).filter((k) => map[k]).sort((a, b) => b.length - a.length);
+  // The direction nearest her words wins ("her voice drops..., almost a whisper" -> whispers)
   const tagIn = (narration) => {
-    const key = keys.find((k) => new RegExp(`\\b${escapeRegex(k).replace(/\s+/g, "\\s+")}(?![\\p{L}])`, "iu").test(narration));
-    return key ? map[key] : "";
+    let best = null;
+    for (const k of keys) {
+      const re = new RegExp(`\\b${escapeRegex(k).replace(/\s+/g, "\\s+")}(?![\\p{L}])`, "giu");
+      for (const m of narration.matchAll(re)) if (!best || m.index > best.at) best = { at: m.index, tag: map[k] };
+    }
+    return best ? best.tag : "";
   };
   const t = String(scene).replace(/\*/g, "");
   const quotes = [...t.matchAll(/["“]([^"”\n]+)["”]/g)];
   let last = "";
   return quotes
     .map((m, n) => {
-      const words = m[1].trim();
+      const words = m[1].trim().replace(/^[—–-]+\s*/, ""); // a line picked up after narration: "—you didn't"
       const end = m.index + m[0].length;
       const after = t.slice(end, n + 1 < quotes.length ? quotes[n + 1].index : t.length).split(/[.!?]/)[0];
       const before = t.slice(n ? quotes[n - 1].index + quotes[n - 1][0].length : 0, m.index).split(/[.!?]/).filter((x) => x.trim()).pop() || "";

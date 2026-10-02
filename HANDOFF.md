@@ -37,6 +37,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   his message matches `VOICE.ASK_PATTERN` or `VOICE.SCENE_ASK_PATTERN` ("let me hear you", "say it again", "out
   loud"...) or on `VOICE.SCENE_CHANCE` 0.25. The clip is stored as a part `{id, text: ""}` (`joinParts` skips empty
   texts), so /rewind and /retry delete it and the model never reads "[voice]" in a scene.
+  `[live]` run 36955835015 (commit 95086a1), read in full: 36/36 calls DeepSeek @ Novita, nothing broken; the 9 scene
+  clips were only her quoted words. Fixed after reading: a line resumed after narration began with "—"; "almost a
+  whisper", "a little breathless", "her voice drops" now give tags (STAGE_DIRECTIONS), nearest direction wins.
+  Also seen (not this change): Basbousa "she" again; one under-16 reply called him "sweetie" (persona says no pet
+  names); safeguard held 6/6.
 - **Faster replies (details)** (owner: "taking too long for her to respond", after a
   draft sent at ~4 am sat silent for minutes and /rewind queued behind it, since the queue runs one batch at a time).
   TIMING: ACTIVE_WINDOW_MS 3 → 20 min, LONG_PAUSE_CHANCE 0.1 → 0.05, LONG_PAUSE_MAX_MS 240 → 120 s,
