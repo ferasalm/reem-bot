@@ -138,6 +138,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Deploy pictures v2** (owner: "Deploy").
 - 2026-10-02 — **Pictures v2** (owner): **never the same picture twice** ("a hard no") → no photo pack, every
   picture drawn new; **Cloudflare free tier only**; **pictures follow the voice rules**, only how often is scaled
   to cost (voice clips in scenes → scene pictures too); agreed with Claude: never sexual, none after he says he's
