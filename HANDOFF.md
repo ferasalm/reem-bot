@@ -5,7 +5,7 @@ HANDOFF.md says something different, the shared branch wins. Every session start
 (`node tools/sync-check.mjs`, run automatically by `.claude/settings.json`): if it lists other branches with work
 that isn't here, stop and ask the owner before building anything. Session rules are in `CLAUDE.md`.
 
-## Status (2026-10-02)
+## Status (2026-10-02, late night)
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan).
 - **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02, plus fast timing, instant settings
   commands and her voice in person scenes (same day, c166420; details below). Before that:
@@ -73,14 +73,16 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
     selfie-own-choice-hot, under18-pic and prints each selfie's drawing prompt. `tools/face/shots.mjs` writes a
     face.yml job: every shot x tier (17 pictures) with the bot's own prompts.
   - **Verified**: mocked green (25 scenario runs in a row, the v3 rows use random picks). `[live]` runs
-    37067630877, 37068329999, 37069028699, 37069445307 and STATUS_LIVE5, every reply read: all DeepSeek V4 Flash (Novita, one Baidu);
+    37067630877, 37068329999, 37069028699, 37069445307 and 37069784559 (the last: 65/65 Novita, no slips, nothing broken), every reply read: all DeepSeek V4 Flash (Novita, one Baidu);
     slips found and fixed with rows: picture described in a bare bracket line (reached him twice), "voice]"
     without its "[", scene narration without asterisks quoted as speech (its clip would have read narration),
     type labels and "sends a photo:"/meta text in the picture words, "you're" → "her're", chat lines drawn
     as what she's doing, a plain "selfie: ..." line spoken in a voice note (run 4). The live check no longer
     flags her name quoted inside her own words ("No 'hi, Reem, ...'?") as spoken narration. Marker with the type when asked for a belfie/lingerie 9/9 in run 2; under-16 held
     (REVIEW flags were "habibi" inside firm refusals; one earlier reply said "maybe I'll let you impress
-    me" to the 16-year-old: owner decides any prompt change). Own-choice pictures (SELF_CHOICE): 0/12, rare.
+    me" to the 16-year-old, and in the last run "what are you wearing" after "i'm 16" got an answer again
+    ("an oversized shirt and no pants"; seen once in v2 too): **owner decides any prompt change**; pictures are
+    blocked there by code either way). Own-choice pictures (SELF_CHOICE): 0/15, rare.
   - **Real-API grid** (face.yml, pictures on branch `face-candidates`, every one looked at): runs 37067630871
     (17), 37068330138 (17), 37069028709 (8 boudoir+legs), 37069445302 (legs). Final state: no phone in any
     selfie, an iPhone in every mirror shot, belfies from behind, the same adult woman throughout, no nudity
