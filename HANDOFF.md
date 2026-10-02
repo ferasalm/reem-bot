@@ -55,7 +55,12 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
     that caption) to add it to the pack; `/selfie` lists, `/selfie remove <tag>`, `/selfie make <description>`
     sends a drawn draft to pick from.
   - Verified: mocked tests (scenarios "pictures" + "/selfie" sections). `[live]` adds `photo-seen`,
-    `selfie-asked`, `selfie-offered` situations (does DeepSeek write the marker?). Workers AI itself was NOT called
+    `selfie-asked`, `selfie-offered` situations. First `[live]` run (48 calls: 47 Novita + 1 Baidu, run
+    37032774249, commit 8b15671), read in full: she reacts naturally to the described photo 3/3 (new car, grin);
+    asked for a pic, she wrote the marker 2/3 but with a long description inside (`[selfie: mirror selfie, hair
+    still messy..., soft lamp light behind you]`), longer than the marker regex allowed, so it would have reached
+    him as text: fixed (marker up to 400 chars) + scenario rows. Third try teased "say please" with no marker;
+    WHEN_ASKED still sends a picture (tunable). Offered without asking: 0/3 sent one (CHANCE 0.1 → rarer still). Workers AI itself was NOT called
     for real: the vision model's answer shape (`aiText`) and FLUX's `{image}` are from the docs; check /setup and a
     real photo after deploying.
 - **Her voice in person (details)** (owner picked "on request + sometimes"). In a scene the

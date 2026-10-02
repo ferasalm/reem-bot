@@ -125,6 +125,12 @@ const L3 = [
   ["selfie: not offered -> marker dropped, no picture", "here\n\n[selfie: mirror selfie]", {}, { kind: "text", texts: ["here"], selfie: null }],
   ["selfie: in a voice note -> words spoken, picture after", "[voice] okay look at this [selfie: new dress]", { canSelfie: true }, { kind: "voice", spoken: "Okay look at this.", selfie: "new dress" }],
   ["selfie: never in person", "*She grins.* \"later.\" [selfie: mirror selfie]", { scene: "together", canSelfie: true }, { kind: "scene", selfie: null, texts: ["*She grins.* \"later.\""] }],
+  // seen in the live check 2026-10-02 (DeepSeek, "send me a pic of you rn"): the whole picture described in the marker
+  ["live: long [selfie: ...] description", "fine. but you owe me a drink for this\n\n[selfie: mirror selfie, hair still messy from a nap, oversized black t-shirt slipping off one shoulder, soft lamp light behind you]\n\ndon't get used to this", { canSelfie: true },
+    { kind: "text", texts: ["fine. but you owe me a drink for this", "don't get used to this"], selfie: "mirror selfie, hair still messy from a nap, oversized black t-shirt slipping off one shoulder, soft lamp light behind you" }],
+  ["live: [ selfie: ... ] with spaces", "you're demanding tonight huh\n\n[ selfie: soft warm lamp light, messy bun, oversized gray knit cardigan slipping off one shoulder, hint of a smile, phone held low ]\n\ncareful what you ask for.", { canSelfie: true },
+    { kind: "text", texts: ["you're demanding tonight huh", "careful what you ask for."], selfie: "soft warm lamp light, messy bun, oversized gray knit cardigan slipping off one shoulder, hint of a smile, phone held low" }],
+  ["live: long marker, not offered -> still dropped", "ok\n\n[selfie: mirror selfie, hair still messy from a nap, oversized black t-shirt slipping off one shoulder, soft lamp light behind you]", {}, { kind: "text", texts: ["ok"], selfie: null }],
   ["selfie: never OOC", "Sure, I can do that. [selfie: mirror selfie]", { ooc: true, canSelfie: true }, { kind: "text", selfie: null, texts: ["Sure, I can do that."] }],
 ];
 

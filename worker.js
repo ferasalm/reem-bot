@@ -661,7 +661,8 @@ const VOICE_TAG = new RegExp(VOICE_TAG_SRC, "im");
 const VOICE_TAG_ALL = new RegExp(`(?:${VOICE_TAG_SRC})\\s*`, "gim");
 const REACT_TAG = /\[\s*react(?:ed|ion)?\b\s*:?\s*([^\]\n]{0,16})\]\s*/gi;
 // [selfie: mirror selfie], [photo: ...], [pic: ...]: she sends a picture of herself (CONFIG.SELFIE)
-const SELFIE_TAG = /\[\s*(?:selfie|photo|pic|picture|image)\s*:?\s*([^\]\n]{0,80})\]/gi;
+// (DeepSeek often describes the whole picture inside it, so it may be long)
+const SELFIE_TAG = /\[\s*(?:selfie|photo|pic|picture|image)\s*:?\s*([^\]\n]{0,400})\]/gi;
 // "*sends a selfie*": the model narrating what it could simply do
 const SENDS_SELFIE = /\bsends?\s+(?:you\s+|him\s+)?(?:a\s+|another\s+|her\s+)?(?:quick\s+|mirror\s+)?(?:selfie|pic|picture|photo)\b/i;
 const ACTION = /\*[^*\n]+\*/;
@@ -2475,7 +2476,7 @@ function takeReaction(raw) {
 function takeSelfie(raw) {
   let want = null;
   const rest = String(raw).replace(SELFIE_TAG, (_, w) => {
-    if (want == null) want = w.trim();
+    if (want == null) want = w.trim().slice(0, 200);
     return "";
   });
   if (want == null && /\*[^*\n]*\*/.test(rest) && [...rest.matchAll(/\*([^*\n]+)\*/g)].some((m) => SENDS_SELFIE.test(m[1]))) want = "";
