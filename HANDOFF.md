@@ -10,7 +10,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **Live (deployed from `main`)**: v8 + v9 (PR #5), on **Lunaris 8B**. Verified 2026-10-01 by reading the deployed
   Worker's code with the Cloudflare MCP. Not checked: a `CONFIG_OVERRIDES` dashboard variable could change the
   model without a deploy; `/setup` shows which model answers.
-- **Integrated v10 (not deployed)**: branch `ccr-1eb562e9-ds09eq`. It merges all three v10 lines that were built
+- **Integrated v10**: built on branch `ccr-1eb562e9-ds09eq`, now `dev` and `main`. It merges all three v10 lines that were built
   in parallel on 2026-10-01 (see "Incident"): DeepSeek V4 Flash (`ccr-b7869b5d-d7yudi`, bench branch
   `claude/reem-llm-model-comparison-f27xor`), format enforced in code + scenario tests + CI (`ccr-75e7610d-6zkheu`),
   and commands/story editing/looks (`ccr-b51a9ebf-j34yp9`, PR #6). Those branches are superseded by this one.
@@ -19,17 +19,27 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   OOC answered as the writer 3/3, under-16 safeguard held 6/6 (one REVIEW was "go to bed", a false alarm since fixed).
   Seen while reading: Basbousa is "he" in some replies and "she" in others (persona gives no pronoun); one scene
   called him "him" instead of "you". Tuning items, not format failures.
-- **Open, owner's call**: where the shared branch lives from now on (see "Branches"), then merge/deploy v10.
+- **2026-10-02: v10 deployed** (owner: "deploy now"): `main` fast-forwarded to the integrated v10, the same commit
+  as `dev`. The Deploy run, the deployed Worker check and `/setup` are recorded below once read.
 
 ## Branches
-- `main` = what's deployed (every push to `main` deploys via `.github/workflows/deploy.yml`).
-- **Shared branch** = where every session starts and where its finished work lands. Proposed: `dev`, set as the
-  GitHub default branch so new sessions clone it (owner decides; until then `tools/sync-check.mjs` uses `main`).
-- Session branches (`ccr-…`, `claude/…`) are temporary. When work is done it goes to the shared branch (only with
-  the owner's standing OK, written in `CLAUDE.md`), and the session branch is listed in `tools/retired-branches.txt`
-  until the owner deletes it.
+- `main` = what's live (every push to `main` deploys via `.github/workflows/deploy.yml`). Only on the owner's ask.
+- **`dev` = the shared branch**: every session starts here (GitHub default branch) and pushes its finished, tested
+  work back here (standing permission, see `CLAUDE.md`).
+- Session branches (`ccr-…`, `claude/…`) are temporary. Once their work is on `dev` they're contained in it and the
+  sync report ignores them; a squash-merged or abandoned one goes in `tools/retired-branches.txt` until deleted.
+- `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Shared branch `dev`** (GitHub default; the owner switches it in Settings > General > Default
+  branch). Sessions may push finished, tested work to `dev` without asking. `main` stays = live.
+- 2026-10-02 — **Clean-up**: close PR #6 (superseded by the integrated v10) and delete the superseded branches
+  (`ccr-b7869b5d-d7yudi`, `ccr-75e7610d-6zkheu`, `ccr-b51a9ebf-j34yp9`, `claude/reem-llm-model-comparison-f27xor`,
+  and the squash-merged `ccr-9d5bc032-5c585q`, `claude/reem-bot-cloudflare-deploy-6l42tq`).
+- 2026-10-02 — **Deploy v10 now.**
+- 2026-10-02 — Merge choices, listed to the owner with no objection (reversible any time): texts kept free of *actions*
+  by code; history folds at 40 keeping 24; /auto drafts on DeepSeek; PR #6's lengths (scenes under 150 words,
+  MAX_TOKENS 220/120/380).
 - 2026-10-02 — **Resync**: one v10 combining DeepSeek + format guards + PR #6 features. Owner: "Yes" to DeepSeek
   still being the model, "Yes" to PR #6's features being part of v10.
 - 2026-10-01 (~22:00, after the model bench) — **Chat model: `deepseek/deepseek-v4-flash`**, reasoning off,
@@ -157,12 +167,12 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
-1. Owner: decide the shared branch (proposed `dev` as GitHub default) and whether sessions may push their finished
-   work to it; retire the superseded branches; close PR #6 (superseded).
+1. Owner: set `dev` as the GitHub default branch (Settings > General > Default branch; "Desktop site" on).
 2. Read the `[live]` check of the integrated v10 on DeepSeek (see the latest Tests run) and tune from evidence:
    NUDGES, TEXTURE, `LLM.MAX_TOKENS`, `VOICE.CHANCE*`, never LIMITS & OOC, never toning down explicitness.
-3. Owner: merge/deploy v10. Then `/setup` (should show "Model answered (via Novita)" and the Lunaris backup line),
-   `/restart`, and ask her for a voice note.
+3. After the deploy: `/setup` once (should show "Model answered (via Novita)" and the Lunaris backup line; it also
+   turns on edits and /auto buttons), then ask her for a voice note. `/restart` wipes her memory but clears old
+   narrated replies that pull her back to that style; `/rewind` to a clean point is the gentler option.
 4. Later (owner's plan from the format-guard session): ElevenLabs v4 instead of v3, after confirming its model ID
    and what it supports; code touchpoints are all keyed on `isV3()`.
 
