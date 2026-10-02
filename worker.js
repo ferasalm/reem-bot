@@ -625,8 +625,8 @@ Changing the story
     MODEL: "@cf/black-forest-labs/flux-2-klein-4b", // draws from her reference face
     BACKUP_MODEL: "@cf/black-forest-labs/flux-1-schnell", // when MODEL is unavailable: no reference, LOOKS instead
     BACKUP_STEPS: 6,                   // 1 to 8
-    SIZE: 768,                         // width and height in pixels (768 = 2.25 tiles; 1024 = 4)
-    TIMEOUT_MS: 25000,
+    SIZE: 640,                         // width and height in pixels (640 = 1.56 tiles; 1024 = 4). Klein took 12-22 s at 768
+    TIMEOUT_MS: 40000,
     CHANCE: 0.05,                      // apart, per reply (voice: 0.2)
     CHANCE_AFTER_PHOTO: 0.3,           // ...when he just sent a photo (voice: 0.6 after his voice note)
     CHANCE_MORE: 0.15,                 // ...when /pics is on (voice: 0.5 with /voice)
@@ -649,6 +649,8 @@ Changing the story
     // What she's told. FORMAT: this reply comes with a picture (decided by the code, like a voice note)
     FORMAT: " This reply comes with a picture of you, like anyone texting: put [selfie: what it shows] on its own line, a few words on where you are, what you're wearing and doing. Your words go with it as usual.",
     FORMAT_ASKED: " He's asking for a picture of you, and you send one: put [selfie: what it shows] on its own line, a few words on where you are, what you're wearing and doing, and a short text with it if you like.",
+    // Sent right before she writes (like NUDGES.FORMAT_*), where the model pays the most attention
+    REMINDER: "[This reply comes with a picture of you: put [selfie: what it shows] on its own line, in a few words about you (\"she\", never \"you\").]",
     SELF_CHOICE: " Now and then you may send him a picture of yourself instead of describing it: [selfie: what it shows] on its own line.", // while apart, when a picture is possible
     RECENT: " Your last pictures showed: {list}. Show something different this time.", // {list}
     // When she leaves [selfie] out or repeats a recent one, the picture gets one of these (or what she's doing now)
@@ -667,8 +669,8 @@ Changing the story
   AI_BUDGET: {
     DAILY_NEURONS: 9000,               // stop here (the free allocation is 10,000)
     PICTURE_SHARE: 0.6,                // pictures stop at this share of DAILY_NEURONS, so photos stay seeable
-    PICTURE_NEURONS: 70,               // FLUX.2 klein, 768x768 with the reference face
-    BACKUP_PICTURE_NEURONS: 70,        // FLUX.1 schnell, 768x768, 6 steps
+    PICTURE_NEURONS: 50,               // FLUX.2 klein, 640x640 (1.56 tiles x 26.05) + the reference face (5.37)
+    BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
     HEALTH_NEURONS: 40,                // one /health check
   },
@@ -1485,7 +1487,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   // [selfie] out) or she wrote one herself; in person, the moment from the scene
   let drawing = null;
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
-    drawing = startPicture(env, ledger, "selfie", out.selfie || null);
+    drawing = startPicture(env, ledger, "selfie", out.selfie || null, [...out.texts, out.voiceText].filter(Boolean).join(" "));
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
     drawing = startPicture(env, ledger, "scene", out.texts.join("\n"));
   }
@@ -1824,6 +1826,7 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
     if (kept[0]?.role === "assistant") messages.push({ role: "user", content: fill(CONFIG.INBOX.CONVERSATION_START) });
     messages.push(...kept.map(({ role, content }) => ({ role, content })), { role: "user", content: userText });
     if (format) messages.push({ role: "system", content: format });
+    if (picture && picture.kind === "selfie" && CONFIG.PICTURE.REMINDER) messages.push({ role: "system", content: fill(CONFIG.PICTURE.REMINDER) });
     return messages;
   };
 
@@ -2288,10 +2291,17 @@ function mayDraw(text) {
 
 // What her selfie shows: what she wrote, unless it's missing, not drawable or too close to a recent picture;
 // then what she's doing now, or a VARIETY she hasn't shown lately
-function selfieSubject(want, recent = []) {
+function selfieSubject(want, recent = [], said = "") {
   const P = CONFIG.PICTURE;
   const fresh = (w) => w && mayDraw(w) && !recent.some((r) => overlap(w, r) > P.SIMILAR);
+  // The model sometimes writes it to him ("the city lights behind you"): the picture is of her
+  const third = (t) => String(t || "").replace(/\byour\b/gi, "her").replace(/\byou\b/gi, "her").replace(/\bmy\b/gi, "her").replace(/\bme\b/gi, "her").replace(/\bi'?m\b/gi, "she is").replace(/\bi\b/gi, "she").trim();
+  want = third(want);
   if (fresh(want)) return want;
+  // No [selfie] (DeepSeek often leaves it out when he didn't ask): the picture shows what she just said she's doing
+  const sentence = String(said).split(/\n+|(?<=[.!?])\s+/).map((x) => x.trim()).find((x) => wordsOf(x).length >= 3) || "";
+  const words = third(sentence).replace(/[?!.,]+$/, "");
+  if (!want && fresh(words) && words.length <= 160) return words;
   const slot = scheduleNow();
   const options = [...(want ? [] : [slot && slot.doing ? `at home, ${slot.doing.replace(/\byou(r)?\b/g, "her").split(";")[0]}` : ""]), ...(P.VARIETY || [])]
     .filter((v) => fresh(v));
@@ -2308,8 +2318,8 @@ function scenePicturePrompt(sceneText) {
   const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
   const kept = sentencesOf(narration)
     .map((x) => x.trim())
-    .filter((x) => x && !/\b(?:you|your|yours|he|him|his)\b/i.test(x) && mayDraw(x))
-    .map((x) => x.replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
+    .filter((x) => x && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x))
+    .map((x) => x.replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "Her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
   const text = kept.join(" ");
   return wordsOf(text).length >= (Number(P.MIN_SCENE_WORDS) || 0) ? text : "";
 }
@@ -2379,7 +2389,7 @@ async function sendPhoto(env, chatId, bytes, caption = "") {
 
 // Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what } or
 // null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null); "scene": the scene.
-function startPicture(env, ledger, kind, want) {
+function startPicture(env, ledger, kind, want, said = "") {
   const P = CONFIG.PICTURE;
   let what;
   let style;
@@ -2388,7 +2398,7 @@ function startPicture(env, ledger, kind, want) {
     style = P.SCENE_STYLE;
     if (!what) return null;
   } else {
-    what = selfieSubject(want, ledger.recent.slice(-(Number(P.REMEMBER) || 8)));
+    what = selfieSubject(want, ledger.recent.slice(-(Number(P.REMEMBER) || 8)), said);
     style = P.SELFIE_STYLE;
   }
   const drawing = (async () => {

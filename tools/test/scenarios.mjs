@@ -356,7 +356,7 @@ section("pictures: his photos (Workers AI vision)");
   const f1 = ai.find((a) => a.model === W.CONFIG.PICTURE.MODEL).fields;
   yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("mirror selfie in the hallway, black slip dress.") && f1.prompt.endsWith(W.CONFIG.PICTURE.SAFE), "prompt: style + what she wrote + SAFE");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && !f1.input_image_0, "no reference face yet: LOOKS, no input image");
-  eq([f1.width, f1.height], ["768", "768"], "drawn at PICTURE.SIZE (cheaper than 1024)");
+  eq([f1.width, f1.height], ["640", "640"], "drawn at PICTURE.SIZE (cheaper and faster than 1024)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
   eq(r.saved.content, "here 😏\n\n[selfie: mirror selfie in the hallway, black slip dress]", "history: her words and [selfie: ...]");
   yes(typeof r.saved.parts.at(-1).id === "number", "the picture has its message id, so /rewind and /retry delete it");
@@ -391,6 +391,16 @@ section("pictures: his photos (Workers AI vision)");
   W.CONFIG.PICTURE.CHANCE_MORE = 0;
   await turn({ text: "/pics" }, []);
   eq(JSON.parse(store.get("s:7")).morePics, false, "/pics again turns it off");
+
+  // seen in the live check 2026-10-02 (run 37045907764): a selfie written to him, and no [selfie] when the code decided one
+  eq(W.selfieSubject("dim bedroom, city lights behind you, phone angled just above your eyes", []), "dim bedroom, city lights behind her, phone angled just above her eyes", "live: 'you' in her [selfie] becomes 'her'");
+  eq(W.selfieSubject(null, [], "nothing. just finished dinner, basbousa is judging me from the counter\n\nyou? bored? curious?"), "just finished dinner, basbousa is judging her from the counter", "live: no [selfie]: the picture shows what she just said she's doing");
+  W.CONFIG.PICTURE.CHANCE = 1;
+  r = await turn("what are you up to", ["just finished dinner, basbousa is judging me from the counter\n\nyou?"], { history: APART });
+  W.CONFIG.PICTURE.CHANCE = 0;
+  yes(r.prompts[0].messages.at(-1).content === W.CONFIG.PICTURE.REMINDER, "the picture reminder is the last thing she reads before writing");
+  yes(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt.includes("just finished dinner, basbousa is judging her from the counter"), "...and with no marker the picture matches her words");
+  eq(W.scenePicturePrompt("*Reem's playful smirk falters for a second, caught off guard. The air between them goes sharp. She tilts her head, dark waves slipping over her collarbone.*"), "Her playful smirk falters for a second, caught off guard. She tilts her head, dark waves slipping over her collarbone.", "live: 'Reem's' becomes 'Her'; sentences about them both are left out");
 
   section("pictures: in person");
   r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\" *Her eyes move over you.*"], { history: SCENE });
