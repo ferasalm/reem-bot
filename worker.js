@@ -641,7 +641,7 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face, a 29-year-old woman.",
+    REFERENCE: "The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult.",
     LOOKS: "A 29-year-old half-Egyptian half-American woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair parted slightly off-center, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
@@ -664,15 +664,15 @@ Changing the story
       cozy: "{selfie} Chest-up, {angle}, curled up {on the couch with Basbousa, her fluffy golden-brown tabby|under a blanket on the couch|in bed against the pillows}, {expression}, {wearing}, {light}.",
       detail: "{pov} Close-up of {her hand with thin gold rings around a coffee cup|her bare feet up on the balcony railing|her hand on fabric samples spread across her desk}, her face out of frame, {wearing}, {light}.",
       golden: "{selfie} Chest-up on her balcony in Zamalek at golden hour, warm low sun on her face, the Nile behind her, {angle}, {expression}, {wearing}.",
-      "mirror-back": "{mirror} 3/4-body reflection in a {bedroom|hallway|bathroom} mirror, her back to the mirror, looking back over her shoulder at it, hip slightly turned, {expression}, {wearing}, {light}.",
+      "mirror-back": "{mirror} Back view: she stands with her back to a {bedroom|hallway|bathroom} mirror and twists to look over her shoulder at her phone; the reflection shows her back, waist and hips, 3/4 body, {expression}, {wearing}, {light}.",
       neckline: "{selfie} Taken from above, chest-up, her collarbones and neckline in the frame, {expression}, {wearing}{where}, {light}.",
-      legs: "{pov} Looking down at her own legs {stretched out on the couch|crossed on the bed|up on the balcony chair}, her face out of frame, {wearing}, {light}.",
+      legs: "{pov} Only her legs and lap in the frame, {stretched out on the couch|crossed on the bed|up on the balcony chair}, no face, {wearing}, {light}.",
       waist: "{mirror} 3/4-body reflection in a {bedroom|bathroom} mirror, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
     },
     // The phone rules (owner): selfies never show the phone or her hand; mirror selfies always show an iPhone
-    SELFIE_PHONE: "Selfie taken with the front camera at arm's length; the phone and her hand are not visible.",
+    SELFIE_PHONE: "Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame.",
     MIRROR_PHONE: "Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible.",
-    POV_PHONE: "Photo taken from her own point of view; no phone and no hand holding a phone visible.",
+    POV_PHONE: "First-person photo through her own eyes, looking down at her body; the phone is the camera, never in the picture.",
     // Which shots each tier uses
     TIERS: {
       EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden"],
@@ -2170,6 +2170,8 @@ async function aiRun(env, model, input, timeoutMs, retry = true) {
 const aiText_ = (e) => String((e && (e.message || e)) || "");
 const aiOutOfNeurons = (e) => /\b3036\b|daily free allocation|neurons/i.test(aiText_(e));
 const aiUnavailable = (e) => /\b5035\b|\b403\b|workers paid|upgrade|not (?:found|available)|no such model|\b5007\b/i.test(aiText_(e));
+// Workers AI's safety filter refused the prompt (3030)
+const aiFiltered = (e) => /\b3030\b/.test(aiText_(e));
 const aiBusy = (e) => /\b3040\b|capacity|\b429\b/i.test(aiText_(e)) && !aiOutOfNeurons(e);
 
 // The last Workers AI failure, shown on /setup
@@ -2462,7 +2464,7 @@ const aboutHer = (t) => String(t || "").replace(/\byour\b/gi, "her").replace(/\b
 // No [selfie] at all: `doing` is what she just said she's doing ("just finished dinner"), if drawable.
 function selfieSubject(want, recent = [], said = "") {
   const P = CONFIG.PICTURE;
-  let words = aboutHer(want);
+  let words = aboutHer(want).replace(/^(?:she\s+)?(?:texts?|sends?)\b[^—:\n]{0,40}?\b(?:(mirror)\s+)?(?:selfie|pic|picture|photo)\s*(?:[—:-]\s*|,\s*)/i, (m, mirror) => (mirror ? "mirror selfie, " : ""));
   let shot = null;
   // Only a label ("mirror-back", "a mirror selfie") is taken off; "mirror selfie in the hallway" stays whole
   const [first, ...rest] = words.split(",");
@@ -2542,6 +2544,9 @@ function selfiePicture({ want = null, said = "", plan = null, history = [], aske
   let shot = s.shot;
   if (!tier && plan && (!shot || tierShots(plan.tier).includes(shot))) tier = plan.tier;
   if (!tier) tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot });
+  // Her own description with no type: the shot she was told (plan), else a plain selfie, never a random
+  // framing that contradicts it ("lying on her side in bed" drawn as a mirror shot, seen live)
+  if (!shot && s.words) shot = plan && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : Object.hasOwn(P.SHOTS, "selfie") ? "selfie" : null;
   if (!shot) shot = plan && plan.tier === tier && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : pickShot(tier, recentShots, hour);
   return composePicture({ tier, shot, words: s.words, doing: s.doing, hour, recentShots });
 }
@@ -2556,6 +2561,8 @@ function scenePicturePrompt(sceneText) {
     .map((x) => x.trim())
     // a lowercase start is a speech tag cut from its line ("she murmurs, a teasing edge to her voice")
     .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x))
+    // nothing a camera sees: her voice, a pause (seen live: "Her voice drops, mock-soft.")
+    .filter((x) => !/\b(?:voice|voices|pause|says|said|whispers|murmurs|tone)\b/i.test(x))
     .map((x) => x.replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "Her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
   const text = kept.join(" ");
   return wordsOf(text).length >= (Number(P.MIN_SCENE_WORDS) || 0) ? text : "";
@@ -2642,7 +2649,17 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     let error = null;
     let model = P.MODEL;
     try {
-      const drawn = await drawPicture(env, pic.prompt);
+      let drawn;
+      try {
+        drawn = await drawPicture(env, pic.prompt);
+      } catch (e) {
+        // Cloudflare's safety filter (3030) refused it (seen on the real API: a lace bralette and briefs in a
+        // mirror): the same shot one tier tamer, with the code's wardrobe instead of her words
+        if (kind !== "selfie" || !aiFiltered(e) || pic.tier === "everyday") throw e;
+        await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${pic.tier === "boudoir" ? "flirty" : "everyday"}`);
+        pic = composePicture({ tier: pic.tier === "boudoir" ? "flirty" : "everyday", shot: pic.shot, recentShots: ledger.shots });
+        drawn = await drawPicture(env, pic.prompt);
+      }
       model = drawn.model;
       return { ...pic, bytes: drawn.bytes, kind };
     } catch (e) {
@@ -2994,10 +3011,21 @@ function takeReaction(raw) {
 // only narrates sending one ("*sends a selfie*", which texting() drops anyway)
 function takeSelfie(raw) {
   let want = null;
-  const rest = String(raw).replace(SELFIE_TAG, (_, w) => {
-    if (want == null) want = w.trim().slice(0, 200);
+  // Long descriptions are cut at a word, never mid-word ("a hint of a s")
+  const cut = (w) => { w = w.trim(); return w.length <= 240 ? w : w.slice(0, 240).replace(/[,;\s]+\S*$/, ""); };
+  let rest = String(raw).replace(SELFIE_TAG, (_, w) => {
+    if (want == null) want = cut(w);
     return "";
   });
+  // Seen live 2026-10-02: the picture described in brackets without "selfie:" ("[sitting up in bed, hair
+  // messy, ...]", "[texts with a mirror selfie — low light, ...]"): a whole line in brackets that long is it
+  if (want == null) {
+    rest = rest.replace(/^[ \t]*\[([^\]\n]{12,400})\][ \t]*$/m, (line, w) => {
+      if (wordsOf(w).length < 4 || /^\s*(?:voice|react)/i.test(w)) return line;
+      want = cut(w);
+      return "";
+    });
+  }
   if (want == null && /\*[^*\n]*\*/.test(rest) && [...rest.matchAll(/\*([^*\n]+)\*/g)].some((m) => SENDS_SELFIE.test(m[1]))) want = "";
   return { want, rest };
 }

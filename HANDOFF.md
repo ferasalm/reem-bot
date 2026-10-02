@@ -41,6 +41,31 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   `VISION.PROMPT` and treats a refusal as not OK (on `dev`, not deployed: it only changes /health). His real photos
   use the descriptive prompt, which described all 18 face candidates through the REST API. Not yet seen: a
   picture or photo in the real chat (owner's /setup + first pic).
+- **2026-10-02 (late): pictures v3, the shot catalog — built on `ccr-555810b3-9btsdq`, NOT deployed** (owner's
+  v3 rules in the decision log). Details:
+  - **Shots** (`PICTURE.SHOTS`, type = camera + framing template): everyday `close`, `selfie`, `mirror`, `cozy`,
+    `detail`, `golden`; flirty `mirror-back` (belfie), `neckline`, `legs`, `waist`; boudoir = selfie, mirror,
+    mirror-back, neckline, legs, waist, cozy in lingerie/satin/swimwear (`TIERS`). Each template starts with one
+    phone rule: `{selfie}` (front camera, phone and hand not visible), `{mirror}` (an iPhone, lenses visible,
+    in the mirror), `{pov}` (her own view, no phone).
+  - **Picked in code** (`composePicture`): angle by `ANGLE_WEIGHTS` (high .45, eye .35, low .1, over .1),
+    expression/wardrobe/place of the tier, light by her time of day (`TIMES`, `LIGHT`), `{a|b|c}` alternatives
+    (the one her words mention). The last picture's angle and the last `RECENT_SHOTS` (2) types are avoided
+    (ledger `pics.shots`). `golden` only 15-19h (`SHOT_HOURS`).
+  - **Tier** (`planShot`/`pickTier`): `BOUDOIR_ASK_PATTERN` (lingerie, bikini, nudes...) → boudoir;
+    `SEXY_ASK_PATTERN` → never everyday; a shot he names (`SHOT_WORDS`: belfie, legs, cleavage...) is the one he
+    gets; else `TIER_WEIGHTS` by `chatHeat` (HEAT_WORDS in the last 6 messages, +1 step 22-3h): calm .85/.13/.02,
+    warm .5/.38/.12, hot .15/.45/.4. Code-decided pictures tell her the shot and a tier hint (`FORMAT`, `REMINDER`:
+    `[selfie: {shot}, what it shows]`); `SELF_CHOICE` lists the types and says she may pick a sexier one.
+  - **Her marker** `[selfie: mirror-back, black leggings]`: a leading type label is taken off; her words replace
+    wardrobe and place; words with a `NOT_DRAWN` word (now nudity only: nude, naked, topless, sheer, see-through,
+    sex acts...) are dropped and a boudoir picture is drawn instead. `SAFE` = "No nudity.". History:
+    `[selfie: type, what]`. Scene pictures drop only explicit sentences. Never for a minor-flagged chat, never OOC.
+  - Tests: scenarios section "pictures v3" (slots within lists, 40-110 words, phone rules, weights, recent-type
+    and angle avoidance, tier gating incl. minor, nudity words). `live.mjs` adds belfie-asked, lingerie-asked,
+    selfie-own-choice-hot, under18-pic and prints each selfie's drawing prompt. `tools/face/shots.mjs` writes a
+    face.yml job: every shot x tier (17 pictures) with the bot's own prompts.
+  - **STATUS_V3_CHECKS**
 - **Pictures v2 (details)** (owner's rules below; replaces v1's photo pack).
   - **Every picture is drawn new** (owner: "same picture sent more than once is a hard no"): FLUX.2 klein 4B on
     Workers AI (`PICTURE.MODEL`) from her **reference face** (`face.js` = `tools/face/reference.jpg`, multipart

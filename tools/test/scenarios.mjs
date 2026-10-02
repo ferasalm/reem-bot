@@ -131,6 +131,14 @@ const L3 = [
   ["live: [ selfie: ... ] with spaces", "you're demanding tonight huh\n\n[ selfie: soft warm lamp light, messy bun, oversized gray knit cardigan slipping off one shoulder, hint of a smile, phone held low ]\n\ncareful what you ask for.", { canSelfie: true },
     { kind: "text", texts: ["you're demanding tonight huh", "careful what you ask for."], selfie: "soft warm lamp light, messy bun, oversized gray knit cardigan slipping off one shoulder, hint of a smile, phone held low" }],
   ["live: long marker, not offered -> still dropped", "ok\n\n[selfie: mirror selfie, hair still messy from a nap, oversized black t-shirt slipping off one shoulder, soft lamp light behind you]", {}, { kind: "text", texts: ["ok"], selfie: null }],
+  // seen in the live check 2026-10-02 (run 37067630877): the picture described in a bare bracket line, no "selfie:"
+  ["live: picture in a bare [bracket] line", "[sitting up in bed, hair messy, wearing an oversized t-shirt, Basbousa curled on my lap]\n\ncouldn't sleep. was scrolling through fabric samples", { canSelfie: true },
+    { kind: "text", texts: ["couldn't sleep. was scrolling through fabric samples"], selfie: "sitting up in bed, hair messy, wearing an oversized t-shirt, Basbousa curled on my lap" }],
+  ["live: [texts with a mirror selfie — ...]", "bold tonight, aren't you.\n\n[texts with a mirror selfie — low light, her bedroom, the golden lamp on the nightstand. She's in black lace, hair loose over her collarbone]\n\nlike what you see?", { canSelfie: true },
+    { kind: "text", texts: ["bold tonight, aren't you.", "like what you see?"], selfie: "texts with a mirror selfie — low light, her bedroom, the golden lamp on the nightstand. She's in black lace, hair loose over her collarbone" }],
+  ["bare [bracket] line, no picture possible -> still never reaches him", "[sitting up in bed, hair messy, Basbousa curled on my lap]\n\ncouldn't sleep", {}, { kind: "text", texts: ["couldn't sleep"], selfie: null }],
+  ["short [sleepy] cue is not a picture", "[sleepy] just woke up", { canSelfie: true }, { kind: "text", texts: ["just woke up"], selfie: null }],
+  ["live: long marker cut at a word", `ok\n\n[selfie: ${"soft lamp glow, ".repeat(20)}looking straight into the camera with a hint of a smile]`, { canSelfie: true }, { kind: "text", texts: ["ok"] }],
   ["selfie: never OOC", "Sure, I can do that. [selfie: mirror selfie]", { ooc: true, canSelfie: true }, { kind: "text", selfie: null, texts: ["Sure, I can do that."] }],
 ];
 
@@ -310,12 +318,13 @@ W.CONFIG.REACTIONS.CHANCE = 0.25;
 
 section("pictures: his photos (Workers AI vision)");
 {
-  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false;
+  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false; let filterNext = false;
   const formOf = async (input) => Object.fromEntries([...(await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData())].map(([k, v]) => [k, typeof v === "string" ? v : `<${v.size} bytes>`]));
   env.AI = { async run(model, input) {
     if (model.includes("flux")) {
       const fields = input.multipart ? await formOf(input) : input;
       ai.push({ model, fields });
+      if (filterNext) { filterNext = false; throw new Error("3030: Input prompt contains NSFW content"); }
       if (drawError) { const e = drawError; if (!/5035/.test(e.message) || model.includes("flux-2")) throw e; }
       return { image: btoa(sameBytes ? "same picture" : `picture ${++pictureNo}`) };
     }
@@ -400,6 +409,12 @@ section("pictures: his photos (Workers AI vision)");
   // seen in the live check 2026-10-02 (run 37045907764): a selfie written to him, and no [selfie] when the code decided one
   eq(W.selfieSubject("dim bedroom, city lights behind you, phone angled just above your eyes", []).words, "dim bedroom, city lights behind her, phone angled just above her eyes", "live: 'you' in her [selfie] becomes 'her'");
   eq(W.selfieSubject(null, [], "nothing. just finished dinner, basbousa is judging me from the counter\n\nyou? bored? curious?").doing, "just finished dinner, basbousa is judging her from the counter", "live: no [selfie]: the picture shows what she just said she's doing");
+  eq(W.selfieSubject("texts with a mirror selfie — low light, her bedroom, in black lace").words, "low light, her bedroom, in black lace", "live: 'texts with a mirror selfie —' is not part of the picture");
+  eq(W.selfieSubject("texts with a mirror selfie — low light, her bedroom, in black lace").shot, "mirror", "...but the mirror is kept");
+  // seen live: "lying on her side in bed" (no type) drawn as a mirror waist shot
+  eq(W.selfiePicture({ want: "lying on my side in bed, hair spilled across the pillow", plan: { tier: "everyday", shot: "selfie" } }).shot, "selfie", "live: her description without a type keeps the shot she was told");
+  eq(new Set(Array.from({ length: 50 }, () => W.selfiePicture({ want: "lying on my side in bed, hair on the pillow" }).shot)).size, 1, "...and with no plan, always the plain selfie (never a random framing)");
+  eq(W.scenePicturePrompt("*The hallway is dim, the only light spilling from behind her, catching the curve of her shoulder where the robe has slipped. A pause. Her voice drops, mock-soft.*"), "The hallway is dim, the only light spilling from behind her, catching the curve of her shoulder where the robe has slipped.", "live: her voice and pauses aren't drawn");
   W.CONFIG.PICTURE.CHANCE = 1;
   r = await turn("what are you up to", ["just finished dinner, basbousa is judging me from the counter\n\nyou?"], { history: APART });
   W.CONFIG.PICTURE.CHANCE = 0;
@@ -434,7 +449,7 @@ section("pictures: his photos (Workers AI vision)");
     // The owner's phone rules: selfies never show the phone or her hand; mirror selfies an iPhone
     const cams = Object.entries(P.SHOTS).map(([t, tpl]) => [t, (tpl.match(/\{(selfie|mirror|pov)\}/g) || []).join("")]);
     eq(cams.filter(([, c]) => !["{selfie}", "{mirror}", "{pov}"].includes(c)), [], "every shot starts from exactly one phone rule");
-    yes(P.SELFIE_PHONE.includes("the phone and her hand are not visible") && P.MIRROR_PHONE.includes("iPhone") && P.MIRROR_PHONE.includes("visible in the mirror"), "phone rules: selfie no phone or hand; mirror an iPhone, visible");
+    yes(P.SELFIE_PHONE.includes("the phone itself is never in the picture") && P.SELFIE_PHONE.includes("her hands are out of the frame") && P.MIRROR_PHONE.includes("iPhone") && P.MIRROR_PHONE.includes("visible in the mirror"), "phone rules: selfie no phone or hand; mirror an iPhone, visible");
     const mirrorShots = cams.filter(([, c]) => c === "{mirror}").map(([t]) => t);
     eq(mirrorShots, ["mirror", "mirror-back", "waist"], "mirror shots: mirror, mirror-back, waist");
     yes(mirrorShots.every((s) => W.composePicture({ tier: "boudoir", shot: s }).prompt.includes("iPhone")) && ["close", "selfie", "neckline", "golden"].every((s) => { const p = W.composePicture({ tier: "everyday", shot: s }).prompt; return p.includes(P.SELFIE_PHONE) && !p.includes("iPhone"); }), "...and in the prompts");
@@ -469,11 +484,17 @@ section("pictures: his photos (Workers AI vision)");
   r = await turn("send me a belfie 😏", ["fine. don't say i never spoil you\n\n[selfie: mirror-back, black leggings]"], { history: APART });
   yes(r.system[0].includes("[selfie: mirror-back, what it shows]") && r.system[0].includes(W.CONFIG.PICTURE.TIER_HINTS.flirty.trim()), "he asks for a belfie: she's told the shot and to make it flirty", r.system[0].slice(-500));
   const fb = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
-  yes(fb.prompt.includes("her back to the mirror") && fb.prompt.includes("black leggings") && fb.prompt.includes("iPhone"), "drawn as a mirror-back with her words", fb.prompt);
+  yes(fb.prompt.includes("her back to a") && fb.prompt.includes("black leggings") && fb.prompt.includes("iPhone"), "drawn as a mirror-back with her words", fb.prompt);
   eq(r.saved.parts.at(-1).text, "[selfie: mirror-back, black leggings]", "history: [selfie: type, what]");
   r = await turn("send me a pic in your lingerie", ["greedy\n\n[selfie: in black lace, sitting on the edge of my bed]"], { history: APART });
   yes(r.system[0].includes(W.CONFIG.PICTURE.TIER_HINTS.boudoir.trim()), "lingerie asked: boudoir hint");
   yes(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt.includes("in black lace, sitting on the edge of her bed"), "...her words drawn");
+  // seen on the real API 2026-10-02 (face run 37067630871): Cloudflare's filter (3030) refused a boudoir mirror shot
+  filterNext = true;
+  r = await turn("send me a pic in lingerie", ["[selfie: mirror, red satin corset by the window]"], { history: APART });
+  const tries = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).slice(-2).map((a) => a.fields.prompt);
+  yes(r.photos.length === 1 && tries.length === 2 && tries[0].includes("red satin corset") && !tries[1].includes("corset") && W.CONFIG.PICTURE.WARDROBE.FLIRTY.some((w) => tries[1].includes(w)), "safety filter (3030): drawn once more, one tier tamer, so a picture still comes", tries[1]);
+  eq(r.saved.parts.at(-1).text.startsWith("[selfie: mirror, wearing "), true, "...and history says what was really drawn");
   r = await turn("send me a pic of you", ["here\n\n[selfie: wearing nothing at all]"], { history: APART });
   yes(!/nothing at all/.test(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt), "'wearing nothing' is never drawn");
 
