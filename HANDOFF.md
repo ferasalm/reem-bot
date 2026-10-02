@@ -35,7 +35,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   branch). Sessions may push finished, tested work to `dev` without asking. `main` stays = live.
 - 2026-10-02 — **Clean-up**: close PR #6 (superseded by the integrated v10) and delete the superseded branches
   (`ccr-b7869b5d-d7yudi`, `ccr-75e7610d-6zkheu`, `ccr-b51a9ebf-j34yp9`, `claude/reem-llm-model-comparison-f27xor`,
-  and the squash-merged `ccr-9d5bc032-5c585q`, `claude/reem-bot-cloudflare-deploy-6l42tq`).
+  and the squash-merged `ccr-9d5bc032-5c585q`, `claude/reem-bot-cloudflare-deploy-6l42tq`). PR #6 closed. The
+  branches couldn't be deleted from Claude's session (the git proxy refuses ref deletion): the owner deletes them on
+  GitHub; until then they're in `tools/retired-branches.txt`.
 - 2026-10-02 — **Deploy v10 now.**
 - 2026-10-02 — Merge choices, listed to the owner with no objection (reversible any time): texts kept free of *actions*
   by code; history folds at 40 keeping 24; /auto drafts on DeepSeek; PR #6's lengths (scenes under 150 words,
@@ -168,6 +170,7 @@ check; scenario rows for every slip seen.
 
 ## Next steps
 1. Owner: set `dev` as the GitHub default branch (Settings > General > Default branch; "Desktop site" on).
+   Then delete the six branches in `tools/retired-branches.txt` (repo > Branches > trash icon) and empty that list.
 2. Read the `[live]` check of the integrated v10 on DeepSeek (see the latest Tests run) and tune from evidence:
    NUDGES, TEXTURE, `LLM.MAX_TOKENS`, `VOICE.CHANCE*`, never LIMITS & OOC, never toning down explicitness.
 3. After the deploy: `/setup` once (should show "Model answered (via Novita)" and the Lunaris backup line; it also

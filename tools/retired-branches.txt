@@ -1,3 +1,10 @@
 # Branches whose work is already on main or dev, or was superseded. tools/sync-check.mjs ignores them.
 # One branch per line, then why. Delete the branch on GitHub when the owner agrees, then remove its line.
-# (2026-10-02: all superseded branches were deleted; nothing is retired right now.)
+# 2026-10-02: the owner approved deleting all of these; Claude's session can't delete branches (the git proxy
+# refuses ref deletion), so the owner deletes them on GitHub (repo > Branches > trash icon), then remove the lines.
+ccr-9d5bc032-5c585q                       # v8 + v9, squash-merged into main (PR #5)
+claude/reem-bot-cloudflare-deploy-6l42tq  # deploy workflow, squash-merged into main (PR #4)
+ccr-b7869b5d-d7yudi                       # DeepSeek v10, merged into dev
+ccr-75e7610d-6zkheu                       # format-guard v10, merged into dev
+ccr-b51a9ebf-j34yp9                       # PR #6 v10 (closed), merged into dev
+claude/reem-llm-model-comparison-f27xor   # model bench, merged into dev
