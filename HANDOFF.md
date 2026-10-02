@@ -5,7 +5,7 @@ HANDOFF.md says something different, the shared branch wins. Every session start
 (`node tools/sync-check.mjs`, run automatically by `.claude/settings.json`): if it lists other branches with work
 that isn't here, stop and ask the owner before building anything. Session rules are in `CLAUDE.md`.
 
-## Status (2026-10-02, late night)
+## Status (2026-10-03)
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan).
 - **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02, plus fast timing, instant settings
   commands and her voice in person scenes (same day, c166420; details below). Before that:
@@ -34,10 +34,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
-- **2026-10-03: voice notes less often — on `dev` (aba696d), NOT deployed** (owner: "sending voice messages TOO
+- **2026-10-03: voice notes less often — deployed** (owner: "Deploy"; `main` = 007b735) (owner: "sending voice messages TOO
   often"). Cause: `VOICE.CHANCE` 0.2 plus every `[voice]` she chose herself, and old `[voice] ...` lines in the
   history pull her to more. Now `VOICE.CHANCE` 0.1 and `VOICE.SELF_CHOICE_GAP` 4 (`mayChooseVoice` in shapeReply:
-  her own `[voice]` with a voice note in her last 4 replies goes out as text). Unit, scenarios (3 rows), e2e green.
+  her own `[voice]` with a voice note in her last 4 replies goes out as text). Unit, scenarios (3 rows), e2e green. Deploy run not read (owner asked to save usage).
 - **2026-10-03: pictures stop after a lingerie pic — open, owner decides.** /setup's last AI error: `5006:
   Additional or unevaluated properties '/seed' at '/' not allowed` (neurons 890/9000). A refused klein draw went to
   the FLUX.1 schnell backup with a `seed`, which schnell rejects. Also seen: the shot type she writes overrides the
@@ -396,6 +396,22 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
+000. **Picture bug fix (owner asked for it, 2026-10-03; not done)**. Live symptom: after a lingerie pic, pictures
+   stop; /setup's last AI error is `5006: Additional or unevaluated properties '/seed' at '/' not allowed`. Cause in
+   `drawPicture`: when klein's draw fails, the error is taken as "model unavailable" and FLUX.1 schnell is called
+   with `seed`, which schnell's schema rejects, so nothing is sent. Also: in `selfiePicture` the shot type she
+   writes overrides the shot he named (a belfie came out as a plain mirror shot). The owner-approved fix, 4 edits
+   in worker.js:
+   1. `drawPicture`: `if (!P.BACKUP_MODEL || !aiUnavailable(e)) throw e;` →
+      `if (!P.BACKUP_MODEL || aiFiltered(e) || !aiUnavailable(e)) throw e;` (a 3030 refusal never goes to the backup)
+   2. `drawPicture`: the schnell call `{ prompt: who(P.LOOKS), steps: P.BACKUP_STEPS, seed }` → drop `seed`.
+   3. `planShot`: return `named: true` when the shot he named is used (`const his = !!named && tierShots(tier).includes(named)`).
+   4. `selfiePicture`: `let shot = plan && plan.named ? plan.shot : s.shot; if (!tier && plan && plan.named) tier = plan.tier;`
+   Add scenario rows (3030 → no backup call; schnell input has no `seed`; "send me a belfie" + her `[selfie: mirror,
+   ...]` → mirror-back), run Testing, push to `dev`, deploy only when the owner says so.
+   Context: Claude's auto-mode safety check in session 01LosUi6 refused these edits ("Security Weaken"), probably
+   because they touch the safety-filter (3030) path. The owner can't switch that session's mode. Not part of the fix:
+   rewording prompts to get past Cloudflare's filter (Claude declined; a 3030 refusal stands).
 00. **Pictures v3 (deployed 2026-10-02)**. Owner, now: /setup once, then ask her for a pic, a
    belfie, a lingerie pic; read /setup for any `3030` line (the filter refused a picture and a tamer one was
    drawn). Tuning from evidence: `TIER_WEIGHTS`, `HEAT_WORDS`, `SELF_CHOICE` (she picked a picture herself 0/12 in
