@@ -402,6 +402,8 @@ section("pictures: his photos (Workers AI vision)");
   yes(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt.includes("just finished dinner, basbousa is judging her from the counter"), "...and with no marker the picture matches her words");
   eq(W.scenePicturePrompt("*Reem's playful smirk falters for a second, caught off guard. The air between them goes sharp. She tilts her head, dark waves slipping over her collarbone.*"), "Her playful smirk falters for a second, caught off guard. She tilts her head, dark waves slipping over her collarbone.", "live: 'Reem's' becomes 'Her'; sentences about them both are left out");
 
+  eq(W.scenePicturePrompt("*She tilts her head, a slow smile curving her lips as she pushes off the doorframe.* \"I said...\" *she murmurs, almost to herself. A small laugh escapes her, soft and warm.*"), "She tilts her head, a slow smile curving her lips as she pushes off the doorframe. A small laugh escapes her, soft and warm.", "live: speech-tag fragments ('she murmurs, ...') left out of scene pictures");
+
   section("pictures: in person");
   r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\" *Her eyes move over you.*"], { history: SCENE });
   eq(r.order, ["sendMessage", "sendPhoto"], "he asks to see her (SCENE_ASK_PATTERN): the scene, then a picture of the moment");

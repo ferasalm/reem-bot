@@ -34,7 +34,42 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
-- **2026-10-02 (evening): pictures, built and tested, on `dev`, NOT deployed** (owner's picks below). She sees his
+- **2026-10-02 (night): pictures v2, built and tested, NOT deployed** (owner's rules below; replaces v1's photo pack).
+  - **Every picture is drawn new** (owner: "same picture sent more than once is a hard no"): FLUX.2 klein 4B on
+    Workers AI (`PICTURE.MODEL`) from her **reference face** (`face.js` = `tools/face/reference.jpg`, multipart
+    `input_image_0`), 640 px; FLUX.1 schnell from `LOOKS` when klein is unavailable (403/5035). Exact-same bytes
+    never sent twice (SHA-256 in KV `pics`); her last 8 subjects are in her prompt (`RECENT`) and a too-similar
+    subject is swapped (`VARIETY`, `SIMILAR`).
+  - **Same rules as voice, cost-scaled** (`pictureMode` next to `replyMode`): he asks (`ASK_PATTERN`) → always;
+    apart `CHANCE` 0.05 / `CHANCE_AFTER_PHOTO` 0.3 / `CHANCE_MORE` 0.15 (`/pics`, like /voice); her own `[selfie: …]`
+    (`SELF_CHOICE`); she texts first → chance applies; in person `SCENE_ASK_PATTERN` ("let me see you") or
+    `SCENE_CHANCE` 0.08 → a picture of the moment drawn from her narration only (`scenePicturePrompt`: no
+    sentences about him/them, no `NOT_DRAWN` words, no speech-tag fragments; history part `{id, text: ""}`). Never
+    OOC; never sexual (`SAFE` + `NOT_DRAWN`); never after "I'm under 18" (`MINOR_PATTERN`, wider: words, grades).
+  - **Picture decided but no marker** (DeepSeek leaves it out ~2/3 when he didn't ask): `PICTURE.REMINDER` goes
+    right before she writes; failing that, the picture shows what she just said she's doing (`selfieSubject`).
+  - **Budget** (`AI_BUDGET`, KV `pics`, one write per picture or seen photo): 9,000 of the free 10,000 neurons a
+    day; pictures stop at 60%; Cloudflare's 3036 stops everything until 00:00 UTC. Estimates: picture 50, photo 60.
+  - **/face** shows her face and draws 3 new ones (480 px, KV `face_draft:<id>`, a day); `/face keep` (reply) →
+    KV `face` overrides face.js; `/face reset`. **/health** (read-only, once per 10 min): draws 256 px from her
+    face and describes it; the Deploy workflow curls it after deploying and prints the result.
+  - **Her face** (no owner action needed, owner may replace it with /face): `.github/workflows/face.yml` draws
+    candidates through the Cloudflare REST API with the repo's `CLOUDFLARE_API_TOKEN` (it has Workers AI access)
+    and pushes them to branch `face-candidates`; Llama 4 Scout states an age range for each. Round 1 (run
+    37045817520) rejected: some read "late teens / early twenties". Round 2 (run 37046459670, "late twenties,
+    clearly adult" prompts) all read 25-35; candidate 02 chosen (almond brown eyes, arched brows, faint
+    freckles, off-centre waves). Consistency run: see below.
+  - **Real API facts** (face workflow): klein answers `{result: {image: base64 JPEG}}`, 12-24 s at 768 px (hence
+    640 px and `TIMEOUT_MS` 40 s); Llama 4 Scout answers OpenAI-style `choices[0].message.content` (handled by
+    `aiText`). The binding path (`{multipart: {body, contentType}}`) is only checked by `/health` after deploy.
+  - CPU (free plan, 10 ms per run): his photo at ≤800 px, `Uint8Array.fromBase64` when present, hashing native.
+  - Verified: mocked tests (scenarios: pictures sections, /face, /health; CI also builds with `wrangler deploy
+    --dry-run`). `[live]` runs 37045907764 and 37046634804 (52/52 DeepSeek @ Novita each, read in full, nothing
+    broken): marker when asked 3/3 then 2/3; code-decided 0/3 → 1/3 after REMINDER (the rest drawn from her
+    words); fixes from reading: "you" in a selfie → "her", "Reem's" → "Her", sentences about "them" and speech
+    tags left out of scene pictures. Seen, not this change: once, "what are you wearing" after "i'm 16" got an
+    answer ("my comfy robe"); the next run held 6/6. Owner decides any prompt change.
+- **v1 (superseded by v2 above, same evening): pictures from a photo pack**. She sees his
   photos and sends pictures of herself.
   - **His photos**: `describePhoto` takes the biggest Telegram size up to `VISION.MAX_SIDE`, asks a Workers AI vision
     model (`VISION.MODEL` @cf/meta/llama-4-scout-17b-16e-instruct, `[ai]` binding `AI` in wrangler.toml) for a plain
@@ -102,6 +137,12 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Pictures v2** (owner): **never the same picture twice** ("a hard no") → no photo pack, every
+  picture drawn new; **Cloudflare free tier only**; **pictures follow the voice rules**, only how often is scaled
+  to cost (voice clips in scenes → scene pictures too); agreed with Claude: never sexual, none after he says he's
+  under 18. Image model (owner's pick of 2): **FLUX.2 klein + a reference face**. The face is chosen by Claude
+  (owner: "address how you are going to get the face reference"); the owner can replace it with /face.
+  *Supersedes the photo-pack part of "Pictures" below.*
 - 2026-10-02 — **Pictures**: she sees his photos and sends selfies (owner: "patch reem-bot such that she may send
   pictures, selfies and understands sent selfies and images", free tiers preferred). Owner's picks: **vision =
   Cloudflare Workers AI** (over OpenRouter free / paid vision); **selfies = photo pack + FLUX drawn fallback** (over
@@ -193,9 +234,11 @@ check; scenario rows for every slip seen.
     → `trimUnfinished`; `backup` → one try with `LLM.BACKUP_MODEL`, messages cut by `fitMessages` to
     `LLM.BACKUP_CONTEXT_TOKENS`) → `askModel`; `remember` (memory folding)
   - timing: `noticeTime`, `typingTime`, `act`, `sendBubbles` (returns `[{id, text}]`)
-  - pictures: `describePhoto` (`aiRun`, `aiText`, `tidyDescription`, `photoLine`), `selfieOffer`, `selfieTags`,
-    `takeSelfie`, `sendSelfie` (`matchPack`, `mayDraw`, `drawSelfie`, `sendPhoto`), `countSelfie`, `noteMinor`/
-    `saysMinor`, `selfieCommand`, `aiFailed` (KV `ai_error`)
+  - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,
+    `photoLine`); ledger `loadLedger`/`saveLedger`/`aiAffordable`/`aiSpent` (KV `pics`); `picturesAllowed`,
+    `pictureMode`; `takeSelfie` (in `shapeReply`); `startPicture` (`selfieSubject` or `scenePicturePrompt` →
+    `drawPicture` with `faceBytes`) and `deliverPicture` (hash check, `sendPhoto`); `noteMinor`/`saysMinor`;
+    `picsCommand`, `faceCommand`; `health` (`/health`); `aiFailed` (KV `ai_error`)
   - voice: `bodyOf`/`clean`, `forSpeech` → `tidySpoken` → `sayArabizi`, `tts` (`voiceSettings`), `sendVoice`
     (returns `{delivered, id, error}`), `voiceFailed` (KV `voice_error`, shown on /setup)
   - audio tags: `isV3`, `audioTagsOn`, `audioTagRe`, `isAudioTag`, `stripAudioTags`
@@ -203,8 +246,13 @@ check; scenario rows for every slip seen.
     STAGE_DIRECTIONS and arrays replaced whole; SAMPLING, PROVIDER, REASONING accept new OpenRouter keys)
   - KV keys: `s:<chat>` settings (moreVoice, proactive {day,count}, selfies {day,count}, minor, name, about, tgName), `h:<chat>` history
     `{role, content, at, parts: [{id, text}], proactive?, ooc?, react?, reactTo?}`, `m:` notes, `b:` backlog,
-    `a:<chat>` /auto draft `{id, text, idea}`, `selfies` her photo pack `[{tag, file_id}]`, `owner`, `seen`,
-    `voice_error`, `ai_error`; his photo parts carry `photo: true` and `seen` (the description)
+    `a:<chat>` /auto draft `{id, text, idea}`, `pics` {day (UTC), neurons, out, hashes, recent}, `face` (base64, from
+    /face keep), `face_draft:<message id>` (a day), `health`/`health_at`, `owner`, `seen`, `voice_error`,
+    `ai_error`; his photo parts carry `photo: true` and `seen` (the description); settings also `morePics`, `minor`
+- `face.js`: her reference face (base64 of `tools/face/reference.jpg`), imported by worker.js; the test loader and
+  build-panel copy it next to their worker copy. `tools/face/` (`draw.mjs`, `job.json`) + `.github/workflows/face.yml`:
+  draws face candidates or a consistency check through the Cloudflare REST API (runs when the job changes),
+  pictures pushed to branch `face-candidates` (pictures only, listed in retired-branches.txt).
 - `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`,
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
 - `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,
@@ -236,6 +284,8 @@ check; scenario rows for every slip seen.
   A reply can take up to 4 OpenRouter calls (2 attempts + backup, then one retry).
 - Context: `LLM.CONTEXT_TOKENS` 32768 for DeepSeek; the Lunaris backup gets older chat cut to 8192
   (`fitMessages`). History folds into notes at 40 messages, keeping 24 (PR #6 had cut this to 24/14 for Lunaris).
+- Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` works (face.yml). Klein needs
+  multipart form data even with only a prompt; reference images must be under 512x512 (ours: 480).
 - Tests: `CONFIG_OVERRIDES` is cached once per run, so tests set `W.CONFIG` directly. Voice chances are 0 in e2e and
   scenarios except where a test asks. e2e `herPrompts()`/`sys()` read her prompts (not memory or /auto).
 - Telegram reactions accept only its fixed emoji list (❤ without FE0F, 🤣 rather than 😂).
@@ -258,11 +308,10 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
-0. Pictures (on `dev`, not deployed): read the `[live]` run of the picture situations, then deploy when the owner
-   asks. After deploying: open /setup (the "Workers AI (AI)" row must be ✅; if the deploy fails on the `[ai]`
-   binding, the `CLOUDFLARE_API_TOKEN` may need the Workers AI permission), send her a photo, then build her pack:
-   `/selfie make <description>` a few times, reply `/selfie add <what it shows>` to the keepers (and to any real
-   photos of the character the owner has). Ask her for a pic.
+0. Pictures v2 (on `dev`, not deployed): deploy when the owner asks. Then read the Deploy run's "/health" step
+   (draw ok + vision ok = the binding works); if it fails, the error is in the log and in KV `ai_error` (/setup).
+   Owner, after deploying: /setup once (also turns on v10 edits and /auto buttons), send her a photo, ask for a
+   pic, and "let me see you" mid-scene. `/face` if her face should change.
 1. Owner: set `dev` as the GitHub default branch (Settings > General > Default branch; "Desktop site" on).
    Then delete the six branches in `tools/retired-branches.txt` (repo > Branches > trash icon) and empty that list.
 2. Read the `[live]` check of the integrated v10 on DeepSeek (see the latest Tests run) and tune from evidence:

@@ -2318,7 +2318,8 @@ function scenePicturePrompt(sceneText) {
   const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
   const kept = sentencesOf(narration)
     .map((x) => x.trim())
-    .filter((x) => x && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x))
+    // a lowercase start is a speech tag cut from its line ("she murmurs, a teasing edge to her voice")
+    .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x))
     .map((x) => x.replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "Her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
   const text = kept.join(" ");
   return wordsOf(text).length >= (Number(P.MIN_SCENE_WORDS) || 0) ? text : "";
