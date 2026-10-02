@@ -75,7 +75,6 @@ for (const [p, prompt] of job.prompts.entries()) {
   for (let k = 0; k < (job.per_prompt || 1); k++) {
     n++;
     const seed = 1000 + n * 7919;
-    const raw = `${out}/${String(n).padStart(2, "0")}.raw`;
     const jpg = `${out}/${String(n).padStart(2, "0")}.jpg`;
     console.log(`\n#${n} prompt ${p + 1}, seed ${seed}${job.reference ? `, reference ${job.reference}` : ""}`);
     let bytes = null;
@@ -96,6 +95,10 @@ for (const [p, prompt] of job.prompts.entries()) {
       }
     }
     if (!bytes) continue;
+    // The format from the first bytes (ImageMagick goes by the extension)
+    const ext = bytes[0] === 0x89 ? "png" : bytes[0] === 0xff ? "jpg" : bytes.slice(8, 12).toString() === "WEBP" ? "webp" : "bin";
+    console.log(`  format: ${ext}, ${bytes.length} bytes`);
+    const raw = `${out}/${String(n).padStart(2, "0")}-full.${ext}`;
     writeFileSync(raw, bytes);
     execFileSync("convert", [raw, "-resize", "480x480^", "-gravity", "center", "-extent", "480x480", "-quality", "86", "-strip", jpg]);
     execFileSync("rm", [raw]);
