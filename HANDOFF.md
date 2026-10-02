@@ -58,7 +58,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
     and pushes them to branch `face-candidates`; Llama 4 Scout states an age range for each. Round 1 (run
     37045817520) rejected: some read "late teens / early twenties". Round 2 (run 37046459670, "late twenties,
     clearly adult" prompts) all read 25-35; candidate 02 chosen (almond brown eyes, arched brows, faint
-    freckles, off-centre waves). Consistency run: see below.
+    freckles, off-centre waves). Consistency run 37047036080 (4 pictures drawn the way the bot draws them:
+    mirror selfie, Nile balcony, café, couch with Basbousa): the same adult woman in each, clothed, scenes right.
   - **Real API facts** (face workflow): klein answers `{result: {image: base64 JPEG}}`, 12-24 s at 768 px (hence
     640 px and `TIMEOUT_MS` 40 s); Llama 4 Scout answers OpenAI-style `choices[0].message.content` (handled by
     `aiText`). The binding path (`{multipart: {body, contentType}}`) is only checked by `/health` after deploy.
