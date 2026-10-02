@@ -146,6 +146,10 @@ const L3 = [
     { kind: "text", texts: ["that's all you're getting"], selfie: "sends a photo: mirror shot, silhouette at the window, silk slip falling off one shoulder" }],
   ["live: scene narration without *asterisks* after his action is narration, not her words", "She lets the pause hang, one eyebrow ticking up before she pushes off the doorframe. Her robe slips a little.\n\n\"Well? You wanted to see me.\"", { scene: "together", heard: "*steps closer* let me see you" },
     { kind: "scene", texts: ["*She lets the pause hang, one eyebrow ticking up before she pushes off the doorframe. Her robe slips a little.*\n\n\"Well? You wanted to see me.\""] }],
+  // seen in the live check 2026-10-02 (run 37069445307): "selfie: ..." as a plain line, spoken in a voice note
+  ["live: plain 'selfie: ...' line in a voice note is the picture, not spoken", "[voice] [teasing] you're bold tonight. i like it.\n\nselfie: mirror, black lace bralette and matching underwear, dim amber light\n\nyou want more than a picture? come get it.", { canSelfie: true },
+    { kind: "voice", spoken: "[teasing] You're bold tonight. I like it... You want more than a picture? Come get it.", selfie: "mirror, black lace bralette and matching underwear, dim amber light" }],
+  ["plain 'selfie: ...' line, no picture possible -> still not spoken", "[voice] okay.\n\nselfie: mirror, black dress\n\ncome over", {}, { kind: "voice", spoken: "Okay... Come over.", selfie: null }],
   ["selfie: never OOC", "Sure, I can do that. [selfie: mirror selfie]", { ooc: true, canSelfie: true }, { kind: "text", selfie: null, texts: ["Sure, I can do that."] }],
 ];
 

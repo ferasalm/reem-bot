@@ -108,7 +108,8 @@ function broken(s, kinds, scene, pictureDecided = false) {
     const clip = W.forSpeech(W.sceneSpeech(s.texts.join("\n")));
     if (/\d/.test(clip.replace(/\b\d+(?:am|pm|st|nd|rd|th|s)?\b/gi, ""))) bad.push("digit in the scene clip");
     if (/\*/.test(clip)) bad.push("*action* in the scene clip");
-    if (NAME.test(clip.replace(/\[[^\]]*\]/g, ""))) bad.push("her own name in the scene clip (narration spoken?)");
+    // her name quoted inside her words ("No 'hi, Reem, you look beautiful'?") is dialogue, not narration
+    if (NAME.test(clip.replace(/\[[^\]]*\]/g, "").replace(/(^|\W)['‘][^'‘’\n]*['’](?=\W|$)/g, "$1"))) bad.push("her own name in the scene clip (narration spoken?)");
   }
   if (scene === "apart" && s.kind !== "scene") {
     if (s.texts.some((t) => /\*/.test(t))) bad.push("*action* in a text");

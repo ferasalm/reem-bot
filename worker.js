@@ -3037,6 +3037,13 @@ function takeSelfie(raw) {
   });
   // Seen live 2026-10-02: the picture described in brackets without "selfie:" ("[sitting up in bed, hair
   // messy, ...]", "[texts with a mirror selfie — low light, ...]"): a whole line in brackets that long is it
+  // ...or as a plain line "selfie: mirror, black lace..." (seen live: spoken in a voice note)
+  if (want == null) {
+    rest = rest.replace(/^[ \t]*(?:selfie|photo|pic|picture)[ \t]*:[ \t]*([^\n]{3,400})$/im, (line, w) => {
+      want = cut(w);
+      return "";
+    });
+  }
   if (want == null) {
     rest = rest.replace(/^[ \t]*\[([^\]\n]{12,400})\][ \t]*$/m, (line, w) => {
       if (wordsOf(w).length < 4 || /^\s*(?:voice|react)/i.test(w)) return line;
