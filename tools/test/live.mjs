@@ -93,10 +93,11 @@ function slips(raw, scene, ooc) {
 // What must never reach him, in what is actually sent (texts, the voice note's words)
 const NAME = new RegExp(`(?<!\\p{L})(?:${W.CONFIG.CHARACTER.NAME_PREFIXES.join("|")})(?!\\p{L})`, "iu");
 const FOREIGN = /[֐-ࣿЀ-ӿ぀-ヿ一-鿿가-힯]/; // Arabic/Persian, Hebrew, Cyrillic, CJK, Hangul
-function broken(s, kinds, scene) {
+function broken(s, kinds, scene, pictureDecided = false) {
   const bad = [];
   if (!kinds.includes(s.kind)) bad.push(`sent as ${s.kind}, expected ${kinds.join("/")}`);
-  if (s.kind === "none" && s.selfie == null) bad.push("nothing to send");
+  // a picture the code decided is sent even when she wrote nothing usable
+  if (s.kind === "none" && s.selfie == null && !pictureDecided) bad.push("nothing to send");
   if (s.kind === "voice" && /\d/.test(s.spoken.replace(/\b\d+(?:am|pm|st|nd|rd|th|s)?\b/gi, ""))) bad.push("digit spoken");
   const words = [...s.texts, s.voiceText].filter(Boolean);
   if (words.some((t) => /\[[^\]\n]*\]/.test(t))) bad.push("[bracket] tag or cue in what he reads");
@@ -147,7 +148,7 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
     const s = W.shapeReply(raw, { scene, mode, ooc, canSelfie: canPicture && scene !== "together", history, heard: proactive ? "" : heard, lastResort: true });
     const fixed = slips(raw, scene, ooc);
     for (const f of fixed) tally[f] = (tally[f] || 0) + 1;
-    const bad = broken(s, kinds, scene);
+    const bad = broken(s, kinds, scene, !!(picture && picture.kind === "selfie"));
     brokenCount += bad.length ? 1 : 0;
     const notes = [...review(s, scene), check && check(s)].filter(Boolean);
     console.log(`  [${i + 1}] ${bad.length ? "BROKEN " + bad.join("; ") : "ok"} | mode ${mode}${tries.length > 1 ? ", asked again" : ""}${fixed.length ? ` | fixed by code: ${fixed.join(", ")}` : ""}${notes.length ? ` | REVIEW: ${notes.join("; ")}` : ""}`);

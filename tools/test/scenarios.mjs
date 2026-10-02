@@ -139,6 +139,13 @@ const L3 = [
   ["bare [bracket] line, no picture possible -> still never reaches him", "[sitting up in bed, hair messy, Basbousa curled on my lap]\n\ncouldn't sleep", {}, { kind: "text", texts: ["couldn't sleep"], selfie: null }],
   ["short [sleepy] cue is not a picture", "[sleepy] just woke up", { canSelfie: true }, { kind: "text", texts: ["just woke up"], selfie: null }],
   ["live: long marker cut at a word", `ok\n\n[selfie: ${"soft lamp glow, ".repeat(20)}looking straight into the camera with a hint of a smile]`, { canSelfie: true }, { kind: "text", texts: ["ok"] }],
+  // seen in the live check 2026-10-02 (run 37068329999)
+  ["live: 'voice]' with its [ lost -> a voice note", "voice] [sighs] been lying here for an hour. what's your excuse?", {}, { kind: "voice", texts: [], spoken: "[sighs] Been lying here for an hour. What's your excuse?" }],
+  ["live: provider's '[removed]' -> nothing as text (a decided picture still goes)", "[removed]", { canSelfie: true }, { kind: "none", texts: [] }],
+  ["live: [sends a photo: mirror shot, ...]", "that's all you're getting\n\n[sends a photo: mirror shot, silhouette at the window, silk slip falling off one shoulder]", { canSelfie: true },
+    { kind: "text", texts: ["that's all you're getting"], selfie: "sends a photo: mirror shot, silhouette at the window, silk slip falling off one shoulder" }],
+  ["live: scene narration without *asterisks* after his action is narration, not her words", "She lets the pause hang, one eyebrow ticking up before she pushes off the doorframe. Her robe slips a little.\n\n\"Well? You wanted to see me.\"", { scene: "together", heard: "*steps closer* let me see you" },
+    { kind: "scene", texts: ["*She lets the pause hang, one eyebrow ticking up before she pushes off the doorframe. Her robe slips a little.*\n\n\"Well? You wanted to see me.\""] }],
   ["selfie: never OOC", "Sure, I can do that. [selfie: mirror selfie]", { ooc: true, canSelfie: true }, { kind: "text", selfie: null, texts: ["Sure, I can do that."] }],
 ];
 
@@ -411,6 +418,8 @@ section("pictures: his photos (Workers AI vision)");
   eq(W.selfieSubject(null, [], "nothing. just finished dinner, basbousa is judging me from the counter\n\nyou? bored? curious?").doing, "just finished dinner, basbousa is judging her from the counter", "live: no [selfie]: the picture shows what she just said she's doing");
   eq(W.selfieSubject("texts with a mirror selfie — low light, her bedroom, in black lace").words, "low light, her bedroom, in black lace", "live: 'texts with a mirror selfie —' is not part of the picture");
   eq(W.selfieSubject("texts with a mirror selfie — low light, her bedroom, in black lace").shot, "mirror", "...but the mirror is kept");
+  eq(["sends a photo: mirror shot, silhouette at the window", "cozy — messy bun, gray hoodie", "dim bedroom, mirror-back, black silk slip", "on the couch, cozy, gray hoodie"].map((w) => { const x = W.selfieSubject(w); return `${x.shot}: ${x.words}`; }),
+    ["mirror: silhouette at the window", "cozy: messy bun, gray hoodie", "mirror-back: dim bedroom, black silk slip", "cozy: on the couch, gray hoodie"], "live: type labels ('mirror shot', 'cozy —', a type mid-list) come off her words; places stay");
   // seen live: "lying on her side in bed" (no type) drawn as a mirror waist shot
   eq(W.selfiePicture({ want: "lying on my side in bed, hair spilled across the pillow", plan: { tier: "everyday", shot: "selfie" } }).shot, "selfie", "live: her description without a type keeps the shot she was told");
   eq(new Set(Array.from({ length: 50 }, () => W.selfiePicture({ want: "lying on my side in bed, hair on the pillow" }).shot)).size, 1, "...and with no plan, always the plain selfie (never a random framing)");

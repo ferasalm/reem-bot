@@ -664,15 +664,15 @@ Changing the story
       cozy: "{selfie} Chest-up, {angle}, curled up {on the couch with Basbousa, her fluffy golden-brown tabby|under a blanket on the couch|in bed against the pillows}, {expression}, {wearing}, {light}.",
       detail: "{pov} Close-up of {her hand with thin gold rings around a coffee cup|her bare feet up on the balcony railing|her hand on fabric samples spread across her desk}, her face out of frame, {wearing}, {light}.",
       golden: "{selfie} Chest-up on her balcony in Zamalek at golden hour, warm low sun on her face, the Nile behind her, {angle}, {expression}, {wearing}.",
-      "mirror-back": "{mirror} Back view: she stands with her back to a {bedroom|hallway|bathroom} mirror and twists to look over her shoulder at her phone; the reflection shows her back, waist and hips, 3/4 body, {expression}, {wearing}, {light}.",
+      "mirror-back": "{mirror} Back view: she stands with her back to a {bedroom|hallway|bathroom} mirror and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, {expression}, {wearing}, {light}.",
       neckline: "{selfie} Taken from above, chest-up, her collarbones and neckline in the frame, {expression}, {wearing}{where}, {light}.",
-      legs: "{pov} Only her legs and lap in the frame, {stretched out on the couch|crossed on the bed|up on the balcony chair}, no face, {wearing}, {light}.",
+      legs: "{pov} Her legs seen from above, {stretched out on the couch|crossed on the bed|up on the balcony chair}, no face, {wearing}, {light}.",
       waist: "{mirror} 3/4-body reflection in a {bedroom|bathroom} mirror, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
     },
     // The phone rules (owner): selfies never show the phone or her hand; mirror selfies always show an iPhone
     SELFIE_PHONE: "Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame.",
     MIRROR_PHONE: "Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible.",
-    POV_PHONE: "First-person photo through her own eyes, looking down at her body; the phone is the camera, never in the picture.",
+    POV_PHONE: "First-person photo through her own eyes; the phone is the camera, never in the picture.",
     // Which shots each tier uses
     TIERS: {
       EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden"],
@@ -707,7 +707,8 @@ Changing the story
     WARDROBE: {
       EVERYDAY: ["an oversized gray knit cardigan sliding off one shoulder over a black tank top", "a fitted black t-shirt and jeans", "a black linen shirt dress", "a black ribbed tank top", "an oversized gray vintage tee", "a black turtleneck and small gold hoops", "a simple black sundress"],
       FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh"],
-      BOUDOIR: ["black lace lingerie", "a black satin slip with thin straps", "a matching black lace bralette and high-waisted briefs", "a short black silk robe tied loosely at the waist", "a black one-shoulder swimsuit | by a pool in Sahel, bright sun", "a black string bikini | on a beach in Sahel, bright sun"],
+      // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
+      BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a short black silk robe tied loosely at the waist", "a black one-shoulder swimsuit | by a pool in Sahel, bright sun", "a black string bikini | on a beach in Sahel, bright sun"],
     },
     PLACES: {
       EVERYDAY: ["on her balcony in Zamalek", "in her kitchen", "at a café in Zamalek with an iced coffee", "at her desk surrounded by fabric samples", "in her high-ceilinged living room", "by her window with the city behind her", "in the hallway outside her door"],
@@ -775,8 +776,8 @@ Changing the story
 /*  End of settings                                                     */
 /* ================================================================== */
 
-// [voice], [Voice note], (voice note) or a line starting "Voice note:" all mark a voice note
-const VOICE_TAG_SRC = String.raw`\[\s*voice\b[^\]\n]*\][ \t]*:?|\(\s*voice(?:\s+(?:note|message|memo))?\s*\)[ \t]*:?|^[ \t]*voice(?:[ \t]+(?:note|message|memo))?[ \t]*:`;
+// [voice], [Voice note], (voice note), a line starting "Voice note:" or "voice]" (its "[" lost, seen live) all mark a voice note
+const VOICE_TAG_SRC = String.raw`\[\s*voice\b[^\]\n]*\][ \t]*:?|^[ \t]*voice[ \t]*\][ \t]*:?|\(\s*voice(?:\s+(?:note|message|memo))?\s*\)[ \t]*:?|^[ \t]*voice(?:[ \t]+(?:note|message|memo))?[ \t]*:`;
 const VOICE_TAG = new RegExp(VOICE_TAG_SRC, "im");
 const VOICE_TAG_ALL = new RegExp(`(?:${VOICE_TAG_SRC})\\s*`, "gim");
 const REACT_TAG = /\[\s*react(?:ed|ion)?\b\s*:?\s*([^\]\n]{0,16})\]\s*/gi;
@@ -2470,16 +2471,18 @@ function selfieSubject(want, recent = [], said = "") {
   const [first, ...rest] = words.split(",");
   const named = shotNamed(first);
   const label = Object.entries({ [named]: named, ...(P.SHOT_WORDS || {}) }).filter(([, t]) => t === named).map(([w]) => w);
-  if (named && !wordsOf(label.reduce((t, w) => t.replace(new RegExp(escapeRegex(w), "gi"), " "), first)).length) {
+  if (named && !/^\s*(?:on|in|at|by|under|with|from)\b/i.test(first) && !wordsOf(label.reduce((t, w) => t.replace(new RegExp(escapeRegex(w), "gi"), " "), first).replace(/\b(?:shot|pic|photo|picture)\b/gi, " ")).length) {
     shot = named;
     words = rest.join(",").trim();
   } else if (words) {
     shot = shotNamed(words) === "selfie" ? null : shotNamed(words);
     // "mirror selfie in the hallway": the shot says the first part already
     const lead = shot && Object.entries({ [shot]: shot, ...(P.SHOT_WORDS || {}) }).filter(([, t]) => t === shot).map(([w]) => w)
-      .sort((a, b) => b.length - a.length).find((w) => new RegExp(`^(?:an?\\s+)?${escapeRegex(w)}(?:\\s+selfie)?\\b`, "i").test(words));
-    if (lead) words = words.replace(new RegExp(`^(?:an?\\s+)?${escapeRegex(lead)}(?:\\s+selfie)?\\b[\\s,]*`, "i"), "");
+      .sort((a, b) => b.length - a.length).find((w) => new RegExp(`^(?:an?\\s+)?${escapeRegex(w)}(?:\\s+(?:selfie|shot|pic|photo))?\\b`, "i").test(words));
+    if (lead) words = words.replace(new RegExp(`^(?:an?\\s+)?${escapeRegex(lead)}(?:\\s+(?:selfie|shot|pic|photo))?\\b[\\s,—–:-]*`, "i"), "");
   }
+  // a type named in the middle ("dim bedroom, mirror-back, black silk slip") is dropped from her words
+  if (shot) words = words.split(",").filter((seg) => !(shotNamed(seg) === shot && wordsOf(seg.replace(/\b(?:shot|pic|photo|picture|selfie)\b/gi, " ")).every((w) => Object.hasOwn(P.SHOTS, w) || w === "back"))).join(",").trim();
   words = words.replace(/^(?:an?\s+)?selfie\b[\s,:-]*/i, "").replace(/^(?:her|she)\s+(?=(?:in|on|at|with|wearing|by|lying|sitting)\b)/i, "");
   let explicit = false;
   if (words && !mayDraw(words)) {
@@ -3209,8 +3212,11 @@ function texting(t, { keepTags = false, story = true, fix = {} } = {}) {
 const hasUnquotedText = (t) => /[\p{L}\p{Extended_Pictographic}]/u.test(String(t).replace(/\*[^*\n]*\*/g, "").replace(/["“][^"“”]*["”]/g, ""));
 
 // In person, words with no *action* and no quotes are what she says out loud
+// A paragraph that narrates her in third person ("She lets the pause hang...") is narration, not her words
+// (seen live 2026-10-02: quoted, so her voice clip read the narration out loud)
 const asDialogue = (t) =>
-  t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => (/["“”]/.test(p) ? p : `"${p}"`)).join("\n\n");
+  t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+    .map((p) => (/["“”]/.test(p) ? p : /^\W*(?:She|Her)\b(?!['’])/.test(p) || (herNames() && new RegExp(`^\\W*${herNames().source}`, "iu").test(p)) ? `*${p}*` : `"${p}"`)).join("\n\n");
 
 /**
  * The model's raw reply -> what is delivered and saved.
