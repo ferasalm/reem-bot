@@ -1,0 +1,42 @@
+name: Face
+
+# Draws Reem's reference portrait candidates (or a consistency check with a chosen reference) with Workers AI
+# FLUX.2 klein through the Cloudflare REST API, per tools/face/job.json, and pushes the pictures to the branch
+# face-candidates for review. Also the real-API check of the image and vision models. Runs when the job changes.
+on:
+  workflow_dispatch:
+  push:
+    paths: [tools/face/job.json, .github/workflows/face.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: face
+  cancel-in-progress: false
+
+jobs:
+  draw:
+    if: github.ref != 'refs/heads/face-candidates'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Draw
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node tools/face/draw.mjs
+      - name: Push the pictures to face-candidates
+        run: |
+          git config user.name "face-bot"
+          git config user.email "face-bot@users.noreply.github.com"
+          mode=$(node -p "require('./tools/face/job.json').mode")
+          dir="runs/${{ github.run_id }}-$mode"
+          mkdir -p /tmp/keep && cp -r tools/face/out /tmp/keep/out && cp tools/face/job.json /tmp/keep/
+          git fetch origin face-candidates || true
+          if git rev-parse --verify origin/face-candidates >/dev/null 2>&1; then git checkout -B face-candidates origin/face-candidates; else git checkout --orphan face-candidates && git rm -rf . >/dev/null; fi
+          mkdir -p "$dir" && cp -r /tmp/keep/out/. "$dir/" && cp /tmp/keep/job.json "$dir/"
+          git add runs && git commit -m "Face pictures: run ${{ github.run_id }} ($mode)" && git push origin face-candidates

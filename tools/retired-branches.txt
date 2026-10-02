@@ -8,3 +8,4 @@ ccr-b7869b5d-d7yudi                       # DeepSeek v10, merged into dev
 ccr-75e7610d-6zkheu                       # format-guard v10, merged into dev
 ccr-b51a9ebf-j34yp9                       # PR #6 v10 (closed), merged into dev
 claude/reem-llm-model-comparison-f27xor   # model bench, merged into dev
+face-candidates                           # Reem's reference-portrait drafts (tools/face), pictures only, never merged

@@ -1,0 +1,13 @@
+{
+  "note": "What .github/workflows/face.yml draws on its next push. mode: candidates (no reference) or consistency (with reference).",
+  "mode": "candidates",
+  "reference": "",
+  "size": 768,
+  "prompts": [
+    "Head-and-shoulders portrait photo of a 29-year-old half-Egyptian, half-American woman. Soft rounded face with a defined jawline and gently rounded chin, slightly full cheeks, fair skin with warm undertones and a few faint freckles. Thick, dark, well-groomed brows with a soft arch over almond-shaped dark brown eyes. Straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow, a small relaxed smile. Long dark brown wavy hair parted slightly off-center, loose strands along her temples and jaw. Plain black top, thin gold rings. Looking straight at the camera, plain light grey wall behind her, soft natural window light, realistic smartphone photo, sharp focus on the face.",
+    "Realistic close portrait of a 29-year-old woman, half-Egyptian half-American, soft round face, fair warm-toned skin with faint freckles across the nose, thick dark arched eyebrows, almond-shaped dark brown eyes, full lips with a defined cupid's bow, long dark brown waves parted slightly off-center. Black t-shirt. Facing the camera, neutral expression with a hint of a smile, plain beige background, daylight, natural skin texture, no makeup look, phone camera photo.",
+    "Passport-style but natural photo of an adult woman aged 29 with Egyptian and American features: soft rounded face, slightly full cheeks, gently rounded chin, fair skin with warm undertones and light freckles, dark thick softly arched brows, almond dark brown eyes, straight nose, full lips, long dark brown wavy hair falling past her shoulders, parted a little off-center. Simple black top. Even soft light, plain off-white background, looking into the lens."
+  ],
+  "per_prompt": 3,
+  "describe": true
+}
