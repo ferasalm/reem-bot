@@ -6,7 +6,7 @@ name: Face
 on:
   workflow_dispatch:
   push:
-    paths: [tools/face/job.json, .github/workflows/face.yml]
+    paths: [tools/face/job.json, tools/face/draw.mjs, .github/workflows/face.yml]
 
 permissions:
   contents: write
