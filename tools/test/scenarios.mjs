@@ -151,6 +151,14 @@ const L3 = [
     { kind: "voice", spoken: "[teasing] You're bold tonight. I like it... You want more than a picture? Come get it.", selfie: "mirror, black lace bralette and matching underwear, dim amber light" }],
   ["plain 'selfie: ...' line, no picture possible -> still not spoken", "[voice] okay.\n\nselfie: mirror, black dress\n\ncome over", {}, { kind: "voice", spoken: "Okay... Come over.", selfie: null }],
   ["selfie: never OOC", "Sure, I can do that. [selfie: mirror selfie]", { ooc: true, canSelfie: true }, { kind: "text", selfie: null, texts: ["Sure, I can do that."] }],
+  // --- owner: "she's sending voice messages TOO often" (VOICE.SELF_CHOICE_GAP): her own [voice] right after one is a text
+  ["her own [voice] right after a voice note -> text", "[voice] [laughs] okay okay, you win. come here.",
+    { history: [{ role: "user", content: "hey" }, { role: "assistant", content: "[voice] hi you", parts: [{ id: 1, text: "[voice] hi you" }] }, { role: "user", content: "lol" }] },
+    { kind: "text", texts: ["okay okay, you win. come here."], spoken: "" }],
+  ["her own [voice] with no voice note lately -> voice", "[voice] okay okay, you win.",
+    { history: [{ role: "assistant", content: "hi you", parts: [{ id: 1, text: "hi you" }] }] }, { kind: "voice", spoken: "Okay okay, you win." }],
+  ["code decided a voice note -> voice, even right after one", "okay okay, you win.",
+    { mode: "voice", history: [{ role: "assistant", content: "[voice] hi", parts: [{ id: 1, text: "[voice] hi" }] }] }, { kind: "voice", spoken: "Okay okay, you win." }],
 ];
 
 section("model outputs");

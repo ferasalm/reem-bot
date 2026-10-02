@@ -329,7 +329,10 @@ const CONFIG = {
     MAX_CHARS: 360,                    // longest text read aloud in one note
     // When a reply is a voice note: decided here, not by the AI (it tends to describe voice notes instead).
     // Only while apart; she may still choose one herself by starting with [voice].
-    CHANCE: 0.2,                       // chance per reply
+    CHANCE: 0.1,                       // chance per reply
+    // Her own [voice] (when the code said text) counts only if none of her last this-many replies was a voice
+    // note; otherwise it's sent as a text. Old voice notes in the chat pull her to more of them. 0 = always.
+    SELF_CHOICE_GAP: 4,
     CHANCE_AFTER_VOICE: 0.6,           // ...when he just sent a voice note
     CHANCE_MORE_VOICE: 0.5,            // ...when /voice is on
     // When his message matches this (a regular expression, any case), she always answers with a voice note
@@ -630,7 +633,7 @@ Changing the story
     BACKUP_STEPS: 6,                   // 1 to 8
     SIZE: 640,                         // width and height in pixels (640 = 1.56 tiles; 1024 = 4). Klein took 12-22 s at 768
     TIMEOUT_MS: 40000,
-    CHANCE: 0.05,                      // apart, per reply (voice: 0.2)
+    CHANCE: 0.05,                      // apart, per reply (voice: 0.1)
     CHANCE_AFTER_PHOTO: 0.3,           // ...when he just sent a photo (voice: 0.6 after his voice note)
     CHANCE_MORE: 0.15,                 // ...when /pics is on (voice: 0.5 with /voice)
     SCENE_CHANCE: 0.08,                // in person, per reply (voice clip: 0.25)
@@ -3240,6 +3243,14 @@ const asDialogue = (t) =>
   t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
     .map((p) => (/["“”]/.test(p) ? p : /^\W*(?:She|Her)\b(?!['’])/.test(p) || (herNames() && new RegExp(`^\\W*${herNames().source}`, "iu").test(p)) ? `*${p}*` : `"${p}"`)).join("\n\n");
 
+// May she choose a voice note herself (VOICE.SELF_CHOICE_GAP): none in her last few replies
+function mayChooseVoice(history = []) {
+  const n = Number(CONFIG.VOICE.SELF_CHOICE_GAP) || 0;
+  if (!n) return true;
+  const hers = history.filter((m) => m.role === "assistant").slice(-n);
+  return !hers.some((m) => (m.parts && m.parts.length ? m.parts.some((p) => /^\s*\[voice\]/i.test(p.text || "")) : /^\s*\[voice\]/im.test(m.content || "")));
+}
+
 /**
  * The model's raw reply -> what is delivered and saved.
  *   scene     "apart" or "together" (sceneOf); ooc: he wrote OOC; canReact: a [react: X] may be used;
@@ -3256,7 +3267,7 @@ const asDialogue = (t) =>
  */
 function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact = false, canSelfie = false, history = [], heard = "", lastResort = false } = {}) {
   const { emoji, rest: unreacted } = takeReaction(scrubModel(raw, { ooc }));
-  const { want, rest } = takeSelfie(unreacted);
+  let { want, rest } = takeSelfie(unreacted);
   const out = { kind: "none", texts: [], voiceText: "", spoken: "", stored: "", reaction: canReact && !ooc && scene !== "together" ? emoji : "", selfie: canSelfie && !ooc && scene !== "together" ? want : null, repeated: false, narrationOnly: false, repaired: false };
   // Never the same line twice: not within this reply, not from her last few replies.
   // Only if every line is an old one does she resend it (think() already tried for a new reply).
@@ -3302,7 +3313,12 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
   // Apart, voice note (asked for by the code, or she started with [voice]): anything before [voice]
   // that narrates her (picking up the phone, recording) is dropped; words she typed before it go out
   // as texts first. *laughs* and stage directions ("laughs softly Just...") become audio tags.
-  const at = rest.search(VOICE_TAG);
+  let at = rest.search(VOICE_TAG);
+  if (at >= 0 && mode !== "voice" && !mayChooseVoice(history)) {
+    // She picked a voice note herself, but she sent one a moment ago: this one is a text
+    rest = rest.replace(new RegExp(VOICE_TAG_SRC, "gim"), "").trim();
+    at = -1;
+  }
   const from = at >= 0 ? at : mode === "voice" ? 0 : -1;
   if (from >= 0) {
     const typed = from > 0 ? fresh(texting(stripAudioTags(bodyOf(unbold(rest.slice(0, from)))))) : "";

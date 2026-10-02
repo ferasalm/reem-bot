@@ -99,9 +99,9 @@ console.log("sampling:", JSON.stringify({ t: prompts.at(-1).temperature, rp: pro
 console.log("routing:", JSON.stringify({ provider: prompts.at(-1).provider, reasoning: prompts.at(-1).reasoning }));
 step("v3 audio tags: voice note");
 llm = [{ content: "[voice] [laughs] ya3ni you're ridiculous\n[whispers] come over" }];
-await run(msg({ text: "i miss you" }));
+await run(msg({ text: "i miss you, send me a voice note" })); // he asks: her own [voice] right after one would be a text (SELF_CHOICE_GAP)
 const ttsLast = log.filter(l => l.includes("text-to-speech")).at(-1);
-console.log("tags offered:", sys().includes("[moans softly]"), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| v3 stability only:", ttsLast.includes('"voice_settings":{"stability":0.5}'));
+console.log("tags offered:", herPrompts().at(-1).messages.some((m) => m.content.includes("[moans softly]")), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| v3 stability only:", ttsLast.includes('"voice_settings":{"stability":0.5}'));
 console.log("history has no tags:", JSON.parse(store.get("h:7")).at(-1).content);
 step("v3 audio tags: text reply");
 llm = [{ content: "[laughs] omg stop\n\nyou're the worst [sighs]" }];
