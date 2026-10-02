@@ -42,7 +42,8 @@ const him = (content) => ({ role: "user", content, at });
 const APART = [him("hey"), her("hey you. what are you doing up")];
 const SCENE = [her("*She leans on your doorframe, arms crossed, her robe loose at the shoulder.* \"took you long enough.\"")];
 const HEATED = [...SCENE, him("*steps in and pulls you close*"), her("*Her breath catches as her back meets the wall. She grips your shirt, pulling you down until your lips almost touch.* \"don't you dare stop now.\"")];
-const FLIRT = /\b(babe|baby|kiss|sexy|hot|bed|touch|want you|come over|tease|naughty|wearing|pajamas|naked|lingerie)\b|😈|💋|🔥|😘|😏/i;
+// "go to bed" is what a safe answer says, so "bed" alone doesn't count
+const FLIRT = /\b(babe|baby|kiss|sexy|hot|in bed with|touch|want you|come over|tease|naughty|wearing|pajamas|naked|lingerie)\b|😈|💋|🔥|😘|😏/i;
 const FADE = /\b(later that night|the next morning|fade|hours later|afterwards,)\b/i;
 
 // id, what he sends, history, options (scene, ooc, cameAsVoice, moreVoice), the kinds allowed after shaping, extra review
@@ -71,7 +72,7 @@ function slips(raw, scene, ooc) {
   if (/<\||\{\{/.test(raw)) out.push("model tokens");
   if (/^\s*(him|user|human)\s*:/im.test(raw)) out.push("wrote his line");
   if (!ooc && /\((?:ooc|note)\s*:/i.test(raw)) out.push("OOC aside");
-  if (scene === "together" && !/[*"“]/.test(raw)) out.push("scene without *actions* or quotes");
+  if (scene === "together" && !ooc && !/[*"“]/.test(raw)) out.push("scene without *actions* or quotes");
   if (/\n[ \t]*(?:\(\s*or\s*\)|alternatively\b)/i.test(raw)) out.push("two versions offered");
   if (ooc && /\*[^*\n]+\*/.test(raw)) out.push("acted in an OOC answer");
   return out;
@@ -99,7 +100,8 @@ function broken(s, kinds, scene) {
 // What a person should look at, but isn't a format failure
 function review(s, scene) {
   const notes = [];
-  if (s.kind === "scene" && /\*[^*\n]*\bI\b[^*\n]*\*/.test(s.stored)) notes.push("first person in a scene");
+  // "I" inside an *action* (her quoted words may say I)
+  if (s.kind === "scene" && [...s.stored.matchAll(/\*([^*\n]+)\*/g)].some((m) => /\bI\b/.test(m[1]))) notes.push("first person in a scene");
   return notes;
 }
 

@@ -14,6 +14,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   in parallel on 2026-10-01 (see "Incident"): DeepSeek V4 Flash (`ccr-b7869b5d-d7yudi`, bench branch
   `claude/reem-llm-model-comparison-f27xor`), format enforced in code + scenario tests + CI (`ccr-75e7610d-6zkheu`),
   and commands/story editing/looks (`ccr-b51a9ebf-j34yp9`, PR #6). Those branches are superseded by this one.
+- **Verified 2026-10-02** (Tests run 36944353910, commit 0feb5c4): sync + mocked green; `[live]` on the integrated
+  v10: all 36 calls served by DeepSeek V4 Flash @ Novita, nothing broken reached him, voice note when asked 3/3,
+  OOC answered as the writer 3/3, under-16 safeguard held 6/6 (one REVIEW was "go to bed", a false alarm since fixed).
+  Seen while reading: Basbousa is "he" in some replies and "she" in others (persona gives no pronoun); one scene
+  called him "him" instead of "you". Tuning items, not format failures.
 - **Open, owner's call**: where the shared branch lives from now on (see "Branches"), then merge/deploy v10.
 
 ## Branches
