@@ -1,0 +1,14 @@
+{
+  "note": "Pictures v3 grid: every shot type x tier, prompts from composePicture (worker.js). Check each: same face as the reference, clearly adult, tier right, phone rule right (selfie: no phone or hand; mirror: an iPhone), no nudity.",
+  "mode": "shots",
+  "reference": "tools/face/reference.jpg",
+  "size": 640,
+  "labels": [
+    "flirty/legs @10h"
+  ],
+  "prompts": [
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Taken from above while she sits on the bed, her legs crossed and in the frame, a daring look straight into the camera, wearing an oversized white shirt worn as a dress, unbuttoned at the collar, bright morning sun through the window. Natural skin texture, slight grain. No nudity."
+  ],
+  "per_prompt": 1,
+  "describe": true
+}
