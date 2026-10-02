@@ -649,7 +649,7 @@ Changing the story
     CRAFT: "Natural skin texture, slight grain.",
     SAFE: "No nudity.",
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
-    NOT_DRAWN: ["nude", "nudes", "naked", "topless", "bottomless", "nipple", "nipples", "areola", "areolas", "genitals", "genital", "pussy", "vagina", "penis", "cock", "dick", "sheer", "see-through", "see through", "transparent", "sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "undressed", "nothing on", "wearing nothing"],
+    NOT_DRAWN: ["through the thin", "through her thin", "through the silk", "nude", "nudes", "naked", "topless", "bottomless", "nipple", "nipples", "areola", "areolas", "genitals", "genital", "pussy", "vagina", "penis", "cock", "dick", "sheer", "see-through", "see through", "transparent", "sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "undressed", "nothing on", "wearing nothing"],
     MIN_SCENE_WORDS: 8,                // a scene picture needs at least this many words about her
     // He says he's under 18: no pictures from then on (stored with his settings)
     MINOR_PATTERN: "\\b(?:i'?m|i am|im)\\s+(?:only\\s+|just\\s+)?(?:1[0-7]|thirteen|fourteen|fifteen|sixteen|seventeen)\\b(?!\\s*(?:min|mins|minutes|hours|hrs|secs|seconds|%|km|miles|percent|days|weeks))|\\bunder\\s*18\\b|\\b(?:1[0-7]|thirteen|fourteen|fifteen|sixteen|seventeen)\\s*(?:yo|y\\/o|y\\.o\\.?|years?\\s+old|year-old)\\b|\\b(?:in|at)\\s+(?:high\\s+school|middle\\s+school|(?:7|8|9|10|11|12)(?:th)?\\s+grade|grade\\s+(?:7|8|9|10|11|12))\\b|\\bi'?m\\s+a\\s+(?:minor|freshman in high school|sophomore in high school)\\b",
@@ -666,7 +666,7 @@ Changing the story
       golden: "{selfie} Chest-up on her balcony in Zamalek at golden hour, warm low sun on her face, the Nile behind her, {angle}, {expression}, {wearing}.",
       "mirror-back": "{mirror} Back view: she stands with her back to a {bedroom|hallway|bathroom} mirror and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, {expression}, {wearing}, {light}.",
       neckline: "{selfie} Taken from above, chest-up, her collarbones and neckline in the frame, {expression}, {wearing}{where}, {light}.",
-      legs: "{pov} Her legs seen from above, {stretched out on the couch|crossed on the bed|up on the balcony chair}, no face, {wearing}, {light}.",
+      legs: "{selfie} Taken from above while she sits {on the couch|on the bed|on the balcony chair}, her legs crossed and in the frame, {expression}, {wearing}, {light}.",
       waist: "{mirror} 3/4-body reflection in a {bedroom|bathroom} mirror, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
     },
     // The phone rules (owner): selfies never show the phone or her hand; mirror selfies always show an iPhone
@@ -677,7 +677,7 @@ Changing the story
     TIERS: {
       EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden"],
       FLIRTY: ["mirror-back", "neckline", "legs", "waist"],
-      BOUDOIR: ["selfie", "mirror", "mirror-back", "neckline", "legs", "waist", "cozy"],
+      BOUDOIR: ["selfie", "mirror", "mirror-back", "neckline", "waist", "cozy"], // legs: refused twice by the filter (3030)
     },
     // How likely each tier is when the code picks, by how hot the chat is (HEAT_WORDS, late hours)
     TIER_WEIGHTS: {
@@ -1569,7 +1569,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   // [selfie] out) or she wrote one herself; in person, the moment from the scene
   let drawing = null;
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
-    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join(" "), plan: picture && picture.plan, history, asked });
+    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked });
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
     drawing = startPicture(env, ledger, "scene", out.texts.join("\n"));
   }
@@ -2456,8 +2456,14 @@ function planShot({ asked = "", history = [], recentShots = [], hour = herHour()
 // {shot} and {hint} for what she's told about the picture the code decided
 const shotVars = (plan) => ({ shot: (plan && plan.shot) || "selfie", hint: (plan && (CONFIG.PICTURE.TIER_HINTS || {})[plan.tier]) || "" });
 
+// A line about where she is or what she's doing ("just lying in bed scrolling", "i'm in my ratty t-shirt")
+const DOING = /\b(?:in|on) (?:my|the) |\b(?:lying|laying|sitting|cooking|working|reading|walking|wearing|curled|stretched|scrolling|finished|eating|drinking|at (?:my|the|home|a|work)|in bed|outside)\b/i;
+
+// The model talking about the task instead of describing a picture
+const SELFIE_META = /\b(?:supposed to|i(?:'|’)?m (?:going|gonna) to|reply(?:ing)? to (?:you|him)|as requested|since that(?:'|’)s what)\b/i;
+
 // The picture is of her: "you"/"I" in what the model wrote become "her"/"she"
-const aboutHer = (t) => String(t || "").replace(/\byour\b/gi, "her").replace(/\byou\b/gi, "her").replace(/\bmy\b/gi, "her").replace(/\bme\b/gi, "her").replace(/\bi'?m\b/gi, "she is").replace(/\bi\b/gi, "she").replace(/[{}[\]]/g, "").trim();
+const aboutHer = (t) => String(t || "").replace(/\byou(?:'|’)re\b/gi, "she is").replace(/\byou(?:'|’)ve\b/gi, "she has").replace(/\byou(?:'|’)ll\b/gi, "she will").replace(/\byou(?:'|’)d\b/gi, "she would").replace(/\byour\b/gi, "her").replace(/\byou\b/gi, "her").replace(/\bmy\b/gi, "her").replace(/\bme\b/gi, "her").replace(/\bi'?m\b/gi, "she is").replace(/\bi\b/gi, "she").replace(/[{}[\]]/g, "").trim();
 
 // What her [selfie: ...] says, ready for composePicture: { shot, words, doing, explicit }.
 // She may name the shot first ("mirror-back, black leggings"). Words with a NOT_DRAWN word aren't drawn
@@ -2465,7 +2471,14 @@ const aboutHer = (t) => String(t || "").replace(/\byour\b/gi, "her").replace(/\b
 // No [selfie] at all: `doing` is what she just said she's doing ("just finished dinner"), if drawable.
 function selfieSubject(want, recent = [], said = "") {
   const P = CONFIG.PICTURE;
-  let words = aboutHer(want).replace(/^(?:she\s+)?(?:texts?|sends?)\b[^—:\n]{0,40}?\b(?:(mirror)\s+)?(?:selfie|pic|picture|photo)\s*(?:[—:-]\s*|,\s*)/i, (m, mirror) => (mirror ? "mirror selfie, " : ""));
+  // Seen live: "[Now, I'm supposed to reply to you with a picture...]" is the model talking about the task
+  if (want && SELFIE_META.test(want)) want = "";
+  let words = aboutHer(want)
+    // "...The photo comes through: flash-bright, her bathroom mirror, ...": only what the picture shows
+    .replace(/^[\s\S]*\b(?:photo|picture|pic|selfie)\b[^:\n]{0,30}:\s*(?=\S)/i, (m) => (/\bmirror\b/i.test(m) && !/^mirror/i.test(m.split(":").pop()) ? "mirror selfie, " : ""))
+    .replace(/^(?:she\s+)?(?:texts?|sends?)\b[^—:.\n]{0,40}?\b(?:(mirror)\s+)?(?:selfie|pic|picture|photo)\s*(?:[—:.-]\s*(?:in it,?\s*)?|,\s*)/i, (m, mirror) => (mirror ? "mirror selfie, " : ""))
+    .replace(/^(?:she\s+)?(?:texts?|sends?)\s+(?:her\s+|him\s+)?an?\s+([^,.]{0,30}?)\s*(?:selfie|pic|picture|photo)\b[,.:]?\s*/i, "$1, ")
+    .replace(/^[\s,]+/, "");
   let shot = null;
   // Only a label ("mirror-back", "a mirror selfie") is taken off; "mirror selfie in the hallway" stays whole
   const [first, ...rest] = words.split(",");
@@ -2492,7 +2505,9 @@ function selfieSubject(want, recent = [], said = "") {
   if (words && recent.some((r) => overlap(words, r) > P.SIMILAR)) words = "";
   let doing = "";
   if (!want) {
-    const sentence = String(said).split(/\n+|(?<=[.!?])\s+/).map((x) => x.trim()).find((x) => wordsOf(x).length >= 3) || "";
+    // only a line that says where she is or what she's doing (seen live: "but pics don't come free" drawn)
+    const sentence = String(said).split(/\n+|(?<=[.!?])\s+/).map((x) => x.trim())
+      .find((x) => wordsOf(x).length >= 3 && DOING.test(x)) || "";
     const d = aboutHer(sentence).replace(/[?!.,]+$/, "");
     if (d && d.length <= 160 && mayDraw(d) && !recent.some((r) => overlap(d, r) > P.SIMILAR)) doing = d;
   }

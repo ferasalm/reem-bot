@@ -4,24 +4,10 @@
   "reference": "tools/face/reference.jpg",
   "size": 640,
   "labels": [
-    "flirty/legs @10h",
-    "boudoir/selfie/high @14h",
-    "boudoir/mirror @19h",
-    "boudoir/mirror-back @23h",
-    "boudoir/neckline @10h",
-    "boudoir/legs @14h",
-    "boudoir/waist @19h",
-    "boudoir/cozy/high @23h"
+    "flirty/legs @10h"
   ],
   "prompts": [
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. First-person photo through her own eyes; the phone is the camera, never in the picture. Her legs seen from above, crossed on the bed, no face, wearing a black off-shoulder top and a short skirt, bright morning sun through the window. Natural skin texture, slight grain. No nudity.",
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, a soft, inviting look, wearing a short black silk robe tied loosely at the waist, sitting on the edge of her bed, bright afternoon daylight. Natural skin texture, slight grain. No nudity.",
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a bedroom mirror, the room behind her, a teasing half smile, chin lowered, wearing a black lace cami and matching silk shorts, a little flash glare on the glass, the last of the evening light. Natural skin texture, slight grain. No nudity.",
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Back view: she stands with her back to a bedroom mirror and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, a teasing half smile, chin lowered, wearing a black lace bodysuit, dim light from a bedside lamp. Natural skin texture, slight grain. No nudity.",
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Taken from above, chest-up, her collarbones and neckline in the frame, a slow, knowing smile, wearing a black satin slip with thin straps, sitting on the edge of her bed, soft morning daylight. Natural skin texture, slight grain. No nudity.",
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. First-person photo through her own eyes; the phone is the camera, never in the picture. Her legs seen from above, stretched out on the couch, no face, wearing a black lace bodysuit, soft window light. Natural skin texture, slight grain. No nudity.",
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a bathroom mirror, one hand on her waist, her hip turned toward the mirror, a daring look straight into the camera, wearing a short black silk robe tied loosely at the waist, warm lamp light. Natural skin texture, slight grain. No nudity.",
-    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, curled up under a blanket on the couch, a slow, knowing smile, wearing a short black silk robe tied loosely at the waist, warm lamp light in a dark room. Natural skin texture, slight grain. No nudity."
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Taken from above while she sits on the bed, her legs crossed and in the frame, a daring look straight into the camera, wearing an oversized white shirt worn as a dress, unbuttoned at the collar, bright morning sun through the window. Natural skin texture, slight grain. No nudity."
   ],
   "per_prompt": 1,
   "describe": true

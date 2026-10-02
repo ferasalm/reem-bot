@@ -420,6 +420,13 @@ section("pictures: his photos (Workers AI vision)");
   eq(W.selfieSubject("texts with a mirror selfie — low light, her bedroom, in black lace").shot, "mirror", "...but the mirror is kept");
   eq(["sends a photo: mirror shot, silhouette at the window", "cozy — messy bun, gray hoodie", "dim bedroom, mirror-back, black silk slip", "on the couch, cozy, gray hoodie"].map((w) => { const x = W.selfieSubject(w); return `${x.shot}: ${x.words}`; }),
     ["mirror: silhouette at the window", "cozy: messy bun, gray hoodie", "mirror-back: dim bedroom, black silk slip", "cozy: on the couch, gray hoodie"], "live: type labels ('mirror shot', 'cozy —', a type mid-list) come off her words; places stay");
+  // seen in the live check 2026-10-02 (run 37069028699): narrated picture lines, "you're", meta lines, chat as "doing"
+  eq(W.selfieSubject("sends a photo. in it, you're in bed, propped against your headboard").words, "she is in bed, propped against her headboard", "live: 'sends a photo. in it,' dropped; you're -> she is");
+  eq(W.selfieSubject("smirking to herself, she shifts in bed. The photo comes through: flash-bright, her bathroom mirror, in black lace").words, "flash-bright, her bathroom mirror, in black lace", "live: only what comes after 'The photo comes through:'");
+  eq(W.selfieSubject("Now, I'm supposed to reply to you with a picture of me in lingerie, since that's what you asked for.").words, "", "live: the model talking about the task is not drawn");
+  eq(W.selfieSubject(null, [], "bold of you to assume i'm dressed for a belfie\ni'm in my ratty t-shirt and my hair is a crime scene").doing, "she is in her ratty t-shirt and her hair is a crime scene", "live: no marker: the line saying what she's doing, not the first line");
+  eq(W.selfieSubject(null, [], "you're bold tonight... I like it. but pics don't come free, habibi.").doing, "", "live: chat that says nothing about her isn't drawn as what she's doing");
+  yes(!W.mayDraw("tracing the outline of her thighs through the thin silk"), "live: 'through the thin silk' (see-through) is not drawn");
   // seen live: "lying on her side in bed" (no type) drawn as a mirror waist shot
   eq(W.selfiePicture({ want: "lying on my side in bed, hair spilled across the pillow", plan: { tier: "everyday", shot: "selfie" } }).shot, "selfie", "live: her description without a type keeps the shot she was told");
   eq(new Set(Array.from({ length: 50 }, () => W.selfiePicture({ want: "lying on my side in bed, hair on the pillow" }).shot)).size, 1, "...and with no plan, always the plain selfie (never a random framing)");
@@ -491,7 +498,7 @@ section("pictures: his photos (Workers AI vision)");
   }
   ai.length = 0;
   r = await turn("send me a belfie 😏", ["fine. don't say i never spoil you\n\n[selfie: mirror-back, black leggings]"], { history: APART });
-  yes(r.system[0].includes("[selfie: mirror-back, what it shows]") && r.system[0].includes(W.CONFIG.PICTURE.TIER_HINTS.flirty.trim()), "he asks for a belfie: she's told the shot and to make it flirty", r.system[0].slice(-500));
+  yes(r.system[0].includes("[selfie: mirror-back, what it shows]") && [W.CONFIG.PICTURE.TIER_HINTS.flirty, W.CONFIG.PICTURE.TIER_HINTS.boudoir].some((h) => r.system[0].includes(h.trim())), "he asks for a belfie: she's told the shot and a sexier tier (flirty or boudoir)", r.system[0].slice(-500));
   const fb = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
   yes(fb.prompt.includes("her back to a") && fb.prompt.includes("black leggings") && fb.prompt.includes("iPhone"), "drawn as a mirror-back with her words", fb.prompt);
   eq(r.saved.parts.at(-1).text, "[selfie: mirror-back, black leggings]", "history: [selfie: type, what]");

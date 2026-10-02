@@ -159,7 +159,7 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
     if (s.kind === "scene") console.log(`      picture: ${JSON.stringify(W.scenePicturePrompt(s.texts.join("\n")))}`);
     // Her selfie as it would be drawn (pictures v3: shot, slots, phone rule)
     if (scene === "apart" && (s.selfie != null || (picture && picture.kind === "selfie"))) {
-      console.log(`      drawn: ${JSON.stringify(W.selfiePicture({ want: s.selfie || null, said: [...s.texts, s.voiceText].filter(Boolean).join(" "), plan: picture && picture.plan, history, asked: picture && picture.asked ? heard : "" }).prompt)}`);
+      console.log(`      drawn: ${JSON.stringify(W.selfiePicture({ want: s.selfie || null, said: [...s.texts, s.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked: picture && picture.asked ? heard : "" }).prompt)}`);
     }
     console.log(`      sent:  ${s.kind}${s.texts.length ? " " + JSON.stringify(s.texts).slice(0, 300) : ""}${s.spoken ? ` voice ${JSON.stringify(s.spoken)}` : ""}${s.selfie != null ? ` + picture ${JSON.stringify(s.selfie)}` : ""}`);
   }
