@@ -7,9 +7,8 @@ that isn't here, stop and ask the owner before building anything. Session rules 
 
 ## Status (2026-10-02)
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan).
-- **Live (deployed from `main`)**: v8 + v9 (PR #5), on **Lunaris 8B**. Verified 2026-10-01 by reading the deployed
-  Worker's code with the Cloudflare MCP. Not checked: a `CONFIG_OVERRIDES` dashboard variable could change the
-  model without a deploy; `/setup` shows which model answers.
+- **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02 (details below). Before that:
+  v8 + v9 (PR #5) on Lunaris 8B.
 - **Integrated v10**: built on branch `ccr-1eb562e9-ds09eq`, now `dev` and `main`. It merges all three v10 lines that were built
   in parallel on 2026-10-01 (see "Incident"): DeepSeek V4 Flash (`ccr-b7869b5d-d7yudi`, bench branch
   `claude/reem-llm-model-comparison-f27xor`), format enforced in code + scenario tests + CI (`ccr-75e7610d-6zkheu`),
@@ -19,8 +18,14 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   OOC answered as the writer 3/3, under-16 safeguard held 6/6 (one REVIEW was "go to bed", a false alarm since fixed).
   Seen while reading: Basbousa is "he" in some replies and "she" in others (persona gives no pronoun); one scene
   called him "him" instead of "you". Tuning items, not format failures.
-- **2026-10-02: v10 deployed** (owner: "deploy now"): `main` fast-forwarded to the integrated v10, the same commit
-  as `dev`. The Deploy run, the deployed Worker check and `/setup` are recorded below once read.
+- **2026-10-02: v10 deployed** (owner: "deploy now"): `main` fast-forwarded to commit 1167c81 (same as `dev` then).
+  Deploy run 36944922001 green: KV + queue bindings, cron `*/15`, queue producer + consumer, version
+  `f179fc89-642d-4d1f-943a-b4a8a66a3fd7`, URL https://reem-bot.ferris-wheel736.workers.dev. The live Worker's code,
+  read back with the Cloudflare MCP, has `LLM.MODEL` deepseek/deepseek-v4-flash, the Novita-first provider order,
+  the Lunaris backup, the new commands and `shapeReply`.
+  **Not yet done: `/setup`** (Claude's environment can't reach workers.dev). Until the owner opens it, Telegram
+  doesn't send message edits or /auto button taps, and the command menu is the old one. It also shows whether a
+  `CONFIG_OVERRIDES` variable or `VOICE_ID` secret changes anything.
 
 ## Branches
 - `main` = what's live (every push to `main` deploys via `.github/workflows/deploy.yml`). Only on the owner's ask.
@@ -152,7 +157,8 @@ check; scenario rows for every slip seen.
   scenarios except where a test asks. e2e `herPrompts()`/`sys()` read her prompts (not memory or /auto).
 - Telegram reactions accept only its fixed emoji list (❤ without FE0F, 🤣 rather than 😂).
 - Panel textareas: a leading "\n" is added on purpose (browsers drop the first newline).
-- Claude's cloud container can't reach openrouter.ai; `gh run download` is blocked. Live checks and the bench run on
+- Claude's cloud container can't reach openrouter.ai or workers.dev (network policy; the owner can allow a host in
+  the environment's Network access settings); deleting branches is refused too. `gh run download` is blocked. Live checks and the bench run on
   GitHub Actions; read their logs with the GitHub MCP (`actions_list` / `get_job_logs`).
 - The ElevenLabs MCP needs any voice description and sample line to come from the owner. Transcribing a TTS node
   in a flow only echoes its prompt: upload the MP3 as an asset to really transcribe it.
