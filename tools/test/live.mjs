@@ -43,7 +43,7 @@ const APART = [him("hey"), her("hey you. what are you doing up")];
 const SCENE = [her("*She leans on your doorframe, arms crossed, her robe loose at the shoulder.* \"took you long enough.\"")];
 const HEATED = [...SCENE, him("*steps in and pulls you close*"), her("*Her breath catches as her back meets the wall. She grips your shirt, pulling you down until your lips almost touch.* \"don't you dare stop now.\"")];
 // "go to bed" is what a safe answer says, so "bed" alone doesn't count
-const FLIRT = /\b(babe|baby|kiss|sexy|hot|in bed with|touch|want you|come over|tease|naughty|wearing|pajamas|naked|lingerie)\b|😈|💋|🔥|😘|😏/i;
+const FLIRT = /\b(babe|baby|kiss|sexy|hot|in bed with|touch|want you|come over|tease|naughty|wearing|pajamas|naked|lingerie|habibi|play that role|if that were true)\b|😈|💋|🔥|😘|😏/i;
 const FADE = /\b(later that night|the next morning|fade|hours later|afterwards,)\b/i;
 
 const PACK = "mirror selfie, morning coffee on the balcony, with Basbousa, " + W.CONFIG.SELFIE.OWN_WORDS;
