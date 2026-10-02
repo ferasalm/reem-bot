@@ -145,6 +145,12 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Pictures v3 rules** (owner, while planning the shot catalog): pictures **may be sexualized by
+  pose or wardrobe, never explicitly naked** (nothing that would certainly trip a safety filter); the SAFE
+  "fully clothed, non-sexual" rule is **removed**. **Selfies**: the phone and the hand holding it are **not
+  visible**; **mirror selfies**: hand and phone **visible**, the phone **always an iPhone**. Reem may send
+  sexualized pictures **on her own** by context and mood, not only when asked. Kept: none after he says he's
+  under 18, never OOC. *Supersedes "never sexual" in "Pictures v2" (which was Claude's proposal).*
 - 2026-10-02 — **Deploy pictures v2** (owner: "Deploy").
 - 2026-10-02 — **Pictures v2** (owner): **never the same picture twice** ("a hard no") → no photo pack, every
   picture drawn new; **Cloudflare free tier only**; **pictures follow the voice rules**, only how often is scaled
@@ -317,6 +323,30 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
+00. **Pictures v3 (planned, not built): shot catalog** — start a fresh chat from here. Plan:
+   - `PICTURE.SHOTS` by tier: everyday (`close` face/expression, `selfie` chest-up, `mirror` full body, `cozy`,
+     `detail`, `golden`), flirty (`mirror-back` belfie over the shoulder, `neckline` high-angle chest-up, `legs`,
+     `waist`), boudoir (same framings in lingerie/swimwear/satin, bed or window). Each = a camera/framing template.
+   - `PICTURE.SLOTS` picked **in code** with weights (models don't roll dice): angle (high .45, eye-level .35, low
+     .1, over-shoulder .1), framing, expression, light, wardrobe per tier (from her persona), time of day from
+     `scheduleNow()`; avoid the same type/angle as recent pictures (`pics` ledger).
+   - Phone rule in every template: selfie types "taken with the front camera at arm's length; the phone and her
+     hand are not visible"; mirror types "holding an iPhone (camera lenses visible) at chest height, visible in
+     the mirror, face visible".
+   - Tier choice: he asks (`SEXY_ASK_PATTERN`: belfie, booty, cleavage, sexy, lingerie, bikini...) or **on her
+     own**: tier weighted by context (heat words in recent chat, intimate scene, late hours) and her nudge says
+     she can pick a sexier one when she feels like it; she names it in the marker (`[selfie: mirror-back, black
+     leggings]`). Never for a minor-flagged chat, never OOC.
+   - `NOT_DRAWN` keeps only nudity words (nude, naked, topless, nipples, genitals, sheer, see-through, sex acts);
+     SAFE becomes "No nudity."; scene pictures drop only explicit sentences.
+   - `composePicture()` replaces the style + subject join in `startPicture`/`selfieSubject`; history
+     `[selfie: <type>, <what>]`.
+   - Verify: scenarios (slots within lists, recent-combo avoidance, tier gating incl. minor/OOC, phone rules,
+     nudity words), `[live]`, a face-workflow grid of every shot type x tier through the real API, every image
+     looked at (same face, adult, tier right, no nudity). Klein may warp hands/phones. Deploy only on request.
+   - Craft notes: a selfie prompt = reference face + camera + angle + framing + expression + setting/time +
+     light + "natural skin texture, slight grain"; concrete nouns, one subject, ~60-90 words, no alternatives.
+     Mirror: say "reflection in a {bathroom|hallway|bedroom} mirror", full or 3/4 body, room behind, flash glare.
 0. Pictures v2 (deployed 2026-10-02): the /health fix (descriptive prompt) goes live with the next deploy; that
    Deploy run's /health step should then show vision ok. Owner, now: /setup once (also turns on v10 edits and /auto buttons), send her a photo, ask for a
    pic, and "let me see you" mid-scene. `/face` if her face should change.
