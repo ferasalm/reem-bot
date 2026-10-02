@@ -1,0 +1,14 @@
+{
+  "note": "Consistency check of tools/face/reference.jpg: pictures drawn the way the bot draws them (PICTURE.SELFIE_STYLE + REFERENCE + what + SAFE).",
+  "mode": "consistency",
+  "reference": "tools/face/reference.jpg",
+  "size": 640,
+  "prompts": [
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. mirror selfie in her hallway, black slip dress, evening. She is fully clothed. Non-sexual, tasteful.",
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. on her balcony in Zamalek at golden hour, oversized gray knit cardigan, the Nile behind her. She is fully clothed. Non-sexual, tasteful.",
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. at a café in Zamalek with an iced coffee, sunglasses pushed up in her hair. She is fully clothed. Non-sexual, tasteful.",
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. on the couch with Basbousa the fluffy golden-brown tabby cat on her lap, cozy lamp light. She is fully clothed. Non-sexual, tasteful."
+  ],
+  "per_prompt": 1,
+  "describe": true
+}
