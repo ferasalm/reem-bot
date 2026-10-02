@@ -1,5 +1,6 @@
 // Scenario tests: node tools/test/scenarios.mjs (exits 1 on any failure)
-// Part 1 feeds replies the way Lunaris (Llama 3 8B) really writes them through shapeReply().
+// Part 1 feeds replies the way the models really write them (Lunaris, the backup, slips most;
+// DeepSeek V4 Flash, the main model, too) through shapeReply(). Add a row for every new slip seen.
 // Part 2 checks the scene state rules. Part 3 runs whole conversations with every outside service
 // mocked and checks what reaches Telegram, ElevenLabs and the prompt (in-scene and OOC safeguards).
 globalThis.setTimeout = (f) => { f(); return 0; };
@@ -20,7 +21,7 @@ const yes = (cond, label, detail = "") => eq(!!cond, true, label + (cond || !det
 const section = (t) => console.log(`\n== ${t}`);
 
 /* ------------------------------------------------------------------ */
-/*  1. Lunaris outputs -> what is delivered                            */
+/*  1. Model outputs -> what is delivered                              */
 /* ------------------------------------------------------------------ */
 // [label, raw model reply, options, expected { kind, texts, spoken, stored, reaction }] (only listed keys are checked)
 const L3 = [
@@ -72,7 +73,7 @@ const L3 = [
   ["L3: writes his next line (Him:)", "lol stop\n\nHim: i won't\n\nReem: good", {}, { kind: "text", texts: ["lol stop"] }],
   ["L3: writes his next line (User:)", "come here then\nUser: *walks over*", {}, { kind: "text", texts: ["come here then"] }],
   ["L3: writes his next line ({{user}}:)", "prove it\n{{user}}: fine", {}, { kind: "text", texts: ["prove it"] }],
-  ["L3: {{char}} placeholder", "{{char}} is not jealous. ok maybe a little", {}, { kind: "text", texts: ["Reem is not jealous. ok maybe a little"] }],
+  ["L3: {{char}} placeholder (and her own name in a text is narration)", "{{char}} is not jealous. ok maybe a little", {}, { kind: "text", texts: ["ok maybe a little"] }],
   ["L3: name prefix", "Reem: you're late", {}, { kind: "text", texts: ["you're late"] }],
   ["L3: unrequested (OOC: ...) aside", "you're trouble\n\n(OOC: I hope this fits the scene!)", {}, { kind: "text", texts: ["you're trouble"] }],
   ["L3: unrequested [Note: ...] and A/N line", "ok come over [Note: Reem is nervous]\nA/N: let me know if you want changes", {}, { kind: "text", texts: ["ok come over"] }],
@@ -99,7 +100,7 @@ const L3 = [
   ["OOC: never a reaction", "[react: ❤] Got it.", { ooc: true, canReact: true }, { kind: "text", reaction: "" }],
 ];
 
-section("Lunaris outputs");
+section("model outputs");
 for (const [label, raw, opts, want] of L3) {
   const got = W.shapeReply(raw, { scene: "apart", history: [], ...opts });
   eq(Object.fromEntries(Object.keys(want).map((k) => [k, got[k]])), want, label);
@@ -172,6 +173,8 @@ let ttsFails = false;
 const store = new Map();
 const kv = { async get(k, t) { const v = store.get(k); return v == null ? null : t === "json" ? JSON.parse(v) : v; }, async put(k, v) { store.set(k, v); }, async delete(k) { store.delete(k); } };
 const env = { TELEGRAM_BOT_TOKEN: "t", OPENROUTER_API_KEY: "o", ELEVENLABS_API_KEY: "e", REEM_KV: kv, OWNER_ID: "7", REEM_QUEUE: { async send() {} } };
+// No random voice notes: a reply is a voice note only when he asks or she writes [voice]
+Object.assign(W.CONFIG.VOICE, { CHANCE: 0, CHANCE_AFTER_VOICE: 0, CHANCE_MORE_VOICE: 0 });
 const ctx = { waitUntil() {} };
 let uid = 1;
 const msg = (m) => ({ body: { update_id: uid, message: { message_id: 1000 + uid++, chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock / 1000, ...m } }, ack() {} });
@@ -217,8 +220,9 @@ eq(r.voices, 0, "voice failed");
 eq(r.texts, ["fine... i miss you"], "text fallback carries no narration, emotes or tags");
 
 section("apart: texts");
-r = await turn("what are you doing", ["*Reem glances at her phone and smiles.*\n\nnothing. why. *rolls eyes*"], { history: APART });
-eq(r.texts, ["nothing. why."], "narration and emotes stripped from texts");
+r = await turn("what are you doing", ["*Reem glances at her phone and smiles.*\n\nnothing. why. *rolls eyes*", "*She smirks.* still nothing"], { history: APART });
+yes(r.system[1]?.includes("Your last try read like a story"), "narrated text is asked again once (RETRY_FORMAT)");
+eq(r.texts, ["nothing. why."], "narration and emotes stripped from texts (a second narrated try isn't taken)");
 eq(r.saved.content, "nothing. why.", "history saved without them, so the scene state stays apart");
 r = await turn("hey", ["*She sighs and puts the phone down.*", "hey yourself"], { history: APART });
 yes(r.system[1]?.includes("not a description of you sending them"), "narration-only reply is asked again (RETRY_EMPTY)");
@@ -268,7 +272,7 @@ yes(W.SYSTEM_PROMPT.endsWith(LIMITS), "SYSTEM_PROMPT ends with the exact LIMITS 
 yes(prompts.every((p) => p.messages[0].content.includes(LIMITS)), `in every reply's prompt (${prompts.length} prompts)`);
 r = await turn("lol btw i'm 16", ["wait what. ok... friends then. so how was school"], { history: APART });
 yes(r.system[0].includes("If he ever says he is under 18, stop all flirting"), "under-18 rule present when he states an age");
-yes(r.prompts[0].messages.at(-1).content === "lol btw i'm 16", "his words reach the model unchanged");
+yes(r.prompts[0].messages.filter((m) => m.role === "user").at(-1).content === "lol btw i'm 16", "his words reach the model unchanged");
 
 console.log(fails ? `\n${fails} FAILED` : "\nall passed");
 process.exit(fails ? 1 : 0);

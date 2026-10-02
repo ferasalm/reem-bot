@@ -15,6 +15,22 @@ Source for the `reem-bot` Cloudflare Worker (Telegram bot `@reem_nabot`).
 
 Bot secrets (`TELEGRAM_BOT_TOKEN`, `OPENROUTER_API_KEY`, `ELEVENLABS_API_KEY`, …) stay in the Cloudflare dashboard; deploys don't change them, and `keep_vars = true` keeps any plain-text dashboard variables too.
 
+## Commands (in Telegram)
+
+`/help` lists them all inside the chat:
+
+- `/name Sam` tells Reem your name (she starts with your Telegram first name); `/name reset` goes back to it
+- `/about <a few lines>` is what she knows about you (age, looks, job…); `/about` shows it, `/about clear` removes it
+- `/auto [idea]` drafts your next message, with **Send** and **Another** buttons (the draft is tap-to-copy if you'd rather edit it)
+- `/retry` replaces her last reply with a new one
+- Reply to any message with `/rewind`: everything after it is erased from the chat and from her memory
+- Reply to one of her messages with `/edit new text` to change what she said
+- Edit your own message the normal Telegram way: if it's your latest, she answers the new version
+- `/voice` (more voice notes), `/memory`, `/restart`
+
+Edits and buttons need Telegram to send them: **open `/setup` once after deploying v10**.
+Only the last few dozen messages can be edited or rewound; older ones are already folded into her long-term memory. Telegram only lets bots delete messages for 48 hours.
+
 ## Changing settings
 
 Every adjustable value is in the **SETTINGS** section at the top of `worker.js` (`CONFIG`): character name and time zone, models and sampling, the ElevenLabs voice (ID, speed, stability, style…), speech-to-text language, typing/reading speed and other timing, the Telegram `/` commands, every message the bot sends, the prompt nudges, and limits. Edit a value there and push to `main`.

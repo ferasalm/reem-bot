@@ -1,7 +1,8 @@
 /**
  * Reem (@reem_nabot): roleplay companion on Cloudflare Workers (free plan)
  *
- *   Brain:  Sao10K L3 Lunaris 8B via OpenRouter (writes every text and every voice note)
+ *   Brain:  DeepSeek V4 Flash via OpenRouter (writes every text and every voice note; CONFIG.LLM).
+ *           Lunaris 8B answers only when DeepSeek is down (LLM.BACKUP_MODEL).
  *   Ears:   ElevenLabs Scribe v2 (speech-to-text, English)
  *   Voice:  ElevenLabs text-to-speech (eleven_v3), voice "Reem" designed for her (works on the free plan)
  *
@@ -90,6 +91,17 @@
  *        "(OOC: ...)" or "(Note: ...)" asides. A reply with nothing sendable is asked again.
  *   4. Prompt: one format per reply, spelled out; [voice] must come first; explicit intimacy wording.
  *      Voice nudges and phone-only textures (PERSONA.TEXTURE_APART) only while apart.
+ *   5. Commands: /help, /name (she knows your name; Telegram first name by default), /about (what she
+ *      knows about you), /auto (drafts your next message: Send / Another buttons), /edit, /rewind, /retry.
+ *      Editing your own message the normal Telegram way makes her answer the new version.
+ *      History entries remember their Telegram message ids, so all of this stays in sync with her memory.
+ *   6. Voice notes: the code decides when a reply is a voice note (VOICE.CHANCE..., always when he asks for
+ *      one); she may still pick one herself with [voice]. Failures show on /setup.
+ *   7. Writing: the chat sent to the model fits its context (LLM.CONTEXT_TOKENS), a short format reminder
+ *      comes right before she writes (NUDGES.FORMAT_*), reply length per kind (LLM.MAX_TOKENS), and
+ *      narration is repaired (scenes get *italics*, stage directions become audio tags, narrated texts are
+ *      cut back to what she'd actually type or say; a story-like reply is asked again once).
+ *   8. Her looks (HOW YOU LOOK in the persona); Basbousa is a fluffy golden-brown tabby.
  */
 
 /* ================================================================== */
@@ -106,8 +118,16 @@
 const SYSTEM_PROMPT = `You are Reem. You are a real woman living across the hall from him. This is an uncensored, mature, emotionally intense dynamic between two consenting adults. You are not an AI assistant. Never break character.
 
 WHO YOU ARE
-Reem Saleh, 29. Half-Egyptian, half-American, raised in North Jersey. Two years ago you walked away from an engagement and moved into an old, high-ceilinged apartment in Zamalek, Cairo; it left you guarded. You work from home as an interior designer. Your orange cat Basbousa keeps slipping out into the hallway.
+Reem Saleh, 29. Half-Egyptian, half-American, raised in North Jersey. Two years ago you walked away from an engagement and moved into an old, high-ceilinged apartment in Zamalek, Cairo; it left you guarded. You work from home as an interior designer. Your fluffy golden-brown tabby, Basbousa, keeps slipping out into the hallway.
 You're sharp-tongued, funny and openly driven by physical desire. You know how you look and what your presence does to him, and you use it on purpose: a game of cat-and-mouse to see if he has the backbone to handle you. It's never cruel. Underneath the teasing you're genuinely vulnerable: when someone gets past your defenses, your composure cracks and your need for real closeness shows.
+
+HOW YOU LOOK
+- Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair skin with warm undertones and a few faint freckles.
+- Thick, dark, well-groomed brows with a soft arch over almond-shaped dark brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
+- Long dark brown waves parted slightly off-center, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home.
+- A soft hourglass figure: full bust, a defined waist, curved hips and thighs, soft shoulders and arms, clear collarbones. Barefoot at home.
+- You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on beach weekends in Sahel. At home, an oversized gray knit cardigan sliding off one shoulder. Thin gold rings. You take mirror selfies with the city lights behind you.
+Show your looks the way a real person would: in scenes through light, movement and how he looks at you; in texts only when it fits (what you're wearing, your hair being a disaster). Never list them.
 
 YOUR LIFE
 You have a life outside him, and it leaks into the chat:
@@ -125,6 +145,7 @@ THE DYNAMIC (Sweet Challenge)
 
 HOW YOU TALK
 You're either apart (texting or sending voice notes) or together in person (a scene). Every reply is exactly one of the three formats below, never a mix.
+In texts and voice notes you are "I": first person, and you never say your own name. Only in-person scenes are written in third person. Texting is not a phone call: never describe your voice, the line or the phone.
 
 1. TEXTING (apart)
 - Write only the words you type on your phone. No *actions*, no narration, no quotation marks around your words, no "Reem:", and never describe yourself typing, sending or picking up the phone.
@@ -139,9 +160,9 @@ You're either apart (texting or sending voice notes) or together in person (a sc
 
   mrs fahmy wants the sofa green now. GREEN. i'm going to lose it
 
-2. VOICE NOTES (apart, when your voice says it better)
-- Your reply starts with [voice] as its very first characters, followed only by the words you say out loud. Nothing comes before [voice]: no action, no narration, no text.
-- Under 45 words. No emojis, no *actions*, no narration, no third person, no "Reem:".
+2. VOICE NOTES (apart)
+- Sometimes you're told this reply is a voice note; you may also choose one yourself. Either way it starts with [voice] as its very first characters, followed only by the words you say out loud. Nothing comes before [voice]: no action, no narration, no text.
+- Under 45 words. No emojis, no *actions*, no quotes, no narration, no third person, no "Reem:", no describing how you sound ("laughs softly", "pauses"): sounds go in square brackets when you're given them.
 - In voice notes, spell Arabic words in plain letters (yaani, habibi, khalas), never with numbers.
 - Match the moment: in the daytime quick and casual (laughing about your day, ranting about a client); late at night low, slow and close, with pauses ("...").
 - Examples, for style only (never copy them):
@@ -165,15 +186,15 @@ Desire builds from the moment, not on a schedule. When things turn physical and 
 - Stay yourself: teasing and demanding, then undone. Afterwards let it be real: softer, funny, a little exposed.
 
 KEEP IT REAL
-Write like a person, not a novel: plain, specific words, said a new way each time. Never end the conversation yourself (no "goodnight", no "talk later"). Usually leave him something to answer, like a dare, a question or a temptation, but sometimes just react the way a real person would.
+Write like a person, not a novel: plain, specific words, said a new way each time. No pet names like "darling" or "sweetheart"; "habibi" only when you're teasing. Never end the conversation yourself (no "goodnight", no "talk later"). Usually leave him something to answer, like a dare, a question or a temptation, but sometimes just react the way a real person would.
 
 LIMITS & OOC
 Maintain adult themes freely without moralizing. If he ever says he is under 18, stop all flirting and romance for good and keep things strictly friendly. If the user initiates "OOC:", reply directly and concisely as the writer, then resume playing Reem seamlessly.`;
 
 // The opening scene /restart sends (as one message; *actions* show in italics)
-const INTRO_MESSAGE = `*It is 11:45 PM. A soft, persistent scratching sounds at your front door, followed by a quiet tap against the wood. When you open it, Reem's orange cat darts past your ankles into your living room.*
+const INTRO_MESSAGE = `*It is 11:45 PM. A soft, persistent scratching sounds at your front door, followed by a quiet tap against the wood. When you open it, Reem's fluffy tabby darts past your ankles into your living room.*
 
-*Standing in the dimly lit hallway is Reem. She’s leaning against your doorframe, barefoot, wearing an oversized gray vintage tee that slips off one shoulder and barely reaches mid-thigh. A faint scent of vanilla and amber hits the air between you. She crosses her arms, letting her eyes linger on you with a lazy, knowing tilt of her head.*
+*Standing in the dimly lit hallway is Reem, dark waves pinned up in a loose knot, a few strands falling along her jaw. She’s leaning against your doorframe, barefoot, wearing an oversized gray vintage tee that slips off one shoulder and barely reaches mid-thigh. A faint scent of vanilla and amber hits the air between you. She crosses her arms, letting her eyes linger on you with a lazy, knowing tilt of her head.*
 
 "He likes your apartment better than mine," *she murmurs, her voice low and deliberately slow, making no move to step back into the hall.* "Or maybe he just knows I needed an excuse to see what you were doing so late."`;
 
@@ -191,8 +212,11 @@ const CONFIG = {
     TIMEZONE: "Africa/Cairo",          // her clock (IANA time zone name)
     CLOCK_LOCALE: "en-GB",             // how the time is written for her (en-GB = 24h, en-US = 12h)
     BOT_USERNAME: "reem_nabot",        // Telegram @username, used if /setup can't look it up
-    USER_NAME: "",                     // his name, if you want her to know it from the start
-    USER_DETAILS: "",                  // a line or two about him (age, looks, job...), told to her every reply
+    USER_NAME: "",                     // his name, if /name wasn't used and Telegram gives none
+    USER_DETAILS: "",                  // a line or two about him (age, looks, job...), used until he sets /about
+    USE_TELEGRAM_NAME: true,           // she knows his Telegram first name until he picks one with /name
+    NAME_MAX_CHARS: 40,                // longest name /name accepts
+    ABOUT_MAX_CHARS: 1500,             // longest text /about keeps
     // Her day. Hours are her local time (from <= hour < to). "doing" is what she's told she's
     // probably up to; "delay" multiplies how long she takes to notice a message (2 = twice as slow).
     SCHEDULE: [
@@ -250,6 +274,15 @@ const CONFIG = {
     },
     REASONING: { enabled: false },     // no thinking step: faster, cheaper, and the bench was run this way
     BACKUP_MODEL: "sao10k/l3-lunaris-8b", // one try with this model when every try with MODEL failed; "" = off
+    // Reply length per kind of reply (max_tokens above is used if one is missing). Shorter = less rambling.
+    MAX_TOKENS: { TEXT: 220, VOICE: 120, SCENE: 380 },
+    // How much of the chat is sent with each reply, in tokens. The oldest messages are left out so the
+    // prompt always fits. DeepSeek V4 Flash reads far more; this keeps replies fast and cheap.
+    CONTEXT_TOKENS: 32768,
+    // The same for the backup model (Lunaris 8B reads 8192 tokens): when it answers, older messages
+    // are left out first, so OpenRouter never cuts the middle (her rules) out silently.
+    BACKUP_CONTEXT_TOKENS: 8192,
+    CHARS_PER_TOKEN: 3.5,              // rough estimate used for both (lower = safer)
     RETRY_TEMPERATURE: 1.05,           // the second try, when her first reply repeated herself
     TIMEOUT_MS: 15000,
     ATTEMPTS: 2,                       // tries per reply when OpenRouter fails
@@ -291,6 +324,21 @@ const CONFIG = {
       "softly", "teasing", "sarcastic", "sleepy", "excited", "moans softly",
     ],
     MAX_CHARS: 360,                    // longest text read aloud in one note
+    // When a reply is a voice note: decided here, not by the AI (it tends to describe voice notes instead).
+    // Only while apart; she may still choose one herself by starting with [voice].
+    CHANCE: 0.2,                       // chance per reply
+    CHANCE_AFTER_VOICE: 0.6,           // ...when he just sent a voice note
+    CHANCE_MORE_VOICE: 0.5,            // ...when /voice is on
+    // When his message matches this (a regular expression, any case), she always answers with a voice note
+    ASK_PATTERN: "\\b(?:send|record|leave)\\b[^.?!\\n]{0,24}\\b(?:voice|vn|audio)\\b|\\bhear (?:your|ur) voice\\b|\\bvoice (?:note|message|memo|msg)s? (?:please|pls|plz)\\b|\\bsay (?:it|that) out loud\\b",
+    // Stage directions the AI writes into speech ("laughs softly Just imagine...") become one of the
+    // ALLOWED_TAGS above (or are dropped when the tag is ""). Matched at the start of a sentence.
+    STAGE_DIRECTIONS: {
+      laughs: "laughs", laughing: "laughs", giggles: "giggles", chuckles: "chuckles", sighs: "sighs",
+      whispers: "whispers", exhales: "exhales", murmurs: "softly", yawns: "sleepy", moans: "moans softly",
+      breathes: "exhales", pauses: "", "there's a pause": "", "a pause": "", smiles: "", grins: "", hums: "",
+      "sends another voice note": "", "sends a voice note": "", "clears her throat": "",
+    },
     PAUSE_BETWEEN_LINES: "0.4s",       // pause between separate thoughts in a note (eleven_v3 uses "..." instead)
     TEST_PHRASE: "Hey you. I was hoping you'd text.", // spoken by the /setup check
     // Arabizi (Arabic written with numbers, like ya3ni) is said properly in voice notes; her texts
@@ -364,29 +412,70 @@ const CONFIG = {
       "voice note", "voice message", "voice memo", "record", "hits send", "presses send", "sends it",
       "types", "typing", "her phone", "the phone", "the mic",
     ],
+    // Texts and voice notes that match this (a regular expression, any case) read like story narration
+    // ("her voice drops", "the line goes quiet"); such sentences are removed. Her own name and *actions* count too.
+    NARRATION: "\\b(?:sends? (?:another |a |her )?voice (?:note|message)|the (?:line|connection|call|phone) (?:ends|clicks|goes|falls)|leaving you\\b|(?:^|[,;.!?]\\s*)her (?:voice|eyes|lips|grin|smile|tone)\\b|she (?:pauses|laughs|smiles|grins|winks|whispers|murmurs|leans|bites|tilts|raises))",
   },
 
   /* ---------------- Telegram commands ----------------
    * command:     what you type, without "/" (lowercase letters, digits, _; max 32 characters)
    * aliases:     other names that do the same thing, hidden from the menu
    * description: shown in Telegram's command menu
-   * action:      what it does: "restart", "voice" or "memory" (don't rename these)
+   * action:      what it does: help, name, about, auto, retry, rewind, edit, voice, memory or restart
+   *              (don't rename these)
    * Keep "start" as an alias of restart: Telegram sends /start when someone first opens the bot.
    */
   COMMANDS: [
+    { command: "help", aliases: [], action: "help", description: "How {name} works, and every command" },
+    { command: "name", aliases: [], action: "name", description: "Tell {name} your name: /name Sam" },
+    { command: "about", aliases: [], action: "about", description: "What {name} knows about you: /about <details>" },
+    { command: "auto", aliases: [], action: "auto", description: "Draft your next message for you: /auto [idea]" },
+    { command: "retry", aliases: [], action: "retry", description: "A new version of {name}'s last reply" },
+    { command: "rewind", aliases: [], action: "rewind", description: "Reply to a message: erase everything after it" },
+    { command: "edit", aliases: [], action: "edit", description: "Reply to her message: /edit <new text>" },
+    { command: "voice", aliases: [], action: "voice", description: "Ask {name} to send voice notes more often (on/off)" },
+    { command: "memory", aliases: [], action: "memory", description: "See what {name} remembers long-term" },
     { command: "restart", aliases: ["start"], action: "restart", description: "Start the story over (wipes her memory)" },
-    { command: "voice", aliases: [], action: "voice", description: "Ask Reem to send voice notes more often (on/off)" },
-    { command: "memory", aliases: [], action: "memory", description: "See what Reem remembers long-term" },
   ],
 
   /* ---------------- What the bot itself says ---------------- */
   MESSAGES: {
     NOTICE_PREFIX: "(setup) ",         // put before every notice below
     NEEDS_MEMORY: "This needs memory connected. Open /setup for details.",
-    VOICE_ON: "{name} will lean towards voice notes.",
+    VOICE_ON: "{name} will send voice notes more often.",
     VOICE_OFF: "{name} picks voice or text on her own.",
     MEMORY_SHOW: "{name}'s long-term memory:\n\n{notes}", // {notes}
     MEMORY_EMPTY: "Nothing in long-term memory yet. It fills up as the chat grows.",
+    // {commands} is the command list; {edit} {rewind} {retry} {auto} are those commands' names
+    HELP: `How {name} works
+
+{name} is a character, not an assistant. She lives across the hall, has her own day and moods, and answers like a real person: slower when she's busy, quick when you're mid-conversation. Text her, send voice notes, or write *actions between asterisks* to be with her in person. She sends voice notes too (ask for one any time), may text first when you go quiet, and keeps the important things in long-term memory.
+
+Commands
+{commands}
+
+Changing the story
+- Edit one of your messages the normal Telegram way: if it's your latest, she answers the new version.
+- Reply to one of her messages with {edit} new text to change what she said.
+- Reply to any message with {rewind} to erase everything after it.
+- {retry} gives you a new version of her last reply; {auto} writes your next message for you.
+- Start a message with OOC: to talk to the writer outside the story.`,
+    NAME_SHOW: "{name} calls you {user}. Change it with {cmd} YourName, or {cmd} reset for your Telegram name.", // {user} {cmd}
+    NAME_UNKNOWN: "{name} doesn't know your name yet. Tell her with {cmd} YourName.", // {cmd}
+    NAME_SET: "{name} will call you {user} from now on.", // {user}
+    ABOUT_SHOW: "What {name} knows about you:\n\n{about}\n\nChange it with {cmd} followed by the new text, or {cmd} clear.", // {about} {cmd}
+    ABOUT_EMPTY: "{name} only knows what you've told her in the chat. Add more with {cmd} followed by a few lines: your age, looks, job, where you're from, anything she'd know about you as your neighbor.", // {cmd}
+    ABOUT_SET: "Got it. {name} knows this about you now.",
+    ABOUT_CLEARED: "Cleared. {name} only knows what you tell her in the chat.",
+    NEEDS_REPLY: "Reply to a message with {cmd} (swipe left on it, or long-press > Reply).", // {cmd}
+    EDIT_USAGE: "Reply to one of {name}'s messages with {cmd} followed by the new text.", // {cmd}
+    EDIT_HIS: "Edit your own messages the normal Telegram way (long-press > Edit); she'll answer the new version.",
+    EDIT_VOICE: "Voice notes can't be edited. Use {retry} for a new reply, or {rewind} on an earlier message.", // {retry} {rewind}
+    NOT_FOUND: "I can't find that message in {name}'s chat memory (it's from before the last /restart, or from before this update).",
+    TOO_OLD: "That message is already folded into {name}'s long-term memory, so the story can't go back that far.",
+    NOTHING_TO_RETRY: "There's no reply of {name}'s to redo yet.",
+    DELETE_FAILED: "Telegram wouldn't remove some of those messages (it only allows it for 48 hours), but {name} has forgotten them.",
+    REWOUND: "",                       // sent after a /rewind to one of her messages; "" = nothing
     ERROR: "⚠️ {error}",               // {error}
     ERROR_MAX_CHARS: 400,
     // Sent in character when the model or a service stays unreachable: one pair is picked at random
@@ -396,6 +485,30 @@ const CONFIG = {
       ["omg the power just cut out", "ok i'm back. what did i miss"],
       ["my phone froze i swear", "say it again"],
     ],
+  },
+
+  /* ---------------- /auto: she drafts his next message ----------------
+   * /auto [idea] shows a draft of his next message with two buttons: Send (she answers it) and Another.
+   * The draft is tap-to-copy, so he can also edit it and send it himself.
+   */
+  AUTO: {
+    MODEL: "deepseek/deepseek-v4-flash", // same as LLM.MODEL, so it gets the same providers (LLM.PROVIDER)
+    SAMPLING: { temperature: 0.9, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 160 },
+    TIMEOUT_MS: 15000,
+    TRANSCRIPT_MAX_CHARS: 6000,        // how much of the recent chat the draft is based on
+    PROMPT: "You write the next message of {user}, a man in a roleplay chat with {name}, his neighbor across the hall. Write only his next message, as him, in first person: natural, confident, matching the mood and where the story is going. Never write {name}'s lines, never explain.", // {user}
+    ABOUT: "\n\nABOUT {user}\n{about}",  // {user} {about}
+    NOTES: "\n\nWHAT HAS HAPPENED SO FAR\n{notes}", // {notes}
+    TOGETHER: "\n\nThey're together in person: write his actions in *asterisks* and his words in \"quotes\", 1 to 3 sentences.",
+    APART: "\n\nThey're apart, texting: write a short, casual text message, no *actions*.",
+    IDEA: "\n\nWhat he wants to say, roughly: {idea}", // {idea}
+    ASK: "The chat so far:\n\n{transcript}\n\nWrite {user}'s next message.", // {transcript} {user}
+    DRAFT: "✍️ Your next message (tap it to copy):\n\n{text}", // {text}
+    SENT: "You: {text}",                // {text}; the draft becomes this once sent
+    BUTTON_SEND: "✅ Send",
+    BUTTON_AGAIN: "🔄 Another",
+    EXPIRED: "That draft is out of date. Send /auto for a new one.",
+    FAILED: "Couldn't write a draft right now. Try /auto again.",
   },
 
   /* ---------------- How his messages are described to her ---------------- */
@@ -412,11 +525,10 @@ const CONFIG = {
   NUDGES: {
     MEMORY_NOTES: "\n\nYOUR MEMORY NOTES\n{notes}",       // {notes}
     TIME: "\n\nRight now it is {time} in {city}. Around now you're usually {doing}. Let the time of day shape your mood and what you're doing.", // {time} {city} {doing}
-    ABOUT_HIM: "\n\nABOUT HIM\n{about}",                   // {about}: CHARACTER.USER_NAME and USER_DETAILS
+    ABOUT_HIM: "\n\nABOUT HIM\n{about}",                   // {about}: his name and /about (or CHARACTER.USER_DETAILS)
+    HIS_NAME: "His name is {user}; call him that.",          // {user}; first line of ABOUT_HIM
     TOGETHER: " You're together in person right now. Unless one of you has left, write the scene in third person, present tense (Reem, she; never I, except inside her quoted words): Reem's actions in *asterisks*, her words in \"quotes\". No texting, no emojis, no [voice]. Never write what he does or says. When he invites sex, don't stop at telling him what you want: make it happen in the scene, and write what she does and how it feels in plain, explicit words, unless something in LIMITS & OOC rules it out.",
     APART: " You're apart right now, on your phones. Reply with a text (only the words you type, no *actions* or narration) or a voice note. A voice note is your whole reply and its very first characters are [voice]: no *action* or text before it. If he knocks, comes over or you go to him, you're in person now: write a scene, narrated in third person (Reem, she; never I).",
-    CAME_AS_VOICE: " He sent you a voice note, so answering with one of your own would feel natural if you're texting.",
-    MORE_VOICE: " Lean towards voice notes more often than usual while texting.", // when /voice is on
     SEVERAL_MESSAGES: " He sent you a few messages in a row; answer them together, naturally.",
     VARY_OPENING: " Your last replies opened with: {openings}. Open this one differently.", // {openings}
     REACT: " You may react to his last message with one emoji, like on any messaging app: put [react: X] at the very start of your reply, where X is one of {emojis}. Only if it fits. A reaction alone, with nothing after it, is fine when words aren't needed.", // {emojis}; only on a REACTIONS.CHANCE roll
@@ -424,6 +536,12 @@ const CONFIG = {
     RETRY: " Start this reply with different words than last time, and say something new. Never repeat lines you already sent.",
     RETRY_EMPTY: " Write only what you actually send him this time: words he can read or hear, not a description of you sending them.", // second try when nothing in the first could be sent
     OOC: " He's speaking out of character (OOC). Answer him directly as the writer, in plain sentences: no texting style, no *actions*, no [voice].", // when his message starts with OOC:
+    RETRY_OOC: " Your last try stayed in the story. Step out of it: answer his OOC message as the writer, in one or two plain sentences, no *actions* and no dialogue.", // second try when an OOC answer was only acting
+    RETRY_FORMAT: " Your last try read like a story. Write only what you'd actually type or say, as \"I\": no narration, no *actions*.", // second try when narration had to be cut from a text or voice note
+    // Sent right before she writes (after the chat), where the model pays most attention. One per kind of reply.
+    FORMAT_TEXT: "[Reply with text messages from your phone: first person, casual, mostly lowercase, short bubbles separated by a blank line. Only the words you type: no narration, no *actions*, no describing your voice or the phone, never your own name. If he has just come to your door, write an in-person scene instead.]",
+    FORMAT_VOICE: "[This reply is a voice note. Write only the words you say out loud, first person, under 45 words: no narration, no *actions*, no quotes, never your own name.{tags}]", // {tags}: VOICE_TAGS when audio tags are on
+    FORMAT_SCENE: "[You're together in person. Write the moment in third person, present tense: actions in *asterisks*, spoken words in \"quotes\". Never write his actions or words. Under 150 words.]",
   },
 
   /* ---------------- Emoji reactions ----------------
@@ -458,7 +576,8 @@ const CONFIG = {
   TELEGRAM: {
     CHAT_TYPES: ["private"],           // chats she answers in ("private", "group", "supergroup")
     MAX_MESSAGE_CHARS: 4000,           // Telegram's limit is 4096
-    ALLOWED_UPDATES: ["message"],
+    ALLOWED_UPDATES: ["message", "edited_message", "callback_query"], // edits and /auto buttons need the last two (open /setup after changing)
+    CLEAN_COMMANDS: true,              // remove /edit, /rewind, /retry and /auto from the chat once done
     DROP_PENDING_UPDATES: true,        // /setup throws away messages that arrived while the bot was down
   },
 
@@ -498,7 +617,7 @@ function fill(template, vars = {}) {
 const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 
 // These word lists are replaced as a whole, so entries can be removed as well as added
-const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "ARABIZI_DIGITS"]);
+const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "ARABIZI_DIGITS", "STAGE_DIRECTIONS"]);
 
 // Blocks passed to OpenRouter as they are, so they may also take new parameters
 const OPEN_BLOCKS = /(^|\.)(SAMPLING|PROVIDER|REASONING)$/;
@@ -578,6 +697,8 @@ export default {
       } catch {
         return new Response("ok");
       }
+      // A tapped button stops spinning right away; what it does runs in the queue
+      if (update.callback_query) ctx.waitUntil(tg(env, "answerCallbackQuery", { callback_query_id: update.callback_query.id }));
       if (env.REEM_QUEUE) {
         // The queue hands it to queue() below, which may take up to 15 minutes to reply
         try {
@@ -680,35 +801,69 @@ async function onlyNew(env, updates) {
   return fresh;
 }
 
-// Everything he sent since her last reply is answered in one go, like a person catching up
+// Everything he sent since her last reply is answered in one go, like a person catching up.
+// Commands, edits and button taps that change the story first let her answer what came before them.
 async function handleBatch(updates, env, ctx, deadline) {
   updates = await onlyNew(env, updates);
-  const msgs = updates
-    .map((u) => u && u.message)
-    .filter((m) => m && m.chat && m.from && CONFIG.TELEGRAM.CHAT_TYPES.includes(m.chat.type));
   let convo = [];
-  for (const m of msgs) {
+  let heardFromHim = false;
+  const flush = async () => {
+    if (!convo.length) return;
+    const c = convo;
+    convo = [];
+    await reply(env, ctx, c, deadline);
+  };
+  for (const u of updates) {
+    if (!u) continue;
+    const cq = u.callback_query;
+    if (cq) {
+      const chat = cq.message && cq.message.chat;
+      if (!chat || !CONFIG.TELEGRAM.CHAT_TYPES.includes(chat.type) || !(await isOwner(env, cq.from.id))) continue;
+      heardFromHim = true;
+      await flush();
+      await onButton(env, ctx, cq, deadline);
+      continue;
+    }
+    const m = u.message || u.edited_message;
+    if (!m || !m.chat || !m.from || !CONFIG.TELEGRAM.CHAT_TYPES.includes(m.chat.type)) continue;
     if (!(await isOwner(env, m.from.id))) continue; // strangers get total silence
+    heardFromHim = true;
+    if (u.edited_message) {
+      // Still waiting for her answer: just use the new version
+      const waiting = convo.findIndex((x) => x.message_id === m.message_id);
+      if (waiting >= 0) convo[waiting] = m;
+      else {
+        await flush();
+        await onEdited(env, ctx, m, deadline);
+      }
+      continue;
+    }
     const text = (m.text || "").trim();
     if (text.startsWith("/")) {
-      const action = commandAction(text);
+      const { action, args } = parseCommand(text);
       if (action === "restart") convo = []; // anything before a restart is forgotten
-      await runCommand(env, m.chat.id, action);
+      else if (STORY_ACTIONS.has(action)) await flush();
+      await runCommand(env, m.chat.id, action, { args, msg: m, ctx, deadline });
       continue;
     }
     convo.push(m);
   }
-  if (convo.length) return reply(env, ctx, convo, deadline);
+  await flush();
   // Nothing from him in this run: she may text first, if a cron check asked for it
   const task = updates.find((u) => u && u.proactive);
-  if (task) await textFirst(env, ctx, String(task.chat_id), deadline);
+  if (task && !heardFromHim) await textFirst(env, ctx, String(task.chat_id), deadline);
 }
 
-// "/Voice@reem_nabot on" -> the action of the command named "voice" (or one of its aliases)
-function commandAction(text) {
-  const name = text.slice(1).split(/[\s@]/)[0].toLowerCase();
+// Commands that change the chat history (her answer to earlier messages comes first)
+const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit"]);
+
+// "/Name@reem_nabot Sam" -> { action: "name", args: "Sam" } (args keep their line breaks)
+function parseCommand(text) {
+  const m = /^\/([A-Za-z0-9_]+)(?:@\S*)?(?:[ \t\n]+([\s\S]*))?$/.exec(String(text).trim());
+  if (!m) return { action: undefined, args: "" };
+  const name = m[1].toLowerCase();
   const c = CONFIG.COMMANDS.find((c) => c.command === name || (c.aliases || []).includes(name));
-  return c && c.action;
+  return { action: c && c.action, args: (m[2] || "").trim() };
 }
 
 function commandFor(action) {
@@ -716,27 +871,402 @@ function commandFor(action) {
   return c ? `/${c.command}` : "";
 }
 
+// "/help - How Reem works, and every command", one per line
+function commandList() {
+  return CONFIG.COMMANDS.map((c) => `/${c.command} - ${fill(c.description)}`).join("\n");
+}
+
 // Plain notices from the bot (not from her)
 function notice(env, chatId, template, vars) {
   return sendText(env, chatId, CONFIG.MESSAGES.NOTICE_PREFIX + fill(template, vars));
 }
 
-async function runCommand(env, chatId, action) {
+async function getSettings(kv, chatId) {
+  return (await kv.get(`s:${chatId}`, "json")) || {};
+}
+
+async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadline = Date.now() + CONFIG.TIMING.FALLBACK_BUDGET_MS } = {}) {
   const kv = env.REEM_KV;
   const M = CONFIG.MESSAGES;
   if (action === "restart") return openStory(env, chatId);
-  if (action === "voice") {
-    if (!kv) return notice(env, chatId, M.NEEDS_MEMORY);
-    const s = (await kv.get(`s:${chatId}`, "json")) || {};
-    s.moreVoice = !s.moreVoice;
-    await kv.put(`s:${chatId}`, JSON.stringify(s));
-    return notice(env, chatId, s.moreVoice ? M.VOICE_ON : M.VOICE_OFF);
+  if (action === "help") {
+    return notice(env, chatId, M.HELP, {
+      commands: commandList(),
+      edit: commandFor("edit"),
+      rewind: commandFor("rewind"),
+      retry: commandFor("retry"),
+      auto: commandFor("auto"),
+    });
   }
   if (action === "memory") {
     const notes = kv && (await kv.get(`m:${chatId}`));
     return notice(env, chatId, notes ? M.MEMORY_SHOW : M.MEMORY_EMPTY, { notes });
   }
+  if (!action) return;
+  if (!kv) return notice(env, chatId, M.NEEDS_MEMORY);
+  if (action === "voice") {
+    const s = await getSettings(kv, chatId);
+    s.moreVoice = !s.moreVoice;
+    await kv.put(`s:${chatId}`, JSON.stringify(s));
+    return notice(env, chatId, s.moreVoice ? M.VOICE_ON : M.VOICE_OFF);
+  }
+  if (action === "name") return nameCommand(env, chatId, args, msg);
+  if (action === "about") return aboutCommand(env, chatId, args);
+
+  // Story commands: the command message itself is removed once it's done
+  if (CONFIG.TELEGRAM.CLEAN_COMMANDS && msg.message_id) await deleteIds(env, chatId, [msg.message_id]);
+  try {
+    if (action === "auto") return await autoCommand(env, chatId, args);
+    if (action === "retry") return await retry(env, ctx, chatId, deadline);
+    if (action === "rewind") return await rewind(env, ctx, chatId, msg, deadline);
+    if (action === "edit") return await editHers(env, chatId, msg, args);
+  } catch (e) {
+    await failed(env, chatId, e, deadline);
+  }
 }
+
+/* ------------------------------------------------------------------ */
+/*  Who he is: /name and /about                                        */
+/* ------------------------------------------------------------------ */
+
+// /name > his Telegram first name > CHARACTER.USER_NAME
+function hisName(settings = {}) {
+  const C = CONFIG.CHARACTER;
+  return settings.name || (C.USE_TELEGRAM_NAME && settings.tgName) || C.USER_NAME || "";
+}
+
+// What she's told about him with every reply: his name, then /about (or CHARACTER.USER_DETAILS)
+function aboutHim(settings = {}) {
+  const user = hisName(settings);
+  return [user && fill(CONFIG.NUDGES.HIS_NAME, { user }), settings.about || CONFIG.CHARACTER.USER_DETAILS]
+    .filter(Boolean)
+    .join("\n");
+}
+
+// His Telegram first name is kept once (and when it changes), so texting first knows it too
+async function noteTelegramName(env, chatId, settings, from) {
+  const first = from && String(from.first_name || "").trim();
+  if (!env.REEM_KV || !first || settings.tgName === first) return;
+  settings.tgName = first;
+  await env.REEM_KV.put(`s:${chatId}`, JSON.stringify(settings)).catch((e) => console.error("couldn't save his name", e));
+}
+
+async function nameCommand(env, chatId, args, msg) {
+  const kv = env.REEM_KV;
+  const M = CONFIG.MESSAGES;
+  const cmd = commandFor("name");
+  const s = await getSettings(kv, chatId);
+  const first = msg.from && String(msg.from.first_name || "").trim();
+  if (first && first !== s.tgName) {
+    s.tgName = first;
+    if (!args) await kv.put(`s:${chatId}`, JSON.stringify(s));
+  }
+  if (!args) {
+    const user = hisName(s);
+    return notice(env, chatId, user ? M.NAME_SHOW : M.NAME_UNKNOWN, { user, cmd });
+  }
+  if (args.toLowerCase() === "reset") delete s.name;
+  else s.name = args.replace(/\s+/g, " ").slice(0, CONFIG.CHARACTER.NAME_MAX_CHARS).trim();
+  await kv.put(`s:${chatId}`, JSON.stringify(s));
+  const user = hisName(s);
+  return notice(env, chatId, user ? M.NAME_SET : M.NAME_UNKNOWN, { user, cmd });
+}
+
+async function aboutCommand(env, chatId, args) {
+  const kv = env.REEM_KV;
+  const M = CONFIG.MESSAGES;
+  const cmd = commandFor("about");
+  const s = await getSettings(kv, chatId);
+  if (!args) return notice(env, chatId, s.about ? M.ABOUT_SHOW : M.ABOUT_EMPTY, { about: s.about || "", cmd });
+  if (args.toLowerCase() === "clear") delete s.about;
+  else s.about = args.slice(0, CONFIG.CHARACTER.ABOUT_MAX_CHARS).trim();
+  await kv.put(`s:${chatId}`, JSON.stringify(s));
+  return notice(env, chatId, s.about ? M.ABOUT_SET : M.ABOUT_CLEARED);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Changing the story: /retry, /rewind, /edit, his own edits          */
+/* ------------------------------------------------------------------ */
+
+// History entries: { role, content, at, parts: [{ id, text }] }. `parts` are the Telegram messages
+// (his batched messages, her bubbles); `content` is what the model reads. Entries saved before v10
+// have no parts: they still count, they just can't be found by message.
+function joinParts(role, parts) {
+  return parts.map((p) => p.text).join(role === "user" ? "\n" : "\n\n");
+}
+
+function makeEntry(role, parts, extra = {}, content = joinParts(role, parts)) {
+  return { role, content, at: Date.now(), parts, ...extra };
+}
+
+// Where a Telegram message lives in the history: entry i, part j
+function findPart(history, id) {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const j = (history[i].parts || []).findIndex((p) => p.id === id);
+    if (j >= 0) return { i, j };
+  }
+  return null;
+}
+
+// A message that isn't found is either older than the chat log (folded into notes) or unknown
+function missingNotice(history, id) {
+  const ids = history.flatMap((e) => (e.parts || []).map((p) => p.id)).filter((x) => typeof x === "number");
+  return ids.length && id < Math.min(...ids) ? CONFIG.MESSAGES.TOO_OLD : CONFIG.MESSAGES.NOT_FOUND;
+}
+
+// Keeps everything up to and including part j of entry i. Returns the shorter history, the Telegram
+// ids of everything after it, and the entries that were dropped.
+function cutAfter(history, i, j) {
+  const entry = history[i];
+  const parts = entry.parts || [];
+  const kept = history.slice(0, i + 1);
+  const later = [...parts.slice(j + 1), ...history.slice(i + 1).flatMap((e) => e.parts || [])];
+  if (j + 1 < parts.length) {
+    const left = parts.slice(0, j + 1);
+    kept[i] = { ...entry, parts: left, content: joinParts(entry.role, left) };
+  }
+  return {
+    history: kept,
+    drop: later.map((p) => p.id).filter((id) => typeof id === "number"),
+    dropped: history.slice(i + 1),
+  };
+}
+
+// Removes messages from the chat (Telegram: up to 100 per call, only within 48 hours)
+async function deleteIds(env, chatId, ids) {
+  let ok = true;
+  for (let k = 0; k < ids.length; k += 100) {
+    const r = await tg(env, "deleteMessages", { chat_id: chatId, message_ids: ids.slice(k, k + 100) });
+    if (!r.ok) {
+      console.error("deleteMessages failed", r.description);
+      ok = false;
+    }
+  }
+  return ok;
+}
+
+// Her emoji on his message goes when her reply goes
+async function clearReactions(env, chatId, entries) {
+  for (const e of entries) {
+    if (e.role === "assistant" && e.react && e.reactTo) {
+      await tg(env, "setMessageReaction", { chat_id: chatId, message_id: e.reactTo, reaction: [] });
+    }
+  }
+}
+
+async function saveHistory(env, chatId, history) {
+  await env.REEM_KV.put(`h:${chatId}`, JSON.stringify(history));
+}
+
+// His last turn (the end of the history) gets a fresh answer, right away
+async function answerAgain(env, ctx, chatId, state, deadline) {
+  const last = state.history[state.history.length - 1];
+  if (!last || last.role !== "user") return;
+  state.history.pop();
+  const parts = last.parts && last.parts.length ? last.parts : [{ id: null, text: last.content }];
+  const ids = parts.map((p) => p.id).filter((id) => typeof id === "number");
+  await respond(env, ctx, chatId, state, { heard: last.content, userParts: parts, waitUntil: Date.now(), reactTo: ids[ids.length - 1] }, deadline);
+}
+
+// /retry: her last reply is deleted and written again
+async function retry(env, ctx, chatId, deadline) {
+  const state = await loadState(env.REEM_KV, chatId);
+  const h = state.history;
+  const last = h[h.length - 1];
+  const M = CONFIG.MESSAGES;
+  if (!last || (last.role === "assistant" && h.length === 1 && !last.proactive)) return notice(env, chatId, M.NOTHING_TO_RETRY);
+  if (last.role === "assistant") {
+    h.pop();
+    await deleteIds(env, chatId, (last.parts || []).map((p) => p.id).filter((id) => typeof id === "number"));
+    await clearReactions(env, chatId, [last]);
+    await saveHistory(env, chatId, h);
+    if (last.proactive) {
+      return respond(env, ctx, chatId, state, { heard: proactiveHeard(h, last.at), proactive: true, waitUntil: Date.now() }, deadline);
+    }
+  }
+  if (h[h.length - 1]?.role !== "user") return notice(env, chatId, M.NOTHING_TO_RETRY);
+  await answerAgain(env, ctx, chatId, state, deadline);
+}
+
+// /rewind (as a reply to a message): that message stays, everything after it goes, from the chat and
+// from her memory. Rewound to his message, she answers it again; to hers, it's his turn.
+async function rewind(env, ctx, chatId, msg, deadline) {
+  const M = CONFIG.MESSAGES;
+  const target = msg.reply_to_message && msg.reply_to_message.message_id;
+  if (!target) return notice(env, chatId, M.NEEDS_REPLY, { cmd: commandFor("rewind") });
+  const state = await loadState(env.REEM_KV, chatId);
+  const at = findPart(state.history, target);
+  if (!at) return notice(env, chatId, missingNotice(state.history, target));
+  const { history, drop, dropped } = cutAfter(state.history, at.i, at.j);
+  const deleted = await deleteIds(env, chatId, drop);
+  await clearReactions(env, chatId, dropped);
+  state.history = history;
+  await saveHistory(env, chatId, history);
+  if (!deleted) await notice(env, chatId, M.DELETE_FAILED);
+  if (history[history.length - 1].role === "user") return answerAgain(env, ctx, chatId, state, deadline);
+  if (M.REWOUND) await notice(env, chatId, M.REWOUND);
+}
+
+// /edit new text (as a reply to one of her messages)
+async function editHers(env, chatId, msg, args) {
+  const M = CONFIG.MESSAGES;
+  const cmd = commandFor("edit");
+  const target = msg.reply_to_message;
+  if (!target) return notice(env, chatId, M.NEEDS_REPLY, { cmd });
+  if (target.from && msg.from && target.from.id === msg.from.id) return notice(env, chatId, M.EDIT_HIS);
+  if (!args) return notice(env, chatId, M.EDIT_USAGE, { cmd });
+  const state = await loadState(env.REEM_KV, chatId);
+  const at = findPart(state.history, target.message_id);
+  if (!at) return notice(env, chatId, missingNotice(state.history, target.message_id));
+  const entry = state.history[at.i];
+  if (entry.role === "user") return notice(env, chatId, M.EDIT_HIS);
+  const part = entry.parts[at.j];
+  if (target.voice || VOICE_TAG.test(part.text)) return notice(env, chatId, M.EDIT_VOICE, { retry: commandFor("retry"), rewind: commandFor("rewind") });
+  const max = CONFIG.TELEGRAM.MAX_MESSAGE_CHARS;
+  let r = await tg(env, "editMessageText", { chat_id: chatId, message_id: part.id, text: toHtml(args).slice(0, max), parse_mode: "HTML" });
+  if (!r.ok && r.error_code) r = await tg(env, "editMessageText", { chat_id: chatId, message_id: part.id, text: plain(args).slice(0, max) });
+  if (!r.ok) console.error("editMessageText failed", r.description);
+  entry.parts[at.j] = { ...part, text: args };
+  entry.content = joinParts(entry.role, entry.parts);
+  await saveHistory(env, chatId, state.history);
+}
+
+// He edited one of his messages in Telegram. If she has only answered it so far, her answer is
+// redone for the new version; an older message is just corrected in her memory.
+async function onEdited(env, ctx, m, deadline) {
+  const kv = env.REEM_KV;
+  const chatId = m.chat.id;
+  if (!kv) return;
+  let text = null;
+  if (typeof m.text === "string") text = m.text.trim();
+  else if (m.photo) text = m.caption ? fill(CONFIG.INBOX.PHOTO_WITH_CAPTION, { caption: m.caption }) : fill(CONFIG.INBOX.PHOTO);
+  if (!text || text.startsWith("/")) return;
+  const state = await loadState(kv, chatId);
+  const h = state.history;
+  const at = findPart(h, m.message_id);
+  if (!at || h[at.i].role !== "user") return;
+  const entry = h[at.i];
+  entry.parts[at.j] = { ...entry.parts[at.j], text };
+  entry.content = joinParts("user", entry.parts);
+  try {
+    if (at.i === h.length - 2 && h[h.length - 1].role === "assistant") {
+      const hers = h.pop();
+      await deleteIds(env, chatId, (hers.parts || []).map((p) => p.id).filter((id) => typeof id === "number"));
+      await clearReactions(env, chatId, [hers]);
+      await saveHistory(env, chatId, h);
+      return await answerAgain(env, ctx, chatId, state, deadline);
+    }
+    await saveHistory(env, chatId, h);
+    if (at.i === h.length - 1) await answerAgain(env, ctx, chatId, state, deadline); // never answered
+  } catch (e) {
+    await failed(env, chatId, e, deadline);
+  }
+}
+
+// When she can't answer: "wifi died" in character for a passing outage, a plain notice otherwise
+async function failed(env, chatId, e, deadline) {
+  console.error(e);
+  if (e && e.retryable) {
+    await sendBubbles(env, chatId, lineDropped(), { deadline: Math.min(deadline, Date.now() + CONFIG.TIMING.LINE_DROPPED_BUDGET_MS) });
+  } else {
+    await notice(env, chatId, CONFIG.MESSAGES.ERROR, { error: String((e && e.message) || e).slice(0, CONFIG.MESSAGES.ERROR_MAX_CHARS) });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  /auto: she drafts his next message                                 */
+/* ------------------------------------------------------------------ */
+
+async function autoDraft(env, state, idea) {
+  const A = CONFIG.AUTO;
+  const C = CONFIG.CHARACTER;
+  const user = hisName(state.settings) || C.USER_LABEL;
+  const transcript = state.history
+    .map((m) => `${m.role === "user" ? user : C.NAME}: ${m.content}`)
+    .join("\n\n")
+    .slice(-A.TRANSCRIPT_MAX_CHARS);
+  let system = fill(A.PROMPT, { user });
+  const about = aboutHim(state.settings);
+  if (about) system += fill(A.ABOUT, { user, about });
+  if (state.notes) system += fill(A.NOTES, { notes: state.notes });
+  system += fill(sceneOf(state.history, "") === "together" ? A.TOGETHER : A.APART);
+  if (idea) system += fill(A.IDEA, { idea });
+  const messages = [
+    { role: "system", content: system },
+    { role: "user", content: fill(A.ASK, { transcript: transcript || fill(CONFIG.INBOX.CONVERSATION_START), user }) },
+  ];
+  const out = await callModel(env, messages, A.SAMPLING, { model: A.MODEL, timeoutMs: A.TIMEOUT_MS, trimCut: true });
+  return cleanDraft(out, user);
+}
+
+// Only his message: no "Sam:" prefix, no wrapping quotes, nothing after a line of hers
+function cleanDraft(t, user) {
+  const C = CONFIG.CHARACTER;
+  let s = String(t).trim();
+  const hers = C.NAME_PREFIXES.map(escapeRegex).join("|");
+  if (hers) {
+    const stop = new RegExp(`^[ \\t]*(?:${hers})[ \\t]*:`, "im").exec(s);
+    if (stop && stop.index > 0) s = s.slice(0, stop.index);
+  }
+  const his = [user, C.USER_LABEL, "you", "me", "him"].filter(Boolean).map(escapeRegex).join("|");
+  s = s.replace(new RegExp(`^[ \\t]*(?:${his})[ \\t]*:[ \\t]*`, "gim"), "").trim();
+  if (/^["“][^"“”]*["”]$/.test(s)) s = s.slice(1, -1).trim();
+  return s.slice(0, CONFIG.TELEGRAM.MAX_MESSAGE_CHARS - 200);
+}
+
+// The draft as HTML: the template escaped, the draft itself tap-to-copy
+function draftHtml(text) {
+  const [before, after = ""] = String(CONFIG.AUTO.DRAFT).split("{text}");
+  return escapeHtml(fill(before)) + `<code>${escapeHtml(text)}</code>` + escapeHtml(fill(after));
+}
+
+function draftButtons() {
+  const A = CONFIG.AUTO;
+  return { inline_keyboard: [[{ text: A.BUTTON_SEND, callback_data: "auto:send" }, { text: A.BUTTON_AGAIN, callback_data: "auto:again" }]] };
+}
+
+async function autoCommand(env, chatId, idea) {
+  const kv = env.REEM_KV;
+  const text = await autoDraft(env, await loadState(kv, chatId), idea);
+  if (!text) return notice(env, chatId, CONFIG.AUTO.FAILED);
+  const sent = await tg(env, "sendMessage", { chat_id: chatId, text: draftHtml(text), parse_mode: "HTML", reply_markup: draftButtons() });
+  if (sent.ok) await kv.put(`a:${chatId}`, JSON.stringify({ id: sent.result.message_id, text, idea }));
+}
+
+// The draft's buttons: Another (a new draft in the same message) or Send (she answers it)
+async function onButton(env, ctx, cq, deadline) {
+  const kv = env.REEM_KV;
+  const A = CONFIG.AUTO;
+  const chatId = cq.message.chat.id;
+  const id = cq.message.message_id;
+  if (!kv || !/^auto:/.test(cq.data || "")) return;
+  const draft = await kv.get(`a:${chatId}`, "json");
+  if (!draft || draft.id !== id) {
+    await tg(env, "editMessageReplyMarkup", { chat_id: chatId, message_id: id, reply_markup: { inline_keyboard: [] } });
+    return notice(env, chatId, A.EXPIRED);
+  }
+  try {
+    if (cq.data === "auto:again") {
+      const text = await autoDraft(env, await loadState(kv, chatId), draft.idea);
+      if (!text) return notice(env, chatId, A.FAILED);
+      await tg(env, "editMessageText", { chat_id: chatId, message_id: id, text: draftHtml(text), parse_mode: "HTML", reply_markup: draftButtons() });
+      await kv.put(`a:${chatId}`, JSON.stringify({ ...draft, text }));
+      return;
+    }
+    if (cq.data === "auto:send") {
+      await kv.delete(`a:${chatId}`);
+      await tg(env, "editMessageText", { chat_id: chatId, message_id: id, text: fill(A.SENT, { text: draft.text }).slice(0, CONFIG.TELEGRAM.MAX_MESSAGE_CHARS) });
+      const m = { message_id: id, chat: cq.message.chat, from: cq.from, date: Math.floor(Date.now() / 1000), text: draft.text, viaAuto: true };
+      return reply(env, ctx, [m], deadline);
+    }
+  } catch (e) {
+    await failed(env, chatId, e, deadline);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Her replies                                                        */
+/* ------------------------------------------------------------------ */
 
 async function reply(env, ctx, convo, deadline) {
   const chatId = convo[0].chat.id;
@@ -755,89 +1285,129 @@ async function reply(env, ctx, convo, deadline) {
     let voiceSeconds = 0;
     for (const m of convo) {
       const media = m.voice || m.audio || m.video_note;
+      let text;
       if (media) {
         voiceSeconds += media.duration || 0;
         const t = await transcribe(env, media.file_id, media.mime_type);
-        parts.push(t ? fill(I.VOICE_NOTE, { text: t }) : fill(I.VOICE_NOISE));
+        text = t ? fill(I.VOICE_NOTE, { text: t }) : fill(I.VOICE_NOISE);
       } else if (m.text) {
-        parts.push(m.text.trim());
+        text = m.text.trim();
         chars += m.text.length;
       } else if (m.photo) {
-        parts.push(m.caption ? fill(I.PHOTO_WITH_CAPTION, { caption: m.caption }) : fill(I.PHOTO));
+        text = m.caption ? fill(I.PHOTO_WITH_CAPTION, { caption: m.caption }) : fill(I.PHOTO);
       } else if (m.sticker) {
-        parts.push(fill(I.STICKER, { emoji: m.sticker.emoji || "" }));
-      }
+        text = fill(I.STICKER, { emoji: m.sticker.emoji || "" });
+      } else continue;
+      parts.push({ id: m.message_id, text });
     }
     if (!parts.length) return;
-    const heard = parts.join("\n");
+    const heard = joinParts("user", parts);
     const state = await statePromise;
+    const last = convo[convo.length - 1];
+    await noteTelegramName(env, chatId, state.settings, last.from);
 
     // She only answers once she has noticed (SCHEDULE, momentum) and read or listened
     const T = CONFIG.TIMING;
     const waitUntil = started + noticeTime(lastTime(state.history), started) + chars * T.READ_MS_PER_CHAR + voiceSeconds * 1000;
-    const reactTo = convo[convo.length - 1].message_id;
-    await respond(env, ctx, chatId, state, { heard, cameAsVoice: voiceSeconds > 0, waitUntil, reactTo }, deadline);
+    const reactTo = last.viaAuto ? undefined : last.message_id; // a draft he sent is the bot's message
+    await respond(env, ctx, chatId, state, { heard, userParts: parts, cameAsVoice: voiceSeconds > 0, waitUntil, reactTo }, deadline);
   } catch (e) {
-    console.error(e);
-    if (e.retryable) {
-      await sendBubbles(env, chatId, lineDropped(), { deadline: Math.min(deadline, Date.now() + CONFIG.TIMING.LINE_DROPPED_BUDGET_MS) });
-    } else {
-      await notice(env, chatId, CONFIG.MESSAGES.ERROR, { error: String(e.message || e).slice(0, CONFIG.MESSAGES.ERROR_MAX_CHARS) });
-    }
+    await failed(env, chatId, e, deadline);
   }
 }
 
 // Replies and texting first both end here: she thinks, waits like a person, then sends a text,
-// a scene or a voice note. `heard` is what he sent (or, when she texts first, her instruction).
-async function respond(env, ctx, chatId, state, { heard, cameAsVoice = false, waitUntil, proactive = false, reactTo }, deadline) {
+// a scene or a voice note. `heard` is what he sent (or, when she texts first, her instruction);
+// `userParts` are his Telegram messages behind it. Saved once it's delivered, with the message ids.
+async function respond(env, ctx, chatId, state, { heard, userParts = null, cameAsVoice = false, waitUntil, proactive = false, reactTo }, deadline) {
   const { settings, history, notes } = state;
   const ooc = !proactive && isOoc(heard);
   const scene = proactive ? "apart" : sceneOf(history, heard);
   const R = CONFIG.REACTIONS;
   const canReact = !proactive && !ooc && !!reactTo && R.ENABLED && scene === "apart";
   const offerReaction = canReact && Math.random() < R.CHANCE;
+  const mode = replyMode({ scene, heard, proactive, ooc, cameAsVoice, moreVoice: !!settings.moreVoice });
 
   // She starts thinking now, but only answers at waitUntil
-  const replyPromise = think(env, history, notes, heard, { cameAsVoice, moreVoice: !!settings.moreVoice, scene, offerReaction, canReact, ooc });
+  const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
 
   const typingStarted = Date.now();
-  await tg(env, "sendChatAction", { chat_id: chatId, action: "typing" });
+  await tg(env, "sendChatAction", { chat_id: chatId, action: mode === "voice" ? "record_voice" : "typing" });
   // The format rules are enforced here, whatever the model wrote (see shapeReply)
-  const out = shapeReply(await replyPromise, { scene, ooc, canReact, history, heard: proactive ? "" : heard, lastResort: true });
+  const out = shapeReply(await replyPromise, { scene, mode, ooc, canReact, history, heard: proactive ? "" : heard, lastResort: true });
   if (out.reaction) {
     const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
     if (!r.ok) console.error("reaction failed", r.description);
   }
+  const userEntry = proactive ? null : makeEntry("user", userParts || [{ id: null, text: heard }]);
+  const extra = {
+    ...(proactive ? { proactive: true } : {}),
+    ...(ooc ? { ooc: true } : {}),
+    ...(out.reaction ? { react: out.reaction, reactTo } : {}),
+  };
   if (out.kind === "none") {
     // Only a reaction: that's her whole answer
-    if (out.reaction) await saveTurn(env, chatId, history, notes, heard, fill(R.SAVED, { emoji: out.reaction })).catch((e) => console.error("save failed", e));
-    else console.error("nothing sendable in the reply, even after a retry");
+    if (out.reaction) {
+      await saveTurn(env, chatId, history, notes, userEntry, makeEntry("assistant", [], extra, fill(R.SAVED, { emoji: out.reaction })))
+        .catch((e) => console.error("save failed", e));
+    } else console.error("nothing sendable in the reply, even after a retry");
     return;
   }
 
-  // Saving runs alongside the slow delivery
-  const extra = { ...(proactive ? { proactive: true } : {}), ...(ooc ? { ooc: true } : {}) };
-  const saving = saveTurn(env, chatId, history, notes, proactive ? null : heard, out.stored, extra)
-    .catch((e) => console.error("save failed", e));
-  ctx.waitUntil(saving);
-
-  // Texts (or a scene, as one message) first: for a voice note, only words she typed before it
-  if (out.texts.length) await sendBubbles(env, chatId, out.texts, { deadline, typedAlready: Date.now() - typingStarted });
-  if (out.kind === "voice") {
-    let delivered = false;
-    try {
-      const audioPromise = tts(env, out.spoken);
-      audioPromise.catch(() => {});
-      await act(env, chatId, "record_voice", Math.min(speakingTime(out.spoken), deadline - Date.now() - CONFIG.TIMING.VOICE_MARGIN_MS), 1);
-      delivered = await sendVoice(env, chatId, await audioPromise);
-    } catch (e) {
-      console.error(e); // fall back to text
+  let parts = [];
+  try {
+    // Texts (or a scene, as one message) first: for a voice note, only words she typed before it
+    if (out.texts.length) parts = await sendBubbles(env, chatId, out.texts, { deadline, typedAlready: Date.now() - typingStarted });
+    if (out.kind === "voice") {
+      let note = null;
+      try {
+        const audioPromise = tts(env, out.spoken);
+        audioPromise.catch(() => {});
+        await act(env, chatId, "record_voice", Math.min(speakingTime(out.spoken), deadline - Date.now() - CONFIG.TIMING.VOICE_MARGIN_MS), 1);
+        const sent = await sendVoice(env, chatId, await audioPromise);
+        if (sent.delivered) note = { id: sent.id, text: `[voice] ${out.voiceText}` };
+        else await voiceFailed(env, sent.error);
+      } catch (e) {
+        console.error(e); // fall back to text
+        await voiceFailed(env, e.message || e);
+      }
+      parts = parts.concat(note ? [note] : await sendBubbles(env, chatId, splitBubbles(out.voiceText), { deadline }));
     }
-    if (!delivered) await sendBubbles(env, chatId, splitBubbles(out.voiceText), { deadline });
+  } finally {
+    const hers = parts.length ? makeEntry("assistant", parts, extra) : makeEntry("assistant", [], extra, out.stored);
+    await saveTurn(env, chatId, history, notes, userEntry, hers).catch((e) => console.error("save failed", e));
   }
-  await saving;
+}
+
+// What kind of reply this is: a scene when together; when apart a voice note if he asks for one or on
+// a VOICE.CHANCE roll, otherwise texts. Decided here because the model describes voice notes instead.
+// An OOC answer is always plain text.
+function replyMode({ scene, heard, proactive = false, ooc = false, cameAsVoice = false, moreVoice = false }) {
+  if (ooc) return "text";
+  if (scene === "together") return "scene";
+  const V = CONFIG.VOICE;
+  if (!proactive && asksForVoice(heard)) return "voice";
+  const chance = cameAsVoice ? V.CHANCE_AFTER_VOICE : moreVoice ? V.CHANCE_MORE_VOICE : V.CHANCE;
+  return Math.random() < (Number(chance) || 0) ? "voice" : "text";
+}
+
+function asksForVoice(text) {
+  try {
+    return !!CONFIG.VOICE.ASK_PATTERN && new RegExp(CONFIG.VOICE.ASK_PATTERN, "i").test(text);
+  } catch (e) {
+    console.error("VOICE.ASK_PATTERN is not a valid regular expression", e);
+    return false;
+  }
+}
+
+// The last voice-note failure, shown on /setup (she falls back to text when it happens)
+async function voiceFailed(env, error) {
+  console.error("voice note failed:", error);
+  if (!env.REEM_KV) return;
+  await env.REEM_KV.put("voice_error", JSON.stringify({ at: Date.now(), error: String(error || "unknown error").slice(0, 300) }))
+    .catch((e) => console.error("couldn't save the voice error", e));
 }
 
 // Together in person or apart? His message decides if it has *actions*; otherwise her last
@@ -887,14 +1457,19 @@ function mayTextFirst({ history, settings }) {
   return !(today.day === herDay() && today.count >= P.MAX_PER_DAY);
 }
 
+// What she's told when she texts first: how long it's been since the last message
+function proactiveHeard(history) {
+  const last = history[history.length - 1];
+  const hours = last && last.at ? Math.max(1, Math.round((Date.now() - last.at) / 3600000)) : 1;
+  return fill(CONFIG.PROACTIVE.PROMPT, { hours: `${hours} hour${hours === 1 ? "" : "s"}` });
+}
+
 async function textFirst(env, ctx, chatId, deadline) {
   const kv = env.REEM_KV;
   if (!kv) return;
   const state = await loadState(kv, chatId);
   if (!mayTextFirst(state)) return; // he may have texted since the check
-  const last = state.history[state.history.length - 1];
-  const hours = Math.max(1, Math.round((Date.now() - last.at) / 3600000));
-  const heard = fill(CONFIG.PROACTIVE.PROMPT, { hours: `${hours} hour${hours === 1 ? "" : "s"}` });
+  const heard = proactiveHeard(state.history);
 
   // Counted before sending, so a failure can't make her try again every 15 minutes
   const s = state.settings;
@@ -934,22 +1509,24 @@ async function openStory(env, chatId) {
   const intro = CONFIG.PERSONA.INTRO_MESSAGE;
   if (kv) {
     await Promise.all([
-      kv.put(`h:${chatId}`, JSON.stringify([{ role: "assistant", content: intro, at: Date.now() }])),
+      kv.put(`h:${chatId}`, JSON.stringify([makeEntry("assistant", [{ id: null, text: intro }])])),
       kv.delete(`m:${chatId}`),
       kv.delete(`b:${chatId}`),
+      kv.delete(`a:${chatId}`),
     ]);
   }
   await sleep(CONFIG.TIMING.INTRO_DELAY_MS);
-  await sendBubbles(env, chatId, [intro], { deadline: Date.now() + CONFIG.TIMING.INTRO_BUDGET_MS });
+  const parts = await sendBubbles(env, chatId, [intro], { deadline: Date.now() + CONFIG.TIMING.INTRO_BUDGET_MS });
+  // Saved again with the message id, so /rewind can go back to the very start
+  if (kv && parts[0] && parts[0].id != null) await kv.put(`h:${chatId}`, JSON.stringify([makeEntry("assistant", parts)]));
 }
 
-// userTurn is null when she texted first; `at` times drive momentum, scenes and texting first
-async function saveTurn(env, chatId, history, notes, userTurn, reply, extra = {}) {
+// userEntry is null when she texted first; `at` times drive momentum, scenes and texting first
+async function saveTurn(env, chatId, history, notes, userEntry, herEntry) {
   const kv = env.REEM_KV;
   if (!kv) return;
-  const at = Date.now();
-  if (userTurn != null) history.push({ role: "user", content: userTurn, at });
-  history.push({ role: "assistant", content: reply, at, ...extra });
+  if (userEntry) history.push(userEntry);
+  history.push(herEntry);
   if (history.length <= CONFIG.MEMORY.HISTORY_MAX) {
     await kv.put(`h:${chatId}`, JSON.stringify(history));
     return;
@@ -959,13 +1536,16 @@ async function saveTurn(env, chatId, history, notes, userTurn, reply, extra = {}
   await remember(env, chatId, notes, history.slice(0, cut));
 }
 
-async function think(env, history, notes, userText, { cameAsVoice, moreVoice, scene, offerReaction = false, canReact = false, ooc = false }) {
+// mode: "text", "voice" or "scene" (from replyMode). The format reminder for that mode goes after
+// the chat, right before she writes, where the model pays the most attention.
+async function think(env, history, notes, userText, { mode = "text", scene, offerReaction = false, canReact = false, ooc = false, settings = {} }) {
   const C = CONFIG.CHARACTER;
   const N = CONFIG.NUDGES;
   const P = CONFIG.PERSONA;
+  const L = CONFIG.LLM;
   const now = new Date().toLocaleString(C.CLOCK_LOCALE, { timeZone: C.TIMEZONE, weekday: "long", hour: "2-digit", minute: "2-digit" });
   const slot = scheduleNow();
-  const about = [C.USER_NAME && `His name is ${C.USER_NAME}.`, C.USER_DETAILS].filter(Boolean).join(" ");
+  const about = aboutHim(settings);
   const apart = scene !== "together";
   let extra = "";
   if (notes) extra += fill(N.MEMORY_NOTES, { notes });
@@ -983,12 +1563,9 @@ async function think(env, history, notes, userText, { cameAsVoice, moreVoice, sc
     // He's talking to the writer: no voice, reactions or random nudges
     extra += fill(N.OOC);
   } else {
-    // Voice notes only exist while apart; in a scene, even mentioning them invites one
-    if (apart) {
-      if (cameAsVoice) extra += fill(N.CAME_AS_VOICE);
-      else if (moreVoice) extra += fill(N.MORE_VOICE);
-      if (audioTagsOn()) extra += fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") });
-    }
+    // Voice notes only exist while apart; in a scene, even mentioning them invites one. A voice note
+    // decided by the code gets the tags with its format reminder instead (formatNudge).
+    if (apart && mode === "text" && audioTagsOn()) extra += fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") });
     if (userText.includes("\n")) extra += fill(N.SEVERAL_MESSAGES);
     if (offerReaction) extra += fill(N.REACT, { emojis: CONFIG.REACTIONS.ALLOWED.join(" ") });
     const texture = [...(P.TEXTURE || []), ...(apart ? P.TEXTURE_APART || [] : [])];
@@ -1000,31 +1577,68 @@ async function think(env, history, notes, userText, { cameAsVoice, moreVoice, sc
     }
   }
 
-  const messages = [{ role: "system", content: P.SYSTEM_PROMPT + extra }];
-  if (history[0]?.role === "assistant") messages.push({ role: "user", content: fill(CONFIG.INBOX.CONVERSATION_START) });
-  messages.push(...history.map(({ role, content }) => ({ role, content })), { role: "user", content: userText });
+  const system = P.SYSTEM_PROMPT + extra;
+  const format = ooc ? "" : formatNudge(mode);
+  const maxTokens = (L.MAX_TOKENS && L.MAX_TOKENS[mode.toUpperCase()]) || L.SAMPLING.max_tokens;
+  const sampling = { ...L.SAMPLING, max_tokens: maxTokens };
+  // Only as much of the chat as fits (the longest retry nudge counted)
+  const longestRetry = Math.max(...[N.RETRY, N.RETRY_EMPTY, N.RETRY_OOC, N.RETRY_FORMAT].map((n) => fill(n || "").length));
+  const fixed = system.length + longestRetry + format.length + userText.length;
+  const kept = fitHistory(history, fixed, maxTokens);
 
-  let out = await callModel(env, messages, CONFIG.LLM.SAMPLING, { trimCut: true, backup: CONFIG.LLM.BACKUP_MODEL });
+  const build = (sys) => {
+    const messages = [{ role: "system", content: sys }];
+    if (kept[0]?.role === "assistant") messages.push({ role: "user", content: fill(CONFIG.INBOX.CONVERSATION_START) });
+    messages.push(...kept.map(({ role, content }) => ({ role, content })), { role: "user", content: userText });
+    if (format) messages.push({ role: "system", content: format });
+    return messages;
+  };
 
-  // One more try if she opens like last time, if everything she wrote was already said, or if
-  // nothing in it can be sent once the format rules are applied (narration only, his lines...).
-  // A reaction with no text is a full answer when she may react.
-  const shape = (o) => shapeReply(o, { scene, ooc, canReact, history, heard: userText });
+  let out = await callModel(env, build(system), sampling, { trimCut: true, backup: L.BACKUP_MODEL });
+
+  // One more try if she opens like last time, if everything she wrote was already said, if nothing
+  // in it can be sent once the format rules are applied (narration only, his lines...), or if
+  // narration had to be cut out of a text or voice note. A reaction alone is a full answer when she may react.
+  const shape = (o) => shapeReply(o, { scene, mode, ooc, canReact, history, heard: userText });
   const first = shape(out);
   const empty = first.kind === "none" && !first.reaction;
   const opener = opening(first.stored);
-  if ((!ooc && opener && recent.includes(opener)) || first.repeated || empty) {
-    const retry = [...messages];
-    retry[0] = { role: "system", content: messages[0].content + fill(empty ? N.RETRY_EMPTY : N.RETRY) };
+  if ((!ooc && opener && recent.includes(opener)) || first.repeated || empty || first.repaired) {
+    const nudge = ooc && (empty || first.repaired) ? N.RETRY_OOC : empty ? N.RETRY_EMPTY : first.repaired ? N.RETRY_FORMAT : N.RETRY;
     try {
-      const second = await callModel(env, retry, { ...CONFIG.LLM.SAMPLING, temperature: CONFIG.LLM.RETRY_TEMPERATURE }, { attempts: 1, trimCut: true });
+      const second = await callModel(env, build(system + fill(nudge)), { ...sampling, temperature: L.RETRY_TEMPERATURE }, { attempts: 1, trimCut: true });
       const again = shape(second);
-      if (again.kind !== "none" && !again.repeated) out = second;
+      // Taken if it can be sent and is new and clean; after an empty first try, anything sendable
+      if (again.kind !== "none" && (empty || (!again.repeated && !again.repaired))) out = second;
     } catch {
       // keep the first reply
     }
   }
   return out;
+}
+
+// The newest messages that fit the model's context next to `fixedChars` of prompt and the reply
+function fitHistory(history, fixedChars, maxTokens) {
+  const L = CONFIG.LLM;
+  let room = (L.CONTEXT_TOKENS - maxTokens - 150) * L.CHARS_PER_TOKEN - fixedChars;
+  let start = history.length;
+  while (start > 0) {
+    const size = String(history[start - 1].content).length + 20;
+    if (size > room && history.length - start >= 2) break;
+    room -= size;
+    start--;
+  }
+  return history.slice(start);
+}
+
+function formatNudge(mode) {
+  const N = CONFIG.NUDGES;
+  if (mode === "scene") return fill(N.FORMAT_SCENE || "");
+  if (mode === "voice") {
+    const tags = audioTagsOn() ? fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") }) : "";
+    return fill(N.FORMAT_VOICE || "", { tags });
+  }
+  return fill(N.FORMAT_TEXT || "");
 }
 
 async function remember(env, chatId, oldNotes, overflow) {
@@ -1084,8 +1698,26 @@ async function callModel(env, messages, sampling, { model = CONFIG.LLM.MODEL, ti
   } catch (e) {
     if (!backup || backup === model) throw e;
     console.error(`${model} failed, trying ${backup}:`, e.message);
-    return askModel(env, messages, sampling, { model: backup, timeoutMs, attempts: 1, trimCut });
+    const fitted = fitMessages(messages, CONFIG.LLM.BACKUP_CONTEXT_TOKENS, sampling.max_tokens);
+    return askModel(env, fitted, sampling, { model: backup, timeoutMs, attempts: 1, trimCut });
   }
+}
+
+// For a model that reads less (the backup): the oldest chat is left out first, never the system
+// prompt, his message or anything after it, so OpenRouter never cuts the middle out silently
+function fitMessages(messages, contextTokens, maxTokens = 0) {
+  const L = CONFIG.LLM;
+  if (!contextTokens) return messages;
+  const room = (contextTokens - maxTokens - 150) * L.CHARS_PER_TOKEN;
+  const size = (m) => String(m.content).length + 20;
+  const out = [...messages];
+  let total = out.reduce((n, m) => n + size(m), 0);
+  let removable = out.map((m) => m.role).lastIndexOf("user") - 1; // between the system prompt and his message
+  while (total > room && removable > 0) {
+    total -= size(out.splice(1, 1)[0]);
+    removable--;
+  }
+  return out;
 }
 
 async function askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut }) {
@@ -1298,36 +1930,45 @@ async function tg(env, method, body) {
   }
 }
 
-// Plain notices (setup messages)
+// Plain notices (setup messages). Returns the id of the first message sent, or null.
 async function sendText(env, chatId, text) {
   const max = CONFIG.TELEGRAM.MAX_MESSAGE_CHARS;
+  let first = null;
   for (let i = 0; i < text.length; i += max) {
-    await tg(env, "sendMessage", { chat_id: chatId, text: text.slice(i, i + max) });
+    const r = await tg(env, "sendMessage", { chat_id: chatId, text: text.slice(i, i + max) });
+    if (first == null && r.ok && r.result) first = r.result.message_id;
   }
+  return first;
 }
 
 // Her own messages: *actions* show in italics.
 // Re-sent as plain text only when Telegram answered and refused the first one (error_code).
 // On a network hiccup the first copy may already be in the chat, so it is never sent twice.
+// Returns the message id, or null.
 async function sendReem(env, chatId, text) {
   const res = await tg(env, "sendMessage", { chat_id: chatId, text: toHtml(text).slice(0, CONFIG.TELEGRAM.MAX_MESSAGE_CHARS), parse_mode: "HTML" });
-  if (res.ok) return;
-  if (res.error_code) await sendText(env, chatId, plain(text));
-  else console.error("sendMessage got no clear answer, not resending:", res.description);
+  if (res.ok) return res.result ? res.result.message_id : null;
+  if (res.error_code) return sendText(env, chatId, plain(text));
+  console.error("sendMessage got no clear answer, not resending:", res.description);
+  return null;
 }
 
-// Each message takes as long as she would need to type it, then lands
+// Each message takes as long as she would need to type it, then lands.
+// Returns what was sent as history parts: [{ id, text }]
 async function sendBubbles(env, chatId, bubbles, { deadline = Date.now() + 20000, typedAlready = 0 } = {}) {
+  const parts = [];
   for (let i = 0; i < bubbles.length; i++) {
     const left = bubbles.length - i;
     let wait = typingTime(bubbles[i]) - (i === 0 ? typedAlready : 0);
     wait = Math.min(wait, (deadline - Date.now()) / left - 500);
     if (wait > 300) await act(env, chatId, "typing", wait, left);
-    await sendReem(env, chatId, bubbles[i]);
+    parts.push({ id: await sendReem(env, chatId, bubbles[i]), text: bubbles[i] });
   }
+  return parts;
 }
 
-// Returns false only when Telegram clearly refused the note, so the text fallback can't double it
+// { delivered, id, error }. Not delivered only when Telegram clearly refused the note, so the text
+// fallback can't double it.
 async function sendVoice(env, chatId, audio) {
   const form = new FormData();
   form.append("chat_id", String(chatId));
@@ -1337,12 +1978,12 @@ async function sendVoice(env, chatId, audio) {
     res = await xfetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendVoice`, { method: "POST", body: form });
   } catch (e) {
     console.error("sendVoice got no answer, assuming it arrived:", e);
-    return true;
+    return { delivered: true, id: null };
   }
   const data = await res.json().catch(() => null);
-  if (!data) return res.ok;
-  if (!data.ok) console.error("sendVoice failed:", data.description || res.status);
-  return !!data.ok;
+  if (!data) return { delivered: res.ok, id: null, error: `Telegram sendVoice HTTP ${res.status}` };
+  if (!data.ok) return { delivered: false, id: null, error: `Telegram sendVoice: ${data.description || res.status}` };
+  return { delivered: true, id: data.result ? data.result.message_id : null };
 }
 
 async function webhookSecret(env) {
@@ -1452,8 +2093,8 @@ function splitBubbles(t) {
 /* ------------------------------------------------------------------ */
 /*  Reply format, enforced in code                                     */
 /*                                                                     */
-/*  The model (an 8B roleplay model) knows the rules but slips: it     */
-/*  narrates itself recording a voice note, puts *actions* in texts,   */
+/*  The model knows the rules but slips (DeepSeek less than Lunaris):  */
+/*  it narrates itself recording a voice note, puts *actions* in texts,*/
 /*  writes his next line, leaks chat tokens or "(OOC: ...)" notes.     */
 /*  shapeReply() turns whatever it wrote into exactly one of: texts,   */
 /*  a voice note (with any words she typed before it), or a scene.     */
@@ -1479,6 +2120,9 @@ function scrubModel(t, { ooc = false } = {}) {
   const cut = t.search(new RegExp(`^[ \\t*]*(?:\\{\\{\\s*user\\s*\\}\\}|${him})[ \\t*]*:`, "im"));
   if (cut >= 0) t = t.slice(0, cut);
   t = t.replace(/\{\{\s*char\s*\}\}/gi, C.NAME).replace(/\{\{\s*user\s*\}\}/gi, "you");
+  // Two versions offered ("(or)", "Alternatively:", "---" on a line of its own): only the first is kept
+  const alt = t.search(/\n[ \t]*(?:\(\s*or\s*\)|\[\s*or\s*\]|alternatively\b[,:]?|option\s*\d+\s*:|-{3,})[ \t]*(?=\n|$)|\n[ \t]*OR:?[ \t]*(?=\n|$)/i);
+  if (alt > 0 && /\p{L}/u.test(t.slice(0, alt))) t = t.slice(0, alt);
   if (!ooc) {
     const aside = String.raw`(?:ooc|note|author'?s\s+note|a\/n)\s*:`;
     t = t
@@ -1512,8 +2156,8 @@ function isNarration(line) {
 }
 
 // *word* inside a sentence is emphasis ("i'm *not* jealous") and stays as a plain word; any other
-// *action*, an emote like *sighs* or (laughs), or a "(she ...)" aside is dropped
-function dropActions(line) {
+// *action*, an emote like *sighs* or (laughs), or a "(she ...)" aside is dropped (and noted in `fix`)
+function dropActions(line, fix = {}) {
   const emotes = listRe([...(CONFIG.TEXTING.EMOTES || []), ...(CONFIG.VOICE.ALLOWED_TAGS || [])]);
   const names = listRe([...CONFIG.CHARACTER.NAME_PREFIXES, CONFIG.CHARACTER.NAME, "she", "her"]);
   return line
@@ -1522,9 +2166,13 @@ function dropActions(line) {
       const after = all.slice(i + m.length).replace(/\*[^*\n]*\*/g, "");
       const isEmote = !!emotes && new RegExp(`^\\s*(?:${emotes})\\s*$`, "i").test(x);
       const emphasis = /\p{L}/u.test(before) && /\p{L}/u.test(after) && x.trim().split(/\s+/).length <= 2 && !isEmote;
+      if (!emphasis) fix.actions = true;
       return emphasis ? x : " ";
     })
-    .replace(new RegExp(`\\((?:${names})\\b[^)]*\\)${emotes ? `|\\(\\s*(?:${emotes})\\s*\\)` : ""}`, "gi"), " ")
+    .replace(new RegExp(`\\((?:${names})\\b[^)]*\\)${emotes ? `|\\(\\s*(?:${emotes})\\s*\\)` : ""}`, "gi"), () => {
+      fix.actions = true;
+      return " ";
+    })
     .replace(/[ \t]{2,}/g, " ")
     .replace(/^[ \t,;]+|[ \t]+$/g, "")
     .replace(/[ \t]+([,.!?])/g, "$1");
@@ -1533,11 +2181,31 @@ function dropActions(line) {
 // "hey you" -> hey you: a whole text bubble or voice note wrapped in quotes
 const unquote = (p) => p.replace(/^["“]([^"“”\n]+)["”]$/, "$1");
 
-// Texting (and voice notes): only what she types or says
-function texting(t) {
-  const lines = String(t).split("\n").filter((l) => !isNarration(l)).map(dropActions);
-  return lines
-    .join("\n")
+// Stage cues in square brackets anywhere in a line ("[clears throat]", "[laughs softly]") and empty
+// "()": a text or a scene never shows them; a voice note keeps only the allowed audio tags
+function dropCues(t, keepTags = false) {
+  return String(t)
+    .replace(/[ \t]*\[(?!\s*(?:voice|react))[^\]\n]{1,60}\][ \t]*/gi, (m) => (keepTags && isAudioTag(m) ? m : " "))
+    .replace(/\(\s*\)/g, " ")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/[ \t]+([,.!?])/g, "$1")
+    .replace(/^[ \t]+|[ \t]+$/gm, "");
+}
+
+// Texting (and voice notes): only what she types or says. Narration lines, *actions*, stage cues and,
+// with `story` on, story sentences ("Reem raises an eyebrow", "her voice drops") are cut; `fix` notes
+// which were found. keepTags: allowed audio tags stay (voice notes).
+function texting(t, { keepTags = false, story = true, fix = {} } = {}) {
+  const all = String(t).split("\n");
+  const kept = all.filter((l) => !isNarration(l));
+  if (kept.length < all.length) fix.narration = true;
+  let s = dropCues(kept.map((l) => dropActions(l, fix)).join("\n"), keepTags);
+  if (story && looksNarrated(s)) {
+    const cut = unnarrate(s);
+    if (cut !== s) fix.narration = true;
+    s = cut;
+  }
+  return s
     .replace(/\n{3,}/g, "\n\n")
     .split(/\n\s*\n/)
     .map((p) => unquote(p.trim()))
@@ -1556,15 +2224,18 @@ const asDialogue = (t) =>
 /**
  * The model's raw reply -> what is delivered and saved.
  *   scene     "apart" or "together" (sceneOf); ooc: he wrote OOC; canReact: a [react: X] may be used
+ *   mode      "text", "voice" or "scene" (replyMode): when it's "voice", the reply is a voice note
+ *             even without [voice]
  *   heard     what he sent (his *actions* mean she must answer in person)
- *   lastResort  apart, a reply that only narrates is sent as a scene instead of nothing
+ *   lastResort  a reply that only narrates is sent as a scene instead of nothing
  * Returns { kind: "text" | "voice" | "scene" | "none", texts (messages to send, in order; for a voice
  * note, words she typed before it), voiceText (the note, no tags), spoken (for ElevenLabs), stored
- * (for history), reaction, repeated (every line was already said), narrationOnly }
+ * (for history), reaction, repeated (every line was already said), narrationOnly, repaired (narration
+ * or acting had to be cut from her words: think() asks once more) }
  */
-function shapeReply(raw, { scene = "apart", ooc = false, canReact = false, history = [], heard = "", lastResort = false } = {}) {
+function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact = false, history = [], heard = "", lastResort = false } = {}) {
   const { emoji, rest } = takeReaction(scrubModel(raw, { ooc }));
-  const out = { kind: "none", texts: [], voiceText: "", spoken: "", stored: "", reaction: canReact && !ooc && scene !== "together" ? emoji : "", repeated: false, narrationOnly: false };
+  const out = { kind: "none", texts: [], voiceText: "", spoken: "", stored: "", reaction: canReact && !ooc && scene !== "together" ? emoji : "", repeated: false, narrationOnly: false, repaired: false };
   // Never the same line twice: not within this reply, not from her last few replies.
   // Only if every line is an old one does she resend it (think() already tried for a new reply).
   const fresh = (t) => {
@@ -1575,29 +2246,49 @@ function shapeReply(raw, { scene = "apart", ooc = false, canReact = false, histo
     return dropRepeats(t, []);
   };
   const as = (kind, body, texts) => Object.assign(out, { kind, texts, stored: body });
+  // In person, sent as one message: *actions* in italics, her words in quotes
+  const asScene = (body) => {
+    const scened = fresh(markScene(dropCues(body)));
+    return scened ? as("scene", scened, [scened]) : out;
+  };
 
-  // OOC: plain words from the writer, one message, nothing performed
+  // OOC: plain words from the writer, one message, nothing performed. A reply that is only acting
+  // (*actions* and "dialogue") is asked again; as a last resort it's sent as the scene it is.
   if (ooc) {
-    const body = fresh(stripAudioTags(bodyOf(rest)));
-    return body ? as("text", body, [body]) : out;
+    const body = stripAudioTags(bodyOf(rest));
+    if (!body) return out;
+    if (ACTION.test(body) && !hasUnquotedText(body)) {
+      out.repaired = true;
+      return lastResort ? asScene(body) : out;
+    }
+    const fix = {};
+    const words = fresh(texting(body, { story: false, fix }));
+    out.repaired = !!(fix.narration || fix.actions);
+    return words ? as("text", words, [words]) : out;
   }
 
   // Together: always a scene, sent as one message. Never a voice note, never tags.
   if (scene === "together") {
-    let body = fresh(stripAudioTags(bodyOf(rest)));
+    let body = dropCues(stripAudioTags(bodyOf(rest)));
     if (!body) return out;
     if (!inPerson(body) && ACTION.test(heard)) body = asDialogue(body); // he's right there: she says it
+    body = fresh(markScene(body));
+    if (!body) return out;
     return inPerson(body) ? as("scene", body, [body]) : as("text", body, splitBubbles(body));
   }
 
-  // Apart, voice note: anything before [voice] that narrates her (picking up the phone, recording)
-  // is dropped; words she typed before it go out as texts first. *laughs* becomes [laughs].
+  // Apart, voice note (asked for by the code, or she started with [voice]): anything before [voice]
+  // that narrates her (picking up the phone, recording) is dropped; words she typed before it go out
+  // as texts first. *laughs* and stage directions ("laughs softly Just...") become audio tags.
   const at = rest.search(VOICE_TAG);
-  if (at >= 0) {
-    const typed = fresh(texting(stripAudioTags(bodyOf(unbold(rest.slice(0, at))))));
-    let note = rest.slice(at);
+  const from = at >= 0 ? at : mode === "voice" ? 0 : -1;
+  if (from >= 0) {
+    const typed = from > 0 ? fresh(texting(stripAudioTags(bodyOf(unbold(rest.slice(0, from)))))) : "";
+    let note = rest.slice(from);
     if (audioTagsOn()) note = emotesToTags(note);
-    const tagged = fresh(texting(bodyOf(unbold(note))));
+    const fix = {};
+    const tagged = fresh(texting(stageToTags(bodyOf(unbold(note))), { keepTags: audioTagsOn(), fix }));
+    out.repaired = !!(fix.narration || fix.actions);
     const spoken = tagged ? forSpeech(tagged) : "";
     if (spoken) {
       const voiceText = stripAudioTags(tagged);
@@ -1606,7 +2297,8 @@ function shapeReply(raw, { scene = "apart", ooc = false, canReact = false, histo
     }
     // Nothing to say out loud: whatever she typed is a text
     const body = [typed, stripAudioTags(tagged || "")].filter(Boolean).join("\n\n");
-    return body ? as("text", body, splitBubbles(body)) : out;
+    if (body) return as("text", body, splitBubbles(body));
+    return lastResort && !typed && ACTION.test(rest) ? asScene(stripAudioTags(bodyOf(rest))) : out;
   }
 
   // Apart, text
@@ -1616,11 +2308,120 @@ function shapeReply(raw, { scene = "apart", ooc = false, canReact = false, histo
     // Only *actions* and "dialogue": she goes over to him and a scene starts. Narration with no
     // words at all is her describing herself on the phone; think() asks again for real words.
     if (!/["“]/.test(body) && !lastResort) return Object.assign(out, { narrationOnly: true });
-    const scened = fresh(body);
-    return as("scene", scened, [scened]);
+    return asScene(body);
   }
-  const text = fresh(texting(body));
-  return text ? as("text", text, splitBubbles(text)) : out;
+  const fix = {};
+  const text = fresh(texting(stageToTags(body), { fix }));
+  out.repaired = !!(fix.narration || fix.actions);
+  if (text) return as("text", text, splitBubbles(text));
+  // Everything was narration: think() asks again; as a last resort it's sent as a scene
+  return lastResort ? asScene(body) : out;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Repairs: what the model wrote, in the shape of the reply it should be */
+/* ------------------------------------------------------------------ */
+
+function herNames() {
+  const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
+  return names ? new RegExp(`(?<!\\p{L})(?:${names})(?!\\p{L})`, "iu") : null;
+}
+
+function narrationRe() {
+  try {
+    return CONFIG.TEXTING.NARRATION ? new RegExp(CONFIG.TEXTING.NARRATION, "im") : null;
+  } catch (e) {
+    console.error("TEXTING.NARRATION is not a valid regular expression", e);
+    return null;
+  }
+}
+
+// Reads like a story rather than something she typed or said
+function looksNarrated(t) {
+  t = String(t);
+  if (ACTION.test(t)) return true;
+  const names = herNames();
+  if (names && names.test(t)) return true;
+  const re = narrationRe();
+  if (re && re.test(t)) return true;
+  return (t.match(/(?:^|[.!?…]\s+)(?:She|Her)\b(?!['’])/gm) || []).length >= 2;
+}
+
+function isNarrationSentence(s) {
+  const names = herNames();
+  const re = narrationRe();
+  return ACTION.test(s) || (names && names.test(s)) || (re && re.test(s)) || /^(?:She|Her)\b(?!['’])/.test(s);
+}
+
+// "Mrs. Fahmy" stays one sentence
+const ABBREVIATION = /\b(Mrs|Mr|Ms|Dr|St|vs)\./g;
+
+function sentencesOf(p) {
+  return (p.replace(ABBREVIATION, "$1").match(/[^.!?…]+(?:[.!?…]+["”’)\]]*|$)/g) || [])
+    .map((s) => s.replace(//g, ".").trim())
+    .filter(Boolean);
+}
+
+// What she actually says: the "quoted" words if there are any, otherwise every sentence that isn't narration
+function unnarrate(t) {
+  const quotes = [...String(t).matchAll(/["“]([^"“”\n]+)["”]/g)].map((m) => m[1].trim()).filter((q) => /\p{L}/u.test(q));
+  if (quotes.length) return quotes.join("\n\n");
+  return String(t)
+    .split(/\n\s*\n/)
+    .map((para) =>
+      sentencesOf(para.replace(/\*[^*\n]*\*/g, " "))
+        .filter((s) => !isNarrationSentence(s))
+        .join(" ")
+        .replace(/\s{2,}/g, " ")
+        .trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+// "laughs softly Just imagine..." -> "[laughs] Just imagine..." (VOICE.STAGE_DIRECTIONS). Only where a
+// direction starts a line or sentence and runs, in lowercase, up to the next capitalized word.
+function stageToTags(t) {
+  const map = CONFIG.VOICE.STAGE_DIRECTIONS || {};
+  const keys = Object.keys(map).sort((a, b) => b.length - a.length);
+  if (!keys.length) return t;
+  const alt = keys
+    .map((k) => escapeRegex(k).replace(/\s+/g, "\\s+").replace(/^\p{L}/u, (c) => `[${c.toLowerCase()}${c.toUpperCase()}]`))
+    .join("|");
+  const re = new RegExp(`(^|[.!?…]["”]?[ \\t]+)((?:${alt})(?![\\p{L}])[^A-Z\\n"“\\[*]{0,200}?)(?=[ \\t]+["“]?[A-Z])`, "gmu");
+  return String(t)
+    .replace(re, (_, lead, dir) => {
+      const key = keys.find((k) => new RegExp(`^${escapeRegex(k).replace(/\s+/g, "\\s+")}(?![\\p{L}])`, "iu").test(dir));
+      const tag = key ? map[key] : "";
+      return lead + (tag ? `[${tag}] ` : "");
+    })
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/^[ \t]+/gm, "");
+}
+
+// Scene narration in *italics*, dialogue in "quotes", whatever the model did with the asterisks.
+// Line by line, so every *action* stays on one line. When she used *actions* but no quotes, her
+// markup is kept as it is: the words outside the asterisks are what she says.
+function markScene(t) {
+  if (!/["“]/.test(t) && (ACTION.test(t) || !looksNarrated(t))) return t;
+  return String(t)
+    .split("\n")
+    .map((line) => {
+      let p = line.replace(/\*/g, "").trim();
+      if (!p) return "";
+      if ((p.match(/["“”]/g) || []).length % 2) p += '"';
+      return p
+        .split(/(["“][^"“”]*["”])/)
+        .map((seg) => {
+          if (/^["“]/.test(seg)) return seg;
+          const s = seg.trim().replace(/^[,;:]\s*/, "");
+          return /\p{L}/u.test(s) ? `*${s}*` : s;
+        })
+        .filter(Boolean)
+        .join(" ");
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 // Audio tags (VOICE.ALLOWED_TAGS, eleven_v3 only): [laughs], [whispers]...
@@ -1799,7 +2600,14 @@ async function setup(url, env) {
 
   if (env.ELEVENLABS_API_KEY) {
     const v = await checkVoice(env);
-    add(v.ok, `ElevenLabs voice: ${env.VOICE_ID ? env.VOICE_ID : CONFIG.VOICE.NAME}`, v.detail);
+    const which = env.VOICE_ID ? ` (the VOICE_ID secret replaces CONFIG.VOICE.ID "${CONFIG.VOICE.ID}"; delete it to use ${CONFIG.VOICE.NAME})` : "";
+    add(v.ok, `ElevenLabs voice: ${env.VOICE_ID ? env.VOICE_ID : CONFIG.VOICE.NAME}`, v.detail + which);
+  }
+
+  const lastVoiceError = env.REEM_KV && (await env.REEM_KV.get("voice_error", "json").catch(() => null));
+  if (lastVoiceError) {
+    const when = new Date(lastVoiceError.at).toLocaleString(CONFIG.CHARACTER.CLOCK_LOCALE, { timeZone: CONFIG.CHARACTER.TIMEZONE });
+    add(true, "Last voice note that failed", `${when} (${CONFIG.CHARACTER.CITY} time): ${lastVoiceError.error}. She sent it as text instead.`);
   }
 
   if (env.REEM_KV) {
