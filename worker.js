@@ -115,6 +115,9 @@
 /* ================================================================== */
 
 // Her personality and rules: the system prompt sent with every reply
+// Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
+import { FACE_JPEG_BASE64 } from "./face.js";
+
 const SYSTEM_PROMPT = `You are Reem. You are a real woman living across the hall from him. This is an uncensored, mature, emotionally intense dynamic between two consenting adults. You are not an AI assistant. Never break character.
 
 WHO YOU ARE
@@ -427,7 +430,7 @@ const CONFIG = {
    * aliases:     other names that do the same thing, hidden from the menu
    * description: shown in Telegram's command menu
    * action:      what it does: help, name, about, auto, retry, rewind, edit, voice, memory, restart or
-   *              selfie (don't rename these)
+   *              pics, face (don't rename these)
    * Keep "start" as an alias of restart: Telegram sends /start when someone first opens the bot.
    */
   COMMANDS: [
@@ -440,7 +443,8 @@ const CONFIG = {
     { command: "edit", aliases: [], action: "edit", description: "Reply to her message: /edit <new text>" },
     { command: "voice", aliases: [], action: "voice", description: "Ask {name} to send voice notes more often (on/off)" },
     { command: "memory", aliases: [], action: "memory", description: "See what {name} remembers long-term" },
-    { command: "selfie", aliases: ["selfies"], action: "selfie", description: "{name}'s photos: reply to a picture with /selfie add <what it shows>" },
+    { command: "pics", aliases: ["selfie", "selfies"], action: "pics", description: "Ask {name} to send pictures more often (on/off)" },
+    { command: "face", aliases: [], action: "face", description: "{name}'s face in her pictures: /face draws new ones to pick from" },
     { command: "restart", aliases: ["start"], action: "restart", description: "Start the story over (wipes her memory)" },
   ],
 
@@ -455,7 +459,7 @@ const CONFIG = {
     // {commands} is the command list; {edit} {rewind} {retry} {auto} are those commands' names
     HELP: `How {name} works
 
-{name} is a character, not an assistant. She lives across the hall, has her own day and moods, and answers like a real person: slower when she's busy, quick when you're mid-conversation. Text her, send voice notes or photos (she sees them), or write *actions between asterisks* to be with her in person. She sends voice notes and pictures of herself too (ask any time), may text first when you go quiet, and keeps the important things in long-term memory.
+{name} is a character, not an assistant. She lives across the hall, has her own day and moods, and answers like a real person: slower when she's busy, quick when you're mid-conversation. Text her, send voice notes or photos (she sees them), or write *actions between asterisks* to be with her in person. She sends voice notes and pictures too (ask any time), may text first when you go quiet, and keeps the important things in long-term memory.
 
 Commands
 {commands}
@@ -482,15 +486,18 @@ Changing the story
     NOTHING_TO_RETRY: "There's no reply of {name}'s to redo yet.",
     DELETE_FAILED: "Telegram wouldn't remove some of those messages (it only allows it for 48 hours), but {name} has forgotten them.",
     REWOUND: "",                       // sent after a /rewind to one of her messages; "" = nothing
-    // /selfie: her photo pack (pictures of her she sends; see SELFIE)
-    SELFIE_LIST: "{name}'s photos ({count}):\n{tags}\n\nAdd one: reply to a picture with {cmd} add <what it shows>, or send it with that as its caption. Remove: {cmd} remove <what it shows>. A new draft picture: {cmd} make <description>.", // {count} {tags} {cmd}
-    SELFIE_EMPTY: "{name} has no photos yet. Reply to a picture of her with {cmd} add <what it shows> (like: mirror selfie, morning coffee, with Basbousa), or send the picture with that as its caption. {cmd} make <description> draws a new one to pick from.", // {cmd}
-    SELFIE_ADDED: "Saved: {name} can send this one as \"{tag}\" ({count} photos now).", // {tag} {count}
-    SELFIE_REMOVED: "Removed {removed} photo(s) called \"{tag}\".", // {removed} {tag}
-    SELFIE_NEEDS_PHOTO: "Reply to a picture with {cmd} add <what it shows>, or send the picture with that as its caption.", // {cmd}
-    SELFIE_DRAFT: "Draft: {description}\nKeep it: reply to it with {cmd} add <what it shows>.", // {description} {cmd}
-    SELFIE_NO_AI: "Drawing needs Workers AI connected (the AI binding). Open /setup for details.",
-    SELFIE_DRAW_FAILED: "Couldn't draw that one: {error}", // {error}
+    PICS_ON: "{name} will send pictures more often.",
+    PICS_OFF: "{name} sends pictures when it fits, or when you ask.",
+    // /face: the reference portrait every picture of her is drawn from (PICTURE)
+    FACE_NOW: "{name}'s face in her pictures ({source}). {cmd} draws {count} new ones to pick from.", // {source} {cmd} {count}
+    FACE_NONE: "{name} has no reference face yet, so her pictures don't all look like the same woman. {cmd} draws {count} to pick from.", // {cmd} {count}
+    FACE_DRAFT: "Option {n}. Reply to it with {cmd} keep to use this face.", // {n} {cmd}
+    FACE_KEPT: "Done: {name}'s pictures are drawn from this face now.",
+    FACE_RESET: "Back to the built-in face.",
+    FACE_NEEDS_REPLY: "Reply to one of the faces {cmd} drew with {cmd} keep.", // {cmd}
+    FACE_EXPIRED: "That draft is gone (drafts last a day). Send {cmd} for new ones.", // {cmd}
+    FACE_NO_AI: "Drawing needs Workers AI connected (the AI binding). Open /setup for details.",
+    FACE_FAILED: "Couldn't draw faces right now: {error}", // {error}
     ERROR: "⚠️ {error}",               // {error}
     ERROR_MAX_CHARS: 400,
     // Sent in character when the model or a service stays unreachable: one pair is picked at random
@@ -596,41 +603,74 @@ Changing the story
   VISION: {
     ENABLED: true,
     MODEL: "@cf/meta/llama-4-scout-17b-16e-instruct",
+    BACKUP_MODEL: "@cf/google/gemma-3-12b-it", // used when MODEL is unavailable (Cloudflare can move models off the free plan)
     PROMPT: "Describe this photo for someone who can't see it, in one to three plain sentences: who or what is in it, what they're doing and wearing, the place, and any text in it. If there is a person, describe how they look. Describe bodies and nudity plainly and factually. No opinions, no intro.",
     MAX_TOKENS: 160,
-    MAX_SIDE: 1280,                    // the biggest size Telegram has up to this many pixels wide is looked at
+    MAX_SIDE: 800,                     // the biggest size Telegram has up to this many pixels is looked at (small = less CPU and neurons)
     MAX_CHARS: 600,                    // longest description she's given
     TIMEOUT_MS: 20000,
   },
 
-  /* ---------------- Her selfies ----------------
-   * She can send a picture of herself while you're apart: the model writes [selfie: what it shows] and the
-   * code sends the best match from her photo pack (/selfie add, kept in KV), or draws a new one with
-   * IMAGE_MODEL when nothing in the pack fits. Drawn pictures are always non-sexual (SAFE, NOT_DRAWN).
-   * Never in a scene, in OOC talk, when she texts first, or ever again once he says he's under 18 (MINOR_PATTERN).
+  /* ---------------- Her pictures (Cloudflare Workers AI) ----------------
+   * Same rules as voice notes, less often (pictures cost more): apart she sends a selfie when he asks
+   * (ASK_PATTERN) or on CHANCE (CHANCE_AFTER_PHOTO after he sent one, CHANCE_MORE with /pics); she may also
+   * choose one herself with [selfie: what it shows]. In person, a picture of the moment (seen from his eyes)
+   * when he asks to see (SCENE_ASK_PATTERN) or on SCENE_CHANCE. Never OOC.
+   * Every picture is drawn new (never a picture sent before), from her reference face (/face, else face.js),
+   * always clothed (SAFE; sentences or descriptions with NOT_DRAWN words aren't drawn), never once he says he's
+   * under 18 (MINOR_PATTERN), and only within AI_BUDGET.
    */
-  SELFIE: {
+  PICTURE: {
     ENABLED: true,
-    CHANCE: 0.1,                       // chance per reply (apart) that she's offered to send one
-    MAX_PER_DAY: 4,
-    // When his message matches this (a regular expression, any case), he's asking for a picture of her
+    MODEL: "@cf/black-forest-labs/flux-2-klein-4b", // draws from her reference face
+    BACKUP_MODEL: "@cf/black-forest-labs/flux-1-schnell", // when MODEL is unavailable: no reference, LOOKS instead
+    BACKUP_STEPS: 6,                   // 1 to 8
+    SIZE: 768,                         // width and height in pixels (768 = 2.25 tiles; 1024 = 4)
+    TIMEOUT_MS: 25000,
+    CHANCE: 0.05,                      // apart, per reply (voice: 0.2)
+    CHANCE_AFTER_PHOTO: 0.3,           // ...when he just sent a photo (voice: 0.6 after his voice note)
+    CHANCE_MORE: 0.15,                 // ...when /pics is on (voice: 0.5 with /voice)
+    SCENE_CHANCE: 0.08,                // in person, per reply (voice clip: 0.25)
+    // He asks for a picture (apart) or to see her (in person): a regular expression, any case. Only his own words count.
     ASK_PATTERN: "\\b(?:send|show|give)\\b[^.?!\\n]{0,20}\\b(?:pic|pics|picture|pictures|photo|photos|selfie|selfies|snap)\\b|\\bselfie\\b|\\b(?:pic|picture|photo) of (?:you|u|yourself)\\b|\\blet me see you\\b",
-    WHEN_ASKED: true,                  // when he asks, a picture always comes, even if she forgets to write [selfie]
-    GENERATE: true,                    // draw a new picture when nothing in the pack fits
-    IMAGE_MODEL: "@cf/black-forest-labs/flux-1-schnell",
-    STEPS: 6,                          // 1 to 8: more = better and slower
-    LOOKS: "realistic candid smartphone photo of Reem, a 29-year-old half-Egyptian half-American woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair parted slightly off-center, thin gold rings. Natural light, not a studio shot.",
+    SCENE_ASK_PATTERN: "\\blet me see (?:you|it|that)\\b|\\bshow me\\b|\\bi (?:wanna|want to|need to) see (?:you|it)\\b|\\b(?:take|snap) a (?:pic|picture|photo)\\b",
+    // Prompts. With her reference face: REFERENCE + what it shows + SAFE; without: LOOKS + what it shows + SAFE
+    REFERENCE: "The woman from image 0, with exactly the same face, a 29-year-old woman.",
+    LOOKS: "A 29-year-old half-Egyptian half-American woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair parted slightly off-center, thin gold rings.",
+    SELFIE_STYLE: "Realistic candid smartphone selfie she took herself:",
+    SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
+    PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     SAFE: "She is fully clothed. Non-sexual, tasteful.",
-    // A drawn picture is never made from a description with these words; she sends a pack photo instead
-    NOT_DRAWN: ["nude", "naked", "topless", "bottomless", "lingerie", "underwear", "bra", "panties", "thong", "nipple", "nipples", "breasts", "boobs", "explicit", "nsfw", "sex", "sexy", "porn", "shower", "bath", "bikini", "towel"],
+    // Never drawn: a description or scene sentence with one of these words (whole words, any case)
+    NOT_DRAWN: ["nude", "naked", "topless", "bottomless", "lingerie", "underwear", "bra", "panties", "thong", "nipple", "nipples", "breast", "breasts", "boobs", "explicit", "nsfw", "sex", "sexy", "porn", "shower", "bath", "bikini", "towel", "undress", "undresses", "undressing", "unbuttons", "strips", "moans", "thighs", "hips", "bed", "sheets", "kiss", "kisses", "kissing"],
+    MIN_SCENE_WORDS: 8,                // a scene picture needs at least this many words about her
     // He says he's under 18: no pictures from then on (stored with his settings)
-    MINOR_PATTERN: "\\b(?:i'?m|i am|im)\\s+(?:only\\s+|just\\s+)?(?:1[0-7])\\b(?!\\s*(?:min|mins|minutes|hours|hrs|secs|seconds|%|km|miles|percent))|\\bunder\\s*18\\b|\\b1[0-7]\\s*(?:yo|y\\/o|years?\\s+old)\\b",
-    NUDGE: " You can send him a picture of yourself, like anyone texting: put [selfie: what it shows] on its own line. What it can show: {tags}. Only when it fits.", // {tags}; only on a CHANCE roll
-    NUDGE_ASKED: " He's asking for a picture of you. Send one: put [selfie: what it shows] on its own line, with a short text if you like. What it can show: {tags}.", // {tags}
-    OWN_WORDS: "anything you describe in a few words", // added to the pack's list in the nudges when GENERATE is on
-    STORED: "[selfie: {tag}]",          // {tag}; what she reads back in the chat history
-    DEFAULT: "a casual selfie at home, smiling at the camera", // what's drawn when she doesn't say and the pack is empty
+    MINOR_PATTERN: "\\b(?:i'?m|i am|im)\\s+(?:only\\s+|just\\s+)?(?:1[0-7]|thirteen|fourteen|fifteen|sixteen|seventeen)\\b(?!\\s*(?:min|mins|minutes|hours|hrs|secs|seconds|%|km|miles|percent|days|weeks))|\\bunder\\s*18\\b|\\b(?:1[0-7]|thirteen|fourteen|fifteen|sixteen|seventeen)\\s*(?:yo|y\\/o|y\\.o\\.?|years?\\s+old|year-old)\\b|\\b(?:in|at)\\s+(?:high\\s+school|middle\\s+school|(?:7|8|9|10|11|12)(?:th)?\\s+grade|grade\\s+(?:7|8|9|10|11|12))\\b|\\bi'?m\\s+a\\s+(?:minor|freshman in high school|sophomore in high school)\\b",
+    // What she's told. FORMAT: this reply comes with a picture (decided by the code, like a voice note)
+    FORMAT: " This reply comes with a picture of you, like anyone texting: put [selfie: what it shows] on its own line, a few words on where you are, what you're wearing and doing. Your words go with it as usual.",
+    FORMAT_ASKED: " He's asking for a picture of you, and you send one: put [selfie: what it shows] on its own line, a few words on where you are, what you're wearing and doing, and a short text with it if you like.",
+    SELF_CHOICE: " Now and then you may send him a picture of yourself instead of describing it: [selfie: what it shows] on its own line.", // while apart, when a picture is possible
+    RECENT: " Your last pictures showed: {list}. Show something different this time.", // {list}
+    // When she leaves [selfie] out or repeats a recent one, the picture gets one of these (or what she's doing now)
+    VARIETY: ["on her balcony in Zamalek at golden hour", "in her kitchen, cooking", "mirror selfie in her hallway", "at a café in Zamalek with an iced coffee", "on the couch with Basbousa the tabby cat", "at her desk surrounded by fabric samples", "walking by the Nile in the evening", "by her window with the city lights behind her", "getting ready to go out with Nour", "at the market in the afternoon"],
+    SIMILAR: 0.6,                      // word overlap with a recent picture that counts as the same picture
+    REMEMBER: 8,                       // how many recent picture descriptions she's reminded of
+    STORED: "[selfie: {what}]",        // {what}; in her chat history (scene pictures store nothing)
     FAILED_TEXT: "ugh my pic won't send. later", // sent when the picture was her whole reply and it failed
+    FACE_DRAFTS: 3,                    // how many faces /face draws
+  },
+
+  /* ---------------- Workers AI budget (free plan: 10,000 neurons a day, reset 00:00 UTC) ----------------
+   * Estimated per call and counted in KV ("pics"); when Cloudflare says the day's allocation is used up, nothing
+   * more is tried until 00:00 UTC.
+   */
+  AI_BUDGET: {
+    DAILY_NEURONS: 9000,               // stop here (the free allocation is 10,000)
+    PICTURE_SHARE: 0.6,                // pictures stop at this share of DAILY_NEURONS, so photos stay seeable
+    PICTURE_NEURONS: 70,               // FLUX.2 klein, 768x768 with the reference face
+    BACKUP_PICTURE_NEURONS: 70,        // FLUX.1 schnell, 768x768, 6 steps
+    PHOTO_NEURONS: 60,                 // seeing one of his photos
+    HEALTH_NEURONS: 40,                // one /health check
   },
 
   /* ---------------- Telegram ---------------- */
@@ -660,7 +700,7 @@ const VOICE_TAG_SRC = String.raw`\[\s*voice\b[^\]\n]*\][ \t]*:?|\(\s*voice(?:\s+
 const VOICE_TAG = new RegExp(VOICE_TAG_SRC, "im");
 const VOICE_TAG_ALL = new RegExp(`(?:${VOICE_TAG_SRC})\\s*`, "gim");
 const REACT_TAG = /\[\s*react(?:ed|ion)?\b\s*:?\s*([^\]\n]{0,16})\]\s*/gi;
-// [selfie: mirror selfie], [photo: ...], [pic: ...]: she sends a picture of herself (CONFIG.SELFIE)
+// [selfie: mirror selfie], [photo: ...], [pic: ...]: she sends a picture of herself (CONFIG.PICTURE)
 // (DeepSeek often describes the whole picture inside it, so it may be long)
 const SELFIE_TAG = /\[\s*(?:selfie|photo|pic|picture|image)\s*:?\s*([^\]\n]{0,400})\]/gi;
 // "*sends a selfie*": the model narrating what it could simply do
@@ -751,6 +791,13 @@ export default {
       }
       budget.reset();
       return setup(url, env);
+    }
+
+    // A read-only Workers AI check (draws one small picture, describes it), used after each deploy
+    if (url.pathname === "/health") {
+      budget.reset();
+      const result = await health(env).catch((e) => ({ ok: false, error: String(e.message || e) }));
+      return new Response(JSON.stringify(result, null, 1), { headers: { "content-type": "application/json" } });
     }
 
     if (url.pathname === "/webhook" && request.method === "POST") {
@@ -930,7 +977,7 @@ async function handleBatch(updates, env, ctx, deadline) {
 const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit"]);
 
 // Commands answered straight from the webhook, never queued: they only show or change his settings
-const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "selfie"]);
+const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face"]);
 
 function isQuickCommand(update) {
   const m = update && update.message;
@@ -993,7 +1040,8 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
   }
   if (action === "name") return nameCommand(env, chatId, args, msg);
   if (action === "about") return aboutCommand(env, chatId, args);
-  if (action === "selfie") return selfieCommand(env, chatId, args, msg);
+  if (action === "pics") return picsCommand(env, chatId);
+  if (action === "face") return faceCommand(env, chatId, args, msg);
 
   // Story commands: the command message itself is removed once it's done
   if (CONFIG.TELEGRAM.CLEAN_COMMANDS && msg.message_id) await deleteIds(env, chatId, [msg.message_id]);
@@ -1418,20 +1466,29 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   // His own words: not what the vision model saw in his photos ("a selfie of a man..." isn't him asking)
   const said = userParts ? userParts.map((p) => (p.photo ? p.text.replace(p.seen || "\u0000", "") : p.text)).join("\n") : heard;
   if (!proactive) await noteMinor(env, chatId, settings, said);
-  const pics = await selfieOffer(env, { scene, ooc, proactive, heard: said, settings });
+  // Pictures follow the voice rules (pictureMode next to replyMode), within the day's Workers AI budget
+  const ledger = env.AI ? await loadLedger(env) : null;
+  const canPicture = picturesAllowed(env, { ooc, settings, ledger });
+  const picture = canPicture ? pictureMode({ scene, said, proactive, cameAsPhoto: !!(userParts && userParts.some((p) => p.photo)), morePics: !!settings.morePics }) : null;
 
   // She starts thinking now, but only answers at waitUntil
   const sceneVoice = mode === "scene" && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
-  const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings, selfie: pics && { asked: pics.asked, tags: selfieTags(pics) } });
+  const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings, picture, canPicture, recentPictures: ledger ? ledger.recent : [] });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
 
   const typingStarted = Date.now();
   await tg(env, "sendChatAction", { chat_id: chatId, action: mode === "voice" ? "record_voice" : "typing" });
   // The format rules are enforced here, whatever the model wrote (see shapeReply)
-  const out = shapeReply(await replyPromise, { scene, mode, ooc, canReact, canSelfie: !!pics, history, heard: proactive ? "" : heard, lastResort: true });
-  // He asked for a picture and she only talked about it: one comes anyway (SELFIE.WHEN_ASKED)
-  if (pics && pics.asked && CONFIG.SELFIE.WHEN_ASKED && out.selfie == null) out.selfie = "";
+  const out = shapeReply(await replyPromise, { scene, mode, ooc, canReact, canSelfie: canPicture, history, heard: proactive ? "" : heard, lastResort: true });
+  // Her picture starts drawing now, while she types: a selfie when the code decided one (she may have left
+  // [selfie] out) or she wrote one herself; in person, the moment from the scene
+  let drawing = null;
+  if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
+    drawing = startPicture(env, ledger, "selfie", out.selfie || null);
+  } else if (picture && picture.kind === "scene" && out.kind === "scene") {
+    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"));
+  }
   if (out.reaction) {
     const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
     if (!r.ok) console.error("reaction failed", r.description);
@@ -1442,7 +1499,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
     ...(ooc ? { ooc: true } : {}),
     ...(out.reaction ? { react: out.reaction, reactTo } : {}),
   };
-  if (out.kind === "none" && out.selfie == null) {
+  if (out.kind === "none" && !drawing) {
     // Only a reaction: that's her whole answer
     if (out.reaction) {
       await saveTurn(env, chatId, history, notes, userEntry, makeEntry("assistant", [], extra, fill(R.SAVED, { emoji: out.reaction })))
@@ -1474,15 +1531,11 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
       const clip = await sayScene(env, chatId, out.texts.join("\n"), deadline);
       if (clip) parts.push(clip);
     }
-    // A picture of her, after her words
-    if (out.selfie != null && pics) {
-      const pic = await sendSelfie(env, chatId, out.selfie, pics);
-      if (pic) {
-        parts.push(pic);
-        await countSelfie(env, chatId, settings);
-      } else if (!parts.length) {
-        parts = await sendBubbles(env, chatId, [fill(CONFIG.SELFIE.FAILED_TEXT)], { deadline });
-      }
+    // Her picture, after her words
+    if (drawing) {
+      const pic = await deliverPicture(env, chatId, ledger, drawing);
+      if (pic) parts.push(pic);
+      else if (!parts.length) parts = await sendBubbles(env, chatId, [fill(CONFIG.PICTURE.FAILED_TEXT)], { deadline });
     }
   } finally {
     const hers = parts.length ? makeEntry("assistant", parts, extra) : makeEntry("assistant", [], extra, out.stored);
@@ -1711,7 +1764,7 @@ async function saveTurn(env, chatId, history, notes, userEntry, herEntry) {
 
 // mode: "text", "voice" or "scene" (from replyMode). The format reminder for that mode goes after
 // the chat, right before she writes, where the model pays the most attention.
-async function think(env, history, notes, userText, { mode = "text", scene, offerReaction = false, canReact = false, ooc = false, settings = {}, selfie = null }) {
+async function think(env, history, notes, userText, { mode = "text", scene, offerReaction = false, canReact = false, ooc = false, settings = {}, picture = null, canPicture = false, recentPictures = [] }) {
   const C = CONFIG.CHARACTER;
   const N = CONFIG.NUDGES;
   const P = CONFIG.PERSONA;
@@ -1741,7 +1794,13 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
     if (apart && mode === "text" && audioTagsOn()) extra += fill(N.VOICE_TAGS, { tags: CONFIG.VOICE.ALLOWED_TAGS.map((t) => `[${t}]`).join(", ") });
     if (userText.includes("\n")) extra += fill(N.SEVERAL_MESSAGES);
     if (offerReaction) extra += fill(N.REACT, { emojis: CONFIG.REACTIONS.ALLOWED.join(" ") });
-    if (selfie) extra += fill(selfie.asked ? CONFIG.SELFIE.NUDGE_ASKED : CONFIG.SELFIE.NUDGE, { tags: selfie.tags });
+    // Pictures: told when this reply comes with one (like FORMAT_VOICE); otherwise, apart, she may choose one
+    const PIC = CONFIG.PICTURE;
+    if (picture && picture.kind === "selfie") extra += fill(picture.asked ? PIC.FORMAT_ASKED : PIC.FORMAT);
+    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE);
+    if (((picture && picture.kind === "selfie") || (canPicture && apart)) && recentPictures.length) {
+      extra += fill(PIC.RECENT, { list: recentPictures.slice(-(Number(PIC.REMEMBER) || 8)).map((r) => `"${r}"`).join(", ") });
+    }
     const texture = [...(P.TEXTURE || []), ...(apart ? P.TEXTURE_APART || [] : [])];
     if (texture.length && Math.random() < P.TEXTURE_CHANCE) {
       extra += " " + fill(texture[Math.floor(Math.random() * texture.length)]);
@@ -1773,9 +1832,9 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
   // One more try if she opens like last time, if everything she wrote was already said, if nothing
   // in it can be sent once the format rules are applied (narration only, his lines...), or if
   // narration had to be cut out of a text or voice note. A reaction alone is a full answer when she may react.
-  const shape = (o) => shapeReply(o, { scene, mode, ooc, canReact, canSelfie: !!selfie, history, heard: userText });
+  const shape = (o) => shapeReply(o, { scene, mode, ooc, canReact, canSelfie: canPicture, history, heard: userText });
   const first = shape(out);
-  const empty = first.kind === "none" && !first.reaction && first.selfie == null;
+  const empty = first.kind === "none" && !first.reaction && first.selfie == null && !(picture && picture.kind === "selfie");
   const opener = opening(first.stored);
   if ((!ooc && opener && recent.includes(opener)) || first.repeated || empty || first.repaired) {
     const nudge = ooc && (empty || first.repaired) ? N.RETRY_OOC : empty ? N.RETRY_EMPTY : first.repaired ? N.RETRY_FORMAT : N.RETRY;
@@ -2003,21 +2062,33 @@ async function act(env, chatId, action, ms, upcoming = 1) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Pictures: his photos seen, hers sent (Cloudflare Workers AI)       */
+/*  Pictures: his photos seen, hers drawn (Cloudflare Workers AI)      */
 /* ------------------------------------------------------------------ */
 
-// One Workers AI call (the AI binding), counted like an outside call and cut off after timeoutMs
-async function aiRun(env, model, input, timeoutMs) {
+// One Workers AI call (the AI binding), counted like an outside call and cut off after timeoutMs.
+// Capacity errors (3040) get one more try.
+async function aiRun(env, model, input, timeoutMs, retry = true) {
   budget.used++;
   const signal = AbortSignal.timeout(timeoutMs);
   const late = new Promise((_, reject) => {
     signal.addEventListener("abort", () => reject(new Error(`Workers AI took longer than ${Math.round(timeoutMs / 1000)} s`)));
   });
   late.catch(() => {});
-  return Promise.race([env.AI.run(model, input), late]);
+  try {
+    return await Promise.race([env.AI.run(model, input), late]);
+  } catch (e) {
+    if (retry && aiBusy(e) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE) return aiRun(env, model, input, timeoutMs, false);
+    throw e;
+  }
 }
 
-// The last Workers AI failure, shown on /setup (photos then fall back to INBOX.PHOTO)
+// What a Workers AI error means (the binding throws errors whose message carries the code)
+const aiText_ = (e) => String((e && (e.message || e)) || "");
+const aiOutOfNeurons = (e) => /\b3036\b|daily free allocation|neurons/i.test(aiText_(e));
+const aiUnavailable = (e) => /\b5035\b|\b403\b|workers paid|upgrade|not (?:found|available)|no such model|\b5007\b/i.test(aiText_(e));
+const aiBusy = (e) => /\b3040\b|capacity|\b429\b/i.test(aiText_(e)) && !aiOutOfNeurons(e);
+
+// The last Workers AI failure, shown on /setup
 async function aiFailed(env, error) {
   console.error("Workers AI failed:", error);
   if (!env.REEM_KV) return;
@@ -2032,11 +2103,69 @@ function toBase64(buffer) {
   return btoa(bin);
 }
 
+// Light on CPU (the free plan allows 10 ms per run): the runtime's own decoder when it has one
+function fromBase64(s) {
+  if (typeof Uint8Array.fromBase64 === "function") return Uint8Array.fromBase64(s);
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function sha256(bytes) {
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return toBase64(hash).slice(0, 24);
+}
+
+/* --- the day's Workers AI spending, recent pictures (KV "pics": one write per picture or seen photo) --- */
+
+const utcDay = () => new Date().toISOString().slice(0, 10);
+
+async function loadLedger(env) {
+  const saved = (env.REEM_KV && (await env.REEM_KV.get("pics", "json").catch(() => null))) || {};
+  const day = utcDay();
+  const fresh = saved.day === day;
+  return {
+    day,
+    neurons: fresh ? saved.neurons || 0 : 0,
+    out: fresh ? !!saved.out : false,
+    hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
+    recent: Array.isArray(saved.recent) ? saved.recent : [],
+  };
+}
+
+async function saveLedger(env, ledger) {
+  if (!env.REEM_KV) return;
+  ledger.hashes = ledger.hashes.slice(-300);
+  ledger.recent = ledger.recent.slice(-20);
+  await env.REEM_KV.put("pics", JSON.stringify(ledger)).catch((e) => console.error("couldn't save the picture ledger", e));
+}
+
+// May this kind of call ("picture", "photo", "health") still be made today?
+function aiAffordable(ledger, kind) {
+  const B = CONFIG.AI_BUDGET;
+  if (!ledger || ledger.out) return false;
+  const cost = kind === "picture" ? B.PICTURE_NEURONS : kind === "photo" ? B.PHOTO_NEURONS : B.HEALTH_NEURONS;
+  const cap = kind === "picture" ? B.DAILY_NEURONS * B.PICTURE_SHARE : B.DAILY_NEURONS;
+  return ledger.neurons + cost <= cap;
+}
+
+// After a call: count it, or stop for the day when Cloudflare says the allocation is used up
+function aiSpent(ledger, neurons, error) {
+  if (error && aiOutOfNeurons(error)) ledger.out = true;
+  else ledger.neurons += neurons;
+}
+
+/* --- his photos --- */
+
 // What his photo shows, in a few plain sentences (VISION), or "" when it can't be seen
-async function describePhoto(env, sizes) {
+async function describePhoto(env, sizes, ledger = null) {
   const V = CONFIG.VISION;
   if (!V.ENABLED || !env.AI || !Array.isArray(sizes) || !sizes.length) return "";
   if (budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return "";
+  ledger = ledger || (await loadLedger(env));
+  if (!aiAffordable(ledger, "photo")) return "";
+  let error = null;
   try {
     // Telegram lists sizes small to big: the biggest that fits MAX_SIDE, else the smallest
     const fit = sizes.filter((p) => Math.max(p.width || 0, p.height || 0) <= V.MAX_SIDE);
@@ -2048,16 +2177,28 @@ async function describePhoto(env, sizes) {
     }).catch(() => null);
     if (!res?.ok) throw new Error("couldn't download the photo from Telegram");
     const image = `data:image/jpeg;base64,${toBase64(await res.arrayBuffer())}`;
-    const out = await aiRun(env, V.MODEL, {
+    const input = {
       messages: [{ role: "user", content: [{ type: "text", text: fill(V.PROMPT) }, { type: "image_url", image_url: { url: image } }] }],
       max_tokens: V.MAX_TOKENS,
-    }, V.TIMEOUT_MS);
+    };
+    let out;
+    try {
+      out = await aiRun(env, V.MODEL, input, V.TIMEOUT_MS);
+    } catch (e) {
+      if (!V.BACKUP_MODEL || !aiUnavailable(e)) throw e;
+      await aiFailed(env, `seeing a photo with ${V.MODEL}: ${aiText_(e)}; used ${V.BACKUP_MODEL}`);
+      out = await aiRun(env, V.BACKUP_MODEL, input, V.TIMEOUT_MS);
+    }
     const seen = tidyDescription(aiText(out));
     if (!seen) throw new Error(`${V.MODEL} gave no description`);
     return seen;
   } catch (e) {
-    await aiFailed(env, `seeing a photo: ${e.message || e}`);
+    error = e;
+    await aiFailed(env, `seeing a photo: ${aiText_(e)}`);
     return "";
+  } finally {
+    aiSpent(ledger, CONFIG.AI_BUDGET.PHOTO_NEURONS, error);
+    await saveLedger(env, ledger);
   }
 }
 
@@ -2084,15 +2225,20 @@ function photoLine(seen, caption) {
   return caption ? fill(I.PHOTO_WITH_CAPTION, { caption }) : fill(I.PHOTO);
 }
 
-// He said he's under 18 (SELFIE.MINOR_PATTERN): no pictures of her from then on
-function saysMinor(text) {
+/* --- who may get pictures, and when --- */
+
+const testPattern = (name, text) => {
+  const src = CONFIG.PICTURE[name];
   try {
-    return !!CONFIG.SELFIE.MINOR_PATTERN && new RegExp(CONFIG.SELFIE.MINOR_PATTERN, "i").test(String(text || ""));
+    return !!src && new RegExp(src, "i").test(String(text || ""));
   } catch (e) {
-    console.error("SELFIE.MINOR_PATTERN is not a valid regular expression", e);
+    console.error(`PICTURE.${name} is not a valid regular expression`, e);
     return false;
   }
-}
+};
+
+// He said he's under 18 (PICTURE.MINOR_PATTERN): no pictures of her from then on
+const saysMinor = (text) => testPattern("MINOR_PATTERN", text);
 
 async function noteMinor(env, chatId, settings, heard) {
   if (settings.minor || !saysMinor(heard)) return;
@@ -2100,86 +2246,126 @@ async function noteMinor(env, chatId, settings, heard) {
   if (env.REEM_KV) await env.REEM_KV.put(`s:${chatId}`, JSON.stringify(settings)).catch((e) => console.error("couldn't save settings", e));
 }
 
-function asksForSelfie(text) {
+// Pictures are possible at all for this reply (her own [selfie] included): not OOC, not a minor, AI connected,
+// within the day's budget and with enough outside calls left
+function picturesAllowed(env, { ooc, settings, ledger }) {
+  return !!CONFIG.PICTURE.ENABLED && !ooc && !settings.minor && !!env.AI && aiAffordable(ledger, "picture") &&
+    budget.left() >= CONFIG.LIMITS.SUBREQUEST_RESERVE + 4;
+}
+
+// Like replyMode for voice: does this reply come with a picture? null, or { kind: "selfie" | "scene", asked }
+function pictureMode({ scene, said, proactive = false, cameAsPhoto = false, morePics = false }) {
+  const P = CONFIG.PICTURE;
+  if (scene === "together") {
+    const asked = !proactive && (testPattern("SCENE_ASK_PATTERN", said) || testPattern("ASK_PATTERN", said));
+    return asked || Math.random() < (Number(P.SCENE_CHANCE) || 0) ? { kind: "scene", asked } : null;
+  }
+  const asked = !proactive && testPattern("ASK_PATTERN", said);
+  const chance = cameAsPhoto ? P.CHANCE_AFTER_PHOTO : morePics ? P.CHANCE_MORE : P.CHANCE;
+  return asked || Math.random() < (Number(chance) || 0) ? { kind: "selfie", asked } : null;
+}
+
+/* --- what a picture shows --- */
+
+const COMMON_WORDS = new Set(["selfie", "selfies", "photo", "pic", "picture", "image", "me", "my", "her", "she", "the", "a", "an", "of", "in", "on", "at", "with", "and", "to", "just", "you", "your", "is", "it", "this", "that"]);
+const wordsOf = (t) => (String(t || "").toLowerCase().match(/\p{L}+/gu) || []).filter((w) => w.length > 2 && !COMMON_WORDS.has(w));
+
+// Word overlap between two descriptions, 0 to 1
+function overlap(a, b) {
+  const x = new Set(wordsOf(a));
+  const y = new Set(wordsOf(b));
+  if (!x.size || !y.size) return 0;
+  let both = 0;
+  for (const w of x) if (y.has(w)) both++;
+  return both / Math.min(x.size, y.size);
+}
+
+// A description with a PICTURE.NOT_DRAWN word is never drawn
+function mayDraw(text) {
+  const words = new Set(String(text).toLowerCase().match(/\p{L}+/gu) || []);
+  return !(CONFIG.PICTURE.NOT_DRAWN || []).some((w) => words.has(String(w).toLowerCase()));
+}
+
+// What her selfie shows: what she wrote, unless it's missing, not drawable or too close to a recent picture;
+// then what she's doing now, or a VARIETY she hasn't shown lately
+function selfieSubject(want, recent = []) {
+  const P = CONFIG.PICTURE;
+  const fresh = (w) => w && mayDraw(w) && !recent.some((r) => overlap(w, r) > P.SIMILAR);
+  if (fresh(want)) return want;
+  const slot = scheduleNow();
+  const options = [...(want ? [] : [slot && slot.doing ? `at home, ${slot.doing.replace(/\byou(r)?\b/g, "her").split(";")[0]}` : ""]), ...(P.VARIETY || [])]
+    .filter((v) => fresh(v));
+  if (options.length) return options[Math.floor(Math.random() * options.length)];
+  const any = (P.VARIETY || []).filter((v) => mayDraw(v));
+  return any.length ? any[Math.floor(Math.random() * any.length)] : "at home";
+}
+
+// The prompt for a picture of the moment in person, from the scene's narration about her: only sentences
+// about her (none about him: "you", "his"), none with a NOT_DRAWN word. "" when too little is left.
+function scenePicturePrompt(sceneText) {
+  const P = CONFIG.PICTURE;
+  const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
+  const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
+  const kept = sentencesOf(narration)
+    .map((x) => x.trim())
+    .filter((x) => x && !/\b(?:you|your|yours|he|him|his)\b/i.test(x) && mayDraw(x))
+    .map((x) => x.replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
+  const text = kept.join(" ");
+  return wordsOf(text).length >= (Number(P.MIN_SCENE_WORDS) || 0) ? text : "";
+}
+
+/* --- her reference face --- */
+
+// The face every picture is drawn from: /face keep (KV) first, else the one built into face.js
+async function faceBytes(env) {
+  const kv = env.REEM_KV && (await env.REEM_KV.get("face").catch(() => null));
+  const b64 = kv || FACE_JPEG_BASE64;
+  return b64 ? fromBase64(b64) : null;
+}
+
+// Image bytes from whatever an image model answered ({ image: base64 }, a stream, bytes)
+async function imageBytes(out) {
+  const b64 = out && (typeof out.image === "string" ? out.image : out.result && out.result.image);
+  if (typeof b64 === "string") return fromBase64(b64);
+  if (out instanceof Uint8Array) return out;
+  if (out instanceof ArrayBuffer || (typeof ReadableStream !== "undefined" && out instanceof ReadableStream)) {
+    return new Uint8Array(await new Response(out).arrayBuffer());
+  }
+  throw new Error("the image model returned no image");
+}
+
+// A new picture: JPEG/PNG bytes and the model that drew it. `what` is the scene; `face` false = no reference.
+// FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
+// FLUX.1 schnell draws from LOOKS instead.
+async function drawPicture(env, what, { style = CONFIG.PICTURE.SELFIE_STYLE, size = CONFIG.PICTURE.SIZE, face = true } = {}) {
+  const P = CONFIG.PICTURE;
+  const ref = face ? await faceBytes(env) : null;
+  const seed = Math.floor(Math.random() * 2147483647);
+  const end = (t) => String(t).trim().replace(/[.\s]*$/, ".");
   try {
-    return !!CONFIG.SELFIE.ASK_PATTERN && new RegExp(CONFIG.SELFIE.ASK_PATTERN, "i").test(String(text || ""));
+    const form = new FormData();
+    form.append("prompt", `${style} ${ref ? P.REFERENCE : P.LOOKS} ${end(what)} ${P.SAFE}`);
+    form.append("width", String(size));
+    form.append("height", String(size));
+    form.append("seed", String(seed));
+    if (ref) form.append("input_image_0", new Blob([ref], { type: "image/jpeg" }), "face.jpg");
+    const packed = new Response(form); // serializes the form, with its boundary in the content type
+    const out = await aiRun(env, P.MODEL, { multipart: { body: packed.body, contentType: packed.headers.get("content-type") } }, P.TIMEOUT_MS);
+    return { bytes: await imageBytes(out), model: P.MODEL };
   } catch (e) {
-    console.error("SELFIE.ASK_PATTERN is not a valid regular expression", e);
-    return false;
+    if (!P.BACKUP_MODEL || !aiUnavailable(e)) throw e;
+    await aiFailed(env, `drawing with ${P.MODEL}: ${aiText_(e)}; used ${P.BACKUP_MODEL}`);
+    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: `${style} ${P.LOOKS} ${end(what)} ${P.SAFE}`, steps: P.BACKUP_STEPS, seed }, P.TIMEOUT_MS);
+    return { bytes: await imageBytes(out), model: P.BACKUP_MODEL };
   }
 }
 
-// Her photo pack: [{ tag, file_id }], added with /selfie add (one list for the whole bot)
-async function loadPack(env) {
-  if (!env.REEM_KV) return [];
-  const pack = await env.REEM_KV.get("selfies", "json").catch(() => null);
-  return Array.isArray(pack) ? pack.filter((p) => p && p.file_id) : [];
-}
-
-// May she send a picture with this reply? null, or { asked, pack, canDraw }
-async function selfieOffer(env, { scene, ooc, proactive, heard, settings }) {
-  const S = CONFIG.SELFIE;
-  if (!S.ENABLED || ooc || proactive || scene === "together" || settings.minor) return null;
-  const today = herDay();
-  if (settings.selfies && settings.selfies.day === today && settings.selfies.count >= S.MAX_PER_DAY) return null;
-  const canDraw = !!S.GENERATE && !!env.AI;
-  const pack = await loadPack(env);
-  if (!pack.length && !canDraw) return null;
-  const asked = asksForSelfie(heard);
-  if (!asked && !(Math.random() < (Number(S.CHANCE) || 0))) return null;
-  return { asked, pack, canDraw };
-}
-
-// "mirror selfie, morning coffee, anything you describe in a few words"
-function selfieTags({ pack, canDraw }) {
-  const tags = [...new Set(pack.map((p) => String(p.tag).trim()).filter(Boolean))];
-  if (canDraw) tags.push(fill(CONFIG.SELFIE.OWN_WORDS));
-  return tags.join(", ");
-}
-
-const PICTURE_WORDS = new Set(["selfie", "selfies", "photo", "pic", "picture", "image", "me", "my", "her", "the", "a", "an", "of", "in", "on", "at", "with", "and", "to", "just", "quick", "you"]);
-const wordsOf = (t) => (String(t || "").toLowerCase().match(/\p{L}+/gu) || []).filter((w) => !PICTURE_WORDS.has(w));
-
-// The pack photo whose tag best matches what she wants to show (random among the best), or null
-function matchPack(pack, want) {
-  const wanted = new Set(wordsOf(want));
-  let best = [];
-  let top = 0;
-  for (const p of pack) {
-    const score = String(p.tag).toLowerCase().trim() === String(want).toLowerCase().trim() ? 99 : wordsOf(p.tag).filter((w) => wanted.has(w)).length;
-    if (score > top) [best, top] = [[p], score];
-    else if (score && score === top) best.push(p);
-  }
-  return best.length ? best[Math.floor(Math.random() * best.length)] : null;
-}
-
-// A drawn picture is never sexual: descriptions with SELFIE.NOT_DRAWN words aren't drawn
-function mayDraw(want) {
-  const words = new Set((String(want).toLowerCase().match(/\p{L}+/gu) || []));
-  return !(CONFIG.SELFIE.NOT_DRAWN || []).some((w) => words.has(String(w).toLowerCase()));
-}
-
-// A new picture of her (JPEG bytes) showing `want`
-async function drawSelfie(env, want) {
-  const S = CONFIG.SELFIE;
-  const prompt = `${S.LOOKS} ${String(want || S.DEFAULT).trim().replace(/[.\s]*$/, ".")} ${S.SAFE}`;
-  const out = await aiRun(env, S.IMAGE_MODEL, { prompt, steps: S.STEPS }, CONFIG.LIMITS.HTTP_TIMEOUT_MS);
-  if (out && typeof out.image === "string") return Uint8Array.from(atob(out.image), (c) => c.charCodeAt(0));
-  if (out instanceof ReadableStream || out instanceof ArrayBuffer || out instanceof Uint8Array) return new Uint8Array(await new Response(out).arrayBuffer());
-  throw new Error(`${S.IMAGE_MODEL} returned no image`);
-}
-
-// Sends a picture: a Telegram file_id, or JPEG bytes. Returns the message id, or null.
-async function sendPhoto(env, chatId, photo, caption = "") {
-  if (typeof photo === "string") {
-    const r = await tg(env, "sendPhoto", { chat_id: chatId, photo, ...(caption ? { caption } : {}) });
-    if (!r.ok) console.error("sendPhoto failed", r.description);
-    return r.ok && r.result ? r.result.message_id : null;
-  }
+// Sends picture bytes. Returns the message id, or null.
+async function sendPhoto(env, chatId, bytes, caption = "") {
   const form = new FormData();
   form.append("chat_id", String(chatId));
   if (caption) form.append("caption", caption);
-  form.append("photo", new Blob([photo], { type: "image/jpeg" }), "photo.jpg");
+  form.append("photo", new Blob([bytes], { type: "image/jpeg" }), "photo.jpg");
   try {
     const res = await xfetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendPhoto`, { method: "POST", body: form });
     const data = await res.json().catch(() => null);
@@ -2191,72 +2377,153 @@ async function sendPhoto(env, chatId, photo, caption = "") {
   }
 }
 
-// Her picture: the pack photo that fits, else a drawn one, else any pack photo.
-// Returns a history part { id, text: "[selfie: ...]" }, or null when nothing could be sent.
-async function sendSelfie(env, chatId, want, { pack, canDraw }) {
-  const S = CONFIG.SELFIE;
-  await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
-  const sent = (id, tag) => (id == null ? null : { id, text: fill(S.STORED, { tag }) });
-  const match = want ? matchPack(pack, want) : null;
-  if (match) return sent(await sendPhoto(env, chatId, match.file_id), match.tag);
-  if (canDraw && (!want ? !pack.length : mayDraw(want))) {
-    try {
-      const what = want || S.DEFAULT;
-      const id = await sendPhoto(env, chatId, await drawSelfie(env, what));
-      if (id != null) return sent(id, what);
-    } catch (e) {
-      await aiFailed(env, `drawing a selfie: ${e.message || e}`);
-    }
+// Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what } or
+// null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null); "scene": the scene.
+function startPicture(env, ledger, kind, want) {
+  const P = CONFIG.PICTURE;
+  let what;
+  let style;
+  if (kind === "scene") {
+    what = scenePicturePrompt(want);
+    style = P.SCENE_STYLE;
+    if (!what) return null;
+  } else {
+    what = selfieSubject(want, ledger.recent.slice(-(Number(P.REMEMBER) || 8)));
+    style = P.SELFIE_STYLE;
   }
-  if (!pack.length) return null;
-  const any = pack[Math.floor(Math.random() * pack.length)];
-  return sent(await sendPhoto(env, chatId, any.file_id), any.tag);
+  const drawing = (async () => {
+    let error = null;
+    let model = P.MODEL;
+    try {
+      const drawn = await drawPicture(env, what, { style });
+      model = drawn.model;
+      return { bytes: drawn.bytes, what, kind };
+    } catch (e) {
+      error = e;
+      await aiFailed(env, `drawing a picture: ${aiText_(e)}`);
+      return null;
+    } finally {
+      aiSpent(ledger, model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, error);
+    }
+  })();
+  drawing.catch(() => {});
+  return drawing;
 }
 
-async function countSelfie(env, chatId, settings) {
-  const day = herDay();
-  settings.selfies = { day, count: (settings.selfies && settings.selfies.day === day ? settings.selfies.count : 0) + 1 };
-  if (env.REEM_KV) await env.REEM_KV.put(`s:${chatId}`, JSON.stringify(settings)).catch((e) => console.error("couldn't save settings", e));
+// Sends a drawn picture, never one sent before (same bytes). Returns a history part, or null.
+async function deliverPicture(env, chatId, ledger, drawing) {
+  const P = CONFIG.PICTURE;
+  const pic = drawing && (await drawing);
+  try {
+    if (!pic) return null;
+    const hash = await sha256(pic.bytes);
+    if (ledger.hashes.includes(hash)) {
+      console.error("a drawn picture matched one already sent; not sending it");
+      return null;
+    }
+    await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
+    const id = await sendPhoto(env, chatId, pic.bytes);
+    if (id == null) return null;
+    ledger.hashes.push(hash);
+    if (pic.kind === "selfie") ledger.recent.push(pic.what);
+    return { id, text: pic.kind === "selfie" ? fill(P.STORED, { what: pic.what }) : "" };
+  } finally {
+    if (drawing) await saveLedger(env, ledger);
+  }
 }
 
-// /selfie [list] | add <what it shows> (as a photo's caption, or replying to a photo) | remove <what> | make <description>
-async function selfieCommand(env, chatId, args, msg = {}) {
+/* --- /pics and /face --- */
+
+async function picsCommand(env, chatId) {
+  const kv = env.REEM_KV;
+  const s = await getSettings(kv, chatId);
+  s.morePics = !s.morePics;
+  await kv.put(`s:${chatId}`, JSON.stringify(s));
+  return notice(env, chatId, s.morePics ? CONFIG.MESSAGES.PICS_ON : CONFIG.MESSAGES.PICS_OFF);
+}
+
+// /face: shows her face and draws FACE_DRAFTS new ones; /face keep (as a reply to a draft) uses it;
+// /face reset goes back to the face built into face.js. Drafts are kept a day (KV face_draft:<message id>).
+async function faceCommand(env, chatId, args, msg = {}) {
   const M = CONFIG.MESSAGES;
-  const cmd = commandFor("selfie");
+  const P = CONFIG.PICTURE;
+  const kv = env.REEM_KV;
+  const cmd = commandFor("face");
   const verb = (args.split(/\s+/)[0] || "").toLowerCase();
-  const what = args.slice(verb.length).trim().slice(0, 80);
-  const pack = await loadPack(env);
-  const save = (p) => env.REEM_KV.put("selfies", JSON.stringify(p));
-  if (verb === "add") {
-    const photo = msg.photo && msg.photo.length ? msg.photo : msg.reply_to_message && msg.reply_to_message.photo;
-    if (!photo || !photo.length || !what) return notice(env, chatId, M.SELFIE_NEEDS_PHOTO, { cmd });
-    pack.push({ tag: what, file_id: photo[photo.length - 1].file_id });
-    await save(pack);
-    return notice(env, chatId, M.SELFIE_ADDED, { tag: what, count: pack.length });
+  if (verb === "keep") {
+    const target = msg.reply_to_message && msg.reply_to_message.message_id;
+    if (!target) return notice(env, chatId, M.FACE_NEEDS_REPLY, { cmd });
+    const draft = await kv.get(`face_draft:${target}`);
+    if (!draft) return notice(env, chatId, M.FACE_EXPIRED, { cmd });
+    await kv.put("face", draft);
+    return notice(env, chatId, M.FACE_KEPT);
   }
-  if (verb === "remove" || verb === "delete") {
-    const kept = pack.filter((p) => String(p.tag).toLowerCase() !== what.toLowerCase());
-    await save(kept);
-    return notice(env, chatId, M.SELFIE_REMOVED, { tag: what, removed: pack.length - kept.length });
+  if (verb === "reset") {
+    await kv.delete("face");
+    return notice(env, chatId, M.FACE_RESET);
   }
-  if ((verb === "make" || verb === "draw") && what) {
-    if (!env.AI) return notice(env, chatId, M.SELFIE_NO_AI);
-    if (!mayDraw(what)) return notice(env, chatId, M.SELFIE_DRAW_FAILED, { error: "drawn pictures are never sexual (SELFIE.NOT_DRAWN)" });
-    try {
+  const now = await faceBytes(env);
+  const count = Number(P.FACE_DRAFTS) || 3;
+  if (now) await sendPhoto(env, chatId, now, M.NOTICE_PREFIX + fill(M.FACE_NOW, { source: (await kv.get("face")) ? "picked with /face" : "built in", cmd, count }));
+  else await notice(env, chatId, M.FACE_NONE, { cmd, count });
+  if (!env.AI) return notice(env, chatId, M.FACE_NO_AI);
+  const ledger = await loadLedger(env);
+  try {
+    for (let n = 1; n <= count; n++) {
+      if (!aiAffordable(ledger, "picture")) break;
       await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
-      const id = await sendPhoto(env, chatId, await drawSelfie(env, what), M.NOTICE_PREFIX + fill(M.SELFIE_DRAFT, { description: what, cmd }));
-      if (id == null) throw new Error("Telegram didn't take the picture");
-    } catch (e) {
-      await aiFailed(env, `drawing a selfie: ${e.message || e}`);
-      return notice(env, chatId, M.SELFIE_DRAW_FAILED, { error: e.message || e });
+      let drawn;
+      try {
+        drawn = await drawPicture(env, P.PORTRAIT, { style: "", size: 480, face: false });
+        aiSpent(ledger, CONFIG.AI_BUDGET.PICTURE_NEURONS);
+      } catch (e) {
+        aiSpent(ledger, 0, e);
+        await aiFailed(env, `drawing a face: ${aiText_(e)}`);
+        return notice(env, chatId, M.FACE_FAILED, { error: aiText_(e) });
+      }
+      const id = await sendPhoto(env, chatId, drawn.bytes, M.NOTICE_PREFIX + fill(M.FACE_DRAFT, { n, cmd }));
+      if (id != null) await kv.put(`face_draft:${id}`, toBase64(drawn.bytes), { expirationTtl: 86400 });
     }
-    return;
+  } finally {
+    await saveLedger(env, ledger);
   }
-  if (!pack.length) return notice(env, chatId, M.SELFIE_EMPTY, { cmd });
-  const counts = {};
-  for (const p of pack) counts[p.tag] = (counts[p.tag] || 0) + 1;
-  const tags = Object.entries(counts).map(([t, n]) => `- ${t}${n > 1 ? ` (${n})` : ""}`).join("\n");
-  return notice(env, chatId, M.SELFIE_LIST, { count: pack.length, tags, cmd });
+}
+
+/* --- /health: a read-only check of Workers AI, for the deploy workflow --- */
+
+// Draws a small picture from her face and describes it. At most once per 10 minutes; no Telegram calls.
+async function health(env) {
+  const result = { ok: false, ai: !!env.AI, face: FACE_JPEG_BASE64 ? "built in" : "none" };
+  const kv = env.REEM_KV;
+  if (kv && (await kv.get("face"))) result.face = "picked with /face";
+  if (!env.AI) return result;
+  const last = kv && Number(await kv.get("health_at"));
+  if (last && Date.now() - last < 10 * 60000) return { ...result, skipped: "checked less than 10 minutes ago", last: kv && (await kv.get("health", "json")) };
+  if (kv) await kv.put("health_at", String(Date.now()));
+  const ledger = await loadLedger(env);
+  result.neurons_today = ledger.neurons;
+  if (!aiAffordable(ledger, "health")) return { ...result, skipped: "today's Workers AI budget is used up" };
+  let error = null;
+  try {
+    const t0 = Date.now();
+    const drawn = await drawPicture(env, "smiling at the camera in her living room", { size: 256 });
+    result.draw = { ok: true, model: drawn.model, bytes: drawn.bytes.length, ms: Date.now() - t0 };
+    const t1 = Date.now();
+    const out = await aiRun(env, CONFIG.VISION.MODEL, {
+      messages: [{ role: "user", content: [{ type: "text", text: "In one sentence: who is in this picture?" }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(drawn.bytes)}` } }] }],
+      max_tokens: 60,
+    }, CONFIG.VISION.TIMEOUT_MS);
+    result.vision = { ok: !!aiText(out), model: CONFIG.VISION.MODEL, said: aiText(out).slice(0, 200), ms: Date.now() - t1 };
+    result.ok = result.vision.ok;
+  } catch (e) {
+    error = e;
+    result.error = aiText_(e).slice(0, 300);
+  } finally {
+    aiSpent(ledger, CONFIG.AI_BUDGET.HEALTH_NEURONS, error);
+    await saveLedger(env, ledger);
+    if (kv) await kv.put("health", JSON.stringify({ at: Date.now(), ...result })).catch(() => {});
+  }
+  return result;
 }
 
 /* ------------------------------------------------------------------ */
@@ -2668,7 +2935,7 @@ const asDialogue = (t) =>
 /**
  * The model's raw reply -> what is delivered and saved.
  *   scene     "apart" or "together" (sceneOf); ooc: he wrote OOC; canReact: a [react: X] may be used;
- *             canSelfie: a [selfie: ...] may be used (selfieOffer)
+ *             canSelfie: a [selfie: ...] may be used (picturesAllowed)
  *   mode      "text", "voice" or "scene" (replyMode): when it's "voice", the reply is a voice note
  *             even without [voice]
  *   heard     what he sent (his *actions* mean she must answer in person)
@@ -3057,22 +3324,24 @@ async function setup(url, env) {
     add(true, "Last voice note that failed", `${when} (${CONFIG.CHARACTER.CITY} time): ${lastVoiceError.error}. She sent it as text instead.`);
   }
 
-  // Workers AI: his photos seen (VISION), her selfies drawn (SELFIE.GENERATE); her photo pack (/selfie add)
-  const S = CONFIG.SELFIE;
-  if (CONFIG.VISION.ENABLED || (S.ENABLED && S.GENERATE)) {
+  // Workers AI: his photos seen (VISION), her pictures drawn (PICTURE) from her reference face
+  const PIC = CONFIG.PICTURE;
+  if (CONFIG.VISION.ENABLED || PIC.ENABLED) {
     add(!!env.AI, "Workers AI (AI)", env.AI
-      ? `Connected: ${[CONFIG.VISION.ENABLED && `she sees your photos (${CONFIG.VISION.MODEL})`, S.ENABLED && S.GENERATE && `she can draw new selfies (${S.IMAGE_MODEL})`].filter(Boolean).join("; ")}.`
-      : 'Not connected. Add an AI binding named AI (wrangler.toml has it: deploy again). Until then she can\'t see photos and only sends pack photos.');
+      ? `Connected: ${[CONFIG.VISION.ENABLED && `she sees your photos (${CONFIG.VISION.MODEL})`, PIC.ENABLED && `she draws her pictures (${PIC.MODEL})`].filter(Boolean).join("; ")}.`
+      : "Not connected. Add an AI binding named AI (wrangler.toml has it: deploy again). Until then she can't see photos or send pictures.");
+  }
+  if (PIC.ENABLED && env.REEM_KV) {
+    const picked = await env.REEM_KV.get("face");
+    add(!!(picked || FACE_JPEG_BASE64), "Her face in pictures", picked ? `Picked with ${commandFor("face")}.` : FACE_JPEG_BASE64 ? `Built in (face.js). ${commandFor("face")} shows it and draws others to pick from.` : `None: her pictures won't all show the same face. Send ${commandFor("face")} in the chat to pick one.`);
+    const ledger = await loadLedger(env);
+    const B = CONFIG.AI_BUDGET;
+    add(true, "Workers AI today (UTC)", ledger.out ? "Cloudflare says today's free allocation is used up: no pictures until 00:00 UTC." : `About ${Math.round(ledger.neurons)} of ${B.DAILY_NEURONS} neurons used (pictures stop at ${Math.round(B.DAILY_NEURONS * B.PICTURE_SHARE)}).`);
   }
   const lastAiError = env.REEM_KV && (await env.REEM_KV.get("ai_error", "json").catch(() => null));
   if (lastAiError) {
     const when = new Date(lastAiError.at).toLocaleString(CONFIG.CHARACTER.CLOCK_LOCALE, { timeZone: CONFIG.CHARACTER.TIMEZONE });
     add(true, "Last Workers AI call that failed", `${when} (${CONFIG.CHARACTER.CITY} time): ${lastAiError.error}`);
-  }
-  if (S.ENABLED && env.REEM_KV) {
-    const pack = await loadPack(env);
-    const tags = [...new Set(pack.map((p) => p.tag))];
-    add(true, `Her photos: ${pack.length}`, pack.length ? tags.join(", ") : `None yet. In the chat, reply to a picture of ${name} with ${commandFor("selfie")} add <what it shows>.`);
   }
 
   if (env.REEM_KV) {

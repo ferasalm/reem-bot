@@ -1,6 +1,6 @@
 // Refreshes the default values inside tools/settings-panel.html from CONFIG in worker.js.
 // Run after changing CONFIG:  node tools/build-panel.mjs
-import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, copyFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -9,6 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const source = readFileSync(join(root, "worker.js"), "utf8").replace(/^export default \{/m, "const worker = {");
 const copy = join(mkdtempSync(join(tmpdir(), "reem-")), "worker.mjs");
 writeFileSync(copy, `${source}\nexport { CONFIG };\n`);
+copyFileSync(join(root, "face.js"), join(dirname(copy), "face.js")); // worker.js imports it
 const { CONFIG } = await import(pathToFileURL(copy).href);
 
 const panel = join(root, "tools", "settings-panel.html");

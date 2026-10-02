@@ -46,7 +46,6 @@ const HEATED = [...SCENE, him("*steps in and pulls you close*"), her("*Her breat
 const FLIRT = /\b(babe|baby|kiss|sexy|hot|in bed with|touch|want you|come over|tease|naughty|wearing|pajamas|naked|lingerie|habibi|play that role|if that were true)\b|😈|💋|🔥|😘|😏/i;
 const FADE = /\b(later that night|the next morning|fade|hours later|afterwards,)\b/i;
 
-const PACK = "mirror selfie, morning coffee on the balcony, with Basbousa, " + W.CONFIG.SELFIE.OWN_WORDS;
 // id, what he sends, history, options (scene, ooc, cameAsVoice, moreVoice), the kinds allowed after shaping, extra review
 const SITUATIONS = [
   ["text", "what are you doing rn", APART, { scene: "apart" }, ["text", "voice"]],
@@ -63,8 +62,10 @@ const SITUATIONS = [
   ["proactive", W.CONFIG.PROACTIVE.PROMPT.replace("{hours}", "4 hours"), APART, { scene: "apart", proactive: true }, ["text", "voice"]],
   // Pictures: his photo as the vision model describes it; her selfie when he asks, or when offered (SELFIE)
   ["photo-seen", W.CONFIG.INBOX.PHOTO_SEEN_WITH_CAPTION.replace("{description}", "A man in a gray hoodie grinning behind the wheel of a black car, a parking garage behind him.").replace("{caption}", "new car"), APART, { scene: "apart" }, ["text", "voice"]],
-  ["selfie-asked", "send me a pic of you rn", APART, { scene: "apart", selfie: { asked: true, tags: PACK } }, ["text", "voice", "none"], (s) => s.selfie == null && "no [selfie] marker (WHEN_ASKED sends a pack photo anyway)"],
-  ["selfie-offered", "what are you up to", APART, { scene: "apart", selfie: { asked: false, tags: PACK } }, ["text", "voice", "none"]],
+  ["selfie-asked", "send me a pic of you rn", APART, { scene: "apart", picture: { kind: "selfie", asked: true } }, ["text", "voice", "none"], (s) => s.selfie == null && "no [selfie] marker (a picture is drawn anyway, from what she's doing)"],
+  ["selfie-decided", "what are you up to", APART, { scene: "apart", picture: { kind: "selfie", asked: false } }, ["text", "voice", "none"], (s) => s.selfie == null && "no [selfie] marker (drawn anyway)"],
+  ["selfie-own-choice", "missed you today", APART, { scene: "apart", canPicture: true }, ["text", "voice", "none"]],
+  ["scene-picture", "*steps closer* let me see you", SCENE, { scene: "together", picture: { kind: "scene", asked: true } }, ["scene"], (s) => !W.scenePicturePrompt(s.texts.join("\n")) && "too little narration about her for a picture"],
 ];
 
 // What the model did that the code had to fix
@@ -123,12 +124,13 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
   if (ONLY.length && !ONLY.includes(id)) continue;
   console.log(`\n=== ${id}: ${heard}`);
   for (let i = 0; i < RUNS; i++) {
-    const { scene, ooc = false, cameAsVoice = false, moreVoice = false, proactive = false, selfie = null } = opts;
+    const { scene, ooc = false, cameAsVoice = false, moreVoice = false, proactive = false, picture = null } = opts;
+    const canPicture = !!picture || !!opts.canPicture;
     const mode = W.replyMode({ scene, heard, proactive, ooc, cameAsVoice, moreVoice });
     const n0 = served.length;
     let raw;
     try {
-      raw = await W.think(env, history.map((h) => ({ ...h })), "", heard, { mode, scene, ooc, canReact: false, selfie });
+      raw = await W.think(env, history.map((h) => ({ ...h })), "", heard, { mode, scene, ooc, canReact: false, picture, canPicture });
     } catch (e) {
       brokenCount++;
       console.log(`  [${i + 1}] BROKEN model error: ${e.message}`);
@@ -136,7 +138,7 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
     }
     const tries = served.slice(n0);
     calls += tries.length;
-    const s = W.shapeReply(raw, { scene, mode, ooc, canSelfie: !!selfie, history, heard: proactive ? "" : heard, lastResort: true });
+    const s = W.shapeReply(raw, { scene, mode, ooc, canSelfie: canPicture && scene !== "together", history, heard: proactive ? "" : heard, lastResort: true });
     const fixed = slips(raw, scene, ooc);
     for (const f of fixed) tally[f] = (tally[f] || 0) + 1;
     const bad = broken(s, kinds, scene);
@@ -146,6 +148,8 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
     console.log(`      served by: ${tries.join(", ")}`);
     console.log(`      model: ${JSON.stringify(raw).slice(0, 400)}`);
     if (s.kind === "scene") console.log(`      clip:  ${JSON.stringify(W.forSpeech(W.sceneSpeech(s.texts.join("\n"))))}`);
+    // What a picture of this moment would be drawn from (only her narration, nothing sexual, nothing about him)
+    if (s.kind === "scene") console.log(`      picture: ${JSON.stringify(W.scenePicturePrompt(s.texts.join("\n")))}`);
     console.log(`      sent:  ${s.kind}${s.texts.length ? " " + JSON.stringify(s.texts).slice(0, 300) : ""}${s.spoken ? ` voice ${JSON.stringify(s.spoken)}` : ""}${s.selfie != null ? ` + picture ${JSON.stringify(s.selfie)}` : ""}`);
   }
 }

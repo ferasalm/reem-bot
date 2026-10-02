@@ -20,3 +20,9 @@ jobs:
           wranglerVersion: "4.145.0"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # A read-only check of Workers AI on the live Worker: draws one small picture from her face and describes
+      # it (see /health in worker.js). Printed for the log; never fails the deploy.
+      - name: Check Workers AI (/health)
+        run: |
+          sleep 20
+          curl -sS --max-time 120 https://reem-bot.ferris-wheel736.workers.dev/health || echo "health check unreachable"
