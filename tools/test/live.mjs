@@ -89,6 +89,13 @@ function broken(s, kinds, scene) {
   if (words.some((t) => /\[[^\]\n]*\]/.test(t))) bad.push("[bracket] tag or cue in what he reads");
   if (words.some((t) => /\(\s*(?:or)?\s*\)/i.test(t))) bad.push('"()" or "(or)" left in');
   if (words.some((t) => FOREIGN.test(t))) bad.push("non-Latin script (garbled output)");
+  if (s.kind === "scene") {
+    // The audio clip of her quoted words (sent when he asks to hear her, or on VOICE.SCENE_CHANCE)
+    const clip = W.forSpeech(W.sceneSpeech(s.texts.join("\n")));
+    if (/\d/.test(clip.replace(/\b\d+(?:am|pm|st|nd|rd|th|s)?\b/gi, ""))) bad.push("digit in the scene clip");
+    if (/\*/.test(clip)) bad.push("*action* in the scene clip");
+    if (NAME.test(clip.replace(/\[[^\]]*\]/g, ""))) bad.push("her own name in the scene clip (narration spoken?)");
+  }
   if (scene === "apart" && s.kind !== "scene") {
     if (s.texts.some((t) => /\*/.test(t))) bad.push("*action* in a text");
     if (words.some((t) => NAME.test(t))) bad.push("her own name in a text or voice note");
@@ -132,6 +139,7 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
     console.log(`  [${i + 1}] ${bad.length ? "BROKEN " + bad.join("; ") : "ok"} | mode ${mode}${tries.length > 1 ? ", asked again" : ""}${fixed.length ? ` | fixed by code: ${fixed.join(", ")}` : ""}${notes.length ? ` | REVIEW: ${notes.join("; ")}` : ""}`);
     console.log(`      served by: ${tries.join(", ")}`);
     console.log(`      model: ${JSON.stringify(raw).slice(0, 400)}`);
+    if (s.kind === "scene") console.log(`      clip:  ${JSON.stringify(W.forSpeech(W.sceneSpeech(s.texts.join("\n"))))}`);
     console.log(`      sent:  ${s.kind}${s.texts.length ? " " + JSON.stringify(s.texts).slice(0, 300) : ""}${s.spoken ? ` voice ${JSON.stringify(s.spoken)}` : ""}`);
   }
 }

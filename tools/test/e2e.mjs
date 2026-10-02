@@ -31,7 +31,7 @@ const store = new Map();
 const kv = { async get(k, t){ const v = store.get(k); return v==null?null: t==="json"?JSON.parse(v):v; }, async put(k,v){ store.set(k,v); }, async delete(k){ store.delete(k); } };
 const queued = [];
 const env = { TELEGRAM_BOT_TOKEN: "t", OPENROUTER_API_KEY: "o", ELEVENLABS_API_KEY: "e", REEM_KV: kv, OWNER_ID: "7",
-  REEM_QUEUE: { async send(b){ queued.push(b); } }, CONFIG_OVERRIDES: JSON.stringify({ PROACTIVE: { CHANCE: 1 }, VOICE: { CHANCE: 0, CHANCE_AFTER_VOICE: 0, CHANCE_MORE_VOICE: 0 } }) };
+  REEM_QUEUE: { async send(b){ queued.push(b); } }, CONFIG_OVERRIDES: JSON.stringify({ PROACTIVE: { CHANCE: 1 }, VOICE: { CHANCE: 0, CHANCE_AFTER_VOICE: 0, CHANCE_MORE_VOICE: 0, SCENE_CHANCE: 0 } }) };
 import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker(); const mod = W.default;
 const ctx = { waitUntil(){} };
@@ -54,6 +54,15 @@ llm = [{ content: "[voice] come here... ya3ni" }];
 await run(msg({ text: "*steps closer*" }));
 console.log("scene nudge:", sys().includes("You're together in person"), "| voice blocked in scene:", !log.some(l => l.includes("sendVoice")));
 console.log("scene nudge: third person:", sys().includes("in third person, present tense"), "| the act itself:", sys().includes("make it happen in the scene"));
+step("in person: he asks to hear her");
+llm = [{ content: '*Reem pulls you closer.* "Come here," *she whispers.* "I missed you, 7abibi."' }];
+await run(msg({ text: "*holds you* say it again" }));
+{
+  const tts = log.filter(l => l.includes("text-to-speech")).at(-1) || "";
+  const h = JSON.parse(store.get("h:7")).at(-1);
+  console.log("scene clip spoken:", /\[whispers\] Come here\./.test(tts) && /habibi/.test(tts) && !/pulls|Reem/.test(tts), "| sent after the scene:", log.findLastIndex(l => l.includes("sendVoice")) > log.findLastIndex(l => l.includes("sendMessage") && l.includes("she whispers")));
+  console.log("clip in history for /rewind, not in what she reads back:", h.parts.length === 2 && h.parts[1].text === "" && typeof h.parts[1].id === "number" && !h.content.includes("voice"));
+}
 step("cut-off scene");
 llm = [{ content: "*She pulls you in. Her lips brush your ear as she whis", finish: "length" }];
 await run(msg({ text: "*kisses her*" }));

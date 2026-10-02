@@ -331,6 +331,11 @@ const CONFIG = {
     CHANCE_MORE_VOICE: 0.5,            // ...when /voice is on
     // When his message matches this (a regular expression, any case), she always answers with a voice note
     ASK_PATTERN: "\\b(?:send|record|leave)\\b[^.?!\\n]{0,24}\\b(?:voice|vn|audio)\\b|\\bhear (?:your|ur) voice\\b|\\bvoice (?:note|message|memo|msg)s? (?:please|pls|plz)\\b|\\bsay (?:it|that) out loud\\b",
+    // In person (a scene), her quoted words can also come as an audio clip after the written scene, so he
+    // hears her say them. Narration is never spoken; "she whispers" etc. before or after a line becomes its tag.
+    SCENE_CHANCE: 0.25,                // chance per in-person reply
+    // ...and always when his message matches ASK_PATTERN or this (a regular expression, any case)
+    SCENE_ASK_PATTERN: "\\b(?:let me|want to|wanna|need to|i'd love to) hear (?:you|it|that|your voice)\\b|\\bsay (?:it|that|my name)(?: again)?\\b|\\bout loud\\b|\\bwhisper (?:it|that)\\b",
     // Stage directions the AI writes into speech ("laughs softly Just imagine...") become one of the
     // ALLOWED_TAGS above (or are dropped when the tag is ""). Matched at the start of a sentence.
     STAGE_DIRECTIONS: {
@@ -1007,7 +1012,7 @@ async function aboutCommand(env, chatId, args) {
 // (his batched messages, her bubbles); `content` is what the model reads. Entries saved before v10
 // have no parts: they still count, they just can't be found by message.
 function joinParts(role, parts) {
-  return parts.map((p) => p.text).join(role === "user" ? "\n" : "\n\n");
+  return parts.filter((p) => p.text).map((p) => p.text).join(role === "user" ? "\n" : "\n\n");
 }
 
 function makeEntry(role, parts, extra = {}, content = joinParts(role, parts)) {
@@ -1344,6 +1349,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   const mode = replyMode({ scene, heard, proactive, ooc, cameAsVoice, moreVoice: !!settings.moreVoice });
 
   // She starts thinking now, but only answers at waitUntil
+  const sceneVoice = mode === "scene" && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
   const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
@@ -1390,6 +1396,10 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
       }
       parts = parts.concat(note ? [note] : await sendBubbles(env, chatId, splitBubbles(out.voiceText), { deadline }));
     }
+    if (out.kind === "scene" && sceneVoice) {
+      const clip = await sayScene(env, chatId, out.texts.join("\n"), deadline);
+      if (clip) parts.push(clip);
+    }
   } finally {
     const hers = parts.length ? makeEntry("assistant", parts, extra) : makeEntry("assistant", [], extra, out.stored);
     await saveTurn(env, chatId, history, notes, userEntry, hers).catch((e) => console.error("save failed", e));
@@ -1406,6 +1416,65 @@ function replyMode({ scene, heard, proactive = false, ooc = false, cameAsVoice =
   if (!proactive && asksForVoice(heard)) return "voice";
   const chance = cameAsVoice ? V.CHANCE_AFTER_VOICE : moreVoice ? V.CHANCE_MORE_VOICE : V.CHANCE;
   return Math.random() < (Number(chance) || 0) ? "voice" : "text";
+}
+
+// In a scene: he asks to hear her (ASK_PATTERN or SCENE_ASK_PATTERN)
+function asksToHear(text) {
+  if (asksForVoice(text)) return true;
+  try {
+    return !!CONFIG.VOICE.SCENE_ASK_PATTERN && new RegExp(CONFIG.VOICE.SCENE_ASK_PATTERN, "i").test(text);
+  } catch (e) {
+    console.error("VOICE.SCENE_ASK_PATTERN is not a valid regular expression", e);
+    return false;
+  }
+}
+
+// Her quoted words in a scene, one line each, for the audio clip. A stage direction in the narration
+// around a line ("she whispers", "...," she murmurs) becomes its tag; the narration itself is never spoken.
+function sceneSpeech(scene) {
+  const map = CONFIG.VOICE.STAGE_DIRECTIONS || {};
+  const keys = Object.keys(map).filter((k) => map[k]).sort((a, b) => b.length - a.length);
+  const tagIn = (narration) => {
+    const key = keys.find((k) => new RegExp(`\\b${escapeRegex(k).replace(/\s+/g, "\\s+")}(?![\\p{L}])`, "iu").test(narration));
+    return key ? map[key] : "";
+  };
+  const t = String(scene).replace(/\*/g, "");
+  const quotes = [...t.matchAll(/["“]([^"”\n]+)["”]/g)];
+  let last = "";
+  return quotes
+    .map((m, n) => {
+      const words = m[1].trim();
+      const end = m.index + m[0].length;
+      const after = t.slice(end, n + 1 < quotes.length ? quotes[n + 1].index : t.length).split(/[.!?]/)[0];
+      const before = t.slice(n ? quotes[n - 1].index + quotes[n - 1][0].length : 0, m.index).split(/[.!?]/).filter((x) => x.trim()).pop() || "";
+      // "Come here," she whispers: the words after the line describe it; otherwise the sentence before it
+      const tag = (/[,—–-]$/.test(words) && tagIn(after)) || tagIn(before);
+      const say = tag && tag !== last && audioTagsOn(); // a tone holds until another one is given
+      if (tag) last = tag;
+      return (say ? `[${tag}] ` : "") + words.replace(/[,—–-]+$/, ".");
+    })
+    .filter((l) => /\p{L}/u.test(l))
+    .join("\n");
+}
+
+// The audio clip after a scene: {id, text: ""} (nothing added to what the model reads back), or null
+async function sayScene(env, chatId, scene, deadline) {
+  const spoken = forSpeech(sceneSpeech(scene));
+  if (!/\p{L}/u.test(stripAudioTags(spoken))) return null;
+  const room = deadline - Date.now() - CONFIG.TIMING.VOICE_MARGIN_MS;
+  if (room <= 0) return null;
+  try {
+    const audioPromise = tts(env, spoken);
+    audioPromise.catch(() => {});
+    await act(env, chatId, "record_voice", Math.min(speakingTime(spoken), room), 1);
+    const sent = await sendVoice(env, chatId, await audioPromise);
+    if (sent.delivered) return { id: sent.id, text: "" };
+    await voiceFailed(env, sent.error);
+  } catch (e) {
+    console.error(e);
+    await voiceFailed(env, e.message || e);
+  }
+  return null; // the written scene already said it
 }
 
 function asksForVoice(text) {

@@ -31,6 +31,12 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   fast-forwarded to b2f9995 (= `dev`). Deploy run 36952745320 green, version `c4c1cbb0-0fec-4255-8c9e-a1f401d2bcba`.
   Read back with the Cloudflare MCP: TYPING_CHARS_PER_MIN 900, LONG_PAUSE_CHANCE 0, ACTIVE_WINDOW_MS 12e5,
   `isQuickCommand` in `fetch`. No `[live]` model run needed (timing and routing only, no prompt or model change).
+- **2026-10-02, on `dev`, not deployed: her voice in person** (owner picked "on request + sometimes"). In a scene the
+  written scene is sent as before, then her quoted words as an audio clip (`sayScene` ← `sceneSpeech`: quotes only,
+  narration never spoken; "she whispers"/"she laughs" around a line → its tag, not repeated on the next line). When:
+  his message matches `VOICE.ASK_PATTERN` or `VOICE.SCENE_ASK_PATTERN` ("let me hear you", "say it again", "out
+  loud"...) or on `VOICE.SCENE_CHANCE` 0.25. The clip is stored as a part `{id, text: ""}` (`joinParts` skips empty
+  texts), so /rewind and /retry delete it and the model never reads "[voice]" in a scene.
 - **Faster replies (details)** (owner: "taking too long for her to respond", after a
   draft sent at ~4 am sat silent for minutes and /rewind queued behind it, since the queue runs one batch at a time).
   TIMING: ACTIVE_WINDOW_MS 3 → 20 min, LONG_PAUSE_CHANCE 0.1 → 0.05, LONG_PAUSE_MAX_MS 240 → 120 s,
@@ -53,6 +59,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Her voice in person scenes: on request + sometimes** (owner's pick of 4 options; the others were
+  every scene reply, only on request, keep text-only).
 - 2026-10-02 — **Deploy the faster replies** (owner: "Merge, deploy, and update handoff").
 - 2026-10-02 — **No multi-minute waits**: immersion beats realistic delays (owner: "minutes of waiting kills the
   immersion"). No busy pauses; fast typing.
@@ -118,7 +126,7 @@ check; scenario rows for every slip seen.
     `draftHtml`, `retry`, `rewind`, `editHers`; helpers `findPart`, `cutAfter`, `deleteIds`, `clearReactions`,
     `answerAgain`, `failed`
   - `reply` (builds `heard` + his `parts`, `noticeTime`) → **`respond`**: `isOoc`, `sceneOf`, `replyMode`
-    (text/voice/scene; OOC always text), `think`, wait, **`shapeReply`**, reaction, texts then voice note,
+    (text/voice/scene; OOC always text; in a scene `asksToHear`/SCENE_CHANCE adds a `sayScene` clip), `think`, wait, **`shapeReply`**, reaction, texts then voice note,
     `saveTurn` after delivery with message ids. `textFirst` (`proactiveHeard`) also uses `respond`.
   - `think`: system prompt + nudges (memory, ABOUT_HIM/HIS_NAME, TIME, TOGETHER/APART, OOC, VOICE_TAGS for texts
     while apart, SEVERAL_MESSAGES, REACT, TEXTURE + TEXTURE_APART, VARY_OPENING); `fitHistory`

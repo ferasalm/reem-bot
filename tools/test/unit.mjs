@@ -77,6 +77,11 @@ eq(W.takeReaction("just text"), { emoji: "", rest: "just text" }, "no tag");
 eq(W.parseCommand("/Name@reem_nabot Sam"), { action: "name", args: "Sam" }, "command with @bot and args");
 eq(W.parseCommand("/about line one\nline two"), { action: "about", args: "line one\nline two" }, "multi-line args kept");
 eq(W.parseCommand("/start"), { action: "restart", args: "" }, "alias");
+// her voice in a scene: only her quoted words, tagged from the narration around them
+eq(W.sceneSpeech('*Reem pulls you closer.* "Come here," *she whispers.* "Now."'), "[whispers] Come here.\nNow.", "scene clip: words only, whisper tag");
+eq(W.sceneSpeech('*She laughs, shaking her head.* "You\'re impossible."'), "[laughs] You're impossible.", "scene clip: tag from the sentence before");
+eq(W.sceneSpeech("*Reem leans in and kisses you slowly.*"), "", "scene clip: nothing to say without quotes");
+eq(["let me hear you", "say it again", "say that out loud", "send me a voice note", "*kisses you*", "i want you"].map(W.asksToHear), [true, true, true, true, false, false], "scene: he asks to hear her");
 const upd = (text) => ({ update_id: 1, message: { message_id: 1, chat: { id: 7, type: "private" }, from: { id: 7 }, text } });
 eq(["/help", "/name Sam", "/about tall", "/voice", "/memory"].map((t) => W.isQuickCommand(upd(t))), [true, true, true, true, true], "settings commands skip the queue");
 eq(["/rewind", "/retry", "/edit hi", "/auto", "/start", "/restart", "hello", "/nope"].map((t) => W.isQuickCommand(upd(t))), [false, false, false, false, false, false, false, false], "story commands and chat stay queued");
