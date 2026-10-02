@@ -7,8 +7,8 @@ that isn't here, stop and ask the owner before building anything. Session rules 
 
 ## Status (2026-10-02)
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan).
-- **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02, plus fast timing and instant settings
-  commands (same day, b2f9995; details below). Before that:
+- **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02, plus fast timing, instant settings
+  commands and her voice in person scenes (same day, c166420; details below). Before that:
   v8 + v9 (PR #5) on Lunaris 8B.
 - **Integrated v10**: built on branch `ccr-1eb562e9-ds09eq`, now `dev` and `main`. It merges all three v10 lines that were built
   in parallel on 2026-10-01 (see "Incident"): DeepSeek V4 Flash (`ccr-b7869b5d-d7yudi`, bench branch
@@ -31,7 +31,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   fast-forwarded to b2f9995 (= `dev`). Deploy run 36952745320 green, version `c4c1cbb0-0fec-4255-8c9e-a1f401d2bcba`.
   Read back with the Cloudflare MCP: TYPING_CHARS_PER_MIN 900, LONG_PAUSE_CHANCE 0, ACTIVE_WINDOW_MS 12e5,
   `isQuickCommand` in `fetch`. No `[live]` model run needed (timing and routing only, no prompt or model change).
-- **2026-10-02, on `dev`, not deployed: her voice in person** (owner picked "on request + sometimes"). In a scene the
+- **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
+  Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
+  the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
+- **Her voice in person (details)** (owner picked "on request + sometimes"). In a scene the
   written scene is sent as before, then her quoted words as an audio clip (`sayScene` ← `sceneSpeech`: quotes only,
   narration never spoken; "she whispers"/"she laughs" around a line → its tag, not repeated on the next line). When:
   his message matches `VOICE.ASK_PATTERN` or `VOICE.SCENE_ASK_PATTERN` ("let me hear you", "say it again", "out
@@ -64,6 +67,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Deploy her voice in person scenes.**
 - 2026-10-02 — **Her voice in person scenes: on request + sometimes** (owner's pick of 4 options; the others were
   every scene reply, only on request, keep text-only).
 - 2026-10-02 — **Deploy the faster replies** (owner: "Merge, deploy, and update handoff").
