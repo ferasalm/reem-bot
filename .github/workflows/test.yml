@@ -16,6 +16,20 @@ on:
         default: ""
 
 jobs:
+  # Fails when this branch misses work from the shared branch (dev, or main until dev exists);
+  # warns when other branches hold work that isn't here. See tools/sync-check.mjs.
+  sync:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/sync-check.mjs --ci
+
   mocked:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -25,9 +39,11 @@ jobs:
         with:
           node-version: 22
       - run: node --check worker.js
+      - name: Settings panel matches worker.js CONFIG
+        run: node tools/build-panel.mjs && git diff --exit-code tools/settings-panel.html
       - run: node tools/test/unit.mjs
       - run: node tools/test/scenarios.mjs
-      - run: node tools/test/e2e.mjs > /dev/null
+      - run: node tools/test/e2e.mjs > /dev/null   # exits 1 on any false check
 
   live:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[live]')

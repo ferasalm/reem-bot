@@ -59,4 +59,8 @@ After changing `CONFIG` in `worker.js`, run `node tools/build-panel.mjs` so the 
 
 Every push runs the tests on GitHub (Actions tab → **Tests**). To also check the real model, add the repository secret `OPENROUTER_API_KEY` (Settings → Secrets and variables → Actions) and push a commit with `[live]` in its message, or use **Run workflow** once this is on `main`. Every reply it got is in the run's log.
 
-Locally: `node tools/test/unit.mjs`, `node tools/test/scenarios.mjs`, `node tools/test/e2e.mjs` (prints a log to read), `OPENROUTER_API_KEY=... node tools/test/live.mjs`.
+Locally: `node tools/test/unit.mjs`, `node tools/test/scenarios.mjs`, `node tools/test/e2e.mjs` (prints a log to read; exits 1 on any failed check), `OPENROUTER_API_KEY=... node tools/test/live.mjs`.
+
+## Working on it with Claude
+
+`CLAUDE.md` holds the rules every Claude session follows; `HANDOFF.md` is the single source of truth for status and the owner's decisions. Each session starts with `node tools/sync-check.mjs`, which warns when work sits on another branch.
