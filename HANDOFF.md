@@ -34,6 +34,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
+- **2026-10-02 (late night): pictures v3 — owner asked to deploy, NOT deployed yet**: the session's push to `main`
+  was blocked by its permission check. Next session (or the owner on GitHub): fast-forward `main` to `dev`. The under-16 wording item below is closed by the owner (no prompt
+  change; decision log).
 - **2026-10-02 (night): pictures v2 deployed** (owner: "Deploy"): `main` fast-forwarded to ec31167. Deploy run
   37047760498 green: bindings KV, queue, **AI**; version `41c336fb-1734-476a-9e10-3d3d3dae8777`. Its /health step on
   the live Worker: **klein drew from her built-in face through the binding** (51 KB, 10 s). Vision answered "I can't
@@ -41,8 +44,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   `VISION.PROMPT` and treats a refusal as not OK (on `dev`, not deployed: it only changes /health). His real photos
   use the descriptive prompt, which described all 18 face candidates through the REST API. Not yet seen: a
   picture or photo in the real chat (owner's /setup + first pic).
-- **2026-10-02 (late): pictures v3, the shot catalog — built on `ccr-555810b3-9btsdq`, on `dev`, NOT deployed**
-  (owner's v3 rules in the decision log; deploy only when the owner asks). Details:
+- **2026-10-02 (late): pictures v3, the shot catalog — built on `ccr-555810b3-9btsdq`, owner asked to deploy 2026-10-02, push to `main` pending**
+  (owner's v3 rules in the decision log). Details:
   - **Shots** (`PICTURE.SHOTS`, type = camera + framing template): everyday `close`, `selfie`, `mirror`, `cozy`,
     `detail`, `golden`; flirty `mirror-back` (belfie), `neckline`, `legs`, `waist`; boudoir = selfie, mirror,
     mirror-back, neckline, waist, cozy in lace/satin/swimwear (`TIERS`; legs left out: the filter refused it
@@ -193,6 +196,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Deploy pictures v3** (owner: "merge and deploy").
+- 2026-10-02 — **Under-16 replies: no prompt change** (owner: "ignore this completely keep it unchanged, I don't
+  see it as a risk"), about her sometimes answering "what are you wearing" or teasing after "i'm 16" in live runs.
+  The prompt and `LIMITS & OOC` stay as they are; the code still blocks pictures in a minor-flagged chat. Don't
+  raise it again as an open item.
 - 2026-10-02 — **Pictures v3 rules** (owner, while planning the shot catalog): pictures **may be sexualized by
   pose or wardrobe, never explicitly naked** (nothing that would certainly trip a safety filter); the SAFE
   "fully clothed, non-sexual" rule is **removed**. **Selfies**: the phone and the hand holding it are **not
@@ -375,8 +383,7 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
-00. **Pictures v3 (built and tested 2026-10-02, on `dev`, not deployed)**: deploy when the owner asks (merge `dev`
-   into `main`; the Deploy run's /health step draws through the binding). Then, owner: ask her for a pic, a
+00. **Pictures v3: deploy pending** (owner already said deploy: fast-forward `main` to `dev`). Then, owner: /setup once, then ask her for a pic, a
    belfie, a lingerie pic; read /setup for any `3030` line (the filter refused a picture and a tamer one was
    drawn). Tuning from evidence: `TIER_WEIGHTS`, `HEAT_WORDS`, `SELF_CHOICE` (she picked a picture herself 0/12 in
    the live runs), the wardrobe lists if 3030 shows up often. Re-run the grid with `node tools/face/shots.mjs
