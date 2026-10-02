@@ -30,7 +30,7 @@ eq(W.sceneOf([{ role: "assistant", content: "lol ok", at: now }], "*knocks on yo
 eq(W.sceneOf([{ role: "assistant", content: "lol ok", at: now }], "hey"), "apart", "texting");
 // notice
 const active = W.noticeTime(now - 60000, now);
-eq(active >= 1000 && active <= 6000, true, `momentum notice ${Math.round(active)}ms`);
+eq(active >= W.CONFIG.TIMING.ACTIVE_NOTICE_MIN_MS && active <= W.CONFIG.TIMING.ACTIVE_NOTICE_MAX_MS, true, `momentum notice ${Math.round(active)}ms`);
 // schedule, clock
 eq(typeof W.herHour() === "number" && W.herHour() >= 0 && W.herHour() < 24, true, `herHour ${W.herHour()} day ${W.herDay()} slot ${W.scheduleNow()?.doing}`);
 eq(W.inHours(23, 22, 2) && W.inHours(1, 22, 2) && !W.inHours(3, 22, 2), true, "inHours across midnight");

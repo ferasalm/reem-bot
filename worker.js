@@ -365,24 +365,24 @@ const CONFIG = {
 
   /* ---------------- Human timing ---------------- */
   TIMING: {
-    TYPING_CHARS_PER_MIN: 200,         // how fast she types
-    TYPING_MIN_MS: 2500,
-    TYPING_MAX_MS: 25000,              // no single text takes longer than this
-    SCENE_TYPING_MAX_MS: 12000,        // in-person scenes aren't typed on a phone, so they come faster
+    TYPING_CHARS_PER_MIN: 900,         // how fast she types
+    TYPING_MIN_MS: 1200,
+    TYPING_MAX_MS: 8000,               // no single text takes longer than this
+    SCENE_TYPING_MAX_MS: 6000,         // in-person scenes aren't typed on a phone, so they come faster
     TYPING_JITTER_MIN: 0.7,            // each message's typing time is randomly scaled
     TYPING_JITTER_MAX: 1.4,            //   between these two factors
-    NOTICE_MIN_MS: 2000,               // before she even picks up her phone...
-    NOTICE_MAX_MS: 25000,              // ...multiplied by the "delay" of her SCHEDULE slot
+    NOTICE_MIN_MS: 1000,               // before she even picks up her phone...
+    NOTICE_MAX_MS: 6000,               // ...multiplied by the "delay" of her SCHEDULE slot
     ACTIVE_WINDOW_MS: 1200000,         // if he answers within this long of her last message, they're mid-conversation...
-    ACTIVE_NOTICE_MIN_MS: 1000,        // ...and she picks up within this range instead
-    ACTIVE_NOTICE_MAX_MS: 6000,
-    LONG_PAUSE_CHANCE: 0.05,           // otherwise, sometimes she's busy and takes much longer
+    ACTIVE_NOTICE_MIN_MS: 500,         // ...and she picks up within this range instead
+    ACTIVE_NOTICE_MAX_MS: 2500,
+    LONG_PAUSE_CHANCE: 0,              // otherwise, sometimes she's busy and takes much longer
     LONG_PAUSE_MIN_MS: 60000,
     LONG_PAUSE_MAX_MS: 120000,
-    READ_MS_PER_CHAR: 25,
+    READ_MS_PER_CHAR: 8,
     SPEAK_WORDS_PER_SEC: 2.2,          // "recording voice message..." lasts about as long as the note
     RECORDING_EXTRA_MS: 1500,          // added on top of the speaking time
-    RECORDING_MAX_MS: 30000,
+    RECORDING_MAX_MS: 15000,
     STATUS_REFRESH_MS: 4500,           // how often "typing..." is re-sent (Telegram shows it ~5 s)
     INTRO_DELAY_MS: 2000,              // pause before the /restart scene arrives
     INTRO_BUDGET_MS: 90000,            // time allowed for sending the /restart scene

@@ -31,6 +31,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   draft sent at ~4 am sat silent for minutes and /rewind queued behind it, since the queue runs one batch at a time).
   TIMING: ACTIVE_WINDOW_MS 3 → 20 min, LONG_PAUSE_CHANCE 0.1 → 0.05, LONG_PAUSE_MAX_MS 240 → 120 s,
   READ_MS_PER_CHAR 60 → 25, TYPING_MAX_MS 45 → 25 s, SCENE_TYPING_MAX_MS 20 → 12 s; asleep slot delay 3 → 2.
+  Same day, owner: "minutes of waiting kills the immersion". Root cause: typing time is per bubble (200 chars/min, up
+  to 45 s each, up to 4 bubbles = ~3 min) on top of the notice wait. Now: TYPING_CHARS_PER_MIN 900, TYPING_MIN_MS
+  1.2 s, TYPING_MAX_MS 8 s, SCENE_TYPING_MAX_MS 6 s, NOTICE 1–6 s (×2 asleep), ACTIVE_NOTICE 0.5–2.5 s,
+  LONG_PAUSE_CHANCE 0 (no "busy" pauses), READ_MS_PER_CHAR 8, RECORDING_MAX_MS 15 s. Delays before her reply:
+  ~5–15 s mid-conversation, at most ~45 s; model time overlaps the wait.
   Same day: **/help, /name, /about, /voice, /memory answered straight from the webhook** (`isQuickCommand`,
   `QUICK_ACTIONS`), no queue. /rewind, /retry, /edit, /auto and /restart stay queued, in order, so they still wait
   for her pending reply and the queue's 5 s batch window.
@@ -44,6 +49,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **No multi-minute waits**: immersion beats realistic delays (owner: "minutes of waiting kills the
+  immersion"). No busy pauses; fast typing.
 - 2026-10-02 — **Settings commands answer instantly** (owner: "Even slash commands take so long").
 - 2026-10-02 — **Reem replies faster** (owner: "It's taking too long for her to respond"): timing values above.
 - 2026-10-02 — **Shared branch `dev`** (GitHub default; the owner switches it in Settings > General > Default
