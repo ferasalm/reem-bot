@@ -1,13 +1,14 @@
 {
-  "note": "Round 2: candidates 1-9 of round 1 looked 'late teens / early twenties' to the vision model for some; these ask for a clearly adult woman in her late twenties.",
-  "mode": "candidates",
-  "reference": "",
-  "size": 768,
+  "note": "Consistency check of tools/face/reference.jpg: pictures drawn the way the bot draws them (PICTURE.SELFIE_STYLE + REFERENCE + what + SAFE).",
+  "mode": "consistency",
+  "reference": "tools/face/reference.jpg",
+  "size": 640,
   "prompts": [
-    "Head-and-shoulders portrait photo of a woman in her late twenties (29 years old) with clearly adult, mature facial features and faint smile lines at the eyes. Half-Egyptian, half-American: soft rounded face with a defined jawline and gently rounded chin, fair skin with warm undertones and a few faint freckles across the nose, thick dark well-groomed brows with a soft arch, almond-shaped dark brown eyes, straight nose with a softly rounded tip, full lips with a distinct cupid's bow. Long dark brown wavy hair parted slightly off-center, loose strands along her temples and jaw. Black top, thin gold rings. Small confident smile, looking straight at the camera, plain light grey wall, soft natural window light, realistic smartphone photo, sharp focus on the face.",
-    "Realistic close portrait of a woman in her late twenties (29 years old) with clearly adult, mature facial features and faint smile lines at the eyes. Half-Egyptian, half-American: soft rounded face with a defined jawline and gently rounded chin, fair skin with warm undertones and a few faint freckles across the nose, thick dark well-groomed brows with a soft arch, almond-shaped dark brown eyes, straight nose with a softly rounded tip, full lips with a distinct cupid's bow. Long dark brown wavy hair parted slightly off-center, loose strands along her temples and jaw. Black top, thin gold rings. Relaxed knowing expression, plain warm beige wall behind her, daylight, natural skin texture, phone camera photo.",
-    "Natural candid portrait of a woman in her late twenties (29 years old) with clearly adult, mature facial features and faint smile lines at the eyes. Half-Egyptian, half-American: soft rounded face with a defined jawline and gently rounded chin, fair skin with warm undertones and a few faint freckles across the nose, thick dark well-groomed brows with a soft arch, almond-shaped dark brown eyes, straight nose with a softly rounded tip, full lips with a distinct cupid's bow. Long dark brown wavy hair parted slightly off-center, loose strands along her temples and jaw. Black top, thin gold rings. Slight smirk, facing the camera, plain off-white background, even soft light, realistic photo."
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. mirror selfie in her hallway, black slip dress, evening. She is fully clothed. Non-sexual, tasteful.",
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. on her balcony in Zamalek at golden hour, oversized gray knit cardigan, the Nile behind her. She is fully clothed. Non-sexual, tasteful.",
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. at a café in Zamalek with an iced coffee, sunglasses pushed up in her hair. She is fully clothed. Non-sexual, tasteful.",
+    "Realistic candid smartphone selfie she took herself: The woman from image 0, with exactly the same face, a 29-year-old woman. on the couch with Basbousa the fluffy golden-brown tabby cat on her lap, cozy lamp light. She is fully clothed. Non-sexual, tasteful."
   ],
-  "per_prompt": 3,
+  "per_prompt": 1,
   "describe": true
 }
