@@ -25,3 +25,7 @@ max_concurrency = 1
 # She may text first: checked every 15 minutes (CONFIG.PROACTIVE in worker.js)
 [triggers]
 crons = ["*/15 * * * *"]
+
+# Workers AI (free: 10,000 neurons a day): she sees his photos and draws selfies (CONFIG.VISION, CONFIG.SELFIE)
+[ai]
+binding = "AI"

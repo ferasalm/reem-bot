@@ -115,6 +115,17 @@ const L3 = [
   ["live: scene narration without asterisks", "She takes the glass and smiles. \"Thanks.\"", { scene: "together" }, { kind: "scene", texts: ["*She takes the glass and smiles.* \"Thanks.\""] }],
   ["live: multi-line scene narration stays on its lines", "Reem steps back.\nShe laughs. \"no.\"", { scene: "together" }, { kind: "scene", texts: ["*Reem steps back.*\n*She laughs.* \"no.\""] }],
   ["OOC: never a reaction", "[react: ❤] Got it.", { ooc: true, canReact: true }, { kind: "text", reaction: "" }],
+
+  // --- her pictures: [selfie: what it shows] (only with canSelfie, while apart, never OOC)
+  ["selfie: marker + text", "like what you see?\n\n[selfie: mirror selfie]", { canSelfie: true }, { kind: "text", texts: ["like what you see?"], selfie: "mirror selfie", stored: "like what you see?" }],
+  ["selfie: marker first, then bubbles", "[selfie: morning coffee]\nwoke up like this\n\njealous?", { canSelfie: true }, { kind: "text", texts: ["woke up like this", "jealous?"], selfie: "morning coffee" }],
+  ["selfie: picture only", "[selfie: me with basbousa]", { canSelfie: true }, { kind: "none", selfie: "me with basbousa" }],
+  ["selfie: [photo: ...] and [pic: ...] too", "[pic: on the balcony] sunset ✨", { canSelfie: true }, { kind: "text", texts: ["sunset ✨"], selfie: "on the balcony" }],
+  ["selfie: narrated *sends a selfie* -> any picture", "*sends you a selfie*\n\n😏", { canSelfie: true }, { kind: "text", texts: ["😏"], selfie: "" }],
+  ["selfie: not offered -> marker dropped, no picture", "here\n\n[selfie: mirror selfie]", {}, { kind: "text", texts: ["here"], selfie: null }],
+  ["selfie: in a voice note -> words spoken, picture after", "[voice] okay look at this [selfie: new dress]", { canSelfie: true }, { kind: "voice", spoken: "Okay look at this.", selfie: "new dress" }],
+  ["selfie: never in person", "*She grins.* \"later.\" [selfie: mirror selfie]", { scene: "together", canSelfie: true }, { kind: "scene", selfie: null, texts: ["*She grins.* \"later.\""] }],
+  ["selfie: never OOC", "Sure, I can do that. [selfie: mirror selfie]", { ooc: true, canSelfie: true }, { kind: "text", selfie: null, texts: ["Sure, I can do that."] }],
 ];
 
 section("model outputs");
@@ -128,6 +139,7 @@ section("whatever she writes");
 const nasty = L3.map((c) => c[1]).concat([
   "[voice] ya3ni 7abibi 5alas, it's 3am", "*She* *sighs* [voice] *laughs* (giggles) 7elwa [whispers] 2albi",
   "[voice] 😭😭 stop. 🔥", "[voice] <break time=\"1s\"/> hey [unknown tag] you",
+  "[selfie: x] [voice] hi", "*She sends a selfie.* [selfie: gym]",
 ]);
 for (const raw of nasty) {
   for (const scene of ["apart", "together"]) {
@@ -140,7 +152,7 @@ for (const raw of nasty) {
       yes(s.stored.includes("[voice] "), `voice saved as [voice] | ${where}`);
     }
     for (const t of s.texts) {
-      yes(!/\[(?:voice|react|laughs|sighs|whispers|giggles)\b/i.test(t), `no tags in texts | ${where}`, t);
+      yes(!/\[(?:voice|react|laughs|sighs|whispers|giggles|selfie)\b/i.test(t), `no tags in texts | ${where}`, t);
       if (s.kind !== "scene") yes(!/\*/.test(t), `no *actions* in texts | ${where}`, t);
     }
     yes(!/<\||\{\{/.test(s.stored), `no model leaks saved | ${where}`, s.stored);
@@ -184,6 +196,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.includes("/file/")) return new Response("audio");
   if (url.includes("speech-to-text")) return j({ text: "come over (laughs)" });
   if (url.includes("text-to-speech")) return ttsFails ? new Response("{}", { status: 500 }) : new Response("mp3");
+  if (method === "sendPhoto") return j({ ok: true, result: { message_id: 9000 + calls.length } });
   return j({ ok: true, result: {} });
 };
 let ttsFails = false;
@@ -210,7 +223,9 @@ async function turn(he, replies, { history } = {}) {
     tts: c.filter((x) => x.url.includes("text-to-speech")).map((x) => x.body.text),
     voices: c.filter((x) => x.method === "sendVoice").length,
     reactions: c.filter((x) => x.method === "setMessageReaction").map((x) => x.body.reaction[0].emoji),
-    order: c.filter((x) => ["sendMessage", "sendVoice"].includes(x.method)).map((x) => x.method),
+    order: c.filter((x) => ["sendMessage", "sendVoice", "sendPhoto"].includes(x.method)).map((x) => x.method),
+    photos: c.filter((x) => x.method === "sendPhoto").map((x) => x.body),
+    files: c.filter((x) => x.method === "getFile").map((x) => x.body.file_id),
     saved: JSON.parse(store.get("h:7")).at(-1),
   };
 }
@@ -286,6 +301,102 @@ yes(r.system[0].includes("You're together in person"), "scene resumes after OOC"
 r = await turn("hey", ["*She tilts her head.* \"hey yourself.\""]);
 yes(r.system[0].includes("You're together in person"), "the OOC exchange didn't end the scene");
 W.CONFIG.REACTIONS.CHANCE = 0.25;
+
+section("pictures: his photos, her selfies");
+{
+  const ai = [];
+  env.AI = { async run(model, input) { ai.push({ model, input }); return model.includes("flux") ? { image: btoa("jpeg") } : { response: "A man in a gray hoodie smiling in a car [selfie]" }; } };
+  Object.assign(W.CONFIG.SELFIE, { CHANCE: 0, MAX_PER_DAY: 20 });
+  const lastUser = (x) => x.prompts[0].messages.filter((m) => m.role === "user").at(-1).content;
+  const photoId = 1000 + uid;
+  const sizes = [{ file_id: "small", width: 90, height: 68 }, { file_id: "big", width: 1280, height: 960 }, { file_id: "huge", width: 2560, height: 1920 }];
+  r = await turn({ photo: sizes, caption: "new car" }, ["ok that's actually cute"], { history: APART });
+  eq(r.files, ["big"], "the biggest size up to VISION.MAX_SIDE is looked at");
+  yes(ai[0].input.messages[0].content[1].image_url.url.startsWith("data:image/jpeg;base64,"), "the photo reaches the vision model");
+  eq(lastUser(r), "[sent a photo: A man in a gray hoodie smiling in a car (selfie). His caption: new car]", "she reads what's in the photo and his caption (no stray brackets)");
+  const his = JSON.parse(store.get("h:7")).at(-2);
+  eq([his.parts[0].id, his.parts[0].seen], [photoId, "A man in a gray hoodie smiling in a car (selfie)."], "what she saw is kept with his message");
+  await W.default.queue({ messages: [{ body: { update_id: uid++, edited_message: { message_id: photoId, chat: { id: 7, type: "private" }, from: { id: 7 }, photo: sizes, caption: "my new car!!" } }, ack() {} }] }, env, ctx);
+  eq(JSON.parse(store.get("h:7")).at(-2).content, "[sent a photo: A man in a gray hoodie smiling in a car (selfie). His caption: my new car!!]", "a new caption keeps what she saw, without looking again");
+  eq(ai.length, 1, "no second vision call for a caption edit");
+
+  env.AI.run = async () => { throw new Error("boom"); };
+  r = await turn({ photo: sizes }, ["what's that"], { history: APART });
+  eq(lastUser(r), "[sent a photo you can't open right now]", "vision down: the old line, and she still answers");
+  yes(JSON.parse(store.get("ai_error")).error.includes("boom"), "the failure is kept for /setup");
+  env.AI.run = async (model, input) => { ai.push({ model, input }); return model.includes("flux") ? { image: btoa("jpeg") } : { response: "A dog." }; };
+
+  store.set("selfies", JSON.stringify([{ tag: "mirror selfie", file_id: "F1" }, { tag: "morning coffee on the balcony", file_id: "F2" }]));
+  r = await turn("send me a pic", ["here 😏\n\n[selfie: mirror selfie]"], { history: APART });
+  yes(r.system[0].includes("He's asking for a picture of you"), "he asks: NUDGE_ASKED");
+  yes(r.system[0].includes("What it can show: mirror selfie, morning coffee on the balcony, anything you describe in a few words."), "the pack and drawing offered");
+  eq(r.order, ["sendMessage", "sendPhoto"], "her words, then the picture");
+  eq(r.photos.map((p) => p.photo), ["F1"], "the pack photo that matches");
+  eq(r.saved.content, "here 😏\n[selfie: mirror selfie]".replace("\n", "\n\n"), "history: her words and [selfie: ...]");
+  yes(typeof r.saved.parts.at(-1).id === "number", "the picture has its message id, so /rewind and /retry delete it");
+  r = await turn("good morning", ["[selfie: coffee on my balcony]\nmorning"], { history: APART });
+  eq(r.photos.length, 0, "not offered (CHANCE 0, not asked): no picture, marker dropped");
+  eq(r.texts, ["morning"], "...and her words still go out");
+  W.CONFIG.SELFIE.CHANCE = 1;
+  r = await turn("good morning", ["morning ☀️\n\n[selfie: coffee on my balcony]"], { history: APART });
+  yes(r.system[0].includes("You can send him a picture of yourself"), "offered on a CHANCE roll: NUDGE");
+  eq(r.photos.map((p) => p.photo), ["F2"], "best word match from the pack");
+  W.CONFIG.SELFIE.CHANCE = 0;
+  r = await turn("show me a selfie", ["no. earn it"], { history: APART });
+  eq(r.photos.length, 1, "asked and she only teased: a picture comes anyway (WHEN_ASKED)");
+  const drawn = ai.length;
+  r = await turn("send a pic from the gym", ["[selfie: me at the gym after a workout]"], { history: APART });
+  eq(ai.length - drawn, 1, "nothing in the pack fits: drawn");
+  yes(ai.at(-1).input.prompt.startsWith(W.CONFIG.SELFIE.LOOKS) && ai.at(-1).input.prompt.includes("me at the gym after a workout.") && ai.at(-1).input.prompt.endsWith(W.CONFIG.SELFIE.SAFE), "drawing prompt: her looks + what it shows + SAFE");
+  eq([r.photos.length, r.photos[0].photo], [1, "<blob>"], "the drawn picture is uploaded");
+  eq(r.saved.content, "[selfie: me at the gym after a workout]", "picture-only reply saved");
+  r = await turn("send a pic", ["[selfie: me in lingerie]"], { history: APART });
+  eq(ai.length - drawn, 1, "never drawn from a sexual description (NOT_DRAWN)");
+  yes(["F1", "F2"].includes(r.photos[0]?.photo), "...a pack photo instead");
+  r = await turn("*steps closer* send me a pic", ["*She laughs.* \"you're right here.\" [selfie: mirror selfie]"], { history: SCENE });
+  eq(r.photos.length, 0, "never in person");
+  yes(!r.system[0].includes("picture of you"), "no picture nudge in person");
+  r = await turn("OOC: can she send a selfie?", ["Sure, just ask her. [selfie: mirror selfie]"], { history: APART });
+  eq(r.photos.length, 0, "never OOC");
+  W.CONFIG.SELFIE.MAX_PER_DAY = 0;
+  r = await turn("send me a pic", ["here"], { history: APART });
+  eq(r.photos.length, 0, "daily cap (MAX_PER_DAY)");
+  W.CONFIG.SELFIE.MAX_PER_DAY = 20;
+  store.set("s:7", JSON.stringify({}));
+  r = await turn("im 15 btw. send me a selfie", ["oh. ok, friends then"], { history: APART });
+  eq(r.photos.length, 0, "he says he's under 18: no picture");
+  eq(JSON.parse(store.get("s:7")).minor, true, "...remembered");
+  r = await turn("send me a pic pls", ["no"], { history: APART });
+  eq(r.photos.length, 0, "...and never again");
+  yes(!r.system[0].includes("picture of you"), "...not even offered");
+  yes(!W.isQuickCommand({}) && W.saysMinor("i'm 16") && W.saysMinor("I am 17 years old") && W.saysMinor("under 18 lol") && !W.saysMinor("i'm 16 minutes away") && !W.saysMinor("im 25") && !W.saysMinor("i'm 18"), "MINOR_PATTERN: ages under 18 only, not minutes");
+  store.set("s:7", JSON.stringify({}));
+
+  section("/selfie: her photo pack");
+  const noticeOf = async (m) => { const c0 = calls.length; await W.default.queue({ messages: [msg(m)] }, env, ctx); return calls.slice(c0); };
+  store.delete("selfies");
+  let c = await noticeOf({ text: "/selfie" });
+  yes(c.find((x) => x.method === "sendMessage")?.body.text.includes("has no photos yet"), "empty pack explained");
+  c = await noticeOf({ photo: sizes, caption: "/selfie add beach day in Sahel" });
+  eq(JSON.parse(store.get("selfies")), [{ tag: "beach day in Sahel", file_id: "huge" }], "a photo with /selfie add as its caption is saved (biggest size)");
+  c = await noticeOf({ text: "/selfie add gym", reply_to_message: { message_id: 5, photo: [{ file_id: "G" }] } });
+  eq(JSON.parse(store.get("selfies")).at(-1), { tag: "gym", file_id: "G" }, "replying to a photo with /selfie add saves it");
+  c = await noticeOf({ text: "/selfie add gym" });
+  yes(c.find((x) => x.method === "sendMessage")?.body.text.includes("Reply to a picture"), "no picture: explained");
+  c = await noticeOf({ text: "/selfie" });
+  yes(/photos \(2\):\n- beach day in Sahel\n- gym/.test(c.find((x) => x.method === "sendMessage")?.body.text), "/selfie lists them");
+  c = await noticeOf({ text: "/selfie remove gym" });
+  eq(JSON.parse(store.get("selfies")).map((p) => p.tag), ["beach day in Sahel"], "/selfie remove");
+  c = await noticeOf({ text: "/selfie make curled up on the couch with Basbousa" });
+  yes(c.find((x) => x.method === "sendPhoto")?.body.caption.includes("Draft: curled up on the couch with Basbousa"), "/selfie make sends a drawn draft to pick from");
+  c = await noticeOf({ text: "/selfie make naked in bed" });
+  eq(c.filter((x) => x.method === "sendPhoto").length, 0, "/selfie make never draws sexual pictures");
+  yes(W.isQuickCommand({ message: { photo: sizes, caption: "/selfie add x" } }), "/selfie is answered from the webhook, captions too");
+  eq(JSON.parse(store.get("h:7")).at(-1).content.includes("selfie add"), false, "/selfie never enters her chat history");
+  delete env.AI;
+  store.delete("selfies");
+  Object.assign(W.CONFIG.SELFIE, { CHANCE: 0.1, MAX_PER_DAY: 4 });
+}
 
 section("LIMITS & OOC always sent, word for word");
 yes(W.SYSTEM_PROMPT.endsWith(LIMITS), "SYSTEM_PROMPT ends with the exact LIMITS & OOC text");

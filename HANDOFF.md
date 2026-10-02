@@ -34,6 +34,30 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
+- **2026-10-02 (evening): pictures, built and tested, on `dev`, NOT deployed** (owner's picks below). She sees his
+  photos and sends pictures of herself.
+  - **His photos**: `describePhoto` takes the biggest Telegram size up to `VISION.MAX_SIDE`, asks a Workers AI vision
+    model (`VISION.MODEL` @cf/meta/llama-4-scout-17b-16e-instruct, `[ai]` binding `AI` in wrangler.toml) for a plain
+    description, and she reads `INBOX.PHOTO_SEEN(_WITH_CAPTION)`. The chat model stays DeepSeek; history stays text.
+    The description is kept on his part (`seen`), so a caption edit doesn't look again. No binding, a failure or a
+    refusal: the old `INBOX.PHOTO` line (failure saved as KV `ai_error`, shown on /setup).
+  - **Her selfies**: while apart, on `SELFIE.CHANCE` 0.1 or when he asks (`SELFIE.ASK_PATTERN`, his own words only,
+    never the photo description) she's told she may write `[selfie: what it shows]` (`SELFIE.NUDGE`/`NUDGE_ASKED`).
+    `takeSelfie` (in `shapeReply`) strips it, `sendSelfie` sends the best tag match from her **photo pack** (KV
+    `selfies`, `[{tag, file_id}]`), else a **drawn** one (`SELFIE.IMAGE_MODEL` FLUX.1 schnell: `LOOKS` + what it
+    shows + `SAFE`), else any pack photo. Stored as a part `{id, text: "[selfie: ...]"}` so /rewind and /retry
+    delete it. Asked and she forgot the marker: one comes anyway (`WHEN_ASKED`). Max 4 a day.
+  - **Never**: in a scene, OOC, when she texts first, after he says he's under 18 (`SELFIE.MINOR_PATTERN` →
+    settings `minor: true`, for good), or drawn from a sexual description (`NOT_DRAWN` words → a pack photo instead).
+    Drawn pictures are always clothed (`SAFE`): Claude's choice, since free image models refuse sexual content
+    and an under-18 user must never get one; text explicitness is unchanged. Owner may revisit.
+  - **/selfie** (answered from the webhook): reply to any picture with `/selfie add <what it shows>` (or send it with
+    that caption) to add it to the pack; `/selfie` lists, `/selfie remove <tag>`, `/selfie make <description>`
+    sends a drawn draft to pick from.
+  - Verified: mocked tests (scenarios "pictures" + "/selfie" sections). `[live]` adds `photo-seen`,
+    `selfie-asked`, `selfie-offered` situations (does DeepSeek write the marker?). Workers AI itself was NOT called
+    for real: the vision model's answer shape (`aiText`) and FLUX's `{image}` are from the docs; check /setup and a
+    real photo after deploying.
 - **Her voice in person (details)** (owner picked "on request + sometimes"). In a scene the
   written scene is sent as before, then her quoted words as an audio clip (`sayScene` ← `sceneSpeech`: quotes only,
   narration never spoken; "she whispers"/"she laughs" around a line → its tag, not repeated on the next line). When:
@@ -67,6 +91,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Pictures**: she sees his photos and sends selfies (owner: "patch reem-bot such that she may send
+  pictures, selfies and understands sent selfies and images", free tiers preferred). Owner's picks: **vision =
+  Cloudflare Workers AI** (over OpenRouter free / paid vision); **selfies = photo pack + FLUX drawn fallback** (over
+  pack only, always drawn, Gemini image). *Supersedes "No photo vision" in the v8 standing rules.*
 - 2026-10-02 — **Deploy her voice in person scenes.**
 - 2026-10-02 — **Her voice in person scenes: on request + sometimes** (owner's pick of 4 options; the others were
   every scene reply, only on request, keep text-only).
@@ -105,7 +133,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - Standing rules (from v8):
   - **`LIMITS & OOC` in SYSTEM_PROMPT stays word for word** (tests check it): never loosen or tighten it.
     Adult themes stay open and may turn explicit naturally.
-  - No photo vision (it would need a second model). No deliberate typos. Emoji reactions: yes. Expressive voice
+  - ~~No photo vision (it would need a second model).~~ Superseded 2026-10-02 (Pictures, above). No deliberate typos. Emoji reactions: yes. Expressive voice
     (eleven_v3): strongly preferred.
   - Arabizi (ya3ni, 7abibi) is fine in texts, but **no digit may ever be spoken** in voice notes.
   - Don't merge to `main`, open a PR or deploy unless the owner asks. The owner decides models; Claude only advises.
@@ -154,15 +182,20 @@ check; scenario rows for every slip seen.
     → `trimUnfinished`; `backup` → one try with `LLM.BACKUP_MODEL`, messages cut by `fitMessages` to
     `LLM.BACKUP_CONTEXT_TOKENS`) → `askModel`; `remember` (memory folding)
   - timing: `noticeTime`, `typingTime`, `act`, `sendBubbles` (returns `[{id, text}]`)
+  - pictures: `describePhoto` (`aiRun`, `aiText`, `tidyDescription`, `photoLine`), `selfieOffer`, `selfieTags`,
+    `takeSelfie`, `sendSelfie` (`matchPack`, `mayDraw`, `drawSelfie`, `sendPhoto`), `countSelfie`, `noteMinor`/
+    `saysMinor`, `selfieCommand`, `aiFailed` (KV `ai_error`)
   - voice: `bodyOf`/`clean`, `forSpeech` → `tidySpoken` → `sayArabizi`, `tts` (`voiceSettings`), `sendVoice`
     (returns `{delivered, id, error}`), `voiceFailed` (KV `voice_error`, shown on /setup)
   - audio tags: `isV3`, `audioTagsOn`, `audioTagRe`, `isAudioTag`, `stripAudioTags`
   - overrides: `applyOverrides`/`mergeSettings` (`CONFIG_OVERRIDES` env var; PRONUNCIATIONS, ARABIZI_DIGITS,
     STAGE_DIRECTIONS and arrays replaced whole; SAMPLING, PROVIDER, REASONING accept new OpenRouter keys)
-  - KV keys: `s:<chat>` settings (moreVoice, proactive {day,count}, name, about, tgName), `h:<chat>` history
+  - KV keys: `s:<chat>` settings (moreVoice, proactive {day,count}, selfies {day,count}, minor, name, about, tgName), `h:<chat>` history
     `{role, content, at, parts: [{id, text}], proactive?, ooc?, react?, reactTo?}`, `m:` notes, `b:` backlog,
-    `a:<chat>` /auto draft `{id, text, idea}`, `owner`, `seen`, `voice_error`
-- `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`.
+    `a:<chat>` /auto draft `{id, text, idea}`, `selfies` her photo pack `[{tag, file_id}]`, `owner`, `seen`,
+    `voice_error`, `ai_error`; his photo parts carry `photo: true` and `seen` (the description)
+- `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`,
+  Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
 - `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,
   number, ms, range, bool, select, commands, map, groups, schedule. `tools/build-panel.mjs` rewrites its DEFAULTS.
 - `tools/sync-check.mjs` + `tools/retired-branches.txt`: the sync report (session start, CI `sync` job).
@@ -214,6 +247,11 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
+0. Pictures (on `dev`, not deployed): read the `[live]` run of the picture situations, then deploy when the owner
+   asks. After deploying: open /setup (the "Workers AI (AI)" row must be ✅; if the deploy fails on the `[ai]`
+   binding, the `CLOUDFLARE_API_TOKEN` may need the Workers AI permission), send her a photo, then build her pack:
+   `/selfie make <description>` a few times, reply `/selfie add <what it shows>` to the keepers (and to any real
+   photos of the character the owner has). Ask her for a pic.
 1. Owner: set `dev` as the GitHub default branch (Settings > General > Default branch; "Desktop site" on).
    Then delete the six branches in `tools/retired-branches.txt` (repo > Branches > trash icon) and empty that list.
 2. Read the `[live]` check of the integrated v10 on DeepSeek (see the latest Tests run) and tune from evidence:

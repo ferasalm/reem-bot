@@ -26,6 +26,9 @@ Bot secrets (`TELEGRAM_BOT_TOKEN`, `OPENROUTER_API_KEY`, `ELEVENLABS_API_KEY`, â
 - Reply to any message with `/rewind`: everything after it is erased from the chat and from her memory
 - Reply to one of her messages with `/edit new text` to change what she said
 - Edit your own message the normal Telegram way: if it's your latest, she answers the new version
+- Send her photos: she sees them (Cloudflare Workers AI). She sends pictures of herself too, from her photo pack:
+  reply to a picture with `/selfie add <what it shows>` to add it, `/selfie` lists them, `/selfie remove <what>`,
+  `/selfie make <description>` draws a new one to pick from
 - `/voice` (more voice notes), `/memory`, `/restart`
 
 Edits and buttons need Telegram to send them: **open `/setup` once after deploying v10**.
