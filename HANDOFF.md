@@ -34,8 +34,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
-- **2026-10-02 (late night): pictures v3 — owner asked to deploy, NOT deployed yet**: the session's push to `main`
-  was blocked by its permission check. Next session (or the owner on GitHub): fast-forward `main` to `dev`. The under-16 wording item below is closed by the owner (no prompt
+- **2026-10-02 (late night): pictures v3 deployed** (owner: "merge and deploy"; the first push to `main` was held by
+  the session's auto-mode check until the owner allowed it): `main` fast-forwarded to 04f23b8. Deploy run
+  37071745296 green: bindings KV, queue, AI; version `be5f7c44-133b-49df-8087-b4d739c09639`. /health: klein drew
+  from her built-in face (56 KB, 5.4 s); vision ok with the descriptive prompt ("a smiling woman with long, dark
+  brown hair and a black shirt..."), so the v2 /health fix is live too. Not yet seen: a v3 picture in the real chat. The under-16 wording item below is closed by the owner (no prompt
   change; decision log).
 - **2026-10-02 (night): pictures v2 deployed** (owner: "Deploy"): `main` fast-forwarded to ec31167. Deploy run
   37047760498 green: bindings KV, queue, **AI**; version `41c336fb-1734-476a-9e10-3d3d3dae8777`. Its /health step on
@@ -44,7 +47,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   `VISION.PROMPT` and treats a refusal as not OK (on `dev`, not deployed: it only changes /health). His real photos
   use the descriptive prompt, which described all 18 face candidates through the REST API. Not yet seen: a
   picture or photo in the real chat (owner's /setup + first pic).
-- **2026-10-02 (late): pictures v3, the shot catalog — built on `ccr-555810b3-9btsdq`, owner asked to deploy 2026-10-02, push to `main` pending**
+- **2026-10-02 (late): pictures v3, the shot catalog — built on `ccr-555810b3-9btsdq`, deployed 2026-10-02 (run 37071745296)**
   (owner's v3 rules in the decision log). Details:
   - **Shots** (`PICTURE.SHOTS`, type = camera + framing template): everyday `close`, `selfie`, `mirror`, `cozy`,
     `detail`, `golden`; flirty `mirror-back` (belfie), `neckline`, `legs`, `waist`; boudoir = selfie, mirror,
@@ -383,13 +386,12 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
-00. **Pictures v3: deploy pending** (owner already said deploy: fast-forward `main` to `dev`). Then, owner: /setup once, then ask her for a pic, a
+00. **Pictures v3 (deployed 2026-10-02)**. Owner, now: /setup once, then ask her for a pic, a
    belfie, a lingerie pic; read /setup for any `3030` line (the filter refused a picture and a tamer one was
    drawn). Tuning from evidence: `TIER_WEIGHTS`, `HEAT_WORDS`, `SELF_CHOICE` (she picked a picture herself 0/12 in
    the live runs), the wardrobe lists if 3030 shows up often. Re-run the grid with `node tools/face/shots.mjs
    [tiers or shots]` + push (face.yml); it shares the free 10,000 neurons a day with the live bot.
-0. Pictures v2 (deployed 2026-10-02): the /health fix (descriptive prompt) goes live with the next deploy; that
-   Deploy run's /health step should then show vision ok. Owner, now: /setup once (also turns on v10 edits and /auto buttons), send her a photo, ask for a
+0. Pictures v2 (deployed 2026-10-02): the /health fix is live (vision ok in run 37071745296). Owner, now: /setup once (also turns on v10 edits and /auto buttons), send her a photo, ask for a
    pic, and "let me see you" mid-scene. `/face` if her face should change.
 1. Owner: set `dev` as the GitHub default branch (Settings > General > Default branch; "Desktop site" on).
    Then delete the six branches in `tools/retired-branches.txt` (repo > Branches > trash icon) and empty that list.
