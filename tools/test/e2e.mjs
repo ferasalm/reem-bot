@@ -66,6 +66,18 @@ console.log("apart nudge:", sys().includes("You're apart right now"), "| doing:"
 console.log("apart nudge: [voice] first:", sys().includes("its very first characters are [voice]"), "| scene in third person:", sys().includes("write a scene, narrated in third person"));
 console.log("tts:", log.find(l => l.includes("text-to-speech")).slice(0, 140));
 console.log("stt lang omitted:", !log.find(l => l.includes("speech-to-text")).includes("language_code"), "| tagged:", log.find(l => l.includes("speech-to-text")).includes('"tag_audio_events":"true"'));
+step("webhook: /help skips the queue, /rewind doesn't");
+{
+  const secret = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("reem:t")))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const waits = []; const wctx = { waitUntil(p){ waits.push(p); } };
+  const hook = (text) => mod.fetch(new Request("https://x/webhook", { method: "POST", headers: { "X-Telegram-Bot-Api-Secret-Token": secret }, body: JSON.stringify(msg({ text }).body) }), env, wctx);
+  queued.length = 0; const before = calls.length;
+  await hook("/help"); await Promise.all(waits);
+  console.log("/help answered at once:", queued.length === 0 && calls.slice(before).some((c) => c.m === "sendMessage" && /How Reem works/.test(c.b.text)));
+  await hook("/rewind");
+  console.log("/rewind queued:", queued.length === 1);
+  queued.length = 0;
+}
 step("cron: too soon"); queued.length = 0; await mod.scheduled({}, env, ctx); console.log("queued too soon:", queued.length);
 step("cron: after 4h"); clock += 4 * 3600e3; await mod.scheduled({}, env, ctx); console.log("queued after 4h:", JSON.stringify(queued));
 llm = [{ content: "ok basbousa just knocked my plant over\n\nwhere did you disappear to" }];

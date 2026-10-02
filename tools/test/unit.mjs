@@ -77,6 +77,10 @@ eq(W.takeReaction("just text"), { emoji: "", rest: "just text" }, "no tag");
 eq(W.parseCommand("/Name@reem_nabot Sam"), { action: "name", args: "Sam" }, "command with @bot and args");
 eq(W.parseCommand("/about line one\nline two"), { action: "about", args: "line one\nline two" }, "multi-line args kept");
 eq(W.parseCommand("/start"), { action: "restart", args: "" }, "alias");
+const upd = (text) => ({ update_id: 1, message: { message_id: 1, chat: { id: 7, type: "private" }, from: { id: 7 }, text } });
+eq(["/help", "/name Sam", "/about tall", "/voice", "/memory"].map((t) => W.isQuickCommand(upd(t))), [true, true, true, true, true], "settings commands skip the queue");
+eq(["/rewind", "/retry", "/edit hi", "/auto", "/start", "/restart", "hello", "/nope"].map((t) => W.isQuickCommand(upd(t))), [false, false, false, false, false, false, false, false], "story commands and chat stay queued");
+eq(W.isQuickCommand({ update_id: 2, edited_message: { text: "/help" } }), false, "an edited /help stays queued");
 eq(W.parseCommand("/nope x").action, undefined, "unknown command");
 eq(W.commandList().split("\n").length, W.CONFIG.COMMANDS.length, "help lists every command");
 // his name and about

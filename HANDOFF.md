@@ -31,7 +31,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   draft sent at ~4 am sat silent for minutes and /rewind queued behind it, since the queue runs one batch at a time).
   TIMING: ACTIVE_WINDOW_MS 3 → 20 min, LONG_PAUSE_CHANCE 0.1 → 0.05, LONG_PAUSE_MAX_MS 240 → 120 s,
   READ_MS_PER_CHAR 60 → 25, TYPING_MAX_MS 45 → 25 s, SCENE_TYPING_MAX_MS 20 → 12 s; asleep slot delay 3 → 2.
-  Not done: commands still wait behind her pending reply (one queue consumer).
+  Same day: **/help, /name, /about, /voice, /memory answered straight from the webhook** (`isQuickCommand`,
+  `QUICK_ACTIONS`), no queue. /rewind, /retry, /edit, /auto and /restart stay queued, in order, so they still wait
+  for her pending reply and the queue's 5 s batch window.
 
 ## Branches
 - `main` = what's live (every push to `main` deploys via `.github/workflows/deploy.yml`). Only on the owner's ask.
@@ -42,6 +44,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-02 — **Settings commands answer instantly** (owner: "Even slash commands take so long").
 - 2026-10-02 — **Reem replies faster** (owner: "It's taking too long for her to respond"): timing values above.
 - 2026-10-02 — **Shared branch `dev`** (GitHub default; the owner switches it in Settings > General > Default
   branch). Sessions may push finished, tested work to `dev` without asking. `main` stays = live.
@@ -95,7 +98,7 @@ check; scenario rows for every slip seen.
 
 ## File map
 - `worker.js`: everything. SETTINGS on top (`SYSTEM_PROMPT`, `INTRO_MESSAGE`, `MEMORY_PROMPT`, `CONFIG`), then code:
-  - entry points: `fetch` (/setup, /webhook → queue; answers button taps at once), `queue`, `scheduled`
+  - entry points: `fetch` (/setup, /webhook → queue; answers button taps and `isQuickCommand` commands at once), `queue`, `scheduled`
     (cron → `proactiveChat` → queue task)
   - `handleBatch`: messages, `edited_message` (`onEdited`), `callback_query` (`onButton`), commands
     (`parseCommand` → `runCommand`). Story commands (`STORY_ACTIONS`) first flush pending messages through `reply`.

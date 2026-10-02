@@ -699,6 +699,12 @@ export default {
       }
       // A tapped button stops spinning right away; what it does runs in the queue
       if (update.callback_query) ctx.waitUntil(tg(env, "answerCallbackQuery", { callback_query_id: update.callback_query.id }));
+      // Commands that don't touch the story (/help, /name, /voice...) are answered right away instead of
+      // waiting in the queue, possibly behind a reply she's still holding back (see QUICK_ACTIONS)
+      if (isQuickCommand(update)) {
+        ctx.waitUntil(handleBatch([update], env, ctx, Date.now() + CONFIG.TIMING.FALLBACK_BUDGET_MS).catch((e) => console.error(e)));
+        return new Response("ok");
+      }
       if (env.REEM_QUEUE) {
         // The queue hands it to queue() below, which may take up to 15 minutes to reply
         try {
@@ -856,6 +862,15 @@ async function handleBatch(updates, env, ctx, deadline) {
 
 // Commands that change the chat history (her answer to earlier messages comes first)
 const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit"]);
+
+// Commands answered straight from the webhook, never queued: they only show or change his settings
+const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory"]);
+
+function isQuickCommand(update) {
+  const m = update && update.message;
+  const text = ((m && m.text) || "").trim();
+  return text.startsWith("/") && QUICK_ACTIONS.has(parseCommand(text).action);
+}
 
 // "/Name@reem_nabot Sam" -> { action: "name", args: "Sam" } (args keep their line breaks)
 function parseCommand(text) {
