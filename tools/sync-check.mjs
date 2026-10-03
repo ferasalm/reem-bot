@@ -69,7 +69,7 @@ for (const p of problems) lines.push(`PROBLEM: ${p}`);
 if (elsewhere.length) {
   lines.push("WARNING: other branches have work that is NOT on this branch:", ...elsewhere);
   lines.push("Before changing anything: read what they did (git log / HANDOFF.md on each) and ask the owner which work is current.",
-    "Never restate a decision from an older HANDOFF.md without checking these branches. Retired branches go in tools/retired-branches.txt.");
+    "Never restate a decision from another branch's HANDOFF.md or docs/DECISIONS.md without checking its date. Retired branches go in tools/retired-branches.txt.");
 } else {
   lines.push("No other branch has work missing here.");
 }

@@ -66,4 +66,4 @@ Locally: `node tools/test/unit.mjs`, `node tools/test/scenarios.mjs`, `node tool
 
 ## Working on it with Claude
 
-`CLAUDE.md` holds the rules every Claude session follows; `HANDOFF.md` is the single source of truth for status and the owner's decisions. Each session starts with `node tools/sync-check.mjs`, which warns when work sits on another branch.
+`CLAUDE.md` holds the rules every Claude session follows; `HANDOFF.md` holds the current status and `docs/DECISIONS.md` the owner's decisions. Each session starts with `node tools/sync-check.mjs`, which warns when work sits on another branch.
