@@ -744,13 +744,13 @@ Changing the story
     FACE_DRAFTS: 3,                    // how many faces /face draws
   },
 
-  /* ---------------- Workers AI budget (free plan: 10,000 neurons a day, reset 00:00 UTC) ----------------
-   * Estimated per call and counted in KV ("pics"); when Cloudflare says the day's allocation is used up, nothing
-   * more is tried until 00:00 UTC.
+  /* ---------------- Workers AI budget (Workers Paid since 2026-10-03: the first 10,000 neurons a day are free, ------
+   * then $0.011 per 1,000; the day resets 00:00 UTC). Estimated per call and counted in KV ("pics"). DAILY_NEURONS
+   * is the money cap: 28,000 = at most 18,000 paid = $0.20 a day. Test runs (face.yml) have their own cap.
    */
   AI_BUDGET: {
-    DAILY_NEURONS: 9000,               // stop here (the free allocation is 10,000)
-    PICTURE_SHARE: 0.6,                // pictures stop at this share of DAILY_NEURONS, so photos stay seeable
+    DAILY_NEURONS: 28000,              // stop here: 10,000 free + 18,000 paid ($0.20) at most a day
+    PICTURE_SHARE: 0.8,                // pictures stop at this share of DAILY_NEURONS (~210 a day), so photos stay seeable
     PICTURE_NEURONS: 105,              // FLUX.2 klein, 640x640 + the reference face: measured 91-106 a picture (Cloudflare analytics, 2026-10-02)
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
@@ -3670,7 +3670,7 @@ async function setup(url, env) {
     add(!!(picked || FACE_JPEG_BASE64), "Her face in pictures", picked ? `Picked with ${commandFor("face")}.` : FACE_JPEG_BASE64 ? `Built in (face.js). ${commandFor("face")} shows it and draws others to pick from.` : `None: her pictures won't all show the same face. Send ${commandFor("face")} in the chat to pick one.`);
     const ledger = await loadLedger(env);
     const B = CONFIG.AI_BUDGET;
-    add(true, "Workers AI today (UTC)", ledger.out ? `Cloudflare said the free allocation is used up: no pictures for now, the next try after ${new Date((Number(ledger.out) || 0) + B.OUT_RETRY_MS).toISOString().slice(11, 16)} UTC.` : `About ${Math.round(ledger.neurons)} of ${B.DAILY_NEURONS} neurons used (pictures stop at ${Math.round(B.DAILY_NEURONS * B.PICTURE_SHARE)}).`);
+    add(true, "Workers AI today (UTC)", ledger.out ? `Cloudflare said the allocation is used up: no pictures for now, the next try after ${new Date((Number(ledger.out) || 0) + B.OUT_RETRY_MS).toISOString().slice(11, 16)} UTC.` : `About ${Math.round(ledger.neurons)} of ${B.DAILY_NEURONS} neurons used (pictures stop at ${Math.round(B.DAILY_NEURONS * B.PICTURE_SHARE)}; the first 10,000 are free, then about $0.011 per 1,000).`);
   }
   const lastAiError = env.REEM_KV && (await env.REEM_KV.get("ai_error", "json").catch(() => null));
   if (lastAiError) {

@@ -14,6 +14,35 @@ const out = `tools/face/out/${job.mode}`;
 mkdirSync(out, { recursive: true });
 let cloudflare = !!(token && account);
 
+// Budget guard (2026-10-02 the grid runs used most of the day's 10,000 neurons, which the bot's own ledger never
+// saw, and the bot was locked out). A run may cost at most RUN_CAP neurons, and is refused when it would take the
+// account's real usage today (GraphQL analytics, bot included) past DAY_CAP, so tests stay inside the free
+// allocation and leave the bot its share. job.json may raise either with "max_neurons" / "day_neurons".
+const PICTURE_NEURONS = 105, SEE_NEURONS = 60;
+const RUN_CAP = job.max_neurons || 3000;
+const DAY_CAP = job.day_neurons || 7000;
+let spent = 0;
+
+async function neuronsToday() {
+  const since = new Date().toISOString().slice(0, 10) + "T00:00:00Z";
+  const query = `{ viewer { accounts(filter: { accountTag: "${account}" }) { aiInferenceAdaptiveGroups(limit: 100, filter: { datetimeHour_geq: "${since}" }) { sum { totalNeurons } } } } }`;
+  const res = await fetch("https://api.cloudflare.com/client/v4/graphql", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ query }) });
+  const data = await res.json().catch(() => ({}));
+  const rows = data?.data?.viewer?.accounts?.[0]?.aiInferenceAdaptiveGroups;
+  if (!Array.isArray(rows)) throw new Error(`analytics answered ${JSON.stringify(data).slice(0, 300)}`);
+  return rows.reduce((n, r) => n + (r.sum?.totalNeurons || 0), 0);
+}
+
+if (cloudflare) {
+  const count = job.prompts.length * (job.per_prompt || 1);
+  const estimate = count * (PICTURE_NEURONS + (job.describe ? SEE_NEURONS : 0));
+  let today;
+  try { today = await neuronsToday(); } catch (e) { console.log(`Budget guard: couldn't read today's usage (${e.message}); refusing to draw.`); process.exit(1); }
+  console.log(`Budget guard: ${count} pictures ≈ ${estimate} neurons; the account used ${Math.round(today)} today (UTC); run cap ${RUN_CAP}, day cap ${DAY_CAP}.`);
+  if (estimate > RUN_CAP) { console.log(`Refused: the job is bigger than the run cap. Split it, or set "max_neurons" in job.json.`); process.exit(1); }
+  if (today + estimate > DAY_CAP) { console.log(`Refused: it would take today past ${DAY_CAP}. Run it after 00:00 UTC, or set "day_neurons" in job.json.`); process.exit(1); }
+}
+
 async function drawCloudflare(prompt, seed) {
   const form = new FormData();
   form.append("prompt", prompt);
@@ -23,6 +52,7 @@ async function drawCloudflare(prompt, seed) {
   if (job.reference) form.append("input_image_0", new Blob([readFileSync(job.reference)], { type: "image/jpeg" }), "ref.jpg");
   const t0 = Date.now();
   const res = await fetch(api(DRAW), { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: form });
+  spent += Number(res.headers.get("cf-ai-neurons")) || (res.ok ? PICTURE_NEURONS : 0);
   const type = res.headers.get("content-type") || "";
   const ms = Date.now() - t0;
   if (type.startsWith("image/")) {
@@ -66,13 +96,15 @@ async function describe(file) {
       max_tokens: 160,
     }),
   });
+  spent += Number(res.headers.get("cf-ai-neurons")) || (res.ok ? SEE_NEURONS : 0);
   const data = await res.json().catch(() => ({}));
   console.log(`  vision: HTTP ${res.status}, ${Date.now() - t0} ms, ${JSON.stringify(data?.result ?? data).slice(0, 600)}`);
 }
 
 let n = 0;
-for (const [p, prompt] of job.prompts.entries()) {
+draw: for (const [p, prompt] of job.prompts.entries()) {
   for (let k = 0; k < (job.per_prompt || 1); k++) {
+    if (cloudflare && spent + PICTURE_NEURONS > RUN_CAP) { console.log(`\nStopped: ${Math.round(spent)} neurons spent, the run cap is ${RUN_CAP}.`); break draw; }
     n++;
     const seed = 1000 + n * 7919;
     const jpg = `${out}/${String(n).padStart(2, "0")}.jpg`;
@@ -109,4 +141,5 @@ for (const [p, prompt] of job.prompts.entries()) {
     await describe(jpg);
   }
 }
+console.log(`\nNeurons this run: ${Math.round(spent)} (cap ${RUN_CAP}).`);
 console.log(`\nDone: ${existsSync(out) ? "see " + out : "nothing drawn"}`);
