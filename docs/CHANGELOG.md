@@ -4,6 +4,16 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-03 (evening): Lebanese Reem, fixed places, pictures round
+- Persona: Lebanese, born in Beirut, family in North Jersey, lives in a brick walk-up near Cushing Square, Belmont MA;
+  clock America/New_York; Lebanese Arabizi; Crane Beach; Mrs. Whitaker; Mr. Kowalski the landlord.
+- Fixed places: 8 rooms drawn once (face run 37150980076; picks 02/04/05/07/10/11/14/15; #1 was a Pollinations
+  fallback after a 241 s timeout) → `tools/face/places/*.jpg` → `places.js`; sent to klein as image 1.
+- Pictures: 768x1024 (same 4 tiles), chances about doubled, stronger body wording, TIMEOUT 120 s, FILTER_WORDS,
+  boudoir retry in her own wardrobe, mirror-back out of BOUDOIR. Examples: face runs 37151684663 (15 prompts,
+  10 drawn, 1,136 neurons), 37152577208 (8, 5 drawn, 568), round 3 (4, 2 drawn). Timings 9-238 s.
+- Branch button `.github/workflows/delete-branches.yml`; `Worker.js` found to be GitHub's 1-line README only.
+
 ## Old HANDOFF.md header (until 2026-10-03)
 
 **This file is the single source of truth.** It lives on the shared branch (see "Branches"). If another branch's

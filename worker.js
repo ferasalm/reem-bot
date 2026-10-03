@@ -689,7 +689,7 @@ Changing the story
     TIERS: {
       EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden"],
       FLIRTY: ["mirror-back", "neckline", "legs", "waist"],
-      BOUDOIR: ["selfie", "mirror", "mirror-back", "neckline", "waist", "cozy"], // legs: refused twice by the filter (3030)
+      BOUDOIR: ["selfie", "mirror", "neckline", "waist", "cozy"], // refused by the filter (3030): legs twice (2026-10-02), mirror-back 4/4 (2026-10-03)
     },
     // How likely each tier is when the code picks, by how hot the chat is (HEAT_WORDS, late hours)
     TIER_WEIGHTS: {

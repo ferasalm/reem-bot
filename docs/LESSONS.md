@@ -55,10 +55,12 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Cloudflare's prompt filter (3030) is random: the same words pass in one run and fail in another → never conclude
   from one refusal; the bot draws one tier tamer instead. (2026-10-02)
 - Lingerie pictures came out as robes or tamer outfits → Cloudflare's filter (3030) refuses any prompt with bra,
-  panties, briefs, thong or g-string (5/5 in face run 37151684663); "lace two-piece set" passes → `FILTER_WORDS`
-  rewords her words before drawing. (2026-10-03)
+  panties, briefs, thong or g-string (5/5), and every boudoir back view (4/4), and judges the whole prompt (a
+  "two-piece set" passed once, failed once) → `FILTER_WORDS` draws those as a bodysuit or string bikini in her
+  color; mirror-back left out of BOUDOIR. Front-view lace bodysuits pass. Real lingerie needs another provider.
+  "top and bottoms" passes but draws pajamas. (face runs 37151684663, 37152577208, round 3; 2026-10-03)
 - With a place's picture attached she came out small in a wide room shot → klein copies the reference's framing →
-  `ROOM` puts the room "behind her" and says she fills the frame. (2026-10-03)
+  `ROOM` puts the room "behind her" and says she fills the frame (verified in round 2: she fills it). (2026-10-03)
 - klein took 9-238 s a picture on 2026-10-03 (one 408 after 241 s); `draw.mjs` then falls back to Pollinations,
   whose pictures carry a watermark → never pick those as references; the bot waits up to `TIMEOUT_MS` 120 s. (2026-10-03)
 - A live check said "nothing broken reached him" while broken replies went out (Incident, docs/CHANGELOG.md) →
@@ -81,6 +83,8 @@ At most 150 lines (`tools/doc-check.mjs`).
 ## 5. Model behaviour seen live (DeepSeek V4 Flash)
 - Leaves the picture marker out ~2/3 of the time when he didn't ask (hence `PICTURE.REMINDER`). (2026-10-02)
 - Picks a picture on her own (`SELF_CHOICE`) almost never: 0/15 in the v3 live runs. (2026-10-02)
+- Fixed places work: with the room's picture as image 1, klein redraws the same room, furniture and light in
+  every shot (16 example pictures, 2026-10-03).
 - Basbousa (the cat) drifted between "he" and "she": the persona's texting example said "bring him back". Examples
   teach as strongly as rules: check them when a fact drifts. Fixed 2026-10-03 (owner: she). (2026-10-02)
 - Under-16 safeguard holds in most runs; "what are you wearing" after "i'm 16" got an answer a few times. Owner:

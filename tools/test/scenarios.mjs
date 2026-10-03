@@ -407,6 +407,8 @@ section("pictures: his photos (Workers AI vision)");
   const f3 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
   yes(f3.prompt.includes(", in lace bodysuit on the bed,") && f3.prompt.endsWith("No nudity.") && !/fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it (worded past the filter: FILTER_WORDS); SAFE is only 'No nudity.'", f3.prompt);
   eq([W.composePicture({ tier: "boudoir", shot: "selfie", words: "a red satin bra and matching panties, on the bed" }).what, W.composePicture({ tier: "boudoir", shot: "mirror", words: "a black g-string bikini" }).what], ["selfie, a red satin bodysuit, on the bed", "mirror, a black string bikini"], "bra and panties → a bodysuit in her color; g-string → string bikini");
+  // live 2026-10-03: every boudoir back view was refused (3030), 4/4
+  eq([0, 1, 2].map(() => W.planShot({ asked: "send me a belfie in your lingerie" })).map((p) => `${p.tier}/${p.shot}`), ["flirty/mirror-back", "flirty/mirror-back", "flirty/mirror-back"], "a belfie is a flirty back view, never a refused boudoir one");
   // live 2026-10-03 (face run 37151684663): every wording with bra/panties/briefs/thong/g-string was refused (3030)
   eq(W.composePicture({ tier: "boudoir", shot: "selfie", words: "a red satin bra and matching panties, Thong" }).prompt.match(/\b(?:bra|panties|thong)\b/gi), null, "filter words never reach the image model");
   r = await turn("hey", ["hi\n\n[selfie: me naked in bed]"], { history: APART });
