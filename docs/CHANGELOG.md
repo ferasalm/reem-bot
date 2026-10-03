@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-03 (night): pictures re-read, first live run of the new persona (not deployed)
+- All 22 test pictures re-read at full size, one at a time: verdicts in `docs/QUALITY.md` (pass 12, weak 3, fail 7).
+- ROOM: "the same walls and furniture ... lit by this picture's own light" (was "same ... light": 0/12 night
+  pictures dark); round 4 (face run 37155823695): lamp on in 1/3, still daylight → night place pictures needed.
+- Bathroom out of the body-length mirror shots (3/3 broke). `takeSelfie`: a bracketed pause is no picture marker;
+  "sends:" label dropped. Live run 37155823580: 4 persona situations added to `tools/test/live.mjs`.
+
 ## 2026-10-03 (evening): Lebanese Reem, fixed places, pictures round
 - Persona: Lebanese, born in Beirut, family in North Jersey, lives in a brick walk-up near Cushing Square, Belmont MA;
   clock America/New_York; Lebanese Arabizi; Crane Beach; Mrs. Whitaker; Mr. Kowalski the landlord.

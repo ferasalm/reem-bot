@@ -23,6 +23,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
   Pushing those commits to `dev` later runs face.yml once more (job.json changed in the push): ~4 pictures spent
   twice on 2026-10-03. Fine when small; for a big job, push it to `dev` before the last job.json edit lands. (2026-10-03)
+- The sync report listed an old branch with "26 commits not here" → the clone was shallow (depth 50), so the
+  merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03)
 - Commit, push your branch and push it to `dev` (standing permission, CLAUDE.md). Pushing to `main` deploys: only
   when the owner asks. Deleting branches is refused: the owner does it (`tools/retired-branches.txt`).
 
@@ -64,6 +66,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   "two-piece set" passed once, failed once) → `FILTER_WORDS` draws those as a bodysuit or string bikini in her
   color; mirror-back left out of BOUDOIR. Front-view lace bodysuits pass. Real lingerie needs another provider.
   "top and bottoms" passes but draws pajamas. (face runs 37151684663, 37152577208, round 3; 2026-10-03)
+- Night pictures came out in daylight (0/12) → klein copies the place picture's light, and saying "lit by this
+  picture's own light" only turned the lamp on (1/3, round 4) → a night version of each place picture is needed.
+  Bathroom body-length mirror shots broke 3/3 (its mirror is small and round) → bedroom/hallway only. (2026-10-03)
 - With a place's picture attached she came out small in a wide room shot → klein copies the reference's framing →
   `ROOM` puts the room "behind her" and says she fills the frame (verified in round 2: she fills it). (2026-10-03)
 - klein took 9-238 s a picture on 2026-10-03 (one 408 after 241 s); `draw.mjs` then falls back to Pollinations,

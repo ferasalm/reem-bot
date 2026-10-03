@@ -3111,7 +3111,8 @@ function takeReaction(raw) {
 function takeSelfie(raw) {
   let want = null;
   // Long descriptions are cut at a word, never mid-word ("a hint of a s")
-  const cut = (w) => { w = w.trim(); return w.length <= 240 ? w : w.slice(0, 240).replace(/[,;\s]+\S*$/, ""); };
+  // "[sends: selfie, ...]" (seen live 2026-10-03): the "sends:" label comes off
+  const cut = (w) => { w = w.trim().replace(/^(?:she\s+)?sends?\s*:\s*/i, ""); return w.length <= 240 ? w : w.slice(0, 240).replace(/[,;\s]+\S*$/, ""); };
   let rest = String(raw).replace(SELFIE_TAG, (_, w) => {
     if (want == null) want = cut(w);
     return "";
@@ -3128,6 +3129,8 @@ function takeSelfie(raw) {
   if (want == null) {
     rest = rest.replace(/^[ \t]*\[([^\]\n]{12,400})\][ \t]*$/m, (line, w) => {
       if (wordsOf(w).length < 4 || /^\s*(?:voice|react)/i.test(w)) return line;
+      // a pause or typing beat is not a picture ("[stays quiet for a moment, then types again]", live 2026-10-03)
+      if (/\b(?:types?|typing|typed|texts? again|pauses?|stays? quiet|silence|deletes?|read receipt)\b/i.test(w) && !/\b(?:selfie|photo|pic|picture|mirror|wearing)\b/i.test(w)) return line;
       want = cut(w);
       return "";
     });
