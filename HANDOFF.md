@@ -48,8 +48,14 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   **First deploy (run 37080158024, version 50ee9fe4) showed the real cause**: its /health got the same 5006 from
   **klein itself** (no backup involved): since 2026-10-03 the live klein rejects the `seed` field, although
   Cloudflare's docs still list it (it worked on 2026-10-02). So every picture failed, not only lingerie. Now no
-  `seed` is sent to klein either (`drawPicture`, and `tools/face/draw.mjs`); scenario row added; redeployed (see
-  the next line). Variety doesn't depend on it: repeats are still blocked by the hash check.
+  `seed` is sent to klein either (`drawPicture`, and `tools/face/draw.mjs`); scenario row added. Variety doesn't
+  depend on it: repeats are still blocked by the hash check.
+  **Redeployed** (`main` = 24426b0, run 37080976885 green, version `545088f5-f66b-474c-921b-a3f0cda43824`). Its
+  /health got no 5006 but `4006: you have used up your daily free allocation of 10,000 neurons` (the bot's own
+  ledger says 40 today; Cloudflare's count differs, maybe a different reset time or yesterday's grid runs). The
+  face run 37080391801 got the same 4006. **So klein without `seed` is not yet confirmed on the real API.** The bot
+  treats 4006 as out of neurons (`aiOutOfNeurons`): pictures pause, chat goes on. Next: once the allowance is
+  back, /setup or a pic in the chat must show a picture and no 5006; if 5006 persists, look at the other fields.
 - **2026-10-02 (late night): pictures v3 deployed** (owner: "merge and deploy"; the first push to `main` was held by
   the session's auto-mode check until the owner allowed it): `main` fast-forwarded to 04f23b8. Deploy run
   37071745296 green: bindings KV, queue, AI; version `be5f7c44-133b-49df-8087-b4d739c09639`. /health: klein drew
@@ -408,8 +414,9 @@ check; scenario rows for every slip seen.
 
 ## Next steps
 000. ~~Picture bug fix (5006 `/seed`, belfie drawn as mirror)~~ **done and deployed 2026-10-03** (Status). Owner:
-   ask her for a lingerie pic and a belfie; /setup should show no new 5006 line (a `3030` line is the filter
-   refusing; a tamer picture still comes).
+   after Cloudflare's neuron allowance resets (4006 on 2026-10-03 00:12 UTC), ask her for a pic, a lingerie pic
+   and a belfie; /setup should show no new 5006 line (a `3030` line is the filter refusing; a tamer picture still
+   comes). Claude: confirm with the next deploy's /health or a small face.yml run.
 00. **Pictures v3 (deployed 2026-10-02)**. Owner, now: /setup once, then ask her for a pic, a
    belfie, a lingerie pic; read /setup for any `3030` line (the filter refused a picture and a tamer one was
    drawn). Tuning from evidence: `TIER_WEIGHTS`, `HEAT_WORDS`, `SELF_CHOICE` (she picked a picture herself 0/12 in
