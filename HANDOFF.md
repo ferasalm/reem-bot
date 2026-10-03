@@ -6,7 +6,7 @@ HANDOFF.md says something different, the shared branch wins. Every session start
 that isn't here, stop and ask the owner before building anything. Session rules are in `CLAUDE.md`.
 
 ## Status (2026-10-03)
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free plan).
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (**Workers Paid since 2026-10-03**, $5/month).
 - **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02, plus fast timing, instant settings
   commands and her voice in person scenes (same day, c166420; details below). Before that:
   v8 + v9 (PR #5) on Lunaris 8B.
@@ -34,6 +34,20 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - **2026-10-02 (later still): her voice in person, deployed** (owner: "Deploy"): `main` fast-forwarded to c166420.
   Deploy run 36957037841 green; read back with the Cloudflare MCP: `sayScene`, `sceneSpeech`, SCENE_CHANCE 0.25,
   the new STAGE_DIRECTIONS. Not yet heard: a real clip from an intimate scene (ask her "say it again" mid-scene).
+- **2026-10-03: Workers Paid + budget guards — on `dev`, not deployed** (owner subscribed, picked "B + A's guards"
+  from the options built on Gemini's research PDF). Cloudflare's 4006 block is gone: the AI diagnosis run
+  37129277037 (14:21 UTC) drew with klein (`cf-ai-neurons: 104.20`), schnell and the text model all answered.
+  The live bot needs no deploy to work again (its ledger retries hourly, see "Real cause" 5 below).
+  Guards: (1) `AI_BUDGET.DAILY_NEURONS` 9,000 → 28,000 = the money cap (10,000 free + at most 18,000 paid =
+  $0.20 a day, ~$6/month worst case), `PICTURE_SHARE` 0.6 → 0.8 (~210 pictures a day); /setup shows the price.
+  These two only take effect after a deploy (until then the bot stops at 9,000, inside the free part). (2) Test
+  runs (`tools/face/draw.mjs`, face.yml) read the account's real usage today (GraphQL `totalNeurons`, bot
+  included) and refuse a job over 3,000 neurons or one that would take the day past 7,000 (`max_neurons` /
+  `day_neurons` in job.json raise them); they stop mid-run at the cap, counting the `cf-ai-neurons` header.
+  Checked for real: refusal (face run 37129365372, twice) and a normal one-picture run (37129408047: drew, counted
+  138 neurons from the header, picture looked at: same adult woman, shirt, legs crossed, no phone). The analytics
+  query returns today's rows (diag run: hours 00/05/10, rejected calls, 0 neurons) but still read 0 three minutes
+  after the diagnosis spent ~270: ingestion lags several minutes, so the guard can't see the last minutes.
 - **2026-10-03: voice notes less often — deployed** (owner: "Deploy"; `main` = 007b735) (owner: "sending voice messages TOO
   often"). Cause: `VOICE.CHANCE` 0.2 plus every `[voice]` she chose herself, and old `[voice] ...` lines in the
   history pull her to more. Now `VOICE.CHANCE` 0.1 and `VOICE.SELF_CHOICE_GAP` 4 (`mayChooseVoice` in shapeReply:
@@ -236,6 +250,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-03 — **Cloudflare Workers Paid** (owner subscribed; picked "B + A's guards" over waiting on the free
+  plan, an OpenRouter klein fallback, Vertex AI's $300 trial and Segmind/Fal): pay $5/month, keep a daily money
+  cap in code (`AI_BUDGET.DAILY_NEURONS` 28,000 = at most $0.20/day; Claude's value, tunable) and cap test runs
+  by real usage. Never a second free account (Cloudflare's terms). *Supersedes "Cloudflare free tier only" in
+  Pictures v2.*
 - 2026-10-03 — **Deploy the Workers AI fixes** (owner: "Fix everything and fix the bot so everything works NOW"):
   out-of-neurons no longer read as unavailable, PICTURE_NEURONS 105, klein's seed back, hourly retry after
   "used up" (`OUT_RETRY_MS`, Claude's value). Not done: a non-Cloudflare image fallback (would change the
@@ -258,7 +277,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   under 18, never OOC. *Supersedes "never sexual" in "Pictures v2" (which was Claude's proposal).*
 - 2026-10-02 — **Deploy pictures v2** (owner: "Deploy").
 - 2026-10-02 — **Pictures v2** (owner): **never the same picture twice** ("a hard no") → no photo pack, every
-  picture drawn new; **Cloudflare free tier only**; **pictures follow the voice rules**, only how often is scaled
+  picture drawn new; ~~**Cloudflare free tier only**~~ (superseded 2026-10-03: Workers Paid); **pictures follow the voice rules**, only how often is scaled
   to cost (voice clips in scenes → scene pictures too); agreed with Claude: never sexual, none after he says he's
   under 18. Image model (owner's pick of 2): **FLUX.2 klein + a reference face**. The face is chosen by Claude
   (owner: "address how you are going to get the face reference"); the owner can replace it with /face.
@@ -381,6 +400,8 @@ check; scenario rows for every slip seen.
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
 - `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,
   number, ms, range, bool, select, commands, map, groups, schedule. `tools/build-panel.mjs` rewrites its DEFAULTS.
+- Cloudflare tells the real cost of every REST call in the `cf-ai-neurons` response header (klein 104.2 at both
+  256 and 640 px). Analytics (GraphQL `aiInferenceAdaptiveGroups.sum.totalNeurons`) lag a few minutes.
 - `tools/ai-diag.mjs` + `.github/workflows/ai-diag.yml`: Workers AI diagnosis (token, model schemas, neuron usage
   by hour and model from GraphQL analytics, tiny test calls, full answers). Runs when either file changes or by hand.
 - `tools/sync-check.mjs` + `tools/retired-branches.txt`: the sync report (session start, CI `sync` job).
@@ -406,7 +427,8 @@ check; scenario rows for every slip seen.
   texts are "I"), but an OOC answer may name her.
 - Reactions only when apart, never OOC or when she texts first; stored on her entry (`react`, `reactTo`) so /retry,
   /rewind and his edits clear them.
-- Free plan: at most 50 outside calls per run (`budget`, `SUBREQUEST_RESERVE`); about 1000 KV writes per day.
+- Free plan limits still coded (Workers Paid since 2026-10-03 lifts them; not yet changed in code): at most 50
+  outside calls per run (`budget`, `SUBREQUEST_RESERVE`); about 1000 KV writes per day; 10 ms CPU.
   A reply can take up to 4 OpenRouter calls (2 attempts + backup, then one retry).
 - Context: `LLM.CONTEXT_TOKENS` 32768 for DeepSeek; the Lunaris backup gets older chat cut to 8192
   (`fitMessages`). History folds into notes at 40 messages, keeping 24 (PR #6 had cut this to 24/14 for Lunaris).
@@ -434,6 +456,12 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
+0000. **Deploy the Workers Paid cap** when the owner asks (until then the bot stops at 9,000 neurons a day). Owner
+   (optional): Cloudflare dashboard > Notifications > add a billing/usage alert as a second safety net.
+   Ideas for the paid plan, owner picks (see the 2026-10-03 session's list): more pictures (CHANCE values), klein
+   at 1024 px (same 4 output tiles as 640 px, so likely the same ~104 neurons, but slower), klein 9B for a
+   better face (~$0.017 a picture), lift the free-plan limits in code (subrequests, his photos above 800 px),
+   DeepSeek V4 Flash on Workers AI as the chat backup or main (needs a bench; owner decides models).
 000. ~~Picture bug fix (5006 `/seed`, belfie drawn as mirror)~~ **done and deployed 2026-10-03** (Status). Owner:
    after Cloudflare's neuron allowance resets (4006 on 2026-10-03 00:12 UTC), ask her for a pic, a lingerie pic
    and a belfie; /setup should show no new 5006 line (a `3030` line is the filter refusing; a tamer picture still
