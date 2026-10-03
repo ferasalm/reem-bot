@@ -2619,14 +2619,13 @@ async function imageBytes(out) {
 async function drawPicture(env, prompt, { size = CONFIG.PICTURE.SIZE, face = true } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
-  const seed = Math.floor(Math.random() * 2147483647);
   const who = (w) => (String(prompt).includes("{who}") ? String(prompt).replace("{who}", w) : `${w} ${prompt}`).replace(/\s{2,}/g, " ").trim();
   try {
     const form = new FormData();
     form.append("prompt", who(ref ? P.REFERENCE : P.LOOKS));
     form.append("width", String(size));
     form.append("height", String(size));
-    form.append("seed", String(seed));
+    // no seed: since 2026-10-03 klein answers 5006 "Additional or unevaluated properties '/seed'" (docs still list it)
     if (ref) form.append("input_image_0", new Blob([ref], { type: "image/jpeg" }), "face.jpg");
     const packed = new Response(form); // serializes the form, with its boundary in the content type
     const out = await aiRun(env, P.MODEL, { multipart: { body: packed.body, contentType: packed.headers.get("content-type") } }, P.TIMEOUT_MS);

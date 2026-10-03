@@ -44,7 +44,12 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   3030 refusal stands and never goes to the backup (the existing one-tier-tamer retry in `startPicture` is
   unchanged), and schnell is called without `seed`. Also: a shot he names (`planShot` → `named: true`, e.g.
   belfie) now wins over the type she writes in her marker (`selfiePicture`). 4 scenario rows (failed on the old
-  code, pass now); unit, scenarios, e2e green. Not yet seen: a picture after a lingerie ask in the real chat.
+  code, pass now); unit, scenarios, e2e green.
+  **First deploy (run 37080158024, version 50ee9fe4) showed the real cause**: its /health got the same 5006 from
+  **klein itself** (no backup involved): since 2026-10-03 the live klein rejects the `seed` field, although
+  Cloudflare's docs still list it (it worked on 2026-10-02). So every picture failed, not only lingerie. Now no
+  `seed` is sent to klein either (`drawPicture`, and `tools/face/draw.mjs`); scenario row added; redeployed (see
+  the next line). Variety doesn't depend on it: repeats are still blocked by the hash check.
 - **2026-10-02 (late night): pictures v3 deployed** (owner: "merge and deploy"; the first push to `main` was held by
   the session's auto-mode check until the owner allowed it): `main` fast-forwarded to 04f23b8. Deploy run
   37071745296 green: bindings KV, queue, AI; version `be5f7c44-133b-49df-8087-b4d739c09639`. /health: klein drew
@@ -212,6 +217,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
 - 2026-10-03 — **Picture fix approved and deployed** (owner: "Do Next step 000 (the picture fix I approved) ...
   then deploy"): a 3030 refusal never goes to the backup model; schnell without `seed`; the shot he names wins.
+  Klein without `seed` too (Claude, same session: the live klein started rejecting it; deployed under the same ask).
 - 2026-10-03 — **Fewer voice notes** (owner: "fix those bugs"): `VOICE.CHANCE` 0.1, `VOICE.SELF_CHOICE_GAP` 4
   (Claude's values, tunable on the panel). Not deployed.
 - 2026-10-02 — **Deploy pictures v3** (owner: "merge and deploy").

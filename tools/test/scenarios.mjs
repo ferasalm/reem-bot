@@ -532,6 +532,11 @@ section("pictures: his photos (Workers AI vision)");
     env.AI = fakeAI("3030: Input prompt contains NSFW content (model not available for this prompt)");
     const refused = await W.drawPicture(env, "{who} in a lace bodysuit").then(() => null, (e) => e.message);
     yes(/3030/.test(refused || "") && calls.every((c) => c.model === W.CONFIG.PICTURE.MODEL), "a 3030 refusal stands: never redrawn by the backup", calls.map((c) => c.model));
+    // live 2026-10-03 (deploy run 37080158024 /health): klein itself rejects a seed now
+    calls.length = 0;
+    env.AI = { async run(model, input) { calls.push({ model, input }); const f = input.multipart ? Object.fromEntries([...(await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData())]) : input; if ("seed" in f) throw new Error("5006: Error: Additional or unevaluated properties '/seed' at '/' not allowed"); return { image: btoa("klein picture") }; } };
+    const klein = await W.drawPicture(env, "{who} at a café").catch((e) => ({ error: e.message }));
+    yes(klein.model === W.CONFIG.PICTURE.MODEL && calls.length === 1, "klein drawn with no seed field (5006 otherwise)", klein.error || calls.map((c) => c.model));
     calls.length = 0;
     env.AI = fakeAI("5035: model unavailable");
     const backup = await W.drawPicture(env, "{who} at a café").catch((e) => ({ error: e.message }));
