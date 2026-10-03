@@ -1,0 +1,27 @@
+{
+  "note": "Her fixed places, empty: pick the best of each pair, matching LOOK, no people, believable as a real Boston-area apartment.",
+  "mode": "places",
+  "size": 640,
+  "labels": [
+    "his_bedroom",
+    "his_living",
+    "bedroom",
+    "bathroom",
+    "kitchen",
+    "living",
+    "porch",
+    "hallway"
+  ],
+  "prompts": [
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a plain bedroom: a big bed with dark gray sheets, a wooden nightstand with a phone charger, white walls, half-open blinds. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a plain living room: a gray fabric couch, a big TV on a low stand, a coffee table with a game controller and a mug, bare white walls, a bike by the door. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a small bathroom: white subway tiles, a round mirror with a thin brass frame over a white pedestal sink, black-and-white hexagon floor tiles, warm vanity light. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a narrow kitchen: white cabinets, open wooden shelves with mismatched mugs, a small window over the sink with herbs on the sill, warm under-cabinet light. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a living room in an old brick building: an exposed red brick wall, tall windows with white trim, a deep green velvet sofa, a worn Persian rug, a brass floor lamp, plants, a desk in the corner with fabric samples and a mood board. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a small second-floor wooden back porch: white railings, two mismatched chairs, string lights, maple trees and neighbors' rooftops behind. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: an old apartment-building hallway: worn wooden stairs with a dark banister, a checkered tile floor, two facing apartment doors painted dark green, a radiator under a window. Lived-in and real, not staged."
+  ],
+  "per_prompt": 2,
+  "describe": false
+}
