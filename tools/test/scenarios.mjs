@@ -523,6 +523,30 @@ section("pictures: his photos (Workers AI vision)");
   const tries = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).slice(-2).map((a) => a.fields.prompt);
   yes(r.photos.length === 1 && tries.length === 2 && tries[0].includes("red satin corset") && !tries[1].includes("corset") && W.CONFIG.PICTURE.WARDROBE.FLIRTY.some((w) => tries[1].includes(w)), "safety filter (3030): drawn once more, one tier tamer, so a picture still comes", tries[1]);
   eq(r.saved.parts.at(-1).text.startsWith("[selfie: mirror, wearing "), true, "...and history says what was really drawn");
+  // seen live 2026-10-03: after a refused lingerie pic, /setup showed "5006: Additional or unevaluated properties
+  // '/seed'": the 3030 refusal went to the FLUX.1 schnell backup, called with a seed it rejects
+  {
+    const calls = [];
+    const fakeAI = (fail) => ({ async run(model, input) { calls.push({ model, input }); if (model === W.CONFIG.PICTURE.MODEL) throw new Error(fail); if (input && "seed" in input) throw new Error("5006: Additional or unevaluated properties '/seed' at '/' not allowed"); return { image: btoa("backup picture") }; } });
+    const realAI = env.AI;
+    env.AI = fakeAI("3030: Input prompt contains NSFW content (model not available for this prompt)");
+    const refused = await W.drawPicture(env, "{who} in a lace bodysuit").then(() => null, (e) => e.message);
+    yes(/3030/.test(refused || "") && calls.every((c) => c.model === W.CONFIG.PICTURE.MODEL), "a 3030 refusal stands: never redrawn by the backup", calls.map((c) => c.model));
+    calls.length = 0;
+    env.AI = fakeAI("5035: model unavailable");
+    const backup = await W.drawPicture(env, "{who} at a café").catch((e) => ({ error: e.message }));
+    const sent = calls.find((c) => c.model === W.CONFIG.PICTURE.BACKUP_MODEL);
+    yes(backup.model === W.CONFIG.PICTURE.BACKUP_MODEL && sent && !("seed" in sent.input), "klein unavailable: schnell draws, with no seed (its schema rejects one)", sent && sent.input);
+    env.AI = realAI;
+  }
+  // seen live 2026-10-03: "send me a belfie" + her [selfie: mirror, ...] came out as a plain mirror shot
+  {
+    const plan = W.planShot({ asked: "send me a belfie", history: [] });
+    eq([plan.shot, plan.named], ["mirror-back", true], "planShot: the shot he named is marked named");
+    eq(W.planShot({ asked: "send me a pic", history: [] }).named, false, "...and nothing named: not marked");
+    eq(W.selfiePicture({ want: "mirror, black leggings", plan, asked: "send me a belfie" }).shot, "mirror-back", "he named a belfie, she wrote 'mirror': still the belfie");
+    yes(W.selfiePicture({ want: "mirror, black leggings", plan, asked: "send me a belfie" }).prompt.includes("black leggings"), "...with her words");
+  }
   r = await turn("send me a pic of you", ["here\n\n[selfie: wearing nothing at all]"], { history: APART });
   yes(!/nothing at all/.test(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt), "'wearing nothing' is never drawn");
 

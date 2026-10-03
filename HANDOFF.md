@@ -38,10 +38,13 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   often"). Cause: `VOICE.CHANCE` 0.2 plus every `[voice]` she chose herself, and old `[voice] ...` lines in the
   history pull her to more. Now `VOICE.CHANCE` 0.1 and `VOICE.SELF_CHOICE_GAP` 4 (`mayChooseVoice` in shapeReply:
   her own `[voice]` with a voice note in her last 4 replies goes out as text). Unit, scenarios (3 rows), e2e green. Deploy run not read (owner asked to save usage).
-- **2026-10-03: pictures stop after a lingerie pic — open, owner decides.** /setup's last AI error: `5006:
-  Additional or unevaluated properties '/seed' at '/' not allowed` (neurons 890/9000). A refused klein draw went to
-  the FLUX.1 schnell backup with a `seed`, which schnell rejects. Also seen: the shot type she writes overrides the
-  one he named (belfie). No code change made; waiting on the owner.
+- **2026-10-03: pictures stop after a lingerie pic — fixed and deployed** (owner: "Do Next step 000 ... then deploy").
+  /setup's last AI error was `5006: Additional or unevaluated properties '/seed' at '/' not allowed`: a refused
+  klein draw (3030) went to the FLUX.1 schnell backup with a `seed`, which schnell rejects. Now (`drawPicture`) a
+  3030 refusal stands and never goes to the backup (the existing one-tier-tamer retry in `startPicture` is
+  unchanged), and schnell is called without `seed`. Also: a shot he names (`planShot` → `named: true`, e.g.
+  belfie) now wins over the type she writes in her marker (`selfiePicture`). 4 scenario rows (failed on the old
+  code, pass now); unit, scenarios, e2e green. Not yet seen: a picture after a lingerie ask in the real chat.
 - **2026-10-02 (late night): pictures v3 deployed** (owner: "merge and deploy"; the first push to `main` was held by
   the session's auto-mode check until the owner allowed it): `main` fast-forwarded to 04f23b8. Deploy run
   37071745296 green: bindings KV, queue, AI; version `be5f7c44-133b-49df-8087-b4d739c09639`. /health: klein drew
@@ -207,6 +210,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-03 — **Picture fix approved and deployed** (owner: "Do Next step 000 (the picture fix I approved) ...
+  then deploy"): a 3030 refusal never goes to the backup model; schnell without `seed`; the shot he names wins.
 - 2026-10-03 — **Fewer voice notes** (owner: "fix those bugs"): `VOICE.CHANCE` 0.1, `VOICE.SELF_CHOICE_GAP` 4
   (Claude's values, tunable on the panel). Not deployed.
 - 2026-10-02 — **Deploy pictures v3** (owner: "merge and deploy").
@@ -396,22 +401,9 @@ check; scenario rows for every slip seen.
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 
 ## Next steps
-000. **Picture bug fix (owner asked for it, 2026-10-03; not done)**. Live symptom: after a lingerie pic, pictures
-   stop; /setup's last AI error is `5006: Additional or unevaluated properties '/seed' at '/' not allowed`. Cause in
-   `drawPicture`: when klein's draw fails, the error is taken as "model unavailable" and FLUX.1 schnell is called
-   with `seed`, which schnell's schema rejects, so nothing is sent. Also: in `selfiePicture` the shot type she
-   writes overrides the shot he named (a belfie came out as a plain mirror shot). The owner-approved fix, 4 edits
-   in worker.js:
-   1. `drawPicture`: `if (!P.BACKUP_MODEL || !aiUnavailable(e)) throw e;` →
-      `if (!P.BACKUP_MODEL || aiFiltered(e) || !aiUnavailable(e)) throw e;` (a 3030 refusal never goes to the backup)
-   2. `drawPicture`: the schnell call `{ prompt: who(P.LOOKS), steps: P.BACKUP_STEPS, seed }` → drop `seed`.
-   3. `planShot`: return `named: true` when the shot he named is used (`const his = !!named && tierShots(tier).includes(named)`).
-   4. `selfiePicture`: `let shot = plan && plan.named ? plan.shot : s.shot; if (!tier && plan && plan.named) tier = plan.tier;`
-   Add scenario rows (3030 → no backup call; schnell input has no `seed`; "send me a belfie" + her `[selfie: mirror,
-   ...]` → mirror-back), run Testing, push to `dev`, deploy only when the owner says so.
-   Context: Claude's auto-mode safety check in session 01LosUi6 refused these edits ("Security Weaken"), probably
-   because they touch the safety-filter (3030) path. The owner can't switch that session's mode. Not part of the fix:
-   rewording prompts to get past Cloudflare's filter (Claude declined; a 3030 refusal stands).
+000. ~~Picture bug fix (5006 `/seed`, belfie drawn as mirror)~~ **done and deployed 2026-10-03** (Status). Owner:
+   ask her for a lingerie pic and a belfie; /setup should show no new 5006 line (a `3030` line is the filter
+   refusing; a tamer picture still comes).
 00. **Pictures v3 (deployed 2026-10-02)**. Owner, now: /setup once, then ask her for a pic, a
    belfie, a lingerie pic; read /setup for any `3030` line (the filter refused a picture and a tamer one was
    drawn). Tuning from evidence: `TIER_WEIGHTS`, `HEAT_WORDS`, `SELF_CHOICE` (she picked a picture herself 0/12 in

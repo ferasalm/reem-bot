@@ -2453,7 +2453,8 @@ function pickShot(tier, recentShots = [], hour = herHour()) {
 function planShot({ asked = "", history = [], recentShots = [], hour = herHour() } = {}) {
   const named = shotNamed(asked);
   const tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot: named });
-  return { tier, shot: named && tierShots(tier).includes(named) ? named : pickShot(tier, recentShots, hour) };
+  const his = !!named && tierShots(tier).includes(named);
+  return { tier, shot: his ? named : pickShot(tier, recentShots, hour), named: his };
 }
 
 // {shot} and {hint} for what she's told about the picture the code decided
@@ -2562,7 +2563,9 @@ function selfiePicture({ want = null, said = "", plan = null, history = [], aske
   const P = CONFIG.PICTURE;
   const s = selfieSubject(want, recent, said);
   let tier = s.explicit || (s.words && testPattern("BOUDOIR_ASK_PATTERN", s.words)) ? "boudoir" : null;
-  let shot = s.shot;
+  // the shot he named wins over the type she writes (seen live: a belfie asked, drawn as a plain mirror shot)
+  let shot = plan && plan.named ? plan.shot : s.shot;
+  if (!tier && plan && plan.named) tier = plan.tier;
   if (!tier && plan && (!shot || tierShots(plan.tier).includes(shot))) tier = plan.tier;
   if (!tier) tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot });
   // Her own description with no type: the shot she was told (plan), else a plain selfie, never a random
@@ -2629,9 +2632,10 @@ async function drawPicture(env, prompt, { size = CONFIG.PICTURE.SIZE, face = tru
     const out = await aiRun(env, P.MODEL, { multipart: { body: packed.body, contentType: packed.headers.get("content-type") } }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.MODEL };
   } catch (e) {
-    if (!P.BACKUP_MODEL || !aiUnavailable(e)) throw e;
+    // a 3030 refusal stands: never redrawn by the backup
+    if (!P.BACKUP_MODEL || aiFiltered(e) || !aiUnavailable(e)) throw e;
     await aiFailed(env, `drawing with ${P.MODEL}: ${aiText_(e)}; used ${P.BACKUP_MODEL}`);
-    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: who(P.LOOKS), steps: P.BACKUP_STEPS, seed }, P.TIMEOUT_MS);
+    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: who(P.LOOKS), steps: P.BACKUP_STEPS }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.BACKUP_MODEL };
   }
 }
