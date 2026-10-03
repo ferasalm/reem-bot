@@ -7,9 +7,9 @@ Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
-- **Live (`main`, deployed 2026-10-03):** v10 on DeepSeek V4 Flash; Lebanese Reem in Belmont, MA (clock
+- **Live (`main`, deployed 2026-10-03, last at 22:24 UTC with everything below):** v10 on DeepSeek V4 Flash; Lebanese Reem in Belmont, MA (clock
   America/New_York); Basbousa "she"; fixed places (`places.js`); pictures 768x1024; daily AI cap 28,000 neurons.
-- **On `dev`, not deployed:**
+- **Deployed 22:24 UTC (was on `dev`):**
   - (earlier session) ROOM no longer asks for the reference's light; no bathroom in body-length mirror shots;
     `takeSelfie` ignores bracketed pauses and drops a "sends:" label; 4 persona situations in the live check.
   - (this session) **night place pictures**: 7 rooms drawn at night from their day pictures (`places/<key>_night.jpg`,
@@ -25,8 +25,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   that draws it (next step 2).
 
 ## Waiting on the owner
-- **Deploy?** The `dev` work above is tested (mocked; pictures read one at a time). Say "Deploy" to merge `dev` into `main`.
-- **Open `/setup` once** (if not done since the 2026-10-03 deploy), then try a pic, a lingerie pic, "let me see you".
+- **Open `/setup` once** (after the 22:24 deploy), then try a pic at night, a lingerie pic, "let me see you".
 - **Delete the old branches:** Actions > Delete retired branches > Run workflow, type `delete`. `face-candidates` stays.
 
 ## Verified this session (2026-10-03)
@@ -55,7 +54,8 @@ Each has a recommended effort. The owner sets the effort; Claude only recommends
 5. **Later (owner's plan):** ElevenLabs v4 instead of v3 (`isV3()`). *Effort: high*
 
 ## Open questions for the owner
-- Deploy the `dev` work now (night rooms included), or after step 1?
+- Owner asked 2026-10-03: time-awareness, a daily plan, explicitness, natural-looking pictures → answered in chat;
+  the owner picks which proposal to do (day plan, picture probe run).
 
 ## Prompt for the next chat (paste as-is)
 > Continue reem-bot. Follow CLAUDE.md (the sync report first; if it lists other branches with work, stop and ask
