@@ -19,7 +19,7 @@ async function drawCloudflare(prompt, seed) {
   form.append("prompt", prompt);
   form.append("width", String(job.size));
   form.append("height", String(job.size));
-  // no seed: klein answers 5006 to one since 2026-10-03
+  form.append("seed", String(seed));
   if (job.reference) form.append("input_image_0", new Blob([readFileSync(job.reference)], { type: "image/jpeg" }), "ref.jpg");
   const t0 = Date.now();
   const res = await fetch(api(DRAW), { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: form });

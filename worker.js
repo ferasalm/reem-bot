@@ -751,7 +751,7 @@ Changing the story
   AI_BUDGET: {
     DAILY_NEURONS: 9000,               // stop here (the free allocation is 10,000)
     PICTURE_SHARE: 0.6,                // pictures stop at this share of DAILY_NEURONS, so photos stay seeable
-    PICTURE_NEURONS: 50,               // FLUX.2 klein, 640x640 (1.56 tiles x 26.05) + the reference face (5.37)
+    PICTURE_NEURONS: 105,              // FLUX.2 klein, 640x640 + the reference face: measured 91-106 a picture (Cloudflare analytics, 2026-10-02)
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
     HEALTH_NEURONS: 40,                // one /health check
@@ -2172,8 +2172,11 @@ async function aiRun(env, model, input, timeoutMs, retry = true) {
 
 // What a Workers AI error means (the binding throws errors whose message carries the code)
 const aiText_ = (e) => String((e && (e.message || e)) || "");
-const aiOutOfNeurons = (e) => /\b3036\b|daily free allocation|neurons/i.test(aiText_(e));
-const aiUnavailable = (e) => /\b5035\b|\b403\b|workers paid|upgrade|not (?:found|available)|no such model|\b5007\b/i.test(aiText_(e));
+// Out of neurons: 3036 in the docs; the live API says 4006 (seen 2026-10-03), same words
+const aiOutOfNeurons = (e) => /\b3036\b|\b4006\b|daily free allocation|neurons/i.test(aiText_(e));
+// Its message also says "please upgrade to ... Workers Paid": that's out of neurons, not a model we can't use
+// (seen live: read as unavailable, the backup was tried and its 5006 hid the real error on /setup)
+const aiUnavailable = (e) => !aiOutOfNeurons(e) && /\b5035\b|\b403\b|workers paid|upgrade|not (?:found|available)|no such model|\b5007\b/i.test(aiText_(e));
 // Workers AI's safety filter refused the prompt (3030)
 const aiFiltered = (e) => /\b3030\b/.test(aiText_(e));
 const aiBusy = (e) => /\b3040\b|capacity|\b429\b/i.test(aiText_(e)) && !aiOutOfNeurons(e);
@@ -2619,13 +2622,14 @@ async function imageBytes(out) {
 async function drawPicture(env, prompt, { size = CONFIG.PICTURE.SIZE, face = true } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
+  const seed = Math.floor(Math.random() * 2147483647);
   const who = (w) => (String(prompt).includes("{who}") ? String(prompt).replace("{who}", w) : `${w} ${prompt}`).replace(/\s{2,}/g, " ").trim();
   try {
     const form = new FormData();
     form.append("prompt", who(ref ? P.REFERENCE : P.LOOKS));
     form.append("width", String(size));
     form.append("height", String(size));
-    // no seed: since 2026-10-03 klein answers 5006 "Additional or unevaluated properties '/seed'" (docs still list it)
+    form.append("seed", String(seed)); // klein takes a seed; schnell doesn't (5006)
     if (ref) form.append("input_image_0", new Blob([ref], { type: "image/jpeg" }), "face.jpg");
     const packed = new Response(form); // serializes the form, with its boundary in the content type
     const out = await aiRun(env, P.MODEL, { multipart: { body: packed.body, contentType: packed.headers.get("content-type") } }, P.TIMEOUT_MS);

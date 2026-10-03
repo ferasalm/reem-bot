@@ -45,17 +45,29 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
   unchanged), and schnell is called without `seed`. Also: a shot he names (`planShot` → `named: true`, e.g.
   belfie) now wins over the type she writes in her marker (`selfiePicture`). 4 scenario rows (failed on the old
   code, pass now); unit, scenarios, e2e green.
-  **First deploy (run 37080158024, version 50ee9fe4) showed the real cause**: its /health got the same 5006 from
-  **klein itself** (no backup involved): since 2026-10-03 the live klein rejects the `seed` field, although
-  Cloudflare's docs still list it (it worked on 2026-10-02). So every picture failed, not only lingerie. Now no
-  `seed` is sent to klein either (`drawPicture`, and `tools/face/draw.mjs`); scenario row added. Variety doesn't
-  depend on it: repeats are still blocked by the hash check.
-  **Redeployed** (`main` = 24426b0, run 37080976885 green, version `545088f5-f66b-474c-921b-a3f0cda43824`). Its
-  /health got no 5006 but `4006: you have used up your daily free allocation of 10,000 neurons` (the bot's own
-  ledger says 40 today; Cloudflare's count differs, maybe a different reset time or yesterday's grid runs). The
-  face run 37080391801 got the same 4006. **So klein without `seed` is not yet confirmed on the real API.** The bot
-  treats 4006 as out of neurons (`aiOutOfNeurons`): pictures pause, chat goes on. Next: once the allowance is
-  back, /setup or a pic in the chat must show a picture and no 5006; if 5006 persists, look at the other fields.
+  **Real cause, found with the AI diagnosis workflow (runs 37082338382, 37082488378; owner: "Debug, diagnose and
+  find the real cause")**:
+  1. **The account really ran out on 2026-10-02**: Cloudflare analytics show 10,378 neurons that UTC day (18h 4,430;
+     21h 5,011; 22h 938), past 10,000 during the 22:00 hour, when pictures stopped. Klein costs **91-106 neurons a
+     picture**, not the 50 the bot estimated, and the face.yml grid runs (REST API) never go through the bot's
+     ledger, so the ledger said 890/9000.
+  2. **The bot hid it**: out of neurons is `4006` live (3036 in the docs) and its message says "please upgrade to
+     ... Workers Paid plan". `aiUnavailable` matched "upgrade"/"workers paid", took it for a model we can't use and
+     tried the backup; schnell's 5006 `/seed` replaced the real error on /setup, and the ledger never stopped.
+     Fixed: `aiUnavailable` is false for out-of-neurons, `aiOutOfNeurons` knows 4006 (scenario rows); the vision
+     backup used the same check. `AI_BUDGET.PICTURE_NEURONS` 50 → 105 (measured).
+  3. **Klein does take `seed`** (the diagnosis: klein + seed → 4006, schnell + seed → 5006, so validation runs
+     first and passed). Claude's "klein rejects seed" from the first deploy was wrong: the 00:01 /health 5006 was
+     most likely the old code still serving right after the deploy. `seed` restored for klein (worker.js,
+     draw.mjs). Schnell without `seed` stays (its schema: prompt, steps only).
+  4. **Still blocked on 2026-10-03 after 00:00 UTC**: every call (klein, schnell, a 1B text model) gets 4006 while
+     the analytics show 0 neurons today (11 calls, all rejected) and the owner's dashboard shows 0 usage, no
+     incident on cloudflarestatus. Cloudflare's counter reset but its block didn't: a Cloudflare-side problem,
+     not fixable in code. Request ids for support: `b9e9b3eb-e8e5-4032-816b-12655ac13e84`,
+     `a8f660d9-faaf-488f-bf4b-6ff2f158bd2f` (00:32 UTC). The bot's ledger is also marked out for today (`out`), so
+     it won't try again before 00:00 UTC on 2026-10-04 even if Cloudflare lifts the block sooner.
+  Deployed: the first two commits (2f3fd48, 24426b0: klein without seed, harmless). The fixes in 1-3 are on `dev`,
+  **not deployed** (owner decides).
 - **2026-10-02 (late night): pictures v3 deployed** (owner: "merge and deploy"; the first push to `main` was held by
   the session's auto-mode check until the owner allowed it): `main` fast-forwarded to 04f23b8. Deploy run
   37071745296 green: bindings KV, queue, AI; version `be5f7c44-133b-49df-8087-b4d739c09639`. /health: klein drew
@@ -223,7 +235,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
 - 2026-10-03 — **Picture fix approved and deployed** (owner: "Do Next step 000 (the picture fix I approved) ...
   then deploy"): a 3030 refusal never goes to the backup model; schnell without `seed`; the shot he names wins.
-  Klein without `seed` too (Claude, same session: the live klein started rejecting it; deployed under the same ask).
+  ~~Klein without `seed` too~~ (Claude's misreading, reverted; see Status "Real cause").
 - 2026-10-03 — **Fewer voice notes** (owner: "fix those bugs"): `VOICE.CHANCE` 0.1, `VOICE.SELF_CHOICE_GAP` 4
   (Claude's values, tunable on the panel). Not deployed.
 - 2026-10-02 — **Deploy pictures v3** (owner: "merge and deploy").
@@ -362,6 +374,8 @@ check; scenario rows for every slip seen.
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
 - `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,
   number, ms, range, bool, select, commands, map, groups, schedule. `tools/build-panel.mjs` rewrites its DEFAULTS.
+- `tools/ai-diag.mjs` + `.github/workflows/ai-diag.yml`: Workers AI diagnosis (token, model schemas, neuron usage
+  by hour and model from GraphQL analytics, tiny test calls, full answers). Runs when either file changes or by hand.
 - `tools/sync-check.mjs` + `tools/retired-branches.txt`: the sync report (session start, CI `sync` job).
 - Tests (`tools/test/`): `unit.mjs`; `scenarios.mjs` (model outputs → delivery table, properties, scene state,
   mocked conversations; add a row for every new slip seen); `e2e.mjs` (whole flows, exits 1 on any false check);

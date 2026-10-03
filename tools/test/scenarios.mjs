@@ -532,11 +532,15 @@ section("pictures: his photos (Workers AI vision)");
     env.AI = fakeAI("3030: Input prompt contains NSFW content (model not available for this prompt)");
     const refused = await W.drawPicture(env, "{who} in a lace bodysuit").then(() => null, (e) => e.message);
     yes(/3030/.test(refused || "") && calls.every((c) => c.model === W.CONFIG.PICTURE.MODEL), "a 3030 refusal stands: never redrawn by the backup", calls.map((c) => c.model));
-    // live 2026-10-03 (deploy run 37080158024 /health): klein itself rejects a seed now
+    // live 2026-10-03 (AI diagnosis run 37082338382): out of neurons is 4006 and says "please upgrade to ...
+    // Workers Paid"; read as "unavailable", the backup was tried with a seed and its 5006 hid the real error
     calls.length = 0;
-    env.AI = { async run(model, input) { calls.push({ model, input }); const f = input.multipart ? Object.fromEntries([...(await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData())]) : input; if ("seed" in f) throw new Error("5006: Error: Additional or unevaluated properties '/seed' at '/' not allowed"); return { image: btoa("klein picture") }; } };
-    const klein = await W.drawPicture(env, "{who} at a café").catch((e) => ({ error: e.message }));
-    yes(klein.model === W.CONFIG.PICTURE.MODEL && calls.length === 1, "klein drawn with no seed field (5006 otherwise)", klein.error || calls.map((c) => c.model));
+    env.AI = fakeAI("4006: AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage.");
+    const out = await W.drawPicture(env, "{who} at a café").then(() => null, (e) => e.message);
+    yes(/daily free allocation/.test(out || "") && calls.every((c) => c.model === W.CONFIG.PICTURE.MODEL), "out of neurons (4006): the real error comes back, no backup tried", calls.map((c) => c.model));
+    const ledger = { neurons: 0, out: false };
+    W.aiSpent(ledger, 50, new Error(out));
+    eq(ledger.out, true, "...and the day's AI use stops (ledger out)");
     calls.length = 0;
     env.AI = fakeAI("5035: model unavailable");
     const backup = await W.drawPicture(env, "{who} at a café").catch((e) => ({ error: e.message }));
