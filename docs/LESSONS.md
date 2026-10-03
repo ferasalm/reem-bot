@@ -18,6 +18,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   sites (runware.ai, fal.ai) are blocked from the container: WebSearch still finds their prices. (2026-10-03)
 - Test pictures: push a `tools/face/job.json` to your own branch (not `dev`); face.yml draws and pushes them to
   `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
+  Pushing those commits to `dev` later runs face.yml once more (job.json changed in the push): ~4 pictures spent
+  twice on 2026-10-03. Fine when small; for a big job, push it to `dev` before the last job.json edit lands. (2026-10-03)
 - Commit, push your branch and push it to `dev` (standing permission, CLAUDE.md). Pushing to `main` deploys: only
   when the owner asks. Deleting branches is refused: the owner does it (`tools/retired-branches.txt`).
 
