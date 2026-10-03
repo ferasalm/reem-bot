@@ -13,7 +13,7 @@ const W = await loadWorker();
 const L = W.CONFIG.PICTURE.LOCATIONS;
 const night = process.argv.includes("--night");
 const only = process.argv.slice(2).filter((a) => a !== "--night");
-// at night: where the light comes from in each place (its LOOK and its day picture); bathroom: already lamp-lit
+// at night ("deep shadow" drew living, kitchen and porch too dark to use, run 37156755166): where the light comes from in each place (its LOOK and its day picture); bathroom: already lamp-lit
 const NIGHT_LIGHT = {
   bedroom: "the window is dark night blue behind the sheer curtains; the black iron bedside lamp is switched on, a warm amber pool of light over the rumpled white sheets and the cream throw, the floor mirror catching its glow",
   living: "the tall windows are black with night; the brass floor lamp is switched on, warm amber light across the green velvet sofa and the red brick wall, the plants throwing soft shadows",
@@ -29,7 +29,7 @@ const job = night ? {
   mode: "places-night",
   size: 640,
   labels: keys.map((k) => `${k}_night`),
-  prompts: keys.map((k) => `The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: ${NIGHT_LIGHT[k]}. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.`),
+  prompts: keys.map((k) => `The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: ${NIGHT_LIGHT[k]}. The room is warmly lit and easy to see, only its corners in soft shadow, a cozy lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.`),
   refs: keys.map((k) => [`tools/face/places/${k}.jpg`]),
   per_prompt: 2,
   describe: false,
