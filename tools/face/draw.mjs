@@ -18,7 +18,7 @@ let cloudflare = !!(token && account);
 // saw, and the bot was locked out). A run may cost at most RUN_CAP neurons, and is refused when it would take the
 // account's real usage today (GraphQL analytics, bot included) past DAY_CAP, so tests stay inside the free
 // allocation and leave the bot its share. job.json may raise either with "max_neurons" / "day_neurons".
-const PICTURE_NEURONS = 105, SEE_NEURONS = 60;
+const PICTURE_NEURONS = 125, SEE_NEURONS = 60; // klein: 4 output tiles (640x640 or 768x1024) + the reference images
 const RUN_CAP = job.max_neurons || 3000;
 const DAY_CAP = job.day_neurons || 7000;
 let spent = 0;
@@ -43,13 +43,17 @@ if (cloudflare) {
   if (today + estimate > DAY_CAP) { console.log(`Refused: it would take today past ${DAY_CAP}. Run it after 00:00 UTC, or set "day_neurons" in job.json.`); process.exit(1); }
 }
 
-async function drawCloudflare(prompt, seed) {
+// job.width/height (else job.size, square); job.refs[p]: more reference images for prompt p (input_image_1...)
+const W = job.width || job.size, H = job.height || job.size;
+const imagesFor = (p) => [job.reference, ...((job.refs && job.refs[p]) || [])].filter(Boolean);
+
+async function drawCloudflare(prompt, seed, p) {
   const form = new FormData();
   form.append("prompt", prompt);
-  form.append("width", String(job.size));
-  form.append("height", String(job.size));
+  form.append("width", String(W));
+  form.append("height", String(H));
   form.append("seed", String(seed));
-  if (job.reference) form.append("input_image_0", new Blob([readFileSync(job.reference)], { type: "image/jpeg" }), "ref.jpg");
+  imagesFor(p).forEach((f, i) => form.append(`input_image_${i}`, new Blob([readFileSync(f)], { type: "image/jpeg" }), `ref${i}.jpg`));
   const t0 = Date.now();
   const res = await fetch(api(DRAW), { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: form });
   spent += Number(res.headers.get("cf-ai-neurons")) || (res.ok ? PICTURE_NEURONS : 0);
@@ -73,7 +77,7 @@ async function drawCloudflare(prompt, seed) {
 }
 
 async function drawPollinations(prompt, seed) {
-  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${job.size}&height=${job.size}&seed=${seed}&model=flux&nologo=true`;
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${W}&height=${H}&seed=${seed}&model=flux&nologo=true`;
   const t0 = Date.now();
   const res = await fetch(url);
   console.log(`  pollinations: HTTP ${res.status}, ${res.headers.get("content-type")}, ${Date.now() - t0} ms`);
@@ -108,10 +112,10 @@ draw: for (const [p, prompt] of job.prompts.entries()) {
     n++;
     const seed = 1000 + n * 7919;
     const jpg = `${out}/${String(n).padStart(2, "0")}.jpg`;
-    console.log(`\n#${n} prompt ${p + 1}${job.labels ? ` (${job.labels[p]})` : ""}, seed ${seed}${job.reference ? `, reference ${job.reference}` : ""}`);
+    console.log(`\n#${n} prompt ${p + 1}${job.labels ? ` (${job.labels[p]})` : ""}, seed ${seed}${imagesFor(p).length ? `, references ${imagesFor(p).join(" ")}` : ""}`);
     let bytes = null;
     try {
-      if (cloudflare) bytes = await drawCloudflare(prompt, seed);
+      if (cloudflare) bytes = await drawCloudflare(prompt, seed, p);
     } catch (e) {
       console.log(`  cloudflare failed: ${e.message}`);
       if (e.status === 401 || e.status === 403) {
@@ -132,7 +136,9 @@ draw: for (const [p, prompt] of job.prompts.entries()) {
     console.log(`  format: ${ext}, ${bytes.length} bytes`);
     const raw = `${out}/${String(n).padStart(2, "0")}-full.${ext}`;
     writeFileSync(raw, bytes);
-    execFileSync("convert", [raw, "-resize", "480x480^", "-gravity", "center", "-extent", "480x480", "-quality", "86", "-strip", jpg]);
+    // a reference (job.square, the default): 480x480, under klein's 512 limit; else the whole picture, 600 px wide
+    if (job.square === false) execFileSync("convert", [raw, "-resize", "600x800", "-quality", "86", "-strip", jpg]);
+    else execFileSync("convert", [raw, "-resize", "480x480^", "-gravity", "center", "-extent", "480x480", "-quality", "86", "-strip", jpg]);
     execFileSync("rm", [raw]);
     console.log(`  saved ${jpg} (${readFileSync(jpg).length} bytes)`);
     // Small preview in the log, in case the branch push is refused
