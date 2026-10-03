@@ -5,6 +5,9 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-04 — **Deploy** (owner: "Deploy"): `dev` merged into `main`: night place pictures (`isDark`), ROOM without
+  the reference's light, no bathroom in body-length mirror shots, `takeSelfie` ignoring bracketed pauses, the FLUX
+  prompting skill in `.claude/settings.json`.
 - 2026-10-03 — **Deploy** (owner: "Deploy"): `dev` merged into `main`: Lebanese Reem in Belmont, Basbousa "she", fixed
   places, bigger and more frequent pictures, the Workers AI cap of 28,000 neurons a day, the branch-delete button.
 - 2026-10-03 — **Image and model providers: Cloudflare or OpenRouter only** (owner: "I already paid for cloudflare,
