@@ -39,25 +39,22 @@ await show("token verify (account)", `${base}/accounts/${account}/tokens/verify`
 for (const m of [KLEIN, SCHNELL]) await show(`schema ${m}`, `${base}/accounts/${account}/ai/models/schema?model=${encodeURIComponent(m)}`);
 await show("model search klein", `${base}/accounts/${account}/ai/models/search?search=klein`);
 
-// 3. Real neuron usage: find the Workers AI datasets, then query them for the last 3 days
-const gql = (query, variables = {}) => show("graphql", `${base}/graphql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ query, variables }) });
-const intro = await gql(`{ __type(name: "AccountFilter") { name } a: __type(name: "account") { fields { name } } }`);
-const names = ((intro && intro.data && intro.data.a && intro.data.a.fields) || []).map((f) => f.name).filter((n) => /^ai/i.test(n));
-console.log(`\nWorkers AI datasets: ${names.join(", ") || "(none found)"}`);
+// 3. Real neuron usage (aiInferenceAdaptiveGroups): look up its sum and dimension fields, then hourly totals
+const gql = (label, query, variables = {}) => show(label, `${base}/graphql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ query, variables }) });
+const fieldsOf = async (type) => { const r = await gql(`fields of ${type}`, `{ __type(name: "${type}") { fields { name } } }`); return ((r && r.data && r.data.__type && r.data.__type.fields) || []).map((f) => f.name); };
+const sums = await fieldsOf("AccountAiInferenceAdaptiveGroupsSum");
+const dims = await fieldsOf("AccountAiInferenceAdaptiveGroupsDimensions");
 const since = new Date(Date.now() - 3 * 864e5).toISOString();
 const until = new Date().toISOString();
-for (const ds of names.filter((n) => /AdaptiveGroups$/.test(n))) {
-  const t = await gql(`{ __type(name: "${ds.replace(/^./, (c) => c.toUpperCase())}") { name } x: __type(name: "account") { fields { name type { ofType { name fields { name type { name ofType { name fields { name } } } } } } } } }`);
-  const f = (t && t.data && t.data.x && t.data.x.fields || []).find((x) => x.name === ds);
-  const groupFields = (f && f.type && f.type.ofType && f.type.ofType.fields) || [];
-  const fieldsOf = (n) => { const g = groupFields.find((x) => x.name === n); const ty = g && (g.type.ofType || g.type); return ((ty && ty.fields) || []).map((x) => x.name); };
-  const sums = fieldsOf("sum"), dims = fieldsOf("dimensions");
-  console.log(`\n${ds}: sum { ${sums.join(" ")} } dimensions { ${dims.join(" ")} }`);
-  const want = dims.filter((d) => /^(datetimeHour|modelId|model|errorCode|status|.*[Ee]rror.*)$/.test(d));
-  const hour = dims.includes("datetimeHour") ? "datetimeHour" : dims.includes("datetimeMinute") ? "datetimeMinute" : null;
-  const filter = hour ? `{ ${hour}_geq: "${since}", ${hour}_leq: "${until}" }` : `{ datetime_geq: "${since}", datetime_leq: "${until}" }`;
-  await gql(`{ viewer { accounts(filter: { accountTag: "${account}" }) { g: ${ds}(limit: 500, filter: ${filter}${hour ? `, orderBy: [${hour}_ASC]` : ""}) { count ${sums.length ? `sum { ${sums.join(" ")} }` : ""} dimensions { ${want.join(" ") || dims.slice(0, 3).join(" ")} } } } } }`);
-}
+const pick = (want, all) => want.filter((w) => all.includes(w));
+const hourly = pick(["datetimeHour"], dims);
+const byModel = pick(["datetimeHour", "modelId"], dims);
+const sumF = sums.length ? `sum { ${sums.join(" ")} }` : "";
+if (hourly.length) {
+  for (const [label, by] of [["usage by hour", hourly], ["usage by hour and model", byModel]]) {
+    await gql(label, `{ viewer { accounts(filter: { accountTag: "${account}" }) { aiInferenceAdaptiveGroups(limit: 1000, filter: { datetimeHour_geq: "${since}", datetimeHour_leq: "${until}" }, orderBy: [datetimeHour_ASC]) { count ${sumF} dimensions { ${by.join(" ")} } } } } }`);
+  }
+} else console.log("no datetimeHour dimension; dimensions are:", dims.join(", "));
 
 // 4. Tiny calls. Order: the one expected to fail validation first (costs nothing), then klein without seed,
 // then other models, so we see whether a block is klein-only or the whole account.
