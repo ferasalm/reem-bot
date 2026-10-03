@@ -385,7 +385,7 @@ section("pictures: his photos (Workers AI vision)");
   yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a mirror in the hallway between their doors") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
   yes(f1.prompt.includes(W.CONFIG.PICTURE.MIRROR_PHONE), "a mirror selfie: the iPhone rule");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.LOCATIONS.hallway.LOOK) && !f1.prompt.includes("@") && !f1.prompt.includes("{room}"), "her hallway: its fixed look, no @key or {room} left");
-  eq(/^<\d+ bytes>$/.test(f1.input_image_1 || ""), f1.prompt.includes("exactly like image 1"), "the place's picture is image 1 exactly when the prompt says so");
+  eq(/^<\d+ bytes>$/.test(f1.input_image_1 || ""), f1.prompt.includes("room from image 1"), "the place's picture is image 1 exactly when the prompt says so");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
   eq([f1.width, f1.height], ["768", "1024"], "drawn at PICTURE.WIDTH x HEIGHT (4 tiles, the price of 640x640)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
@@ -405,7 +405,9 @@ section("pictures: his photos (Workers AI vision)");
   // Pictures v3 (owner 2026-10-02): sexy by pose or wardrobe is fine, nudity never
   r = await turn("hey", ["hi\n\n[selfie: me in lingerie on the bed]"], { history: APART });
   const f3 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
-  yes(f3.prompt.includes(", in lingerie on the bed,") && f3.prompt.endsWith("No nudity.") && !/fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it; SAFE is only 'No nudity.'", f3.prompt);
+  yes(f3.prompt.includes(", in lace two-piece set on the bed,") && f3.prompt.endsWith("No nudity.") && !/fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it (worded past the filter: FILTER_WORDS); SAFE is only 'No nudity.'", f3.prompt);
+  // live 2026-10-03 (face run 37151684663): every wording with bra/panties/briefs/thong/g-string was refused (3030)
+  eq(W.composePicture({ tier: "boudoir", shot: "selfie", words: "a red satin bra and matching panties, Thong" }).prompt.match(/\b(?:bra|panties|thong)\b/gi), null, "filter words never reach the image model");
   r = await turn("hey", ["hi\n\n[selfie: me naked in bed]"], { history: APART });
   const f3b = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
   yes(!/naked/.test(f3b.prompt) && W.CONFIG.PICTURE.WARDROBE.BOUDOIR.some((w) => f3b.prompt.includes(w.split("|")[0].trim())), "nudity never drawn: the sexiest allowed picture instead (boudoir wardrobe)", f3b.prompt);

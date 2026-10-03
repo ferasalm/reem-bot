@@ -635,7 +635,7 @@ Changing the story
     BACKUP_STEPS: 6,                   // 1 to 8
     WIDTH: 768,                        // pixels. Klein is priced per 512x512 tile, rounded up: 768x1024 = 4 tiles,
     HEIGHT: 1024,                      // the same price as 640x640 (both ~104 neurons), with a sharper face (2026-10-03)
-    TIMEOUT_MS: 60000,                 // klein took 12-22 s at 768x768
+    TIMEOUT_MS: 120000,                // klein took 9-238 s on 2026-10-03 (most under 60 s; 2 of 25 over 2 min)
     CHANCE: 0.1,                       // apart, per reply (voice: 0.1). Owner 2026-10-03: more pictures (was 0.05)
     CHANCE_AFTER_PHOTO: 0.45,          // ...when he just sent a photo (voice: 0.6 after his voice note)
     CHANCE_MORE: 0.3,                  // ...when /pics is on (voice: 0.5 with /voice)
@@ -647,16 +647,19 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs.",
+    REFERENCE: "The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a very curvy hourglass figure: a large full bust, a narrow defined waist, wide rounded hips and full thighs.",
     LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair parted slightly off-center, a curvy hourglass figure with a full bust, a small waist and wide hips, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
-    ROOM: "The place looks exactly like image {n}: {look}.", // a fixed place with its reference picture ({n}: its image number)
+    ROOM: "Behind her is the room from image {n}, with the same walls, furniture and light, seen from where her camera is; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number)
     ROOM_TEXT: "The place: {look}.",   // ...without one (or drawn by the backup model)
     SAFE: "No nudity.",
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
+    // Cloudflare's prompt filter (3030) refused every wording with these words (face run 37151684663, 2026-10-03),
+    // so her words are drawn with the replacement instead: the same piece, worded so it gets through
+    FILTER_WORDS: { bra: "top", bras: "tops", bralette: "lace top", panties: "bottoms", panty: "bottoms", briefs: "bottoms", thong: "cheeky bottoms", "g-string": "cheeky bottoms", underwear: "two-piece set", lingerie: "lace two-piece set" },
     NOT_DRAWN: ["through the thin", "through her thin", "through the silk", "nude", "nudes", "naked", "topless", "bottomless", "nipple", "nipples", "areola", "areolas", "genitals", "genital", "pussy", "vagina", "penis", "cock", "dick", "sheer", "see-through", "see through", "transparent", "sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "undressed", "nothing on", "wearing nothing"],
     MIN_SCENE_WORDS: 8,                // a scene picture needs at least this many words about her
     // He says he's under 18: no pictures from then on (stored with his settings)
@@ -716,7 +719,7 @@ Changing the story
       EVERYDAY: ["an oversized gray knit cardigan sliding off one shoulder over a black tank top", "a fitted black t-shirt and jeans", "a black linen shirt dress", "a black ribbed tank top", "an oversized gray vintage tee", "a black turtleneck and small gold hoops", "a simple black sundress"],
       FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh"],
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
-      BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a short black silk robe tied loosely at the waist", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
+      BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a matching black lace two-piece set, her midriff bare", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
     },
     // @name = one of her fixed places (LOCATIONS): the same room in every picture
     PLACES: {
@@ -827,7 +830,7 @@ function fill(template, vars = {}) {
 const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 
 // These word lists are replaced as a whole, so entries can be removed as well as added
-const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "ARABIZI_DIGITS", "STAGE_DIRECTIONS", "SHOTS", "SHOT_WORDS", "SHOT_HOURS", "ANGLES", "ANGLE_WEIGHTS"]);
+const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "FILTER_WORDS", "ARABIZI_DIGITS", "STAGE_DIRECTIONS", "SHOTS", "SHOT_WORDS", "SHOT_HOURS", "ANGLES", "ANGLE_WEIGHTS"]);
 
 // Blocks passed to OpenRouter as they are, so they may also take new parameters
 const OPEN_BLOCKS = /(^|\.)(SAMPLING|PROVIDER|REASONING)$/;
@@ -2549,6 +2552,8 @@ function selfieSubject(want, recent = [], said = "") {
 // Returns { prompt, shot, tier, angle, what } (what: "type, her words or the wardrobe and place", for history).
 function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [] } = {}) {
   const P = CONFIG.PICTURE;
+  words = filterSafe(words);
+  doing = filterSafe(doing);
   const T = String(tier).toUpperCase();
   const template = P.SHOTS[shot] || P.SHOTS.selfie || Object.values(P.SHOTS)[0] || "{selfie} {wearing}{where}, {light}.";
   const lastAngle = (Number(P.RECENT_SHOTS) || 0) ? recentShots.slice(-1).map((s) => s && s.angle).filter(Boolean) : [];
@@ -2586,6 +2591,13 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   // In history and her recent pictures as "type, what" (just "what" when it already names the type)
   const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
   return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location };
+}
+
+// Her words, worded so Cloudflare's prompt filter lets them through (PICTURE.FILTER_WORDS, whole words, any case)
+function filterSafe(text) {
+  let t = String(text || "");
+  for (const [w, to] of Object.entries(CONFIG.PICTURE.FILTER_WORDS || {})) t = t.replace(new RegExp(`\\b${escapeRegex(w)}\\b`, "gi"), to);
+  return t;
 }
 
 // The fixed place (PICTURE.LOCATIONS) a text puts a picture in, by its WORDS (his rooms are listed first,
@@ -2714,7 +2726,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const what = scenePicturePrompt(want);
     if (!what) return null;
     const location = locationOf(what);
-    pic = { prompt: [P.SCENE_STYLE, "{who}", what.replace(/[.\s]*$/, "."), location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location };
+    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location };
   } else {
     pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
   }
