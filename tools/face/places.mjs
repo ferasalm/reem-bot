@@ -33,6 +33,7 @@ const job = night ? {
   refs: keys.map((k) => [`tools/face/places/${k}.jpg`]),
   per_prompt: 2,
   describe: false,
+  day_neurons: 12000, // Workers Paid: the owner's cap is AI_BUDGET.DAILY_NEURONS 28,000; this leaves the bot 16,000
 } : {
   note: "Her fixed places, empty: pick the best of each pair, matching LOOK, no people, believable as a real Boston-area apartment.",
   mode: "places",

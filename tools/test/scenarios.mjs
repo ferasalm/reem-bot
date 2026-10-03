@@ -696,6 +696,22 @@ section("fixed places (owner 2026-10-03)");
   eq(bad.slice(0, 2), [], "every shot x tier: no @key left, no \"the her\", only known places");
   const own = W.composePicture({ tier: "flirty", shot: "selfie", words: "on his couch in his hoodie" });
   eq(own.location, "his_living", "her own words put the picture at his place");
+  // round 4 (2026-10-03): klein copies the place picture's light, so night shots came out in daylight (0/12)
+  eq([W.isDark(9), W.isDark(14), W.isDark(23), W.isDark(2), W.isDark(19, "warm lamp light"), W.isDark(18, "the last of the evening light"), W.isDark(19)],
+    [false, false, true, true, true, false, true], "dark: at night, and in the evening unless the light is daylight");
+  eq([W.composePicture({ tier: "boudoir", shot: "selfie", hour: 23 }).night, W.composePicture({ tier: "everyday", shot: "selfie", hour: 10 }).night], [true, false], "a picture knows whether it's dark");
+  const realAI = env.AI;
+  const sent = [];
+  env.AI = { async run(model, input) { const f = await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData(); sent.push(f.get("input_image_1")); return { image: btoa("picture") }; } };
+  const pics = W.PLACE_JPEG_BASE64;
+  for (const key of Object.keys(L)) {
+    sent.length = 0;
+    await W.drawPicture(env, "{who} {room}", { location: key, night: true });
+    await W.drawPicture(env, "{who} {room}", { location: key, night: false });
+    const want = [pics[`${key}_night`] || pics[key], pics[key]].map((b) => b && W.fromBase64(b).length);
+    eq(sent.map((f) => f && f.size), want, `${key}: its night picture when dark${pics[`${key}_night`] ? "" : " (none yet: the day one)"}, else the day one`);
+  }
+  env.AI = realAI;
 }
 
 section("persona facts");

@@ -2561,7 +2561,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const template = P.SHOTS[shot] || P.SHOTS.selfie || Object.values(P.SHOTS)[0] || "{selfie} {wearing}{where}, {light}.";
   const lastAngle = (Number(P.RECENT_SHOTS) || 0) ? recentShots.slice(-1).map((s) => s && s.angle).filter(Boolean) : [];
   const angle = template.includes("{angle}") ? pickWeighted(P.ANGLE_WEIGHTS, lastAngle) : null;
-  const time = Object.keys(P.TIMES || {}).find((k) => inRange(hour, P.TIMES[k])) || "evening";
+  const time = timeOfDay(hour);
   const hasWhere = template.includes("{where}");
   // "clothes | place" brings its own place, so only for shots with {where}
   const wardrobe = ((P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
@@ -2582,6 +2582,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
     wearing, where,
     light: pickOne((P.LIGHT || {})[time.toUpperCase()]),
   };
+  const night = isDark(hour, vars.light);
   const filled = chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k] || "") : m));
   // the fixed place: one her words name, else the template's or place list's @key; @key → its NAME
   const L = P.LOCATIONS || {};
@@ -2593,7 +2594,21 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const shown = named(words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", "));
   // In history and her recent pictures as "type, what" (just "what" when it already names the type)
   const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
-  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location };
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night };
+}
+
+// Her time of day (PICTURE.TIMES) at this hour
+function timeOfDay(hour = herHour()) {
+  const P = CONFIG.PICTURE;
+  return Object.keys(P.TIMES || {}).find((k) => inRange(hour, P.TIMES[k])) || "evening";
+}
+
+// Dark outside, so a fixed place is drawn from its night picture (places.js "<key>_night"): at night, and in the
+// evening unless the light picked is daylight. klein copies the reference's light: wording alone turned the lamp
+// on in 1 of 3 night shots, still in daylight (round 4, 2026-10-03).
+function isDark(hour = herHour(), light = "") {
+  const time = timeOfDay(hour);
+  return time === "night" || (time === "evening" && !/daylight|evening light|\bsun/i.test(light));
 }
 
 // Her words, worded so Cloudflare's prompt filter lets them through (PICTURE.FILTER_WORDS, whole words, any case)
@@ -2671,13 +2686,16 @@ async function imageBytes(out) {
 // with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no reference.
 // FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
 // FLUX.1 schnell draws from LOOKS instead.
-async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null } = {}) {
+async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const seed = Math.floor(Math.random() * 2147483647);
-  // a fixed place: its reference picture (places.js) as the next image, and its LOOK in words ({room})
+  // a fixed place: its reference picture (places.js; its night picture when dark) as the next image, and its LOOK
+  // in words ({room})
   const L = location && (P.LOCATIONS || {})[location];
-  const place = L && PLACE_JPEG_BASE64 && PLACE_JPEG_BASE64[location] ? fromBase64(PLACE_JPEG_BASE64[location]) : null;
+  const pics = PLACE_JPEG_BASE64 || {};
+  const placeKey = night && pics[`${location}_night`] ? `${location}_night` : location;
+  const place = L && pics[placeKey] ? fromBase64(pics[placeKey]) : null;
   const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replace("{n}", String(ref ? 1 : 0)).replace("{look}", (L && L.LOOK) || "");
   const who = (w, withImage) => {
     const p = String(prompt).replace("{room}", room(withImage));
@@ -2730,7 +2748,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const what = scenePicturePrompt(want);
     if (!what) return null;
     const location = locationOf(what);
-    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location };
+    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: isDark() };
   } else {
     pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
   }
@@ -2740,7 +2758,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     try {
       let drawn;
       try {
-        drawn = await drawPicture(env, pic.prompt, { location: pic.location });
+        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night });
       } catch (e) {
         // Cloudflare's safety filter (3030) refused it (seen on the real API: a lace bralette and briefs in a
         // mirror): a boudoir picture first again in the code's own boudoir wardrobe (it gets through; owner
@@ -2751,7 +2769,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
           pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots });
           try {
-            drawn = await drawPicture(env, pic.prompt, { location: pic.location });
+            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night });
             break;
           } catch (again) {
             if (i === tiers.length - 1 || !aiFiltered(again)) throw again;

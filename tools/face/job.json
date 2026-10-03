@@ -44,5 +44,6 @@
     ]
   ],
   "per_prompt": 2,
-  "describe": false
+  "describe": false,
+  "day_neurons": 12000
 }
