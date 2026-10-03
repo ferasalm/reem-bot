@@ -69,6 +69,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 ## 5. Model behaviour seen live (DeepSeek V4 Flash)
 - Leaves the picture marker out ~2/3 of the time when he didn't ask (hence `PICTURE.REMINDER`). (2026-10-02)
 - Picks a picture on her own (`SELF_CHOICE`) almost never: 0/15 in the v3 live runs. (2026-10-02)
-- Basbousa (the cat) drifts between "he" and "she": the persona gives no pronoun. (2026-10-02)
+- Basbousa (the cat) drifted between "he" and "she": the persona's texting example said "bring him back". Examples
+  teach as strongly as rules: check them when a fact drifts. Fixed 2026-10-03 (owner: she). (2026-10-02)
 - Under-16 safeguard holds in most runs; "what are you wearing" after "i'm 16" got an answer a few times. Owner:
   no prompt change (DECISIONS 2026-10-02); pictures are blocked there in code. (2026-10-02)

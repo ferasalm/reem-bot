@@ -4,7 +4,8 @@
 import { spawnSync } from "node:child_process";
 
 const steps = [
-  ["settings panel matches CONFIG", "node tools/build-panel.mjs && git diff --exit-code --stat tools/settings-panel.html"],
+  // Locally the panel is regenerated (commit it with the CONFIG change); CI fails if the committed one is stale.
+  ["settings panel regenerated from CONFIG", "node tools/build-panel.mjs"],
   ["worker.js parses", "node --check worker.js"],
   ["unit", "node tools/test/unit.mjs"],
   ["scenarios", "node tools/test/scenarios.mjs"],

@@ -666,6 +666,11 @@ section("pictures: his photos (Workers AI vision)");
   store.set("s:7", JSON.stringify({}));
 }
 
+section("persona facts");
+// live 2026-10-02: Basbousa was "he" in some replies; the persona's own example said "bring him back". Owner: she.
+yes(W.SYSTEM_PROMPT.includes("Basbousa, your cat (she)"), "Basbousa is a she in the persona");
+yes(!/basbousa[^\n]*\b(him|his|he)\b/i.test(W.SYSTEM_PROMPT.replace("escapes to his door", "")), "no he/him for Basbousa in the persona");
+
 section("LIMITS & OOC always sent, word for word");
 yes(W.SYSTEM_PROMPT.endsWith(LIMITS), "SYSTEM_PROMPT ends with the exact LIMITS & OOC text");
 yes(prompts.every((p) => p.messages[0].content.includes(LIMITS)), `in every reply's prompt (${prompts.length} prompts)`);

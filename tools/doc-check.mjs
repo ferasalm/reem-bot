@@ -45,7 +45,8 @@ for (const l of lines(log).filter((l) => l.includes("~~")))
 // Map: every tracked source file is named in docs/MAP.md (by path or file name).
 const tracked = execSync("git ls-files", { encoding: "utf8" }).split("\n").filter(Boolean)
   .filter((f) => !/^(docs\/|HANDOFF\.md|CLAUDE\.md|README\.md)/.test(f) && !/\.(jpg|png|json|txt|html)$/.test(f));
-const missing = tracked.filter((f) => !map.includes(f.split("/").pop()));
+const named = (f) => map.includes(f) || new RegExp("[`/ ]" + f.split("/").pop().replace(/[.]/g, "\\.") + "\\b").test(map);
+const missing = tracked.filter((f) => !named(f));
 check(missing.length === 0, `every source file is named in docs/MAP.md${missing.length ? ": missing " + missing.join(", ") : ""}`);
 
 console.log(fails ? `${fails} docs checks FAILED (${oks} ok)` : `all ${oks} docs checks passed`);

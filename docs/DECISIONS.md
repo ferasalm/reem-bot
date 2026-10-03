@@ -5,6 +5,8 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-03 — **Basbousa is a she** (owner: "Basbousa is a she"): the persona says so; its texting example
+  no longer calls her "him" (the likely source of the he/she drift seen live).
 - 2026-10-03 — **Handbook restructured (option D of the SWOT analysis)** (owner: "Agree with 1 D and agree with 2
   and 3"): HANDOFF.md holds only the current state and is rewritten every session; this decision log moved word for
   word to `docs/DECISIONS.md` and is still the only source of the owner's decisions, loaded with HANDOFF.md and

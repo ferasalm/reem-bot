@@ -12,7 +12,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   catalog); fewer voice notes; Workers AI fixes (out-of-neurons read right, hourly retry after "used up").
   The live daily AI cap is still 9,000 neurons (the free part).
 - **On `dev`, not deployed:** Workers Paid cap (`AI_BUDGET.DAILY_NEURONS` 28,000 = at most $0.20/day,
-  `PICTURE_SHARE` 0.8; face.yml test runs capped by real usage), commits 42bff5a + 06fa780. Handbook restructure
+  `PICTURE_SHARE` 0.8; face.yml test runs capped by real usage), commits 42bff5a + 06fa780. Basbousa is "she" in
+  the persona (owner, 2026-10-03; not yet checked with a `[live]` run). Handbook restructure
   (docs, CI docs check, `/handoff` skill): no effect on the bot.
 - Details and run ids for everything above: `docs/CHANGELOG.md`.
 
@@ -27,12 +28,14 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 
 ## Verified this session (2026-10-03)
 - Local checks (panel, unit, scenarios, e2e) passed before the restructure; `node tools/check.mjs` all 6 ok after.
+- Basbousa rows in scenarios fail on the old persona (2 FAIL) and pass on the new one.
 - `tools/doc-check.mjs` proven to fail: an unlabelled next step, an undated decision and an unmapped file each FAILed.
 - Every line of the old HANDOFF.md is in the new docs files, word for word (script check).
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Deploy the Workers Paid cap** when the owner asks (merge `dev` into `main`; read the deploy run and /health). *Effort: low*
+1. **Deploy** when the owner asks: the Workers Paid cap and Basbousa as "she" (merge `dev` into `main`; read the
+   deploy run and its /health: it also confirms the 2026-10-03 picture fix live, no new 5006). *Effort: low*
 2. **Tune from evidence:** read the latest `[live]` run in full, add a `docs/QUALITY.md` row, then tune NUDGES,
    TEXTURE, `LLM.MAX_TOKENS`, `VOICE.CHANCE*`, picture `TIER_WEIGHTS`/`HEAT_WORDS`/`SELF_CHOICE` (0/15 so far).
    Never LIMITS & OOC, never toning down explicitness. *Effort: medium*
@@ -44,7 +47,7 @@ Each has a recommended effort. The owner sets the effort; Claude only recommends
    touchpoints are keyed on `isV3()`. *Effort: high*
 
 ## Open questions for the owner
-- Basbousa's pronoun: the persona gives none and the model drifts between "he" and "she". Pick one?
+- None.
 
 ## Prompt for the next chat (paste as-is)
 > Continue reem-bot. Follow CLAUDE.md (the sync report first; if it lists other branches with work, stop and ask
