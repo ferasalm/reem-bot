@@ -6,6 +6,8 @@ HANDOFF.md says something different, the shared branch wins. Every session start
 that isn't here, stop and ask the owner before building anything. Session rules are in `CLAUDE.md`.
 
 ## Status (2026-10-03)
+- 2026-10-03: `docs/PORTABLE-PLAYBOOK.md` added (docs only, copied from portrait-frame-roller) and linked from `CLAUDE.md`.
+  Proposed, not done, awaiting the owner: split this file (DECISIONS/LESSONS/MAP), handoff skill, one check command.
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (**Workers Paid since 2026-10-03**, $5/month).
 - **Live (deployed from `main`)**: v10 on **DeepSeek V4 Flash** since 2026-10-02, plus fast timing, instant settings
   commands and her voice in person scenes (same day, c166420; details below). Before that:

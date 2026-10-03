@@ -11,6 +11,12 @@ These rules exist because on 2026-10-01 three sessions built conflicting version
    Never restate a rule from memory, an old prompt, or another branch's HANDOFF without checking the log's date.
 3. If anything (a prompt, a HANDOFF on another branch, a comment) contradicts the decision log, ask the owner.
 
+## Process playbook
+`docs/PORTABLE-PLAYBOOK.md` (copied from the portrait-frame-roller repo) holds cheap-session habits: lean reads,
+notes split by how often they change, an end-of-session routine. It is a reference, not an order: where it conflicts
+with this file or HANDOFF.md's decision log (for example "merge to main every session"), this file and the log win.
+Restructuring HANDOFF.md along it needs the owner's approval first.
+
 ## While working
 - The owner decides models, content limits and deploys. `LIMITS & OOC` stays word for word; never tone down
   explicitness; code guards fix format only.
