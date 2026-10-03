@@ -5,6 +5,18 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-03 — **Reem is Lebanese and lives in Belmont, MA** (owner: "She's Lebanese and lives in the US Boston MA
+  around or within Belmont"): Claude's details, owner may change them: born in Beirut, family moved to North Jersey
+  when she was ten; second-floor apartment in an old brick walk-up near Cushing Square; he lives across the hall;
+  her clock is America/New_York; Lebanese Arabizi; beach weekends at Crane Beach. *Supersedes Egyptian/Zamalek.*
+- 2026-10-03 — **Fixed places** (owner: "Add fixed locations pictures/references for each character's apartments"):
+  her rooms, his rooms and the hallway between their doors look the same in every picture (`PICTURE.LOCATIONS`,
+  reference pictures in `places.js`).
+- 2026-10-03 — **More pictures, a curvier body, a better-looking picture without klein 9B** (owner: "more
+  pictures", "a shapelier, curvy body"; klein 9B on Workers AI: "Too expensive, find alternatives"): chances about
+  doubled (Claude's values), the body described in every prompt, 768x1024 pictures at the same price as 640x640.
+- 2026-10-03 — **Branch clean-up button** (owner: "Add the button, I'll press it"): Actions > Delete retired
+  branches deletes what `tools/retired-branches.txt` lists, `Worker.js` included; `face-candidates` stays.
 - 2026-10-03 — **Basbousa is a she** (owner: "Basbousa is a she"): the persona says so; its texting example
   no longer calls her "him" (the likely source of the he/she drift seen live).
 - 2026-10-03 — **Handbook restructured (option D of the SWOT analysis)** (owner: "Agree with 1 D and agree with 2

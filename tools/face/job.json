@@ -1,27 +1,91 @@
 {
-  "note": "Her fixed places, empty: pick the best of each pair, matching LOOK, no people, believable as a real Boston-area apartment.",
-  "mode": "places",
-  "size": 640,
+  "note": "Examples for the owner (2026-10-03): Lebanese Reem in Belmont, her fixed places, curvier body, 768x1024; probes show which lingerie wordings Cloudflare's filter lets through.",
+  "mode": "examples",
+  "reference": "tools/face/reference.jpg",
+  "width": 768,
+  "height": 1024,
+  "square": false,
   "labels": [
-    "his_bedroom",
-    "his_living",
-    "bedroom",
-    "bathroom",
-    "kitchen",
-    "living",
-    "porch",
-    "hallway"
+    "everyday/close, her living room",
+    "everyday/mirror, her bathroom",
+    "everyday/golden, her porch",
+    "everyday/cozy, sofa with Basbousa",
+    "flirty/mirror-back, her bedroom",
+    "flirty/waist, her bedroom",
+    "flirty/hallway, leaning on her doorframe",
+    "boudoir/selfie, on her bed",
+    "probe: balconette bra + high-cut briefs",
+    "probe: lace bra + panties",
+    "probe: two-piece lace set",
+    "probe: bralette + thong, from behind",
+    "probe: g-string bikini, from behind",
+    "probe: red satin bra + panties",
+    "scene: on his couch"
   ],
   "prompts": [
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a plain bedroom: a big bed with dark gray sheets, a wooden nightstand with a phone charger, white walls, half-open blinds. Lived-in and real, not staged.",
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a plain living room: a gray fabric couch, a big TV on a low stand, a coffee table with a game controller and a mug, bare white walls, a bike by the door. Lived-in and real, not staged.",
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Lived-in and real, not staged.",
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a small bathroom: white subway tiles, a round mirror with a thin brass frame over a white pedestal sink, black-and-white hexagon floor tiles, warm vanity light. Lived-in and real, not staged.",
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a narrow kitchen: white cabinets, open wooden shelves with mismatched mugs, a small window over the sink with herbs on the sill, warm under-cabinet light. Lived-in and real, not staged.",
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a living room in an old brick building: an exposed red brick wall, tall windows with white trim, a deep green velvet sofa, a worn Persian rug, a brass floor lamp, plants, a desk in the corner with fabric samples and a mood board. Lived-in and real, not staged.",
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a small second-floor wooden back porch: white railings, two mismatched chairs, string lights, maple trees and neighbors' rooftops behind. Lived-in and real, not staged.",
-    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: an old apartment-building hallway: worn wooden stairs with a dark banister, a checkered tile floor, two facing apartment doors painted dark green, a radiator under a window. Lived-in and real, not staged."
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Close-up of her face and shoulders, camera at eye level, an unimpressed deadpan look, in a black ribbed tank top at her desk in her living room, bright afternoon daylight. The place looks exactly like image 1: a living room in an old brick building: an exposed red brick wall, tall windows with white trim, a deep green velvet sofa, a worn Persian rug, a brass floor lamp, plants, a desk in the corner with fabric samples and a mood board. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in her bathroom, the room behind her, a raised-eyebrow smirk, a fitted black t-shirt and jeans, bathroom mirror, a little flash glare on the glass, bright morning sun through the window. The place looks exactly like image 1: a small bathroom: white subway tiles, a round mirror with a thin brass frame over a white pedestal sink, black-and-white hexagon floor tiles, warm vanity light. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up on her back porch at golden hour, warm low sun on her face, maple trees and rooftops behind her, camera at eye level, a sleepy, lazy smile, wearing a black turtleneck and small gold hoops. The place looks exactly like image 1: a small second-floor wooden back porch: white railings, two mismatched chairs, string lights, maple trees and neighbors' rooftops behind. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, curled up on the sofa in her living room with Basbousa, her fluffy golden-brown tabby, a sleepy, lazy smile, curled up on the sofa with Basbousa in an oversized gray knit cardigan, the last of the evening light. The place looks exactly like image 1: a living room in an old brick building: an exposed red brick wall, tall windows with white trim, a deep green velvet sofa, a worn Persian rug, a brass floor lamp, plants, a desk in the corner with fabric samples and a mood board. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Back view: she stands with her back to a mirror in her bedroom and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, a daring look straight into the camera, black high-waisted leggings and a cropped black top, bedroom mirror, warm lamp light in a dark room. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a mirror in her bedroom, one hand on her waist, her hip turned toward the mirror, a slow, knowing smile, a black bodycon mini dress, bedroom mirror, dim light from a bedside lamp. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, lips slightly parted, eyes on the camera, leaning on her doorframe in the hallway in a black satin slip dress, dim light from a bedside lamp. The place looks exactly like image 1: an old apartment-building hallway: worn wooden stairs with a dark banister, a checkered tile floor, two facing apartment doors painted dark green, a tall mirror on the wall by her door, a radiator under a window. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera at eye level, a slow, knowing smile, lying on her bed in a black lace bodysuit, white sheets, dim light from a bedside lamp. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in her bedroom, the room behind her, a daring look straight into the camera, a matching black lace balconette bra and high-cut lace briefs, bedroom mirror, a little flash glare on the glass, warm lamp light in a dark room. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in her bedroom, the room behind her, a slow, knowing smile, a black lace bra and matching panties, bedroom mirror, a little flash glare on the glass, dim light from a bedside lamp. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a mirror in her bedroom, one hand on her waist, her hip turned toward the mirror, a slow, knowing smile, a matching black lace two-piece set, bedroom mirror, warm lamp light in a dark room. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Back view: she stands with her back to a mirror in her bedroom and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, a soft, inviting look, a black lace bralette and a matching thong, bedroom mirror, dim light from a bedside lamp. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Back view: she stands with her back to a mirror in her bathroom and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, a daring look straight into the camera, a black g-string bikini, bathroom mirror, soft window light. The place looks exactly like image 1: a small bathroom: white subway tiles, a round mirror with a thin brass frame over a white pedestal sink, black-and-white hexagon floor tiles, warm vanity light. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, a soft, inviting look, a red satin bra and matching panties, sitting on her bed, warm lamp light in a dark room. The place looks exactly like image 1: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid photo, seen from the eyes of the man in front of her, natural light: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs. She sits sideways on the gray couch in his living room, bare legs tucked under her, wearing his oversized hoodie, hair pinned up, a slow knowing smile. The place looks exactly like image 1: a plain living room: a gray fabric couch, a big TV on a low stand, a coffee table with a game controller and a mug, bare white walls, a bike by the door. Natural skin texture, slight grain. No nudity."
   ],
-  "per_prompt": 2,
+  "refs": [
+    [
+      "tools/face/places/living.jpg"
+    ],
+    [
+      "tools/face/places/bathroom.jpg"
+    ],
+    [
+      "tools/face/places/porch.jpg"
+    ],
+    [
+      "tools/face/places/living.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/hallway.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/bathroom.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/his_living.jpg"
+    ]
+  ],
+  "per_prompt": 1,
   "describe": false
 }

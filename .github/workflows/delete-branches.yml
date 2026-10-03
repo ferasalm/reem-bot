@@ -1,0 +1,31 @@
+name: Delete retired branches
+
+# One tap to delete the branches listed in tools/retired-branches.txt (Claude's sessions can't delete
+# branches). Lines marked "# keep" stay. Actions > Delete retired branches > Run workflow. Owner's button
+# (2026-10-03); it never touches main or dev.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "delete" to delete them (anything else only lists them)'
+        default: "list"
+
+permissions:
+  contents: write
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Delete (or list) the retired branches
+        run: |
+          grep -v '^\s*#' tools/retired-branches.txt | grep -v '#\s*keep' | awk 'NF {print $1}' | while read -r b; do
+            if [ "$b" = "main" ] || [ "$b" = "dev" ]; then echo "never: $b"; continue; fi
+            if ! git ls-remote --exit-code --heads origin "$b" >/dev/null; then echo "already gone: $b"; continue; fi
+            if [ "${{ github.event.inputs.confirm }}" = "delete" ]; then
+              git push origin --delete "$b" && echo "deleted: $b"
+            else
+              echo "would delete: $b"
+            fi
+          done

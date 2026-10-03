@@ -10,6 +10,7 @@ const source = readFileSync(join(root, "worker.js"), "utf8").replace(/^export de
 const copy = join(mkdtempSync(join(tmpdir(), "reem-")), "worker.mjs");
 writeFileSync(copy, `${source}\nexport { CONFIG };\n`);
 copyFileSync(join(root, "face.js"), join(dirname(copy), "face.js")); // worker.js imports it
+copyFileSync(join(root, "places.js"), join(dirname(copy), "places.js"));
 const { CONFIG } = await import(pathToFileURL(copy).href);
 
 const panel = join(root, "tools", "settings-panel.html");

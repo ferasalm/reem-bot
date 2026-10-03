@@ -35,6 +35,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
   - pictures v3: `planShot` (`pickTier`, `chatHeat`, `shotNamed`, `pickShot`), `selfieSubject` (her marker →
     {shot, words, doing}), `selfiePicture` → `composePicture` (template + slots + phone rule, `{who}` filled by
     `drawPicture`); 3030 → `aiFiltered`, one tamer try in `startPicture`
+  - fixed places (2026-10-03): `PICTURE.LOCATIONS`; `@key` in SHOTS/PLACES → NAME; `locationOf` (her words, a scene);
+    `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
+    `places.js` as image 1, else ROOM_TEXT)
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,
     `photoLine`); ledger `loadLedger`/`saveLedger`/`aiAffordable`/`aiSpent` (KV `pics`); `picturesAllowed`,
     `pictureMode`; `takeSelfie` (in `shapeReply`); `startPicture` (`selfieSubject` or `scenePicturePrompt` →
@@ -70,7 +73,11 @@ Read before any code change: where each thing lives and how to check it. Not loa
 - `tools/model-bench/` + `.github/workflows/model-bench.yml`: the budget-capped model bench (results never
   committed; summaries in FINDINGS.md). Runs only when that workflow file changes.
 
-- Also: `wrangler.toml` (bindings, cron); `face.js` (her reference face as base64: never open it);
+- Also: `wrangler.toml` (bindings, cron); `face.js` (her reference face as base64: never open it); `places.js` (her
+  fixed places' pictures as base64, built by `tools/face/build-places.mjs` from `tools/face/places/*.jpg`; never open
+  it); `tools/face/places.mjs` (job: draw the places), `examples.mjs` (job: example pictures + lingerie filter
+  probes), `compose.mjs` (a prompt exactly as drawPicture sends it); `.github/workflows/delete-branches.yml` (the
+  owner's button: deletes the branches in `tools/retired-branches.txt`, lines marked `# keep` stay);
   `.github/workflows/deploy.yml` (deploy on push to `main`), `test.yml` (sync, mocked, docs, `[live]`);
   `.claude/settings.json` + `.claude/hooks/session-start.sh` (sync report at session start);
   `.claude/skills/handoff/SKILL.md` (end of session); `tools/check.mjs` (all local checks), `tools/doc-check.mjs`

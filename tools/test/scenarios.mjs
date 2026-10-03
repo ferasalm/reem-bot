@@ -382,10 +382,12 @@ section("pictures: his photos (Workers AI vision)");
   yes(r.system[0].includes("He's asking for a picture of you, and you send one"), "he asks: always (FORMAT_ASKED), like a voice note");
   eq(r.order, ["sendMessage", "sendPhoto"], "her words, then the picture");
   const f1 = ai.find((a) => a.model === W.CONFIG.PICTURE.MODEL).fields;
-  yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a hallway mirror") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
+  yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a mirror in the hallway between their doors") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
   yes(f1.prompt.includes(W.CONFIG.PICTURE.MIRROR_PHONE), "a mirror selfie: the iPhone rule");
+  yes(f1.prompt.includes(W.CONFIG.PICTURE.LOCATIONS.hallway.LOOK) && !f1.prompt.includes("@") && !f1.prompt.includes("{room}"), "her hallway: its fixed look, no @key or {room} left");
+  eq(/^<\d+ bytes>$/.test(f1.input_image_1 || ""), f1.prompt.includes("exactly like image 1"), "the place's picture is image 1 exactly when the prompt says so");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
-  eq([f1.width, f1.height], ["640", "640"], "drawn at PICTURE.SIZE (cheaper and faster than 1024)");
+  eq([f1.width, f1.height], ["768", "1024"], "drawn at PICTURE.WIDTH x HEIGHT (4 tiles, the price of 640x640)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
   eq(r.saved.content, "here 😏\n\n[selfie: mirror, in the hallway, black slip dress]", "history: her words and [selfie: type, what]");
   yes(typeof r.saved.parts.at(-1).id === "number", "the picture has its message id, so /rewind and /retry delete it");
@@ -464,7 +466,7 @@ section("pictures: his photos (Workers AI vision)");
       const T = tier.toUpperCase();
       const p = pic.prompt;
       const n = p.split(/\s+/).length;
-      if (/\{(?!who\})/.test(p) || /,\s*[,.]/.test(p)) bad.push(`placeholder or stray comma: ${p}`);
+      if (/\{(?!who\}|room\})/.test(p) || /,\s*[,.]/.test(p)) bad.push(`placeholder or stray comma: ${p}`);
       if (n < 40 || n > 110) bad.push(`${n} words: ${p}`);
       if (P.SHOTS[shot].includes("{expression}") && !P.EXPRESSIONS[T].some((e) => p.includes(e))) bad.push(`expression not of ${tier}: ${p}`);
       if (!P.WARDROBE[T].some((w) => p.includes(w.split("|")[0].trim()))) bad.push(`wardrobe not of ${tier}: ${p}`);
@@ -664,6 +666,23 @@ section("pictures: his photos (Workers AI vision)");
   delete env.AI;
   Object.assign(W.CONFIG.PICTURE, { CHANCE: 0.05, CHANCE_AFTER_PHOTO: 0.3, CHANCE_MORE: 0.15, SCENE_CHANCE: 0.08 });
   store.set("s:7", JSON.stringify({}));
+}
+
+section("fixed places (owner 2026-10-03)");
+{
+  const L = W.CONFIG.PICTURE.LOCATIONS;
+  eq([W.locationOf("lying in his bed"), W.locationOf("in bed, rumpled sheets"), W.locationOf("leaning on my doorframe in the hallway"), W.locationOf("at a café in Cushing Square"), W.locationOf("")],
+    ["his_bedroom", "bedroom", "hallway", null, null], "a text's place: his rooms first, then hers; none for elsewhere");
+  const g = W.composePicture({ tier: "everyday", shot: "golden", hour: 17 });
+  yes(g.location === "porch" && g.prompt.includes(L.porch.NAME) && g.prompt.includes("{room}") && !g.prompt.includes("@"), "golden hour: on her porch, @porch named, {room} left for drawPicture", g.prompt);
+  const bad = [];
+  for (const tier of ["everyday", "flirty", "boudoir"]) for (const shot of W.tierShots(tier)) for (let k = 0; k < 30; k++) {
+    const pic = W.composePicture({ tier, shot, hour: k % 24 });
+    if (pic.prompt.includes("@") || / the her /.test(pic.prompt) || (pic.location && !Object.hasOwn(L, pic.location))) bad.push(pic.prompt);
+  }
+  eq(bad.slice(0, 2), [], "every shot x tier: no @key left, no \"the her\", only known places");
+  const own = W.composePicture({ tier: "flirty", shot: "selfie", words: "on his couch in his hoodie" });
+  eq(own.location, "his_living", "her own words put the picture at his place");
 }
 
 section("persona facts");

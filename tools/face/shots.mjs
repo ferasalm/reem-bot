@@ -5,12 +5,14 @@
 //   node tools/face/shots.mjs boudoir legs   (only those tiers or shot types: cheaper on the day's neurons)
 import { writeFileSync } from "node:fs";
 import { loadWorker } from "../test/load-worker.mjs";
+import { forKlein } from "./compose.mjs";
 
 const W = await loadWorker();
 const P = W.CONFIG.PICTURE;
 const only = process.argv.slice(2);
 const labels = [];
 const prompts = [];
+const refs = [];
 let n = 0;
 for (const tier of ["everyday", "flirty", "boudoir"]) {
   for (const shot of W.tierShots(tier)) {
@@ -18,16 +20,21 @@ for (const tier of ["everyday", "flirty", "boudoir"]) {
     const hour = shot === "golden" ? 17 : [10, 14, 19, 23][n++ % 4]; // a spread of times of day (light)
     const pic = W.composePicture({ tier, shot, hour });
     labels.push(`${tier}/${shot}${pic.angle ? `/${pic.angle}` : ""} @${hour}h`);
-    prompts.push(pic.prompt.replace("{who}", P.REFERENCE));
+    const k = forKlein(W, pic);
+    prompts.push(k.prompt);
+    refs.push(k.refs);
   }
 }
 const job = {
   note: "Pictures v3 grid: every shot type x tier, prompts from composePicture (worker.js). Check each: same face as the reference, clearly adult, tier right, phone rule right (selfie: no phone or hand; mirror: an iPhone), no nudity.",
   mode: "shots",
   reference: "tools/face/reference.jpg",
-  size: P.SIZE,
+  width: P.WIDTH,
+  height: P.HEIGHT,
+  square: false,
   labels,
   prompts,
+  refs,
   per_prompt: 1,
   describe: true,
 };

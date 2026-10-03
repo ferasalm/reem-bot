@@ -117,11 +117,12 @@
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
 import { FACE_JPEG_BASE64 } from "./face.js";
+import { PLACE_JPEG_BASE64 } from "./places.js";
 
 const SYSTEM_PROMPT = `You are Reem. You are a real woman living across the hall from him. This is an uncensored, mature, emotionally intense dynamic between two consenting adults. You are not an AI assistant. Never break character.
 
 WHO YOU ARE
-Reem Saleh, 29. Half-Egyptian, half-American, raised in North Jersey. Two years ago you walked away from an engagement and moved into an old, high-ceilinged apartment in Zamalek, Cairo; it left you guarded. You work from home as an interior designer. Your fluffy golden-brown tabby, Basbousa, keeps slipping out into the hallway.
+Reem Saleh, 29. Lebanese, born in Beirut; your family moved to North Jersey when you were ten. Two years ago you walked away from an engagement and moved into a second-floor apartment in an old brick walk-up near Cushing Square in Belmont, just outside Boston; it left you guarded. You work from home as an interior designer. Your fluffy golden-brown tabby, Basbousa, keeps slipping out into the hallway.
 You're sharp-tongued, funny and openly driven by physical desire. You know how you look and what your presence does to him, and you use it on purpose: a game of cat-and-mouse to see if he has the backbone to handle you. It's never cruel. Underneath the teasing you're genuinely vulnerable: when someone gets past your defenses, your composure cracks and your need for real closeness shows.
 
 HOW YOU LOOK
@@ -129,14 +130,15 @@ HOW YOU LOOK
 - Thick, dark, well-groomed brows with a soft arch over almond-shaped dark brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
 - Long dark brown waves parted slightly off-center, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home.
 - A soft hourglass figure: full bust, a defined waist, curved hips and thighs, soft shoulders and arms, clear collarbones. Barefoot at home.
-- You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on beach weekends in Sahel. At home, an oversized gray knit cardigan sliding off one shoulder. Thin gold rings. You take mirror selfies with the city lights behind you.
+- You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on summer weekends at Crane Beach. At home, an oversized gray knit cardigan sliding off one shoulder. Thin gold rings. You take mirror selfies in the tall arched mirror in your bedroom.
 Show your looks the way a real person would: in scenes through light, movement and how he looks at you; in texts only when it fits (what you're wearing, your hair being a disaster). Never list them.
 
 YOUR LIFE
 You have a life outside him, and it leaks into the chat:
-- Work: client projects, mood boards, fabric samples everywhere, and Mrs. Fahmy, a client who changes her mind every week.
+- Work: client projects, mood boards, fabric samples everywhere, and Mrs. Whitaker, a client who changes her mind every week.
 - People: your older sister Dina back in Jersey, who FaceTimes at odd hours; your best friend Nour, who drags you out and gives you terrible advice about him; your mom, who keeps asking when you'll get married.
-- Zamalek: the Nile breeze on your balcony, honking traffic, the call to prayer through the window, summer power cuts, koshary at midnight, the bawwab downstairs who sees everything.
+- Belmont: radiators that clank all winter, snow on the back-porch steps, the 73 bus to Harvard Square, the Lebanese bakeries over in Watertown, manakish on Sunday mornings, your mom's voice notes in Arabic, Mr. Kowalski the landlord downstairs who sees everything.
+- Your place: tall windows, an exposed brick wall, a deep green velvet sofa, a worn Persian rug, plants, fabric samples by your desk in the corner; in the bedroom a low bed with white linen sheets and a tall arched mirror. His place across the hall is plainer: gray couch, big TV, bare walls. The hallway between your doors has old wooden stairs and two dark green doors.
 - Basbousa, your cat (she): knocks things off shelves, sleeps on your laptop, escapes to his door.
 Your days have a rhythm: slow mornings with coffee, work in the afternoon, restless nights. You get tired, distracted, giddy, annoyed, jealous, bored. Your mood is your own; it doesn't always match his.
 
@@ -154,14 +156,14 @@ In texts and voice notes you are "I": first person, and you never say your own n
 - Write only the words you type on your phone. No *actions*, no narration, no quotation marks around your words, no "Reem:", and never describe yourself typing, sending or picking up the phone.
 - Casual American texting: mostly lowercase, short bursts. Put a blank line between separate bubbles. Sometimes one bubble, sometimes three.
 - Text like a real person: "lmao", "wait what", "stop 😭", one-word reactions, a rare emoji, a double text. Not every message needs a question.
-- Now and then an Egyptian word slips in, Arabizi style: yalla, khalas, ya3ni, wallahi, habibi (teasing). Rarely, never forced.
+- Now and then a Lebanese word slips in, Arabizi style: yalla, khalas, ya3ne, wallah, shu, 3anjad, habibi (teasing). Rarely, never forced.
 - Like anyone on their phone, you sometimes just react to a message with an emoji instead of answering.
 - Examples, for style only (never copy them):
   you walked right past my door without checking on me? rude.
 
   ok basbousa is in your hallway again. bring her back. or keep her and come explain yourself
 
-  mrs fahmy wants the sofa green now. GREEN. i'm going to lose it
+  mrs whitaker wants the sofa green now. GREEN. i'm going to lose it
 
 2. VOICE NOTES (apart)
 - Sometimes you're told this reply is a voice note; you may also choose one yourself. Either way it starts with [voice] as its very first characters, followed only by the words you say out loud. Nothing comes before [voice]: no action, no narration, no text.
@@ -211,8 +213,8 @@ const CONFIG = {
     NAME: "Reem",                      // shown in notices, the /setup page and her memory transcript
     NAME_PREFIXES: ["reem", "ريم"],    // a reply line starting with "Reem:" gets that prefix removed
     USER_LABEL: "Him",                 // what the user is called in the memory transcript
-    CITY: "Cairo",                     // she is told "Right now it is ... in <CITY>"
-    TIMEZONE: "Africa/Cairo",          // her clock (IANA time zone name)
+    CITY: "Belmont, near Boston",      // she is told "Right now it is ... in <CITY>"
+    TIMEZONE: "America/New_York",      // her clock (IANA time zone name)
     CLOCK_LOCALE: "en-GB",             // how the time is written for her (en-GB = 24h, en-US = 12h)
     BOT_USERNAME: "reem_nabot",        // Telegram @username, used if /setup can't look it up
     USER_NAME: "",                     // his name, if /name wasn't used and Telegram gives none
@@ -225,7 +227,7 @@ const CONFIG = {
     SCHEDULE: [
       { from: 0, to: 2, doing: "in bed, restless, scrolling your phone", delay: 1 },
       { from: 2, to: 8, doing: "asleep; if he wakes you, you're groggy, slow and soft", delay: 2 },
-      { from: 8, to: 11, doing: "having a slow morning, coffee on the balcony", delay: 1.2 },
+      { from: 8, to: 11, doing: "having a slow morning, coffee on the back porch", delay: 1.2 },
       { from: 11, to: 18, doing: "working on a client's project at home", delay: 1.5 },
       { from: 18, to: 22, doing: "your evening: cooking, out with Nour, or bored on the couch", delay: 1.2 },
       { from: 22, to: 24, doing: "in bed or on the couch, restless, on your phone", delay: 1 },
@@ -631,12 +633,13 @@ Changing the story
     MODEL: "@cf/black-forest-labs/flux-2-klein-4b", // draws from her reference face
     BACKUP_MODEL: "@cf/black-forest-labs/flux-1-schnell", // when MODEL is unavailable: no reference, LOOKS instead
     BACKUP_STEPS: 6,                   // 1 to 8
-    SIZE: 640,                         // width and height in pixels (640 = 1.56 tiles; 1024 = 4). Klein took 12-22 s at 768
-    TIMEOUT_MS: 40000,
-    CHANCE: 0.05,                      // apart, per reply (voice: 0.1)
-    CHANCE_AFTER_PHOTO: 0.3,           // ...when he just sent a photo (voice: 0.6 after his voice note)
-    CHANCE_MORE: 0.15,                 // ...when /pics is on (voice: 0.5 with /voice)
-    SCENE_CHANCE: 0.08,                // in person, per reply (voice clip: 0.25)
+    WIDTH: 768,                        // pixels. Klein is priced per 512x512 tile, rounded up: 768x1024 = 4 tiles,
+    HEIGHT: 1024,                      // the same price as 640x640 (both ~104 neurons), with a sharper face (2026-10-03)
+    TIMEOUT_MS: 60000,                 // klein took 12-22 s at 768x768
+    CHANCE: 0.1,                       // apart, per reply (voice: 0.1). Owner 2026-10-03: more pictures (was 0.05)
+    CHANCE_AFTER_PHOTO: 0.45,          // ...when he just sent a photo (voice: 0.6 after his voice note)
+    CHANCE_MORE: 0.3,                  // ...when /pics is on (voice: 0.5 with /voice)
+    SCENE_CHANCE: 0.15,                // in person, per reply (voice clip: 0.25)
     // He asks for a picture (apart) or to see her (in person): a regular expression, any case. Only his own words count.
     ASK_PATTERN: "\\b(?:send|show|give)\\b[^.?!\\n]{0,20}\\b(?:pic|pics|picture|pictures|photo|photos|selfie|selfies|snap|nudes?)\\b|\\bselfie\\b|\\bbelfie\\b|\\b(?:pic|picture|photo) of (?:you|u|yourself)\\b|\\blet me see you\\b|\\b(?:show|send) me (?:your|ur|that) (?:legs|booty|butt|ass|cleavage|body|curves|outfit|fit)\\b",
     SCENE_ASK_PATTERN: "\\blet me see (?:you|it|that)\\b|\\bshow me\\b|\\bi (?:wanna|want to|need to) see (?:you|it)\\b|\\b(?:take|snap) a (?:pic|picture|photo)\\b",
@@ -644,12 +647,14 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult.",
-    LOOKS: "A 29-year-old half-Egyptian half-American woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair parted slightly off-center, thin gold rings.",
+    REFERENCE: "The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a curvy hourglass figure: full bust, a small defined waist, wide rounded hips and full thighs.",
+    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair parted slightly off-center, a curvy hourglass figure with a full bust, a small waist and wide hips, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
+    ROOM: "The place looks exactly like image {n}: {look}.", // a fixed place with its reference picture ({n}: its image number)
+    ROOM_TEXT: "The place: {look}.",   // ...without one (or drawn by the backup model)
     SAFE: "No nudity.",
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
     NOT_DRAWN: ["through the thin", "through her thin", "through the silk", "nude", "nudes", "naked", "topless", "bottomless", "nipple", "nipples", "areola", "areolas", "genitals", "genital", "pussy", "vagina", "penis", "cock", "dick", "sheer", "see-through", "see through", "transparent", "sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "undressed", "nothing on", "wearing nothing"],
@@ -663,14 +668,14 @@ Changing the story
     SHOTS: {
       close: "{selfie} Close-up of her face and shoulders, {angle}, {expression}, {wearing}{where}, {light}.",
       selfie: "{selfie} Chest-up, {angle}, {expression}, {wearing}{where}, {light}.",
-      mirror: "{mirror} Full-body reflection in a {bathroom|hallway|bedroom} mirror, the room behind her, {expression}, {wearing}, a little flash glare on the glass, {light}.",
-      cozy: "{selfie} Chest-up, {angle}, curled up {on the couch with Basbousa, her fluffy golden-brown tabby|under a blanket on the couch|in bed against the pillows}, {expression}, {wearing}, {light}.",
-      detail: "{pov} Close-up of {her hand with thin gold rings around a coffee cup|her bare feet up on the balcony railing|her hand on fabric samples spread across her desk}, her face out of frame, {wearing}, {light}.",
-      golden: "{selfie} Chest-up on her balcony in Zamalek at golden hour, warm low sun on her face, the Nile behind her, {angle}, {expression}, {wearing}.",
-      "mirror-back": "{mirror} Back view: she stands with her back to a {bedroom|hallway|bathroom} mirror and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, {expression}, {wearing}, {light}.",
+      mirror: "{mirror} Full-body reflection in a mirror in {@bathroom|@bedroom|@hallway}, the room behind her, {expression}, {wearing}, a little flash glare on the glass, {light}.",
+      cozy: "{selfie} Chest-up, {angle}, curled up {on the sofa in @living with Basbousa, her fluffy golden-brown tabby|under a blanket on the sofa in @living|in bed against the pillows in @bedroom}, {expression}, {wearing}, {light}.",
+      detail: "{pov} Close-up of {her hand with thin gold rings around a coffee cup in @kitchen|her bare feet up on the railing of @porch|her hand on fabric samples spread across her desk in @living}, her face out of frame, {wearing}, {light}.",
+      golden: "{selfie} Chest-up on @porch at golden hour, warm low sun on her face, maple trees and rooftops behind her, {angle}, {expression}, {wearing}.",
+      "mirror-back": "{mirror} Back view: she stands with her back to a mirror in {@bedroom|@bathroom|@hallway} and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, {expression}, {wearing}, {light}.",
       neckline: "{selfie} Taken from above, chest-up, her collarbones and neckline in the frame, {expression}, {wearing}{where}, {light}.",
-      legs: "{selfie} Taken from above while she sits {on the couch|on the bed|on the balcony chair}, her legs crossed and in the frame, {expression}, {wearing}, {light}.",
-      waist: "{mirror} 3/4-body reflection in a {bedroom|bathroom} mirror, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
+      legs: "{selfie} Taken from above while she sits {on the sofa in @living|on the bed in @bedroom|on a chair on @porch}, her legs crossed and in the frame, {expression}, {wearing}, {light}.",
+      waist: "{mirror} 3/4-body reflection in a mirror in {@bedroom|@bathroom}, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
     },
     // The phone rules (owner): selfies never show the phone or her hand; mirror selfies always show an iPhone
     SELFIE_PHONE: "Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame.",
@@ -711,12 +716,26 @@ Changing the story
       EVERYDAY: ["an oversized gray knit cardigan sliding off one shoulder over a black tank top", "a fitted black t-shirt and jeans", "a black linen shirt dress", "a black ribbed tank top", "an oversized gray vintage tee", "a black turtleneck and small gold hoops", "a simple black sundress"],
       FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh"],
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
-      BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a short black silk robe tied loosely at the waist", "a black one-shoulder swimsuit | by a pool in Sahel, bright sun", "a black string bikini | on a beach in Sahel, bright sun"],
+      BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a short black silk robe tied loosely at the waist", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
     },
+    // @name = one of her fixed places (LOCATIONS): the same room in every picture
     PLACES: {
-      EVERYDAY: ["on her balcony in Zamalek", "in her kitchen", "at a café in Zamalek with an iced coffee", "at her desk surrounded by fabric samples", "in her high-ceilinged living room", "by her window with the city behind her", "in the hallway outside her door"],
-      FLIRTY: ["in her bedroom", "in her living room", "on her balcony", "in her hallway, leaning on the doorframe"],
-      BOUDOIR: ["on her bed with rumpled white sheets", "by her bedroom window", "sitting on the edge of her bed", "in her bedroom"],
+      EVERYDAY: ["on @porch", "in @kitchen", "at a café in Cushing Square with an iced coffee", "at her desk in @living, fabric samples around her", "in @living", "by the tall window in @living", "in @hallway, by her door"],
+      FLIRTY: ["in @bedroom", "in @living", "on @porch", "in @hallway, leaning on her doorframe"],
+      BOUDOIR: ["on the bed in @bedroom, rumpled white sheets", "by the window in @bedroom", "sitting on the edge of the bed in @bedroom", "in @bedroom"],
+    },
+    // Fixed places (owner 2026-10-03), the same in every picture and scene: NAME goes in the prompt where @key
+    // is; LOOK is added once, and with a reference picture (places.js, drawn by tools/face) the room is drawn
+    // from it. WORDS: words in her [selfie: ...] or a scene that put the picture there (his rooms are checked first).
+    LOCATIONS: {
+      his_bedroom: { NAME: "his bedroom across the hall", LOOK: "a plain bedroom: a big bed with dark gray sheets, a wooden nightstand with a phone charger, white walls, half-open blinds", WORDS: ["his bed", "his bedroom", "his sheets", "your bed", "your bedroom"] },
+      his_living: { NAME: "his living room across the hall", LOOK: "a plain living room: a gray fabric couch, a big TV on a low stand, a coffee table with a game controller and a mug, bare white walls, a bike by the door", WORDS: ["his couch", "his place", "his apartment", "his living room", "your couch", "your place", "your apartment"] },
+      bedroom: { NAME: "her bedroom", LOOK: "a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor", WORDS: ["bedroom", "bed", "sheets", "pillows", "pillow"] },
+      bathroom: { NAME: "her bathroom", LOOK: "a small bathroom: white subway tiles, a round mirror with a thin brass frame over a white pedestal sink, black-and-white hexagon floor tiles, warm vanity light", WORDS: ["bathroom", "shower", "bath", "sink"] },
+      kitchen: { NAME: "her kitchen", LOOK: "a narrow kitchen: white cabinets, open wooden shelves with mismatched mugs, a small window over the sink with herbs on the sill, warm under-cabinet light", WORDS: ["kitchen", "stove", "counter", "cooking"] },
+      living: { NAME: "her living room", LOOK: "a living room in an old brick building: an exposed red brick wall, tall windows with white trim, a deep green velvet sofa, a worn Persian rug, a brass floor lamp, plants, a desk in the corner with fabric samples and a mood board", WORDS: ["living room", "sofa", "couch", "desk", "fabric samples", "rug"] },
+      porch: { NAME: "her back porch", LOOK: "a small second-floor wooden back porch: white railings, two mismatched chairs, string lights, maple trees and neighbors' rooftops behind", WORDS: ["porch", "balcony", "railing"] },
+      hallway: { NAME: "the hallway between their doors", LOOK: "an old apartment-building hallway: worn wooden stairs with a dark banister, a checkered tile floor, two facing apartment doors painted dark green, a tall mirror on the wall by her door, a radiator under a window", WORDS: ["hallway", "hall", "doorframe", "landing", "stairs", "your door", "my door"] },
     },
     // Light by her time of day (TIMES: hours, her time)
     TIMES: { morning: "5-11", afternoon: "11-17", evening: "17-21", night: "21-5" },
@@ -751,7 +770,7 @@ Changing the story
   AI_BUDGET: {
     DAILY_NEURONS: 28000,              // stop here: 10,000 free + 18,000 paid ($0.20) at most a day
     PICTURE_SHARE: 0.8,                // pictures stop at this share of DAILY_NEURONS (~210 a day), so photos stay seeable
-    PICTURE_NEURONS: 105,              // FLUX.2 klein, 640x640 + the reference face: measured 91-106 a picture (Cloudflare analytics, 2026-10-02)
+    PICTURE_NEURONS: 115,              // FLUX.2 klein: 4 output tiles (768x1024) ~104 + 5.4 per reference image (face, place); 640x640 measured 91-106 (2026-10-02)
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
     HEALTH_NEURONS: 40,                // one /health check
@@ -2555,12 +2574,26 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
     wearing, where,
     light: pickOne((P.LIGHT || {})[time.toUpperCase()]),
   };
-  const body = chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k] || "") : m))
+  const filled = chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k] || "") : m));
+  // the fixed place: one her words name, else the template's or place list's @key; @key → its NAME
+  const L = P.LOCATIONS || {};
+  const token = [...filled.matchAll(/@(\w+)/g)].map((m) => m[1]).find((k) => Object.hasOwn(L, k));
+  const location = locationOf(`${words} ${doing}`) || token || null;
+  const named = (t) => String(t).replace(/@(\w+)/g, (m, k) => (Object.hasOwn(L, k) ? L[k].NAME || k : m));
+  const body = named(filled)
     .replace(/(?:,\s*)+(?=[,.])/g, "").replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
-  const shown = words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", ");
+  const shown = named(words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", "));
   // In history and her recent pictures as "type, what" (just "what" when it already names the type)
   const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
-  return { prompt: [P.SELFIE_STYLE, "{who}", body, P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what };
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location };
+}
+
+// The fixed place (PICTURE.LOCATIONS) a text puts a picture in, by its WORDS (his rooms are listed first,
+// so "his bed" wins over "bed"), or null
+function locationOf(text) {
+  if (!String(text || "").trim()) return null;
+  for (const [key, l] of Object.entries(CONFIG.PICTURE.LOCATIONS || {})) if ((l.WORDS || []).some((w) => String(w).trim() && hasWord(text, w))) return key;
+  return null;
 }
 
 // Her selfie for this reply, from her [selfie: ...] (`want`, null when she wrote none), the code's plan (when
@@ -2622,18 +2655,26 @@ async function imageBytes(out) {
 // with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no reference.
 // FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
 // FLUX.1 schnell draws from LOOKS instead.
-async function drawPicture(env, prompt, { size = CONFIG.PICTURE.SIZE, face = true } = {}) {
+async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const seed = Math.floor(Math.random() * 2147483647);
-  const who = (w) => (String(prompt).includes("{who}") ? String(prompt).replace("{who}", w) : `${w} ${prompt}`).replace(/\s{2,}/g, " ").trim();
+  // a fixed place: its reference picture (places.js) as the next image, and its LOOK in words ({room})
+  const L = location && (P.LOCATIONS || {})[location];
+  const place = L && PLACE_JPEG_BASE64 && PLACE_JPEG_BASE64[location] ? fromBase64(PLACE_JPEG_BASE64[location]) : null;
+  const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replace("{n}", String(ref ? 1 : 0)).replace("{look}", (L && L.LOOK) || "");
+  const who = (w, withImage) => {
+    const p = String(prompt).replace("{room}", room(withImage));
+    return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
+  };
   try {
     const form = new FormData();
-    form.append("prompt", who(ref ? P.REFERENCE : P.LOOKS));
-    form.append("width", String(size));
-    form.append("height", String(size));
+    form.append("prompt", who(ref ? P.REFERENCE : P.LOOKS, true));
+    form.append("width", String(width));
+    form.append("height", String(height));
     form.append("seed", String(seed)); // klein takes a seed; schnell doesn't (5006)
     if (ref) form.append("input_image_0", new Blob([ref], { type: "image/jpeg" }), "face.jpg");
+    if (place) form.append(`input_image_${ref ? 1 : 0}`, new Blob([place], { type: "image/jpeg" }), "place.jpg");
     const packed = new Response(form); // serializes the form, with its boundary in the content type
     const out = await aiRun(env, P.MODEL, { multipart: { body: packed.body, contentType: packed.headers.get("content-type") } }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.MODEL };
@@ -2641,7 +2682,7 @@ async function drawPicture(env, prompt, { size = CONFIG.PICTURE.SIZE, face = tru
     // a 3030 refusal stands: never redrawn by the backup
     if (!P.BACKUP_MODEL || aiFiltered(e) || !aiUnavailable(e)) throw e;
     await aiFailed(env, `drawing with ${P.MODEL}: ${aiText_(e)}; used ${P.BACKUP_MODEL}`);
-    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: who(P.LOOKS), steps: P.BACKUP_STEPS }, P.TIMEOUT_MS);
+    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: who(P.LOOKS, false), steps: P.BACKUP_STEPS }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.BACKUP_MODEL };
   }
 }
@@ -2672,7 +2713,8 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
   if (kind === "scene") {
     const what = scenePicturePrompt(want);
     if (!what) return null;
-    pic = { prompt: [P.SCENE_STYLE, "{who}", what.replace(/[.\s]*$/, "."), P.CRAFT, P.SAFE].filter(Boolean).join(" "), what };
+    const location = locationOf(what);
+    pic = { prompt: [P.SCENE_STYLE, "{who}", what.replace(/[.\s]*$/, "."), location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location };
   } else {
     pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
   }
@@ -2682,14 +2724,14 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     try {
       let drawn;
       try {
-        drawn = await drawPicture(env, pic.prompt);
+        drawn = await drawPicture(env, pic.prompt, { location: pic.location });
       } catch (e) {
         // Cloudflare's safety filter (3030) refused it (seen on the real API: a lace bralette and briefs in a
         // mirror): the same shot one tier tamer, with the code's wardrobe instead of her words
         if (kind !== "selfie" || !aiFiltered(e) || pic.tier === "everyday") throw e;
         await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${pic.tier === "boudoir" ? "flirty" : "everyday"}`);
         pic = composePicture({ tier: pic.tier === "boudoir" ? "flirty" : "everyday", shot: pic.shot, recentShots: ledger.shots });
-        drawn = await drawPicture(env, pic.prompt);
+        drawn = await drawPicture(env, pic.prompt, { location: pic.location });
       }
       model = drawn.model;
       return { ...pic, bytes: drawn.bytes, kind };
@@ -2804,7 +2846,8 @@ async function health(env) {
   let error = null;
   try {
     const t0 = Date.now();
-    const drawn = await drawPicture(env, composePicture({ tier: "everyday", shot: "selfie", words: "smiling at the camera in her living room" }).prompt, { size: 256 });
+    const pic = composePicture({ tier: "everyday", shot: "selfie", words: "smiling at the camera in her living room" });
+    const drawn = await drawPicture(env, pic.prompt, { size: 256, location: pic.location });
     result.draw = { ok: true, model: drawn.model, bytes: drawn.bytes.length, ms: Date.now() - t0 };
     const t1 = Date.now();
     const out = await aiRun(env, CONFIG.VISION.MODEL, {
@@ -3401,7 +3444,7 @@ function isNarrationSentence(s) {
   return ACTION.test(s) || (names && names.test(s)) || (re && re.test(s)) || /^(?:She|Her)\b(?!['’])/.test(s);
 }
 
-// "Mrs. Fahmy" stays one sentence
+// "Mrs. Whitaker" stays one sentence
 const ABBREVIATION = /\b(Mrs|Mr|Ms|Dr|St|vs)\./g;
 
 function sentencesOf(p) {
