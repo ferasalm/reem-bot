@@ -5,6 +5,16 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-03 — **Deploy** (owner: "Deploy"): `dev` merged into `main`: Lebanese Reem in Belmont, Basbousa "she", fixed
+  places, bigger and more frequent pictures, the Workers AI cap of 28,000 neurons a day, the branch-delete button.
+- 2026-10-03 — **Image and model providers: Cloudflare or OpenRouter only** (owner: "I already paid for cloudflare,
+  we must use it, keep suggesting alternatives that can be used via cloudflare or openrouter. We will not stay for
+  cloudflare's limits for lingerie, but we will not use another image service other than cloudflare or
+  openrouter. We are looking for high-quality, low-cost, efficient models for text, pictures, and voice."):
+  Claude keeps proposing better, cheaper models for text, pictures and voice, but only on Cloudflare Workers AI or
+  OpenRouter. No Runware, fal.ai or other image service. Cloudflare's lingerie filter is not accepted as final: find
+  a way inside these two (another model, another wording, another route). Voice stays ElevenLabs until the owner
+  says otherwise. *Narrows the open question "another image provider" in HANDOFF.*
 - 2026-10-03 — **Reem is Lebanese and lives in Belmont, MA** (owner: "She's Lebanese and lives in the US Boston MA
   around or within Belmont"): Claude's details, owner may change them: born in Beirut, family moved to North Jersey
   when she was ten; second-floor apartment in an old brick walk-up near Cushing Square; he lives across the hall;

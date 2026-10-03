@@ -16,6 +16,9 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Prices and limits: the Cloudflare MCP's `search_cloudflare_documentation` answers from the current docs (klein
   4B: 26.05 neurons per 512x512 output tile, rounded up, so 768x1024 costs the same as 640x640). Other providers'
   sites (runware.ai, fal.ai) are blocked from the container: WebSearch still finds their prices. (2026-10-03)
+- Judging test pictures: a contact sheet of 300 px thumbnails is not enough to say "same face" or "same room"
+  (the owner caught it, 2026-10-03) → open each picture at full size, one at a time, and write down per-picture
+  checks (face vs reference, age, outfit, phone rule, room vs reference, framing, hands and reflections).
 - Test pictures: push a `tools/face/job.json` to your own branch (not `dev`); face.yml draws and pushes them to
   `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
   Pushing those commits to `dev` later runs face.yml once more (job.json changed in the push): ~4 pictures spent
