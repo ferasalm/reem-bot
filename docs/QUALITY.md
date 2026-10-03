@@ -66,3 +66,16 @@ Round 4, run 37155823695 (2026-10-03, after the ROOM fix "lit by this picture's 
 | 04 | mirror, code-picked, 09:00 | good, laughing | black tank, black jeans, full body | iPhone ok | bedroom, real arched-mirror frame | morning → morning | **pass** |
 Light: 1 of 3 partly → the wording alone can't beat the reference picture's daylight. Next: a night version of each
 place's reference picture, picked by her hour (see HANDOFF next steps). Mirror in the bedroom: clean (1/1).
+
+Round 5, run 37157228216 (2026-10-03): round 4's three night prompts unchanged, the place picture now its night version
+(`places/<key>_night.jpg`, runs 37156755166 + 37157058360), 2 each, read one at a time at full size:
+| Pic | Shot asked | Face | Outfit | Phone | Room | Light asked → drawn | Verdict |
+|---|---|---|---|---|---|---|---|
+| 01 | neckline, lace bodysuit, 23:00 | **strong** | **black tee** (the reference's), not on the bed | ok | match | lamp **on**, dark-blue window | light **pass**, outfit **fail** |
+| 02 | same | weak, slimmer | black cardigan | ok | match | lamp on, dark window | light pass; third-person framing, **fail** |
+| 03 | waist, bedroom mirror, 22:00 | good | white shirt dress, hand at waist | iPhone ok | match | lamp on, window still dusk | **pass**, light partly |
+| 04 | same | good | white shirt over black pants | iPhone ok | match | lamp on, window dusk | weak |
+| 05 | cozy + Basbousa, 20:00 | **strong** | gray knit; one golden longhair cat | ok, true selfie | match | lamp on, windows gray | **pass**, light partly |
+| 06 | same | good | gray knit; **two cats** | ok | extra arc lamp | lamp on, windows daylit | **fail**; third-person framing |
+Light: lamp on 6/6 (round 4: 1/3), a night window 2/6 → much better, not solved. "black lace bodysuit" 0/2 this
+time (round 4: 1/1, earlier 3/3): klein drew the reference picture's black tee instead.

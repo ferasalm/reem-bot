@@ -25,6 +25,11 @@ At most 150 lines (`tools/doc-check.mjs`).
   twice on 2026-10-03. Fine when small; for a big job, push it to `dev` before the last job.json edit lands. (2026-10-03)
 - The sync report listed an old branch with "26 commits not here" → the clone was shallow (depth 50), so the
   merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03)
+- face.yml refused a job at 6,618 neurons used: draw.mjs's day cap 7,000 dates from the free plan → set
+  `day_neurons` in job.json (Workers Paid; the owner's cap is AI_BUDGET.DAILY_NEURONS 28,000). (2026-10-03)
+- `/plugin marketplace add` / `/plugin install` can't be run by Claude (CLI commands) → put the marketplace in
+  `extraKnownMarketplaces` and the plugin in `enabledPlugins` of `.claude/settings.json`; it loads next session.
+  Its files can be read now from a clone (`git clone https://github.com/<owner>/<repo>`; github.com is reachable). (2026-10-03)
 - Commit, push your branch and push it to `dev` (standing permission, CLAUDE.md). Pushing to `main` deploys: only
   when the owner asks. Deleting branches is refused: the owner does it (`tools/retired-branches.txt`).
 
@@ -66,8 +71,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   "two-piece set" passed once, failed once) → `FILTER_WORDS` draws those as a bodysuit or string bikini in her
   color; mirror-back left out of BOUDOIR. Front-view lace bodysuits pass. Real lingerie needs another provider.
   "top and bottoms" passes but draws pajamas. (face runs 37151684663, 37152577208, round 3; 2026-10-03)
-- Night pictures came out in daylight (0/12) → klein copies the place picture's light, and saying "lit by this
-  picture's own light" only turned the lamp on (1/3, round 4) → a night version of each place picture is needed.
+- Night pictures came out in daylight (0/12) → klein copies the place picture's light, and wording alone turned the
+  lamp on 1/3 → night place pictures (`places/<key>_night.jpg`): lamp on 6/6, night window 2/6 (round 5). Drawing
+  them, "deep shadow" made 3 of 7 rooms too dark to use → "warmly lit and easy to see". (2026-10-03)
   Bathroom body-length mirror shots broke 3/3 (its mirror is small and round) → bedroom/hallway only. (2026-10-03)
 - With a place's picture attached she came out small in a wide room shot → klein copies the reference's framing →
   `ROOM` puts the room "behind her" and says she fills the frame (verified in round 2: she fills it). (2026-10-03)

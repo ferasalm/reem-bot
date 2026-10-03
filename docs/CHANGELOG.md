@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-03 (late night): night place pictures, FLUX skill (not deployed)
+- FLUX prompting skill (black-forest-labs/skills, `flux-image-best-practices`) registered in `.claude/settings.json`.
+- Night version of 7 places (bathroom stays: lamp-lit, no window), image-to-image from the day picture with
+  `node tools/face/places.mjs --night`: runs 37156755166 (picks bedroom 05, his_bedroom 02, his_living 04 (doorway
+  still daylit), hallway 14; living, kitchen, porch too dark) and 37157058360 ("warmly lit and easy to see": living
+  03, kitchen 02, porch 06). `drawPicture` sends `<key>_night` when `isDark` (night, or evening unless daylight).
+- Round 5 (face run 37157228216): lamp on 6/6, night window 2/6 (`docs/QUALITY.md`).
+
 ## 2026-10-03 (night): pictures re-read, first live run of the new persona (not deployed)
 - All 22 test pictures re-read at full size, one at a time: verdicts in `docs/QUALITY.md` (pass 12, weak 3, fail 7).
 - ROOM: "the same walls and furniture ... lit by this picture's own light" (was "same ... light": 0/12 night

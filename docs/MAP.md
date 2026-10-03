@@ -37,7 +37,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `drawPicture`); 3030 → `aiFiltered`, one tamer try in `startPicture`
   - fixed places (2026-10-03): `PICTURE.LOCATIONS`; `@key` in SHOTS/PLACES → NAME; `locationOf` (her words, a scene);
     `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
-    `places.js` as image 1, else ROOM_TEXT)
+    `places.js` as image 1, else ROOM_TEXT); after dark (`isDark`: night, or evening unless the light is daylight;
+    `timeOfDay`) `composePicture`/scene pictures set `night` and `drawPicture` sends `<key>_night` when it exists
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,
     `photoLine`); ledger `loadLedger`/`saveLedger`/`aiAffordable`/`aiSpent` (KV `pics`); `picturesAllowed`,
     `pictureMode`; `takeSelfie` (in `shapeReply`); `startPicture` (`selfieSubject` or `scenePicturePrompt` →
@@ -75,7 +76,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
 
 - Also: `wrangler.toml` (bindings, cron); `face.js` (her reference face as base64: never open it); `places.js` (her
   fixed places' pictures as base64, built by `tools/face/build-places.mjs` from `tools/face/places/*.jpg`; never open
-  it); `tools/face/places.mjs` (job: draw the places), `examples.mjs` (job: example pictures + lingerie filter
+  it); `tools/face/places.mjs` (job: draw the places; `--night`: each place at night from its day picture), `examples.mjs` (job: example pictures + lingerie filter
   probes), `compose.mjs` (a prompt exactly as drawPicture sends it); `.github/workflows/delete-branches.yml` (the
   owner's button: deletes the branches in `tools/retired-branches.txt`, lines marked `# keep` stay);
   `.github/workflows/deploy.yml` (deploy on push to `main`), `test.yml` (sync, mocked, docs, `[live]`);
