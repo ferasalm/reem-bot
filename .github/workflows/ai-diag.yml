@@ -1,0 +1,22 @@
+name: AI diagnosis
+
+# Prints Cloudflare Workers AI's real answers for this account (token, model schemas, neuron usage, tiny test
+# calls) via tools/ai-diag.mjs. Runs when either file changes, or by hand. A few neurons at most.
+on:
+  workflow_dispatch:
+  push:
+    paths: [tools/ai-diag.mjs, .github/workflows/ai-diag.yml]
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Diagnose
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node tools/ai-diag.mjs
