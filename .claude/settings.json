@@ -10,5 +10,16 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "black-forest-labs": {
+      "source": {
+        "source": "github",
+        "repo": "black-forest-labs/skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "flux-image-best-practices@black-forest-labs": true
   }
 }
