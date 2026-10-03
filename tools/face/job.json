@@ -1,26 +1,29 @@
 {
-  "note": "Her fixed places at night, drawn from the day pictures: pick the one with the same room (walls, furniture, angle) and believable night light.",
-  "mode": "places-night",
-  "size": 640,
+  "note": "Round 4's three night shots again (run 37155823695), unchanged except the place picture is its night version (2026-10-03).",
+  "mode": "night-shots",
+  "reference": "tools/face/reference.jpg",
+  "width": 768,
+  "height": 1024,
+  "square": false,
   "labels": [
-    "kitchen_night",
-    "living_night",
-    "porch_night"
+    "boudoir/neckline at night: black lace bodysuit",
+    "flirty/waist at night (bedroom mirror)",
+    "everyday/cozy in the evening, sofa with Basbousa"
   ],
   "prompts": [
-    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the small window over the sink is black with night; the warm under-cabinet lights are on, glowing on the counter, the herbs on the sill and the mugs on the open shelves. The room is warmly lit and easy to see, only its corners in soft shadow, a cozy lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
-    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the tall windows are black with night; the brass floor lamp is switched on, warm amber light across the green velvet sofa and the red brick wall, the plants throwing soft shadows. The room is warmly lit and easy to see, only its corners in soft shadow, a cozy lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
-    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the string lights are on, small warm bulbs glowing along the white railings, the maples and the rooftops behind in deep blue darkness. The room is warmly lit and easy to see, only its corners in soft shadow, a cozy lived-in mood, the room empty. Realistic phone photo taken at night, natural grain."
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a very curvy hourglass figure: a large full bust, a narrow defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Taken from above, chest-up, her collarbones and neckline in the frame, a teasing half smile, chin lowered, a black lace bodysuit, on the bed, dim light from a bedside lamp. Behind her is the room from image 1, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a very curvy hourglass figure: a large full bust, a narrow defined waist, wide rounded hips and full thighs. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a mirror in her bedroom, one hand on her waist, her hip turned toward the mirror, a daring look straight into the camera, wearing an oversized white shirt worn as a dress, unbuttoned at the collar, dim light from a bedside lamp. Behind her is the room from image 1, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a very curvy hourglass figure: a large full bust, a narrow defined waist, wide rounded hips and full thighs. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, curled up on the sofa in her living room with Basbousa, her fluffy golden-brown tabby, biting back a smile, curled up on the sofa with Basbousa, oversized gray knit cardigan, warm lamp light. Behind her is the room from image 1, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a living room in an old brick building: an exposed red brick wall, tall windows with white trim, a deep green velvet sofa, a worn Persian rug, a brass floor lamp, plants, a desk in the corner with fabric samples and a mood board. Natural skin texture, slight grain. No nudity."
   ],
   "refs": [
     [
-      "tools/face/places/kitchen.jpg"
+      "tools/face/places/bedroom_night.jpg"
     ],
     [
-      "tools/face/places/living.jpg"
+      "tools/face/places/bedroom_night.jpg"
     ],
     [
-      "tools/face/places/porch.jpg"
+      "tools/face/places/living_night.jpg"
     ]
   ],
   "per_prompt": 2,
