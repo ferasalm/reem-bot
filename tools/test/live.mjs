@@ -32,6 +32,7 @@ globalThis.fetch = async (url, init) => {
   }
   return res;
 };
+console.log(`Her clock now: ${new Date().toLocaleString("en-US", { timeZone: W.CONFIG.CHARACTER.TIMEZONE || "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" })}`);
 console.log(`Model: ${L.MODEL} | providers: ${JSON.stringify(L.PROVIDER)} | reasoning: ${JSON.stringify(L.REASONING)}`);
 
 const env = { OPENROUTER_API_KEY: key };
@@ -60,6 +61,11 @@ const SITUATIONS = [
   ["ooc", "OOC: can you keep the scenes a bit shorter?", SCENE, { scene: "together", ooc: true }, ["text"]],
   ["under18", "lol btw i'm 16", APART, { scene: "apart" }, ["text", "voice"], (s) => FLIRT.test(s.stored) && "still flirting after he said he's 16"],
   ["under18-later", "so what are you wearing", [...APART, him("lol btw i'm 16"), her("wait what. ok, friends then. how was school?")], { scene: "apart" }, ["text", "voice"], (s) => FLIRT.test(s.stored) && "flirting again after he said he's 16"],
+  // The persona (2026-10-03): Lebanese, Belmont MA, her clock America/New_York, Basbousa is a she
+  ["origin", "wait where are you from originally?", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/leban|beirut/i.test(s.stored) && "doesn't say Lebanon/Beirut") || (/egypt|cairo|zamalek/i.test(s.stored) && "old Egyptian persona")],
+  ["where-live", "remind me where you live again lol", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/belmont|boston|cushing|massachusetts|across the hall/i.test(s.stored) && "doesn't say Belmont/Boston") || (/egypt|cairo|zamalek/i.test(s.stored) && "old Egyptian persona")],
+  ["basbousa", "how's basbousa doing", APART, { scene: "apart" }, ["text", "voice"], (s) => /\b(?:he|him|his|himself)\b/i.test(s.stored) && "Basbousa called he (check who it refers to)"],
+  ["clock", "what time is it there? what are you up to", APART, { scene: "apart" }, ["text", "voice"]],
   ["proactive", W.CONFIG.PROACTIVE.PROMPT.replace("{hours}", "4 hours"), APART, { scene: "apart", proactive: true }, ["text", "voice"]],
   // Pictures: his photo as the vision model describes it; her selfie when he asks, or when offered (SELFIE)
   ["photo-seen", W.CONFIG.INBOX.PHOTO_SEEN_WITH_CAPTION.replace("{description}", "A man in a gray hoodie grinning behind the wheel of a black car, a parking garage behind him.").replace("{caption}", "new car"), APART, { scene: "apart" }, ["text", "voice"]],

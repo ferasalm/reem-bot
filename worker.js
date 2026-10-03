@@ -653,7 +653,7 @@ Changing the story
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
-    ROOM: "Behind her is the room from image {n}, with the same walls, furniture and light, seen from where her camera is; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number)
+    ROOM: "Behind her is the room from image {n}, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
     ROOM_TEXT: "The place: {look}.",   // ...without one (or drawn by the backup model)
     SAFE: "No nudity.",
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
@@ -669,17 +669,19 @@ Changing the story
     // The shot catalog: type = camera + framing. Filled in by the code: {selfie} {mirror} {pov} (the phone
     // rules below), {angle} {expression} {wearing} {where} {light}, and {a|b|c} (one is picked; the one her
     // words mention, if any). {wearing} is what she wrote in [selfie: ...] when she wrote something.
+    // No bathroom in the body-length mirror shots: its mirror is a small round one over the sink, and all 3 drawn
+    // there broke (her body half in the glass, a second face, clothes ignored; face runs, 2026-10-03)
     SHOTS: {
       close: "{selfie} Close-up of her face and shoulders, {angle}, {expression}, {wearing}{where}, {light}.",
       selfie: "{selfie} Chest-up, {angle}, {expression}, {wearing}{where}, {light}.",
-      mirror: "{mirror} Full-body reflection in a mirror in {@bathroom|@bedroom|@hallway}, the room behind her, {expression}, {wearing}, a little flash glare on the glass, {light}.",
+      mirror: "{mirror} Full-body reflection in a mirror in {@bedroom|@hallway}, the room behind her, {expression}, {wearing}, a little flash glare on the glass, {light}.",
       cozy: "{selfie} Chest-up, {angle}, curled up {on the sofa in @living with Basbousa, her fluffy golden-brown tabby|under a blanket on the sofa in @living|in bed against the pillows in @bedroom}, {expression}, {wearing}, {light}.",
       detail: "{pov} Close-up of {her hand with thin gold rings around a coffee cup in @kitchen|her bare feet up on the railing of @porch|her hand on fabric samples spread across her desk in @living}, her face out of frame, {wearing}, {light}.",
       golden: "{selfie} Chest-up on @porch at golden hour, warm low sun on her face, maple trees and rooftops behind her, {angle}, {expression}, {wearing}.",
-      "mirror-back": "{mirror} Back view: she stands with her back to a mirror in {@bedroom|@bathroom|@hallway} and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, {expression}, {wearing}, {light}.",
+      "mirror-back": "{mirror} Back view: she stands with her back to a mirror in {@bedroom|@hallway} and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, {expression}, {wearing}, {light}.",
       neckline: "{selfie} Taken from above, chest-up, her collarbones and neckline in the frame, {expression}, {wearing}{where}, {light}.",
       legs: "{selfie} Taken from above while she sits {on the sofa in @living|on the bed in @bedroom|on a chair on @porch}, her legs crossed and in the frame, {expression}, {wearing}, {light}.",
-      waist: "{mirror} 3/4-body reflection in a mirror in {@bedroom|@bathroom}, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
+      waist: "{mirror} 3/4-body reflection in a mirror in @bedroom, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
     },
     // The phone rules (owner): selfies never show the phone or her hand; mirror selfies always show an iPhone
     SELFIE_PHONE: "Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame.",

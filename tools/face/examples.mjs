@@ -9,11 +9,11 @@ import { forKlein } from "./compose.mjs";
 const W = await loadWorker();
 const P = W.CONFIG.PICTURE;
 const set = [
-  // round 3 (2026-10-03): FILTER_WORDS as bodysuit / string bikini
-  ["boudoir/mirror: 'red satin bra and matching panties'", { tier: "boudoir", shot: "mirror", words: "a red satin bra and matching panties, bedroom mirror", hour: 23 }],
-  ["boudoir/mirror-back: 'black lace bralette and a matching thong'", { tier: "boudoir", shot: "mirror-back", words: "a black lace bralette and a matching thong, bedroom mirror", hour: 23 }],
-  ["boudoir/mirror-back: 'black g-string bikini'", { tier: "boudoir", shot: "mirror-back", words: "a black g-string bikini, bathroom mirror", hour: 13 }],
-  ["boudoir/neckline: her own wardrobe", { tier: "boudoir", shot: "neckline", words: "a black lace bodysuit, on the bed", hour: 23 }],
+  // round 4 (2026-10-03): ROOM without "the same light", no bathroom in body-length mirror shots
+  ["boudoir/neckline at night: black lace bodysuit", { tier: "boudoir", shot: "neckline", words: "a black lace bodysuit, on the bed", hour: 23 }],
+  ["flirty/waist at night (bedroom mirror)", { tier: "flirty", shot: "waist", words: "", hour: 22 }],
+  ["everyday/cozy in the evening, sofa with Basbousa", { tier: "everyday", shot: "cozy", words: "curled up on the sofa with Basbousa, oversized gray knit cardigan", hour: 20 }],
+  ["everyday/mirror in the morning (code picks the mirror)", { tier: "everyday", shot: "mirror", words: "", hour: 9 }],
 ];
 const labels = [], prompts = [], refs = [];
 for (const [label, args] of set) {
@@ -24,7 +24,7 @@ for (const [label, args] of set) {
 }
 writeFileSync(new URL("./job.json", import.meta.url), JSON.stringify({
   note: "Examples for the owner (2026-10-03): Lebanese Reem in Belmont, her fixed places, curvier body, 768x1024; probes show which lingerie wordings Cloudflare's filter lets through.",
-  mode: "examples3", reference: "tools/face/reference.jpg", width: P.WIDTH, height: P.HEIGHT, square: false,
+  mode: "examples4", reference: "tools/face/reference.jpg", width: P.WIDTH, height: P.HEIGHT, square: false,
   labels, prompts, refs, per_prompt: 1, describe: false,
 }, null, 2) + "\n");
 console.log(labels.map((l, i) => `${String(i + 1).padStart(2, "0")} ${l}${refs[i].length ? " +place" : ""}`).join("\n"));
