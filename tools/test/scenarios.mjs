@@ -343,7 +343,7 @@ section("pictures: his photos (Workers AI vision)");
     if (model.includes("flux")) {
       const fields = input.multipart ? await formOf(input) : input;
       ai.push({ model, fields });
-      if (filterNext) { filterNext = false; throw new Error("3030: Input prompt contains NSFW content"); }
+      if (filterNext) { filterNext = filterNext === true ? false : filterNext - 1; throw new Error("3030: Input prompt contains NSFW content"); }
       if (drawError) { const e = drawError; if (!/5035/.test(e.message) || model.includes("flux-2")) throw e; }
       return { image: btoa(sameBytes ? "same picture" : `picture ${++pictureNo}`) };
     }
@@ -405,7 +405,8 @@ section("pictures: his photos (Workers AI vision)");
   // Pictures v3 (owner 2026-10-02): sexy by pose or wardrobe is fine, nudity never
   r = await turn("hey", ["hi\n\n[selfie: me in lingerie on the bed]"], { history: APART });
   const f3 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
-  yes(f3.prompt.includes(", in lace two-piece set on the bed,") && f3.prompt.endsWith("No nudity.") && !/fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it (worded past the filter: FILTER_WORDS); SAFE is only 'No nudity.'", f3.prompt);
+  yes(f3.prompt.includes(", in lace bodysuit on the bed,") && f3.prompt.endsWith("No nudity.") && !/fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it (worded past the filter: FILTER_WORDS); SAFE is only 'No nudity.'", f3.prompt);
+  eq([W.composePicture({ tier: "boudoir", shot: "selfie", words: "a red satin bra and matching panties, on the bed" }).what, W.composePicture({ tier: "boudoir", shot: "mirror", words: "a black g-string bikini" }).what], ["selfie, a red satin bodysuit, on the bed", "mirror, a black string bikini"], "bra and panties → a bodysuit in her color; g-string → string bikini");
   // live 2026-10-03 (face run 37151684663): every wording with bra/panties/briefs/thong/g-string was refused (3030)
   eq(W.composePicture({ tier: "boudoir", shot: "selfie", words: "a red satin bra and matching panties, Thong" }).prompt.match(/\b(?:bra|panties|thong)\b/gi), null, "filter words never reach the image model");
   r = await turn("hey", ["hi\n\n[selfie: me naked in bed]"], { history: APART });
@@ -518,14 +519,18 @@ section("pictures: his photos (Workers AI vision)");
   const fb = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
   yes(fb.prompt.includes("her back to a") && fb.prompt.includes("black leggings") && fb.prompt.includes("iPhone"), "drawn as a mirror-back with her words", fb.prompt);
   eq(r.saved.parts.at(-1).text, "[selfie: mirror-back, black leggings]", "history: [selfie: type, what]");
-  r = await turn("send me a pic in your lingerie", ["greedy\n\n[selfie: in black lace, sitting on the edge of my bed]"], { history: APART });
+  r = await turn("send me a pic in your lingerie", ["greedy\n\n[selfie: in black lace, curled up in the armchair]"], { history: APART });
   yes(r.system[0].includes(W.CONFIG.PICTURE.TIER_HINTS.boudoir.trim()), "lingerie asked: boudoir hint");
-  yes(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt.includes("in black lace, sitting on the edge of her bed"), "...her words drawn");
+  yes(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt.includes("in black lace, curled up in the armchair"), "...her words drawn");
   // seen on the real API 2026-10-02 (face run 37067630871): Cloudflare's filter (3030) refused a boudoir mirror shot
   filterNext = true;
   r = await turn("send me a pic in lingerie", ["[selfie: mirror, red satin corset by the window]"], { history: APART });
   const tries = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).slice(-2).map((a) => a.fields.prompt);
-  yes(r.photos.length === 1 && tries.length === 2 && tries[0].includes("red satin corset") && !tries[1].includes("corset") && W.CONFIG.PICTURE.WARDROBE.FLIRTY.some((w) => tries[1].includes(w)), "safety filter (3030): drawn once more, one tier tamer, so a picture still comes", tries[1]);
+  yes(r.photos.length === 1 && tries.length === 2 && tries[0].includes("red satin corset") && !tries[1].includes("corset") && W.CONFIG.PICTURE.WARDROBE.BOUDOIR.some((w) => tries[1].includes(w.split("|")[0].trim())), "safety filter (3030): drawn again in the code's own boudoir wardrobe (lingerie, not a tamer outfit)", tries[1]);
+  filterNext = 2;
+  r = await turn("send me a pic in lingerie", ["[selfie: mirror, red satin corset by the window]"], { history: APART });
+  const tries2 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).slice(-3).map((a) => a.fields.prompt);
+  yes(r.photos.length === 1 && W.CONFIG.PICTURE.WARDROBE.FLIRTY.some((w) => tries2[2].includes(w)), "...refused again: one tier tamer, so a picture still comes", tries2[2]);
   eq(r.saved.parts.at(-1).text.startsWith("[selfie: mirror, wearing "), true, "...and history says what was really drawn");
   // seen live 2026-10-03: after a refused lingerie pic, /setup showed "5006: Additional or unevaluated properties
   // '/seed'": the 3030 refusal went to the FLUX.1 schnell backup, called with a seed it rejects

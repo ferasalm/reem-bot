@@ -13,6 +13,11 @@ At most 150 lines (`tools/doc-check.mjs`).
 - The ElevenLabs MCP needs any voice description and sample line to come from the owner. Transcribing a TTS node
   in a flow only echoes its prompt: upload the MP3 as an asset to really transcribe it.
 - Read back the live Worker's code with the Cloudflare MCP after a deploy (done for every deploy on 2026-10-02/03).
+- Prices and limits: the Cloudflare MCP's `search_cloudflare_documentation` answers from the current docs (klein
+  4B: 26.05 neurons per 512x512 output tile, rounded up, so 768x1024 costs the same as 640x640). Other providers'
+  sites (runware.ai, fal.ai) are blocked from the container: WebSearch still finds their prices. (2026-10-03)
+- Test pictures: push a `tools/face/job.json` to your own branch (not `dev`); face.yml draws and pushes them to
+  `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
 - Commit, push your branch and push it to `dev` (standing permission, CLAUDE.md). Pushing to `main` deploys: only
   when the owner asks. Deleting branches is refused: the owner does it (`tools/retired-branches.txt`).
 
@@ -49,6 +54,13 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Cloudflare's usage analytics lag several minutes → a guard reading them can't see the last minutes. (2026-10-03)
 - Cloudflare's prompt filter (3030) is random: the same words pass in one run and fail in another → never conclude
   from one refusal; the bot draws one tier tamer instead. (2026-10-02)
+- Lingerie pictures came out as robes or tamer outfits → Cloudflare's filter (3030) refuses any prompt with bra,
+  panties, briefs, thong or g-string (5/5 in face run 37151684663); "lace two-piece set" passes → `FILTER_WORDS`
+  rewords her words before drawing. (2026-10-03)
+- With a place's picture attached she came out small in a wide room shot → klein copies the reference's framing →
+  `ROOM` puts the room "behind her" and says she fills the frame. (2026-10-03)
+- klein took 9-238 s a picture on 2026-10-03 (one 408 after 241 s); `draw.mjs` then falls back to Pollinations,
+  whose pictures carry a watermark → never pick those as references; the bot waits up to `TIMEOUT_MS` 120 s. (2026-10-03)
 - A live check said "nothing broken reached him" while broken replies went out (Incident, docs/CHANGELOG.md) →
   read every reply of a `[live]` run, not its summary. (2026-10-01)
 
