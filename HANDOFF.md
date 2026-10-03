@@ -26,7 +26,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Optional: a Cloudflare billing alert.
 
 ## Verified this session (2026-10-03)
-- `node tools/check.mjs` all 6 ok; CI green; deploy: see CHANGELOG for the run.
+- `node tools/check.mjs` all 6 ok; CI green. **Deploy run 37154159805 green** (commit 2033c03), version
+  `b73a8c8b-9641-4068-93ad-51299e15cd34`; its /health: klein drew from her built-in face (65 KB, 26 s), vision ok
+  (described a brick-wall room). Live code read back with the Cloudflare MCP: America/New_York, Belmont, cap 28,000,
+  places, FILTER_WORDS, "Basbousa, your cat (she)" present; no Zamalek/Africa/Cairo left.
 - **Correction (owner): my reading of the test pictures was not accurate enough.** I judged 33 pictures from small
   contact sheets and called them "same face", "same room", "fills the frame". Treat those verdicts as unverified.
 
