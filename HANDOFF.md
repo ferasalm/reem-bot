@@ -66,8 +66,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
      not fixable in code. Request ids for support: `b9e9b3eb-e8e5-4032-816b-12655ac13e84`,
      `a8f660d9-faaf-488f-bf4b-6ff2f158bd2f` (00:32 UTC). The bot's ledger is also marked out for today (`out`), so
      it won't try again before 00:00 UTC on 2026-10-04 even if Cloudflare lifts the block sooner.
-  Deployed: the first two commits (2f3fd48, 24426b0: klein without seed, harmless). The fixes in 1-3 are on `dev`,
-  **not deployed** (owner decides).
+  5. **No more whole-day lockout**: `ledger.out` is now the time Cloudflare said "used up"; after
+     `AI_BUDGET.OUT_RETRY_MS` (1 h) one call tests whether the block lifted, a working call clears it. An old
+     `out: true` counts as expired, so the deploy itself unlocks the bot. /setup shows the next try time.
+  **Deployed 2026-10-03** (owner: "Fix everything and fix the bot so everything works NOW"): 1-3 and 5. Pictures
+  still need Cloudflare to lift its block; the bot now retries hourly by itself.
 - **2026-10-02 (late night): pictures v3 deployed** (owner: "merge and deploy"; the first push to `main` was held by
   the session's auto-mode check until the owner allowed it): `main` fast-forwarded to 04f23b8. Deploy run
   37071745296 green: bindings KV, queue, AI; version `be5f7c44-133b-49df-8087-b4d739c09639`. /health: klein drew
@@ -233,6 +236,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (free pla
 - `Worker.js` (the repo's first commit, already in `main`) was left alone: not part of the clean-up the owner approved.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-03 — **Deploy the Workers AI fixes** (owner: "Fix everything and fix the bot so everything works NOW"):
+  out-of-neurons no longer read as unavailable, PICTURE_NEURONS 105, klein's seed back, hourly retry after
+  "used up" (`OUT_RETRY_MS`, Claude's value). Not done: a non-Cloudflare image fallback (would change the
+  "Cloudflare free tier only" decision of Pictures v2; owner's call).
 - 2026-10-03 — **Picture fix approved and deployed** (owner: "Do Next step 000 (the picture fix I approved) ...
   then deploy"): a 3030 refusal never goes to the backup model; schnell without `seed`; the shot he names wins.
   ~~Klein without `seed` too~~ (Claude's misreading, reverted; see Status "Real cause").

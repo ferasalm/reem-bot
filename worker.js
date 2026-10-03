@@ -755,6 +755,7 @@ Changing the story
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
     HEALTH_NEURONS: 40,                // one /health check
+    OUT_RETRY_MS: 3600000,             // after "allocation used up", try again this much later (seen 2026-10-03: the block outlived the 00:00 UTC reset)
   },
 
   /* ---------------- Telegram ---------------- */
@@ -2221,7 +2222,7 @@ async function loadLedger(env) {
   return {
     day,
     neurons: fresh ? saved.neurons || 0 : 0,
-    out: fresh ? !!saved.out : false,
+    out: fresh && saved.out ? saved.out : false, // the time Cloudflare said out of neurons (true = old format)
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
     recent: Array.isArray(saved.recent) ? saved.recent : [],
     shots: Array.isArray(saved.shots) ? saved.shots : [], // { shot, angle, tier } of her recent selfies
@@ -2239,7 +2240,9 @@ async function saveLedger(env, ledger) {
 // May this kind of call ("picture", "photo", "health") still be made today?
 function aiAffordable(ledger, kind) {
   const B = CONFIG.AI_BUDGET;
-  if (!ledger || ledger.out) return false;
+  if (!ledger) return false;
+  // out of neurons: wait OUT_RETRY_MS, then one call may test whether Cloudflare's block has lifted
+  if (typeof ledger.out === "number" && Date.now() - ledger.out < B.OUT_RETRY_MS) return false;
   const cost = kind === "picture" ? B.PICTURE_NEURONS : kind === "photo" ? B.PHOTO_NEURONS : B.HEALTH_NEURONS;
   const cap = kind === "picture" ? B.DAILY_NEURONS * B.PICTURE_SHARE : B.DAILY_NEURONS;
   return ledger.neurons + cost <= cap;
@@ -2247,8 +2250,8 @@ function aiAffordable(ledger, kind) {
 
 // After a call: count it, or stop for the day when Cloudflare says the allocation is used up
 function aiSpent(ledger, neurons, error) {
-  if (error && aiOutOfNeurons(error)) ledger.out = true;
-  else ledger.neurons += neurons;
+  if (error && aiOutOfNeurons(error)) ledger.out = Date.now();
+  else { ledger.out = false; ledger.neurons += neurons; }
 }
 
 /* --- his photos --- */
@@ -3667,7 +3670,7 @@ async function setup(url, env) {
     add(!!(picked || FACE_JPEG_BASE64), "Her face in pictures", picked ? `Picked with ${commandFor("face")}.` : FACE_JPEG_BASE64 ? `Built in (face.js). ${commandFor("face")} shows it and draws others to pick from.` : `None: her pictures won't all show the same face. Send ${commandFor("face")} in the chat to pick one.`);
     const ledger = await loadLedger(env);
     const B = CONFIG.AI_BUDGET;
-    add(true, "Workers AI today (UTC)", ledger.out ? "Cloudflare says today's free allocation is used up: no pictures until 00:00 UTC." : `About ${Math.round(ledger.neurons)} of ${B.DAILY_NEURONS} neurons used (pictures stop at ${Math.round(B.DAILY_NEURONS * B.PICTURE_SHARE)}).`);
+    add(true, "Workers AI today (UTC)", ledger.out ? `Cloudflare said the free allocation is used up: no pictures for now, the next try after ${new Date((Number(ledger.out) || 0) + B.OUT_RETRY_MS).toISOString().slice(11, 16)} UTC.` : `About ${Math.round(ledger.neurons)} of ${B.DAILY_NEURONS} neurons used (pictures stop at ${Math.round(B.DAILY_NEURONS * B.PICTURE_SHARE)}).`);
   }
   const lastAiError = env.REEM_KV && (await env.REEM_KV.get("ai_error", "json").catch(() => null));
   if (lastAiError) {
