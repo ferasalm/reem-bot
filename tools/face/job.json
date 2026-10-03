@@ -10,6 +10,5 @@
     "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Taken from above while she sits on the bed, her legs crossed and in the frame, a daring look straight into the camera, wearing an oversized white shirt worn as a dress, unbuttoned at the collar, bright morning sun through the window. Natural skin texture, slight grain. No nudity."
   ],
   "per_prompt": 1,
-  "describe": true,
-  "max_neurons": 1
+  "describe": true
 }
