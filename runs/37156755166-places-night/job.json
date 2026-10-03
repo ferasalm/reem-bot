@@ -1,0 +1,49 @@
+{
+  "note": "Her fixed places at night, drawn from the day pictures: pick the one with the same room (walls, furniture, angle) and believable night light.",
+  "mode": "places-night",
+  "size": 640,
+  "labels": [
+    "his_bedroom_night",
+    "his_living_night",
+    "bedroom_night",
+    "kitchen_night",
+    "living_night",
+    "porch_night",
+    "hallway_night"
+  ],
+  "prompts": [
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the window is dark; a warm ceiling light is on, the dark gray sheets in soft light, a faint orange streetlight glow through the half-open blinds. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: a warm ceiling light is on and the TV screen glows softly, light on the gray couch and the coffee table. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the window is dark night blue behind the sheer curtains; the black iron bedside lamp is switched on, a warm amber pool of light over the rumpled white sheets and the cream throw, the floor mirror catching its glow. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the small window over the sink is black with night; the warm under-cabinet lights are on, glowing on the counter, the herbs on the sill and the mugs on the open shelves. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the tall windows are black with night; the brass floor lamp is switched on, warm amber light across the green velvet sofa and the red brick wall, the plants throwing soft shadows. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the string lights are on, small warm bulbs glowing along the white railings, the maples and the rooftops behind in deep blue darkness. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the window at the end is dark; an old ceiling fixture lights the stairwell with warm yellow light, the green doors and the banister in soft shadow. The rest of the room falls into soft, deep shadow, a calm lived-in mood, the room empty. Realistic phone photo taken at night, natural grain."
+  ],
+  "refs": [
+    [
+      "tools/face/places/his_bedroom.jpg"
+    ],
+    [
+      "tools/face/places/his_living.jpg"
+    ],
+    [
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/places/kitchen.jpg"
+    ],
+    [
+      "tools/face/places/living.jpg"
+    ],
+    [
+      "tools/face/places/porch.jpg"
+    ],
+    [
+      "tools/face/places/hallway.jpg"
+    ]
+  ],
+  "per_prompt": 2,
+  "describe": false,
+  "day_neurons": 12000
+}
