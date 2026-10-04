@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-04 — **Speech recognition on Cloudflare; test aura-2-en and Nano Banana** (owner: "google safety filters
+  are actually lenient, they're not strict, they're just random. Let's test them before judging. Go with your pick for
+  speech recognition. Let's test aura-2-en, suggest a suitable voice and make it as expressive as appropriately
+  possible."): his voice notes are heard by Workers AI Whisper large v3 turbo (Claude's pick, $0.0005 a minute), with
+  ElevenLabs Scribe as the backup. Nano Banana is benched for lingerie (OpenRouter; Cloudflare's copy needs AI Gateway
+  credits). aura-2-en is a test only: her voice stays ElevenLabs until the owner picks.
 - 2026-10-03 — **Deploy** (owner: "Deploy"): `dev` merged into `main`: night place pictures (`isDark`), ROOM without
   the reference's light, no bathroom in body-length mirror shots, `takeSelfie` ignoring bracketed pauses, the FLUX
   prompting skill in `.claude/settings.json`.

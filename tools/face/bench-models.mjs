@@ -63,6 +63,13 @@ const ROUTES = {
   "or-riverflow25fast": { usd: 0.019, family: "text", run: (p, r, s) => openRouter("sourceful/riverflow-v2.5-fast", p, [], s) },
   "cf-phoenix": { usd: 0.026, family: "text", run: (p, r, s) => cfJson("@cf/leonardo/phoenix-1.0", { prompt: p, seed: s, width: 768, height: 1024, num_steps: 25 }) },
   "cf-sdxl": { usd: 0, family: "sd", run: (p, r, s) => cfSD("@cf/stabilityai/stable-diffusion-xl-base-1.0", p, "text", s, [768, 1024]) },
+  // Nano Banana (owner, 2026-10-04: "google safety filters are actually lenient ... just random. Let's test them"):
+  // Google's Gemini image models through OpenRouter's chat completions (images in, image out), and Cloudflare's copy
+  // (third-party: needs AI Gateway credits). List prices: ~1,290 output tokens a picture at $30/M (Nano Banana 2: $60/M)
+  "or-nanobanana": { usd: 0.039, run: (p, r, s) => openRouterChat("google/gemini-2.5-flash-image", p, r, s) },
+  "or-nanobanana2": { usd: 0.067, run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-image-preview", p, r, s) },
+  "or-nanobananapro": { usd: 0.134, run: (p, r, s) => openRouterChat("google/gemini-3-pro-image-preview", p, r, s) },
+  "cf-nanobanana": { usd: 0.039, run: (p, r) => cfThirdParty("google/nano-banana", p, r) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
 
@@ -159,6 +166,25 @@ async function openRouter(model, prompt, refs, seed, providerOptions, aspect = "
   return { bytes: await fetchImage(url), usage: data.usage };
 }
 
+// OpenRouter chat completions with image output (Gemini's image models): the reference pictures first, in order
+// (image 0, image 1), then the words. A refusal comes back as text with no picture: reported as "(content)".
+async function openRouterChat(model, prompt, refs, seed) {
+  const content = [...refs.map((f) => ({ type: "image_url", image_url: { url: dataUri(f) } })), { type: "text", text: prompt }];
+  const body = { model, seed, messages: [{ role: "user", content }], modalities: ["image", "text"], image_config: { aspect_ratio: "3:4" }, usage: { include: true } };
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST", headers: { Authorization: `Bearer ${orKey}`, "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(300000),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: `HTTP ${res.status} ${JSON.stringify(data.error || data).slice(0, 500)}`, usage: data.usage };
+  const choice = data.choices?.[0] || {};
+  const url = choice.message?.images?.[0]?.image_url?.url;
+  if (!url) {
+    const why = `${choice.finish_reason || ""}/${choice.native_finish_reason || ""}`;
+    return { error: `no picture (content) ${why}: ${String(choice.message?.content || "").replace(/\s+/g, " ").slice(0, 300)}`, usage: data.usage };
+  }
+  return { bytes: await fetchImage(url), usage: data.usage };
+}
+
 async function fetchImage(url) {
   if (url.startsWith("data:")) return Buffer.from(url.slice(url.indexOf(",") + 1), "base64");
   const res = await fetch(url);
@@ -188,6 +214,12 @@ function save(name, bytes) {
   execFileSync("rm", [raw]);
   const [size, mean, sd] = execFileSync("identify", ["-format", "%wx%h %[fx:mean] %[fx:standard_deviation]", jpg]).toString().split(" ");
   return { jpg, size, black: Number(mean) < 0.04 && Number(sd) < 0.04 };
+}
+
+// job.list_google: before drawing, print the Google image models OpenRouter serves (to check the ids above)
+if (job.list_google) {
+  const or = await fetch("https://openrouter.ai/api/v1/models?output_modalities=image", { headers: { Authorization: `Bearer ${orKey}` } }).then((r) => r.json()).catch((e) => ({ error: e.message }));
+  for (const m of (or.data || []).filter((m) => m.id.startsWith("google/"))) console.log(`  ${m.id} | pricing ${JSON.stringify(m.pricing)}`);
 }
 
 if (job.want) {

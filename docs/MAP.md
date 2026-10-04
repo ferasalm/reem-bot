@@ -44,6 +44,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `pictureMode`; `takeSelfie` (in `shapeReply`); `startPicture` (`selfieSubject` or `scenePicturePrompt` →
     `drawPicture` with `faceBytes`) and `deliverPicture` (hash check, `sendPhoto`); `noteMinor`/`saysMinor`;
     `picsCommand`, `faceCommand`; `health` (`/health`); `aiFailed` (KV `ai_error`)
+  - hearing: `transcribe` (his voice notes: Workers AI Whisper `HEARING.MODEL`, counted in the AI ledger by
+    `AI_BUDGET.HEARING_NEURONS_PER_MIN`; `scribe` = ElevenLabs backup when it fails or the budget is spent)
   - voice: `bodyOf`/`clean`, `forSpeech` → `tidySpoken` → `sayArabizi`, `tts` (`voiceSettings`), `sendVoice`
     (returns `{delivered, id, error}`), `voiceFailed` (KV `voice_error`, shown on /setup)
   - audio tags: `isV3`, `audioTagsOn`, `audioTagRe`, `isAudioTag`, `stripAudioTags`
@@ -61,6 +63,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
   pictures pushed to branch `face-candidates` (pictures only, listed in retired-branches.txt).
   `bench-models.mjs` + `bench.json` + `.github/workflows/image-bench.yml`: image model bench (same prompts and
   references through Workers AI, Cloudflare's third-party models, OpenRouter; capped by `max_usd`; never on dev).
+- `tools/voice/bench.mjs` + `bench.json` + `.github/workflows/voice-bench.yml`: Workers AI voice bench (aura-2 clips
+  as OGG/Opus, each heard back by Whisper; capped by `max_chars`; clips pushed to `face-candidates` runs/<id>-voice).
 - `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`,
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
 - `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,

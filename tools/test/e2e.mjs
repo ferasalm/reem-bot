@@ -75,6 +75,29 @@ console.log("apart nudge:", sys().includes("You're apart right now"), "| doing:"
 console.log("apart nudge: [voice] first:", sys().includes("its very first characters are [voice]"), "| scene in third person:", sys().includes("write a scene, narrated in third person"));
 console.log("tts:", log.find(l => l.includes("text-to-speech")).slice(0, 140));
 console.log("stt lang omitted:", !log.find(l => l.includes("speech-to-text")).includes("language_code"), "| tagged:", log.find(l => l.includes("speech-to-text")).includes('"tag_audio_events":"true"'));
+step("hearing: Whisper on Workers AI first, Scribe when it fails or the day's budget is spent");
+{
+  const aiCalls = []; let whisperFails = false;
+  env.AI = { async run(model, input) { aiCalls.push({ model, input }); if (whisperFails) throw new Error("3040: capacity"); return { text: " come here you (whisper) " }; } };
+  const scribeCalls = () => log.filter((l) => l.includes("speech-to-text")).length;
+  let before = scribeCalls();
+  llm = [{ content: "mm ok" }];
+  await run(msg({ voice: { file_id: "w1", duration: 90 } }));
+  const heard = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
+  console.log("whisper used:", aiCalls.at(-1)?.model === "@cf/openai/whisper-large-v3-turbo", "| scribe not called:", scribeCalls() === before,
+    "| heard:", heard.includes("come here you (whisper)"), "| hint + vad:", aiCalls.at(-1).input.initial_prompt === "Reem, Basbousa." && aiCalls.at(-1).input.vad_filter === true,
+    "| 90 s counted:", JSON.parse(store.get("pics")).neurons >= 71);
+  whisperFails = true; before = scribeCalls();
+  llm = [{ content: "mm ok" }];
+  await run(msg({ voice: { file_id: "w2", duration: 3 } }));
+  console.log("whisper fails -> scribe:", scribeCalls() === before + 1, "| error kept for /setup:", JSON.parse(store.get("ai_error")).error.includes("used scribe_v2"));
+  whisperFails = false; const n = aiCalls.length; before = scribeCalls();
+  const pics = JSON.parse(store.get("pics")); store.set("pics", JSON.stringify({ ...pics, neurons: W.CONFIG.AI_BUDGET.DAILY_NEURONS }));
+  llm = [{ content: "mm ok" }];
+  await run(msg({ voice: { file_id: "w3", duration: 3 } }));
+  console.log("budget spent -> scribe, no whisper:", aiCalls.length === n && scribeCalls() === before + 1);
+  store.delete("pics"); delete env.AI;
+}
 step("webhook: /help skips the queue, /rewind doesn't");
 {
   const secret = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode("reem:t")))].map((b) => b.toString(16).padStart(2, "0")).join("");

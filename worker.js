@@ -3,7 +3,7 @@
  *
  *   Brain:  DeepSeek V4 Flash via OpenRouter (writes every text and every voice note; CONFIG.LLM).
  *           Lunaris 8B answers only when DeepSeek is down (LLM.BACKUP_MODEL).
- *   Ears:   ElevenLabs Scribe v2 (speech-to-text, English)
+ *   Ears:   Workers AI Whisper large v3 turbo (speech-to-text), ElevenLabs Scribe v2 as the backup
  *   Voice:  ElevenLabs text-to-speech (eleven_v3), voice "Reem" designed for her (works on the free plan)
  *
  * What you add in Cloudflare (nothing to edit in this file):
@@ -64,7 +64,7 @@
  *      Mid-conversation she answers fast; after a gap she's slower and sometimes busy.
  *   4. She texts first (PROACTIVE): every 15 minutes a cron check may let her start a chat.
  *   5. Voice: Arabizi like "ya3ni" is said "yaani", never with the number. Livelier settings.
- *   6. She hears (laughs) and sighs in your voice notes; your language is detected automatically.
+ *   6. She hears your voice notes (Whisper; Scribe, the backup, also hears (laughs) and sighs); your language is detected automatically.
  *   7. Replies cut off by the length limit end at the last full sentence. Varied fallbacks.
  *   Sampling: temperature 0.95, repetition penalty 1.05, longer replies allowed.
  *
@@ -369,11 +369,15 @@ const CONFIG = {
     ARABIZI_DIGITS: { "2": "", "3": "a", "5": "kh", "7": "h", "8": "gh", "9": "q" },
   },
 
-  /* ---------------- Ears (ElevenLabs speech-to-text) ---------------- */
+  /* ---------------- Ears (speech-to-text: Workers AI Whisper, ElevenLabs Scribe as the backup) ---------------- */
+  // Owner 2026-10-04: use the Cloudflare plan for speech recognition. Whisper costs ~47 neurons a minute ($0.0005).
   HEARING: {
-    MODEL: "scribe_v2",
+    MODEL: "@cf/openai/whisper-large-v3-turbo", // Workers AI; "" = ElevenLabs only
+    PROMPT: "Reem, Basbousa.",         // Whisper's hint: names it should spell right ("" = none)
+    TIMEOUT_MS: 30000,                 // Whisper's limit before the backup takes over
+    BACKUP_MODEL: "scribe_v2",         // ElevenLabs, when Whisper fails or today's AI budget is spent; "" = none
     LANGUAGE: "",                      // "" = detect automatically; or a code like "en", "ar"
-    TAG_AUDIO_EVENTS: true,            // adds things like (laughs) to transcripts, so she hears them
+    TAG_AUDIO_EVENTS: true,            // ElevenLabs only: adds things like (laughs) to transcripts, so she hears them
   },
 
   /* ---------------- Human timing ---------------- */
@@ -780,6 +784,7 @@ Changing the story
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
     HEALTH_NEURONS: 40,                // one /health check
+    HEARING_NEURONS_PER_MIN: 47,       // Whisper large v3 turbo: 46.63 neurons per audio minute (Cloudflare's price list)
     OUT_RETRY_MS: 3600000,             // after "allocation used up", try again this much later (seen 2026-10-03: the block outlived the 00:00 UTC reset)
   },
 
@@ -1531,7 +1536,7 @@ async function reply(env, ctx, convo, deadline) {
       let text;
       if (media) {
         voiceSeconds += media.duration || 0;
-        const t = await transcribe(env, media.file_id, media.mime_type);
+        const t = await transcribe(env, media.file_id, media.mime_type, media.duration);
         text = t ? fill(I.VOICE_NOTE, { text: t }) : fill(I.VOICE_NOISE);
       } else if (m.text) {
         text = m.text.trim();
@@ -2262,13 +2267,13 @@ async function saveLedger(env, ledger) {
   await env.REEM_KV.put("pics", JSON.stringify(ledger)).catch((e) => console.error("couldn't save the picture ledger", e));
 }
 
-// May this kind of call ("picture", "photo", "health") still be made today?
-function aiAffordable(ledger, kind) {
+// May this kind of call ("picture", "photo", "health", "hearing") still be made today? `neurons`: its cost, if not fixed
+function aiAffordable(ledger, kind, neurons) {
   const B = CONFIG.AI_BUDGET;
   if (!ledger) return false;
   // out of neurons: wait OUT_RETRY_MS, then one call may test whether Cloudflare's block has lifted
   if (typeof ledger.out === "number" && Date.now() - ledger.out < B.OUT_RETRY_MS) return false;
-  const cost = kind === "picture" ? B.PICTURE_NEURONS : kind === "photo" ? B.PHOTO_NEURONS : B.HEALTH_NEURONS;
+  const cost = neurons ?? (kind === "picture" ? B.PICTURE_NEURONS : kind === "photo" ? B.PHOTO_NEURONS : B.HEALTH_NEURONS);
   const cap = kind === "picture" ? B.DAILY_NEURONS * B.PICTURE_SHARE : B.DAILY_NEURONS;
   return ledger.neurons + cost <= cap;
 }
@@ -2916,7 +2921,7 @@ async function health(env) {
 /*  ElevenLabs                                                         */
 /* ------------------------------------------------------------------ */
 
-async function transcribe(env, fileId, mime) {
+async function transcribe(env, fileId, mime, seconds) {
   const H = CONFIG.HEARING;
   const timeout = CONFIG.LIMITS.HTTP_TIMEOUT_MS;
   const f = await tg(env, "getFile", { file_id: fileId });
@@ -2926,12 +2931,45 @@ async function transcribe(env, fileId, mime) {
     signal: AbortSignal.timeout(timeout),
   }).catch(() => null);
   if (!audio?.ok) throw new ApiError("Couldn't download the voice note from Telegram.", true);
+  const bytes = await audio.arrayBuffer();
 
+  // Workers AI first (counted in the day's AI budget); ElevenLabs when it fails or the budget is spent
+  if (H.MODEL && env.AI && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
+    const ledger = await loadLedger(env);
+    const neurons = Math.ceil((Math.max(Number(seconds) || 0, 1) / 60) * CONFIG.AI_BUDGET.HEARING_NEURONS_PER_MIN);
+    if (aiAffordable(ledger, "hearing", neurons)) {
+      let error = null;
+      try {
+        const input = { audio: toBase64(bytes), task: "transcribe", vad_filter: true };
+        if (H.LANGUAGE) input.language = H.LANGUAGE;
+        if (H.PROMPT) input.initial_prompt = H.PROMPT;
+        const out = await aiRun(env, H.MODEL, input, H.TIMEOUT_MS);
+        const text = out?.text ?? out?.result?.text;
+        if (typeof text !== "string") throw new Error(`${H.MODEL} gave no transcript`);
+        return text.trim();
+      } catch (e) {
+        error = e;
+        await aiFailed(env, `hearing a voice note: ${aiText_(e)}${H.BACKUP_MODEL ? `; used ${H.BACKUP_MODEL}` : ""}`);
+        if (!H.BACKUP_MODEL) throw new ApiError(`Workers AI speech-to-text: ${aiText_(e)}`, false);
+      } finally {
+        aiSpent(ledger, neurons, error);
+        await saveLedger(env, ledger);
+      }
+    }
+  }
+  if (!H.BACKUP_MODEL && H.MODEL) throw new ApiError("Speech-to-text: today's Workers AI budget is spent and no backup is set.", false);
+  return scribe(env, H.BACKUP_MODEL || "scribe_v2", bytes, mime, path);
+}
+
+// ElevenLabs speech-to-text (the backup)
+async function scribe(env, model, bytes, mime, path) {
+  const H = CONFIG.HEARING;
+  const timeout = CONFIG.LIMITS.HTTP_TIMEOUT_MS;
   const form = new FormData();
-  form.append("model_id", H.MODEL);
+  form.append("model_id", model);
   if (H.LANGUAGE) form.append("language_code", H.LANGUAGE); // empty: ElevenLabs detects it
   form.append("tag_audio_events", String(!!H.TAG_AUDIO_EVENTS));
-  form.append("file", new Blob([await audio.arrayBuffer()], { type: mime || "audio/ogg" }), path.split("/").pop() || "voice.ogg");
+  form.append("file", new Blob([bytes], { type: mime || "audio/ogg" }), path.split("/").pop() || "voice.ogg");
 
   let res;
   try {
