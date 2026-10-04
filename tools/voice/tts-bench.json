@@ -1,6 +1,6 @@
 {
-  "note": "TTS bench run 1 (owner, 2026-10-04: aura-2 \"don't even come close to elevenlabs\", Andromeda better than Helena, \"Is there a better model for tts?\"): OpenRouter's speech models on the same intimate lines.",
-  "max_chars": 6000,
+  "note": "TTS bench run 2 (owner, 2026-10-04: aura-2 \"don't even come close to elevenlabs\", Andromeda better than Helena, \"Is there a better model for tts?\"): OpenRouter's expressive speech models on the same intimate lines. A voice name that is wrong makes the API list the right ones (logged).",
+  "max_chars": 9000,
   "lines": [
     {
       "id": "tshirt",
@@ -18,75 +18,75 @@
   "candidates": [
     {
       "name": "gemini-sulafat",
-      "match": [
-        "gemini",
-        "flash",
-        "tts"
-      ],
-      "not": [
-        "lite"
-      ],
+      "model": "google/gemini-3.8-flash-tts",
       "voice": "Sulafat",
+      "format": "pcm",
       "laugh": "[laughs]",
       "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
     },
     {
       "name": "gemini-despina",
-      "match": [
-        "gemini",
-        "flash",
-        "tts"
-      ],
-      "not": [
-        "lite"
-      ],
+      "model": "google/gemini-3.8-flash-tts",
       "voice": "Despina",
-      "laugh": "[laughs]",
-      "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
-    },
-    {
-      "name": "geminilite-sulafat",
-      "match": [
-        "gemini",
-        "lite",
-        "tts"
-      ],
-      "voice": "Sulafat",
+      "format": "pcm",
       "laugh": "[laughs]",
       "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
     },
     {
       "name": "grok-ara",
-      "match": [
-        "grok",
-        "tts"
-      ],
+      "model": "x-ai/grok-voice-tts-1.0",
       "voice": "ara",
       "laugh": "[laugh]"
     },
     {
       "name": "grok-eve",
-      "match": [
-        "grok",
-        "tts"
-      ],
+      "model": "x-ai/grok-voice-tts-1.0",
       "voice": "eve",
       "laugh": "[laugh]"
     },
     {
-      "name": "openai-coral",
-      "match": [
-        "gpt-4o-mini-tts"
-      ],
-      "voice": "coral",
-      "instructions": "Speak as Reem, a flirty, confident 29-year-old woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words."
+      "name": "fish-s21",
+      "model": "fish-audio/s2.1-pro",
+      "laugh": "(laughing)",
+      "prefix": "(flirty)(soft tone) "
     },
     {
-      "name": "deepgram-flux",
-      "match": [
-        "flux-tts"
-      ],
-      "voice": "andromeda"
+      "name": "minimax-hd",
+      "model": "minimax/speech-2.8-hd",
+      "voice": "English_captivating_female1",
+      "laugh": "(laughs)"
+    },
+    {
+      "name": "mai-voice-2",
+      "model": "microsoft/mai-voice-2",
+      "voice": "?",
+      "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
+    },
+    {
+      "name": "orpheus-tara",
+      "model": "canopylabs/orpheus-3b-0.1-ft",
+      "voice": "tara",
+      "laugh": "<laugh>"
+    },
+    {
+      "name": "orpheus-leah",
+      "model": "canopylabs/orpheus-3b-0.1-ft",
+      "voice": "leah",
+      "laugh": "<giggle>"
+    },
+    {
+      "name": "sesame-csm",
+      "model": "sesame/csm-1b"
+    },
+    {
+      "name": "qwen-plus",
+      "model": "qwen/qwen-audio-3.0-tts-plus",
+      "voice": "Cherry"
+    },
+    {
+      "name": "flux-maeve",
+      "model": "deepgram/flux-tts",
+      "voice": "flux-maeve-en"
     }
   ]
 }

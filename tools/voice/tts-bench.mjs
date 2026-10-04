@@ -49,7 +49,8 @@ for (const { c, line, text } of clips) {
   const name = `${c.name}-${line.id}`;
   const model = pick(c);
   if (!model) { console.log(`${name}: no listed model matches ${JSON.stringify(c.match)}`); continue; }
-  const body = { model, input: text, voice: c.voice, response_format: "mp3", ...(c.extra || {}) };
+  const body = { model, input: text, response_format: c.format || "mp3", ...(c.extra || {}) };
+  if (c.voice) body.voice = c.voice;
   if (c.instructions) body.instructions = c.instructions;
   if (c.clone && ref) body.input_references = [{ type: "input_audio", input_audio: { data: ref, format: "mp3" } }, ...(job.reference_text ? [{ type: "text", text: job.reference_text }] : [])];
   const t0 = Date.now();
@@ -59,9 +60,12 @@ for (const { c, line, text } of clips) {
   const bytes = Buffer.from(await res.arrayBuffer());
   const cost = res.headers.get("x-openrouter-cost") || res.headers.get("openrouter-cost") || "";
   if (!res.ok || type.includes("json")) { console.log(`${name} (${model}): FAILED HTTP ${res.status} ${bytes.toString().slice(0, 400)}`); continue; }
-  const raw = `${out}/${name}.${type.includes("mpeg") || type.includes("mp3") ? "mp3" : "bin"}`;
+  const pcm = (c.format || "mp3") === "pcm" && !/mpeg|mp3|wav|ogg/.test(type);
+  const raw = `${out}/${name}.${pcm ? "pcm" : type.includes("mpeg") || type.includes("mp3") ? "mp3" : "bin"}`;
   writeFileSync(raw, bytes);
-  try { execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-i", raw, "-ac", "1", "-c:a", "libopus", "-b:a", "48k", `${out}/${name}.ogg`]); }
+  // raw PCM (Gemini): 16-bit little-endian mono at c.rate (24 kHz)
+  const input = pcm ? ["-f", "s16le", "-ar", String(c.rate || 24000), "-ac", "1", "-i", raw] : ["-i", raw];
+  try { execFileSync("ffmpeg", ["-loglevel", "error", "-y", ...input, "-ac", "1", "-c:a", "libopus", "-b:a", "48k", `${out}/${name}.ogg`]); }
   catch (e) { console.log(`${name}: ffmpeg could not read ${type} (${bytes.length} bytes)`); continue; }
   const ogg = readFileSync(`${out}/${name}.ogg`);
   const h = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/@cf/openai/whisper-large-v3-turbo`, {

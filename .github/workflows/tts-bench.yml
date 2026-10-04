@@ -40,5 +40,5 @@ jobs:
           mkdir -p /tmp/keep && cp -r tools/voice/out /tmp/keep/out && cp tools/voice/tts-bench.json /tmp/keep/
           git fetch origin face-candidates || true
           if git rev-parse --verify origin/face-candidates >/dev/null 2>&1; then git checkout -B face-candidates origin/face-candidates; else git checkout --orphan face-candidates && git rm -rf . >/dev/null; fi
-          mkdir -p "$dir" && cp -r /tmp/keep/out/. "$dir/" && cp /tmp/keep/bench.json "$dir/"
+          mkdir -p "$dir" && cp -r /tmp/keep/out/. "$dir/" && cp /tmp/keep/tts-bench.json "$dir/"
           git add runs && git commit -m "Voice bench: run ${{ github.run_id }}" && git push origin face-candidates
