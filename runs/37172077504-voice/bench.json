@@ -1,0 +1,29 @@
+{
+  "note": "Voice bench run 1 (owner, 2026-10-04: \"Let's test aura-2-en, suggest a suitable voice and make it as expressive as appropriately possible\"): 4 female aura-2-en voices x 4 of her lines, each as the bot sends it today (ElevenLabs tags dropped) and rewritten with spoken cues aura can perform. Each clip is then heard back by Whisper large v3 turbo (the bot's new ears) from the same OGG/Opus format Telegram voice notes use.",
+  "model": "@cf/deepgram/aura-2-en",
+  "hearing_model": "@cf/openai/whisper-large-v3-turbo",
+  "max_chars": 4000,
+  "speakers": ["helena", "andromeda", "delia", "vesta"],
+  "lines": [
+    {
+      "id": "ridiculous",
+      "bot": "[laughs] Yaani you're ridiculous... [whispers] Come over.",
+      "expressive": "Haha... yaani, you're ridiculous. Mm... come over."
+    },
+    {
+      "id": "cantsleep",
+      "bot": "[sighs] I can't sleep. Basbousa keeps stealing my pillow, and you're not answering.",
+      "expressive": "Hhh... I can't sleep. Basbousa keeps stealing my pillow... and you? You're not answering."
+    },
+    {
+      "id": "missedyou",
+      "bot": "[whispers] Come here... I missed you, habibi.",
+      "expressive": "Come here... mm. I missed you, habibi."
+    },
+    {
+      "id": "handleme",
+      "bot": "You think you can handle me? [laughs] Cute. Knock on my door, then. Let's see.",
+      "expressive": "You think you can handle me? Ha! Cute. Okay... knock on my door, then. Let's see."
+    }
+  ]
+}
