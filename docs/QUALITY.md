@@ -219,3 +219,11 @@ dress) and #06, fair in #05, weak in #04. Arms: soft in #01, #02, #03, #05; **#0
 still show shoulder/arm tone**, #06 the most: the "one hand on her waist" pose in SHOTS.waist pulls the arm into a flexed
 shape. Next: reword that pose ("one hand resting on her hip, arm relaxed") and/or a softer-armed body reference. Day cap
 raised to 60,000 for this run (owner: "test again").
+
+### Arms "plush, soft, fleshy" (no muscle definition), 2026-10-04 (face run 37179913178, 6 shots, sent to the owner)
+All 6 read at full size (compositions differ again from the last run). Bangs 6/6. Arms soft and fleshy in #01, #02, #04, #05;
+#06 (hand on waist, arm raised) is softer than in runs 37178549177/37179555469 but still a little sinewy at the shoulder.
+Hips clearly wider than shoulders in #01, #04, #05, #06; waist defined in #01, #04, #06; #05 is the heaviest picture yet
+(shapewear-like leggings, waist smaller than hips but the whole body is large). #03 is a wide living-room shot: she is
+small in the frame, face not judgeable. Wording works on the arms; the hand-on-waist pose still pulls toward tone.
+Day cap raised to 64,000 for this run (owner: "change and test again").
