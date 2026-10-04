@@ -387,7 +387,7 @@ section("pictures: his photos (Workers AI vision)");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.LOCATIONS.hallway.LOOK) && !f1.prompt.includes("@") && !f1.prompt.includes("{room}"), "her hallway: its fixed look, no @key or {room} left");
   eq(/^<\d+ bytes>$/.test(f1.input_image_1 || ""), f1.prompt.includes("room from image 1"), "the place's picture is image 1 exactly when the prompt says so");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
-  eq([f1.width, f1.height], ["768", "1024"], "drawn at PICTURE.WIDTH x HEIGHT (4 tiles, the price of 640x640)");
+  eq([f1.width, f1.height], ["576", "1024"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (4 tiles, the price of 640x640)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
   eq(r.saved.content, "here 😏\n\n[selfie: mirror, in the hallway, black slip dress]", "history: her words and [selfie: type, what]");
   yes(typeof r.saved.parts.at(-1).id === "number", "the picture has its message id, so /rewind and /retry delete it");

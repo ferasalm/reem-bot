@@ -646,8 +646,8 @@ Changing the story
     MODEL: "@cf/black-forest-labs/flux-2-klein-4b", // draws from her reference face
     BACKUP_MODEL: "@cf/black-forest-labs/flux-1-schnell", // when MODEL is unavailable: no reference, LOOKS instead
     BACKUP_STEPS: 6,                   // 1 to 8
-    WIDTH: 768,                        // pixels. Klein is priced per 512x512 tile, rounded up: 768x1024 = 4 tiles,
-    HEIGHT: 1024,                      // the same price as 640x640 (both ~104 neurons), with a sharper face (2026-10-03)
+    WIDTH: 576,                        // pixels, 9:16 (owner 2026-10-04: "all pictures should have 9:16 aspect ratio").
+    HEIGHT: 1024,                      // Klein is priced per 512x512 tile, rounded up: 576x1024 = 4 tiles, as 768x1024 was
     TIMEOUT_MS: 120000,                // klein took 9-238 s on 2026-10-03 (most under 60 s; 2 of 25 over 2 min)
     CHANCE: 0.1,                       // apart, per reply (voice: 0.1). Owner 2026-10-03: more pictures (was 0.05)
     CHANCE_AFTER_PHOTO: 0.45,          // ...when he just sent a photo (voice: 0.6 after his voice note)
@@ -787,8 +787,8 @@ Changing the story
    * is the money cap: 28,000 = at most 18,000 paid = $0.20 a day. Test runs (face.yml) have their own cap.
    */
   AI_BUDGET: {
-    DAILY_NEURONS: 28000,              // stop here: 10,000 free + 18,000 paid ($0.20) at most a day
-    PICTURE_SHARE: 0.8,                // pictures stop at this share of DAILY_NEURONS (~210 a day), so photos stay seeable
+    DAILY_NEURONS: 50000,              // stop here: 10,000 free + 40,000 paid ($0.44) at most a day (owner 2026-10-04: "Raise the daily cap")
+    PICTURE_SHARE: 0.6,                // pictures stop at this share of DAILY_NEURONS (~260 a day), so voice notes, hearing and photos keep 20,000
     PICTURE_NEURONS: 115,              // FLUX.2 klein: 4 output tiles (768x1024) ~104 + 5.4 per reference image (face, place); 640x640 measured 91-106 (2026-10-02)
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
