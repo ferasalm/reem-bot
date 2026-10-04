@@ -79,3 +79,19 @@ Round 5, run 37157228216 (2026-10-03): round 4's three night prompts unchanged, 
 | 06 | same | good | gray knit; **two cats** | ok | extra arc lamp | lamp on, windows daylit | **fail**; third-person framing |
 Light: lamp on 6/6 (round 4: 1/3), a night window 2/6 → much better, not solved. "black lace bodysuit" 0/2 this
 time (round 4: 1/1, earlier 3/3): klein drew the reference picture's black tee instead.
+
+### Image model bench, 2026-10-04 (runs 37165290995, 37165376242, 37165491361; `tools/face/bench-models.mjs`)
+Same face reference + `bedroom_night.jpg`, lingerie prompts in the FLUX skill's prose style. Spent $0.20 (owner's cap $0.30);
+refusals cost nothing. Pictures 1024 px as stored on `face-candidates`, each read at full size.
+| Route | Result |
+|---|---|
+| klein 4B on Cloudflare (control) | 0/3: all 3030 "Your **output** has been flagged" (the filter judges the drawn picture, not only the words) |
+| klein 4B on OpenRouter (Black Forest Labs) | 0/3: "flagged for sexual or adult content", with `safety_tolerance: 5` sent and without |
+| Seedream 4.0 on Cloudflare | not tested: Cloudflare's 4.0 takes no reference images (`image_input` refused) → her face would drift |
+| Seedream 4.5 on Cloudflare | not tested: 402 "Insufficient balance": third-party models need AI Gateway credits loaded |
+| Seedream 4.5 on OpenRouter ($0.04) | **5/9 drawn**. Refused: bra+panties front selfie with "nothing over them", red thong back view, bralette+briefs front selfie, "red lace two-piece set". Drawn: lace bodysuit (chest-up), **black lace bra + panties mirror selfie**, **lace bodysuit back view**, satin babydoll, open silk robe over bralette + briefs |
+Seedream 4.5, the 5 drawn: face **strong** 5/5 (brows, smile, hair, earrings; skin texture, freckles); outfit exactly as
+asked 5/5 (the bodysuit real lace, not the reference's tee); night window black 4/4 where seen, lamp on 5/5; front-camera
+selfie true 2/2 (arms toward the lens, no phone); mirror: iPhone + hand visible 3/3, but the back view drew her from
+behind *holding the phone at the mirror* (third-person, not a reflection) 1/3; body curvy 2/5 (slim in the bra mirror
+shot); room: arched mirror, bed and wood floor kept, but table lamps with fabric shades instead of the black iron lamp.

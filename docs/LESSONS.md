@@ -61,6 +61,12 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Pictures stopped, /setup showed `5006 '/seed'` → the real cause was out of neurons (4006, whose text says
   "upgrade") read as "model unavailable", and face.yml runs bypassing the bot's ledger → when an AI error looks odd,
   run the AI diagnosis workflow (`ai-diag.yml`) and read Cloudflare's analytics before fixing the error shown. (2026-10-03)
+- Lingerie on other routes (image bench 2026-10-04, `docs/QUALITY.md`): Cloudflare's 3030 is an *output* filter
+  ("Your output has been flagged"); klein via OpenRouter is refused by Black Forest Labs even with `safety_tolerance` 5;
+  Seedream 4.5 (OpenRouter $0.04, also on Cloudflare as `bytedance/seedream-4.5`) drew 5/9, bra + panties included,
+  random like 3030 (same words passed once, failed once). Cloudflare's third-party models need AI Gateway credits
+  (402 "Insufficient balance"); its Seedream 4.0 takes no reference image. OpenRouter image-only models answer on
+  `POST /api/v1/images` (`input_references`, `data[0].b64_json`), not chat completions (404). (2026-10-04)
 - A check right after a deploy can hit the old code still serving (a 00:01 /health 5006 led to the wrong "klein
   rejects seed") → re-test a few minutes later before concluding. (2026-10-03)
 - Cloudflare's usage analytics lag several minutes → a guard reading them can't see the last minutes. (2026-10-03)
