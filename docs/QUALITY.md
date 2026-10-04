@@ -110,3 +110,18 @@ Cloudflare's real cost (`cf-ai-neurons`): refusals cost nothing on every model. 
 | lucid-origin (25 steps, 768x1024) | **1/14** | 2,808 neurons = $0.031 | 13 refused before drawing (3030 "Input prompt contains NSFW content"; the prompt that passed failed word for word at attempt 8). The one: black lace bra + panties mirror selfie, iPhone and hand in the arched mirror, hand on hip, lamp and black window: everything asked; a different, older-looking woman (no reference possible), fuller body than asked |
 | flux-1-schnell (8 steps, 1024x1024) | **2/9** (stopped at 2) | 326 neurons = $0.0036 | 7 refused before drawing (8007 "NSFW"): only the "bralette and high-waisted briefs" wording passed, 2/2. Both real lace bralette + briefs on her bed at night, arched mirror, curvy; a generic model face with red lipstick, not hers; the phone shown in her hand for a front-camera selfie (rule broken 2/2). Square only. 2 s |
 | DreamShaper 8 LCM (free beta) | **0/14** | $0.00 | 11 black (safety checker), 3 dark blurred silhouettes with no visible outfit |
+
+### Cheap text-only lingerie, 2026-10-04 (runs 37170059666, 37170599796; owner: "drop maintaining face for now")
+Same 7 outfits in words (her LOOKS, no reference picture), until 2 each, at most 14 attempts; Recraft and Riverflow then
+also tried the outfits they hadn't reached. Price = what OpenRouter / Cloudflare billed (`usage.cost`); refusals free.
+Spent $0.29. Judged by eye at full size (`docs/LESSONS.md`).
+| Model (route) | Real lingerie / attempts | $ a picture | Seen |
+|---|---|---|---|
+| **Recraft V4.1 Flash** (OpenRouter, text only) | **7/7, 0 refused** | **$0.007**, 2 s | Every outfit as asked, bra + panties and thong included; mirror selfies with the iPhone right, true front-camera selfies, lamp, black window, arched mirror; real phone-photo look (freckles, skin texture); curvy, sometimes plus-size; brows thick. One reflection wrong (her and her reflection don't match, the bodysuit back view). Face changes every picture |
+| Seedream 4.5 text-only (OpenRouter) | 2/2, 0 refused | $0.04, 12 s | Best finish (iPhone-photo look, freckles); slim, not curvy; a mirror inside the mirror once. With her face attached it was 5/9 |
+| Riverflow 2.5 Fast (OpenRouter) | 4/7 (bralette, robe, lying refused) | $0.020, 12-27 s | Bra + panties black and red, bodysuit back view, babydoll; plus-size with a belly; the babydoll "front selfie" drawn as a mirror pose without a mirror |
+| Seedream 5.0 Flash (OpenRouter) | 2/6 (every bra/panties prompt refused) | $0.018, 16 s | Babydoll, robe over bralette + briefs; Lebanese look; **three hands** in the robe picture |
+| Krea 2 Medium Turbo (OpenRouter, no 3:4, drew 4:5) | 1/14 | $0.015, 2 s | The bodysuit back view, excellent; 13 refused |
+| Phoenix 1.0 (Workers AI) | 1/14 | $0.026, 3 s | Prompt filter (3030) like lucid; the one: white lace bralette lying on the bed, bottoms drawn as a lace skirt, phone in the frame |
+| SDXL base 1.0 (Workers AI, free beta) | 3/14 | $0.00, 8 s | 10 black (safety checker), 1 with two women; the 3: glossy "Instagram" look, heavy makeup, no mirror, not night |
+| Meta Muse (OpenRouter) | 0/14 | — | every prompt refused by Meta |

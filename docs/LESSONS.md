@@ -72,6 +72,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   filter the *prompt* (free refusal, 1/14 and 2/9) and draw real lingerie when it passes, but take no face reference.
   A bench count of "not black" is not "drawn": read each picture (2 empty rooms counted as drawn). schnell refuses
   `seed` (5006). (2026-10-04)
+- Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7
+  outfits, none refused, $0.007 a picture; Seedream 4.5 passes every time without a face picture (5/9 with one).
+  OpenRouter shapes vary by model (Krea has no 3:4: the bench falls back to its tallest shape). (2026-10-04)
 - Free lingerie route (2026-10-04): Cloudflare's beta SD models cost $0.00 and skip 3030, but blank NSFW output to a
   black picture (tiny grayscale file); SD 1.5 inpainting over a klein picture keeps her face (only the masked box is
   redrawn) and passed 3/5, 1 of them good. A collar left outside the mask stays in the picture; say the body shape.

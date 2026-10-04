@@ -30,8 +30,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Workers AI, 14 attempts each: flux-2-dev 2 (babydolls only, never bra/panties, $0.032, her face strong);
   lucid-origin 1 ($0.031); schnell 2 ($0.0036, only the "bralette and briefs" wording); DreamShaper 0 (free, black).
   lucid and schnell draw real lingerie but can't take her face, so it's another woman each time.
+- Owner 2026-10-04: drop "her face" for lingerie for now → cheap text-only bench: **Recraft V4.1 Flash** (OpenRouter)
+  7/7, none refused, $0.007, real phone-photo look; Riverflow 2.5 Fast 4/7 $0.02; Seedream 4.5 text-only 2/2 $0.04.
 ## Waiting on the owner
-- **Pick the lingerie route** (my recommendation: Seedream 4.5 for lingerie pictures only, klein for the rest).
+- **Pick the lingerie route** (my recommendation now: Recraft V4.1 Flash for lingerie only, without her face; klein for the rest).
 - **Open `/setup` once** (after the 22:24 deploy), then try a pic at night, a lingerie pic, "let me see you".
 - **Delete the old branches:** Actions > Delete retired branches > Run workflow, type `delete`. `face-candidates` stays.
 
