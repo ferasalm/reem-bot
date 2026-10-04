@@ -1,0 +1,56 @@
+{
+  "note": "Voice bench run 2 (owner, 2026-10-04: \"Im confused between Helena and Andromeda, need more explicit samples where they don't robotically say 'ha ha ha'\"): helena and andromeda only, on intimate lines, and the laugh written several ways (none, 'heh', 'hehe', 'mm-hmm', a breath) to find one aura-2 performs naturally. Each clip is heard back by Whisper.",
+  "model": "@cf/deepgram/aura-2-en",
+  "hearing_model": "@cf/openai/whisper-large-v3-turbo",
+  "max_chars": 4000,
+  "speakers": ["helena", "andromeda"],
+  "lines": [
+    {
+      "id": "tshirt",
+      "styles": {
+        "plain": "I'm lying here in your t-shirt... and nothing under it. Mm. So are you coming over, or do I have to keep thinking about your hands all night?"
+      }
+    },
+    {
+      "id": "slower",
+      "styles": {
+        "plain": "Slow down... no, don't stop. Just... slower. Mm... like that. God, habibi... just like that."
+      }
+    },
+    {
+      "id": "wearing",
+      "styles": {
+        "plain": "You want to know what I'm wearing? Black lace. Very little of it. Come take it off me yourself."
+      }
+    },
+    {
+      "id": "lastnight",
+      "styles": {
+        "plain": "I keep thinking about last night. Your mouth on my neck... I couldn't sleep. I'm still... warm."
+      }
+    },
+    {
+      "id": "blushing",
+      "styles": {
+        "nolaugh": "Oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here.",
+        "heh": "Heh... oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here.",
+        "hehe": "Hehe, oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here.",
+        "mmhmm": "Mm-hmm. Oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here."
+      }
+    },
+    {
+      "id": "handleme",
+      "styles": {
+        "nolaugh": "You think you can handle me? Cute. Knock on my door, then. Let's see.",
+        "heh": "You think you can handle me? Heh. Cute. Knock on my door, then. Let's see.",
+        "breath": "You think you can handle me? Hm... cute. Knock on my door, then. Let's see."
+      }
+    },
+    {
+      "id": "shh",
+      "styles": {
+        "plain": "Shh... Basbousa's asleep. Be quiet... and kiss me."
+      }
+    }
+  ]
+}
