@@ -5,6 +5,14 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-04 — **Bangs, softer shoulders, a redone face; Gemini Sulafat first** (owner: "She should have softer, narrower,
+  round shoulders, also give her cute hair bangs similar to Zoe Dechanel's. Redo the Gemini lingerie generation, crop
+  face and use it as reference for klein again. Tts-Gemini-sulafat sounds so good; prioritize it over Andromeda. Add it
+  for the map. Give me an estimate avg cost per user per day."): persona and picture prompts say wispy full bangs and
+  soft, narrow, gently rounded shoulders (described, never the real person's name, in image prompts); new reference
+  face cropped from Nano Banana run 37175758855 #05; Sulafat (`google/gemini-3.8-flash-tts`) becomes the voice
+  (needs PCM to MP3 in the Worker: waiting on the owner, see HANDOFF); TTS bench files named in `docs/MAP.md`.
+  *Supersedes "Andromeda" as the voice pick and the face of 2026-10-04 (no bangs).*
 - 2026-10-04 — **Her face from Nano Banana, lingerie on Nano Banana, 9:16, Andromeda, a higher cap** (owner: "Crop the
   face produced by nanobanana in lingerie pictures to be the reference face for Reem in Klein's pictures. Let's keep
   using nanobanana and klein. Also all pictures should have 9:16 aspect ratio. Both don't even come close to
