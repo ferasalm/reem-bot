@@ -1,0 +1,32 @@
+{
+  "note": "Image bench run 4 (2026-10-04): Grok Imagine (xAI, also on Cloudflare as xai/grok-imagine-image, $0.02) with the bra+panties mirror shot (Seedream: passed once, refused once) and the bralette front selfie (Seedream refused). $0.10 left of the owner's $0.30.",
+  "max_usd": 0.1,
+  "reference": "tools/face/reference.jpg",
+  "routes": [
+    "or-grok"
+  ],
+  "fallbacks": {
+    "or-grok": "or-grok2"
+  },
+  "klein_options": {
+    "black-forest-labs": {
+      "safety_tolerance": 5
+    }
+  },
+  "labels": [
+    "mirror selfie front view, bra + panties (no 'nothing over them')",
+    "front selfie, lace bralette + matching briefs"
+  ],
+  "prompts": [
+    "A 29-year-old Lebanese woman with a curvy hourglass figure takes a mirror selfie in a tall arched floor mirror in her bedroom, an iPhone held at chest height, the phone and her hand visible in the reflection, three-quarter body, one hand on her hip. Image 0 shows only her face and hair: keep that exact face, but not its clothes. She wears a black lace bra and matching black lace panties. Image 1 is her bedroom at night. Warm light from the bedside lamp, the window black with night. Natural skin texture, slight phone-camera grain.",
+    "A 29-year-old Lebanese woman with a curvy hourglass figure takes a selfie with her phone's front camera held at arm's length, sitting on her bed, the phone out of frame, a teasing half smile. Image 0 shows only her face and hair: keep that exact face, but not its clothes. She wears a black lace lingerie set: a lace bralette and matching high-waisted lace briefs. Image 1 is her bedroom at night. Warm light from the bedside lamp, the window black with night. Natural skin texture, slight phone-camera grain."
+  ],
+  "refs": [
+    [
+      "tools/face/places/bedroom_night.jpg"
+    ],
+    [
+      "tools/face/places/bedroom_night.jpg"
+    ]
+  ]
+}
