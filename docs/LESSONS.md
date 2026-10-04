@@ -82,6 +82,10 @@ At most 150 lines (`tools/doc-check.mjs`).
   OGG/Opus (`encoding: "opus", container: "ogg"`), ready for sendVoice. aura-2 performs "mm" and "hm" but not
   "hhh" (a sigh is silent) and reads [tags] aloud; "haha" sounds robotic (owner), "heh" is heard as "Phew"/"Okay",
   "hehe" makes the line shouted → `VOICE.AURA_CUES` drops laughs. aura costs 2.73 neurons a character. (2026-10-04)
+- OpenRouter speech (`POST /api/v1/audio/speech`, run 37174172123): Gemini TTS answers only `response_format: "pcm"`
+  (24 kHz 16-bit mono; ffmpeg `-f s16le -ar 24000`); a wrong `voice` makes Deepgram list its voices in the error;
+  Sesame needs a voice; MAI-Voice-2 and Qwen gave a bare "Provider returned 400". Telegram's sendVoice takes MP3.
+  Whisper never transcribes laughs: judge them by ear. (2026-10-04)
 - e2e: a mocked reply that repeats a line she already said in an earlier step is cut by the repeat guard (her note
   shrank to "Come over.") → give each mocked reply in a test its own words. (2026-10-04)
 - Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7

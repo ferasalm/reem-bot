@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-04 (night): new face, Nano Banana lingerie, 9:16, OpenRouter voice provider (not deployed)
+- `face.js`/`tools/face/reference.jpg` cropped from image bench run 37172411100 (or-nanobanana-text-02); face run
+  37174181550 at 576x1024. `PICTURE.LINGERIE` (`wantsLingerie`, `drawLingerie`, `composePicture({lingerie})`,
+  ledger `usd`); `VOICE.PROVIDER` "openrouter" (`openRouterTts`, `OR_*`, ledger `voiceUsd`, MP3 in `sendVoice`);
+  `AURA_SPEAKER` andromeda; `AI_BUDGET.DAILY_NEURONS` 50,000, `PICTURE_SHARE` 0.6. TTS bench `tools/voice/tts-bench.*`.
+
 ## 2026-10-04 (later): aura-2 voice switch on dev, Nano Banana 2 Lite bench (not deployed)
 - `tts`: `VOICE.PROVIDER` "aura" (Workers AI `@cf/deepgram/aura-2-en`, speaker `AURA_SPEAKER`, OGG/Opus straight to
   sendVoice), ElevenLabs `elevenTts` as backup (`ELEVENLABS_BACKUP`); /setup tests the aura voice. e2e: aura used,

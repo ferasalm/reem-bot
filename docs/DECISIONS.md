@@ -5,6 +5,16 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-04 — **Her face from Nano Banana, lingerie on Nano Banana, 9:16, Andromeda, a higher cap** (owner: "Crop the
+  face produced by nanobanana in lingerie pictures to be the reference face for Reem in Klein's pictures. Let's keep
+  using nanobanana and klein. Also all pictures should have 9:16 aspect ratio. Both don't even come close to
+  elevenlabs but Andromeda of course is much better than Helena and much less robotic. The \"Mm\" and \"hm\" did not
+  come as natural hums. Is there a better model for tts? Raise the daily cap."): her reference face is cropped from
+  Nano Banana's text-only picture (bench run 37172411100, #02); boudoir selfies go to Nano Banana text-only
+  (`PICTURE.LINGERIE`, its own money cap, Claude's value $0.50/day), klein draws everything else; every picture 9:16
+  (klein 576x1024, same price); aura voice Andromeda until the owner picks a better model (OpenRouter TTS bench sent);
+  `AI_BUDGET.DAILY_NEURONS` 50,000 (Claude's value, at most $0.44/day) with pictures capped at 60% of it.
+  *Supersedes the lingerie-route and voice choices waiting in HANDOFF; supersedes the 28,000 cap.*
 - 2026-10-04 — **Switch voice and hearing off ElevenLabs; test Nano Banana Lite** (owner: "Let's try nano banana lite.
   Eleven labs credits are running out, we gotta do the switch to the best speech and recognition models. Im confused
   between Helena and Andromeda, need more explicit samples where they don't robotically say \"ha ha ha\""): her voice

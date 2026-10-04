@@ -152,3 +152,18 @@ neurons ($0.064, 2.73 neurons a character). Whisper heard every intimate line wo
 spellings: "heh" heard as "Heh" 1, "Phew" 1, "Okay" 1, nothing 1 (not a reliable laugh); "hehe" heard as "He?" and
 helena's whole line came out with "!" everywhere; "Mm-hmm" not heard (0/2); "Hm..." heard 1/2; "Mm" inside a line
 heard 3/4. Bot default since: laughs/giggles dropped, chuckles "hm". The owner judges the sound by ear (4 files sent).
+
+### New reference face (cropped from Nano Banana) on klein at 9:16, 2026-10-04 (face run 37174181550, 15 pictures)
+Every shot x tier with the bot's prompts, 576x1024 (stored 450x800), each read at full size. Face: matches the new
+reference (brows, eyeliner, full lips, hair) in 13/13 where it shows (#05 is a hand detail; #10, #12 half behind
+the phone). 9:16 framing 15/15, phone rule right in the mirror shots. Slips: body drawn slim, not curvy, in 6
+(#03, 08, 09, 10, 12, 14); night asked, daylight drawn in #04 and #09 (living room); #13 "23h" on a sunny beach (the
+wardrobe item brings its own "Crane Beach, bright sun"); Basbousa orange (#04) and grey (#15), not golden-brown.
+
+### OpenRouter speech models, 2026-10-04 (TTS bench run 37174172123; run 37174069937 listed the models)
+21 speech models listed (ids, prices in the run log). 9 voices x 3 intimate lines made and heard by Whisper word for
+word: gemini-3.8-flash-tts (Sulafat, Despina; PCM only), grok-voice-tts-1.0 (ara, eve), fish-audio/s2.1-pro,
+minimax/speech-2.8-hd (English_captivating_female1), orpheus-3b (tara, leah), deepgram/flux-tts (flux-maeve-en).
+Failed: microsoft/mai-voice-2 and qwen-audio-3.0-tts-plus (provider 400, voice names unknown), sesame/csm-1b (needs a
+voice). Whisper drops laughs, so laughs are judged by ear only. List prices per 1,000 characters: Orpheus $0.007,
+Grok $0.015, Fish $0.015, aura-2 $0.03, MiniMax HD $0.10. 9 files sent to the owner.
