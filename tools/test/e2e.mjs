@@ -85,7 +85,7 @@ step("hearing: Whisper on Workers AI first, Scribe when it fails or the day's bu
   await run(msg({ voice: { file_id: "w1", duration: 90 } }));
   const heard = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
   console.log("whisper used:", aiCalls.at(-1)?.model === "@cf/openai/whisper-large-v3-turbo", "| scribe not called:", scribeCalls() === before,
-    "| heard:", heard.includes("come here you (whisper)"), "| hint + vad:", aiCalls.at(-1).input.initial_prompt === "Reem, Basbousa." && aiCalls.at(-1).input.vad_filter === true,
+    "| heard:", heard.includes("come here you (whisper)"), "| hint + vad:", aiCalls.at(-1).input.initial_prompt === "Reem, Basbousa, habibi, yaani." && aiCalls.at(-1).input.vad_filter === true,
     "| 90 s counted:", JSON.parse(store.get("pics")).neurons >= 71);
   whisperFails = true; before = scribeCalls();
   llm = [{ content: "mm ok" }];

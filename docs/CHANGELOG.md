@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-04: lingerie image benches, Whisper hearing, aura-2 voice test (not deployed)
+- Image benches runs 37168625788, 37168824902, 37168864870 (Workers AI), 37170059666, 37170599796 (text-only cheap),
+  37172269285 (Nano Banana with face: 0/11), 37172411100 (Nano Banana text-only: 11/11). Tables in docs/QUALITY.md.
+- `transcribe`: Workers AI Whisper large v3 turbo first (`HEARING.MODEL`, `PROMPT`, `TIMEOUT_MS`; ledger
+  `AI_BUDGET.HEARING_NEURONS_PER_MIN` 47), ElevenLabs Scribe (`scribe`, `HEARING.BACKUP_MODEL`) when it fails or the
+  budget is spent. Voice bench run 37172077504 (`tools/voice/`, `voice-bench.yml`).
+
 ## 2026-10-03 (late night): night place pictures, FLUX skill (not deployed)
 - FLUX prompting skill (black-forest-labs/skills, `flux-image-best-practices`) registered in `.claude/settings.json`.
 - Night version of 7 places (bathroom stays: lamp-lit, no window), image-to-image from the day picture with

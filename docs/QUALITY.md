@@ -125,3 +125,21 @@ Spent $0.29. Judged by eye at full size (`docs/LESSONS.md`).
 | Phoenix 1.0 (Workers AI) | 1/14 | $0.026, 3 s | Prompt filter (3030) like lucid; the one: white lace bralette lying on the bed, bottoms drawn as a lace skirt, phone in the frame |
 | SDXL base 1.0 (Workers AI, free beta) | 3/14 | $0.00, 8 s | 10 black (safety checker), 1 with two women; the 3: glossy "Instagram" look, heavy makeup, no mirror, not night |
 | Meta Muse (OpenRouter) | 0/14 | — | every prompt refused by Meta |
+
+### Nano Banana lingerie, 2026-10-04 (runs 37172269285, 37172411100; owner: "Let's test them before judging")
+Same 7 outfits. OpenRouter chat completions (`openRouterChat`), price = billed `usage.cost`; refusals free. Spent $0.55.
+| Model (route) | Real lingerie / attempts | $ a picture | Seen |
+|---|---|---|---|
+| Nano Banana (Gemini 2.5 Flash Image), **her face + night bedroom attached** | **0/7** | — | every one refused: IMAGE_PROHIBITED_CONTENT 6, IMAGE_SAFETY 1 (babydoll) |
+| Nano Banana 2 (Gemini 3.1 Flash Image), face + room attached | **0/4** | — | IMAGE_OTHER 4/4 |
+| Nano Banana on Cloudflare (`google/nano-banana`) | 0/1 | — | 402 "Insufficient balance" (AI Gateway credits) |
+| **Nano Banana, text only** | **7/7, 0 refused** | **$0.039**, 7 s | Every outfit as asked (black/red/white bra + panties, bralette + briefs, open-back bodysuit back view, babydoll, robe); curvy hourglass as described; real phone-photo look, iPhones in mirror shots, arched mirror, lamp, black window; the same-looking woman in all 7 (not Reem's face). Slips: "lying on her back" drawn sitting (1), selfie arm visible in front-camera shots (2) |
+| Nano Banana 2, text only | 4/4 drawn, 3 as asked | $0.068, 8 s | Rawest phone look, less curvy; red drawn burgundy; a ghost figure in the window once; the bodysuit drawn **with jeans** (tamer) |
+
+### Voice: aura-2-en + Whisper, 2026-10-04 (run 37172077504, `tools/voice/bench.json`)
+4 voices (helena, andromeda, delia, vesta) x 4 of her lines, plain (tags dropped) vs expressive (spoken cues), OGG/Opus.
+32/32 clips made, 1-3 s each; 1,892 characters = 5,160 neurons ($0.057, Cloudflare's $0.03/1k exactly); Whisper heard
+all 32 from OGG/Opus for 109 neurons ($0.001). Whisper heard: words right 30/32 ("Kumir" for "come here" once, "Yaddy"
+for "yaani" once); "habibi" as "heavy bee"/"Khabiby" 2/16 (hint now has habibi); "yaani" as "Yanni" (fine).
+Expressive cues performed: "Haha" 4/4 heard, "Mm" 6/8 heard, "Ha!" 4/4; "Hhh..." (sigh) 0/4: silent. No accent choice
+(American voices only); the owner judges the sound by ear (samples sent in chat).

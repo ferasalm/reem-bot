@@ -72,6 +72,15 @@ At most 150 lines (`tools/doc-check.mjs`).
   filter the *prompt* (free refusal, 1/14 and 2/9) and draw real lingerie when it passes, but take no face reference.
   A bench count of "not black" is not "drawn": read each picture (2 empty rooms counted as drawn). schnell refuses
   `seed` (5006). (2026-10-04)
+- Nano Banana (Gemini image, OpenRouter) refused lingerie 11/11 with her face picture attached (IMAGE_PROHIBITED_CONTENT,
+  IMAGE_OTHER) and drew 11/11 text-only: Google refuses the face reference + lingerie, not lingerie. Gemini image models
+  answer on chat completions (`modalities: ["image","text"]`, `image_config.aspect_ratio`, picture in
+  `message.images[0].image_url.url`); a refusal is HTTP 200 with no picture and `native_finish_reason`. (2026-10-04)
+- bench-models.mjs `want` mode reads `prompt_sets[route.family]`: a new route without `family` crashes the run at once
+  (run 37172077483) → give every new route a family ("ref" or "text"). (2026-10-04)
+- Workers AI Whisper reads Telegram's OGG/Opus as base64 `audio` (32/32, voice bench 2026-10-04); aura-2 can return
+  OGG/Opus (`encoding: "opus", container: "ogg"`), ready for sendVoice. aura-2 performs "haha", "mm", "ha!" but not
+  "hhh" (a sigh is silent) and reads [tags] aloud. (2026-10-04)
 - Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7
   outfits, none refused, $0.007 a picture; Seedream 4.5 passes every time without a face picture (5/9 with one).
   OpenRouter shapes vary by model (Krea has no 3:4: the bench falls back to its tallest shape). (2026-10-04)

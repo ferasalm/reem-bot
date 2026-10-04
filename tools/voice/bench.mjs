@@ -39,7 +39,7 @@ for (const c of clips) {
   // heard back: the same call the bot makes for his voice notes
   const h = await fetch(run(job.hearing_model), {
     method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ audio: bytes.toString("base64"), task: "transcribe", vad_filter: true, initial_prompt: "Reem, Basbousa." }),
+    body: JSON.stringify({ audio: bytes.toString("base64"), task: "transcribe", vad_filter: true, initial_prompt: "Reem, Basbousa, habibi, yaani." }),
     signal: AbortSignal.timeout(60000),
   });
   heardNeurons += Number(h.headers.get("cf-ai-neurons")) || 0;

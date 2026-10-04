@@ -373,7 +373,7 @@ const CONFIG = {
   // Owner 2026-10-04: use the Cloudflare plan for speech recognition. Whisper costs ~47 neurons a minute ($0.0005).
   HEARING: {
     MODEL: "@cf/openai/whisper-large-v3-turbo", // Workers AI; "" = ElevenLabs only
-    PROMPT: "Reem, Basbousa.",         // Whisper's hint: names it should spell right ("" = none)
+    PROMPT: "Reem, Basbousa, habibi, yaani.", // Whisper's hint: words it should spell right ("" = none; "habibi" was heard as "heavy bee" without it)
     TIMEOUT_MS: 30000,                 // Whisper's limit before the backup takes over
     BACKUP_MODEL: "scribe_v2",         // ElevenLabs, when Whisper fails or today's AI budget is spent; "" = none
     LANGUAGE: "",                      // "" = detect automatically; or a code like "en", "ar"
