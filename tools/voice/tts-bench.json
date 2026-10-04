@@ -1,0 +1,92 @@
+{
+  "note": "TTS bench run 1 (owner, 2026-10-04: aura-2 \"don't even come close to elevenlabs\", Andromeda better than Helena, \"Is there a better model for tts?\"): OpenRouter's speech models on the same intimate lines.",
+  "max_chars": 6000,
+  "lines": [
+    {
+      "id": "tshirt",
+      "text": "I'm lying here in your t-shirt... and nothing under it. So are you coming over, or do I have to keep thinking about your hands all night?"
+    },
+    {
+      "id": "slower",
+      "text": "Slow down... no, don't stop. Just... slower. Like that. God, habibi... just like that."
+    },
+    {
+      "id": "blushing",
+      "text": "{laugh} Oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here."
+    }
+  ],
+  "candidates": [
+    {
+      "name": "gemini-sulafat",
+      "match": [
+        "gemini",
+        "flash",
+        "tts"
+      ],
+      "not": [
+        "lite"
+      ],
+      "voice": "Sulafat",
+      "laugh": "[laughs]",
+      "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
+    },
+    {
+      "name": "gemini-despina",
+      "match": [
+        "gemini",
+        "flash",
+        "tts"
+      ],
+      "not": [
+        "lite"
+      ],
+      "voice": "Despina",
+      "laugh": "[laughs]",
+      "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
+    },
+    {
+      "name": "geminilite-sulafat",
+      "match": [
+        "gemini",
+        "lite",
+        "tts"
+      ],
+      "voice": "Sulafat",
+      "laugh": "[laughs]",
+      "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
+    },
+    {
+      "name": "grok-ara",
+      "match": [
+        "grok",
+        "tts"
+      ],
+      "voice": "ara",
+      "laugh": "[laugh]"
+    },
+    {
+      "name": "grok-eve",
+      "match": [
+        "grok",
+        "tts"
+      ],
+      "voice": "eve",
+      "laugh": "[laugh]"
+    },
+    {
+      "name": "openai-coral",
+      "match": [
+        "gpt-4o-mini-tts"
+      ],
+      "voice": "coral",
+      "instructions": "Speak as Reem, a flirty, confident 29-year-old woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words."
+    },
+    {
+      "name": "deepgram-flux",
+      "match": [
+        "flux-tts"
+      ],
+      "voice": "andromeda"
+    }
+  ]
+}
