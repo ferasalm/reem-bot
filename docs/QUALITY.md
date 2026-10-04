@@ -188,3 +188,11 @@ used: 8 shots, including the 5 that came slim before). All 8 read at full size: 
 the phone), clothes as asked (the body picture's black dress was not copied: #01 gray tee, #02 gray tee, #03 black shirt
 dress, #05 bikini). Slips: #08 asked "boudoir/waist" and got a long black lace dress (klein's filter dodge, known); #05 a
 boudoir selfie on a beach from the wardrobe item "string bikini | on Crane Beach" (known); #04 phone covers half the face.
+
+### Prompt review: hips wider than shoulders, soft arms, 2026-10-04 (face run 37178251251, 5 full-body shots)
+New REFERENCE wording ("pear-shaped hourglass", "soft, smooth, rounded arms with no visible muscle", "hips and full thighs
+clearly wider than her shoulders"), body picture as image 1. All 5 read at full size: bangs 5/5, soft rounded arms and
+shoulders 5/5, hips clearly wider than the shoulders in #02 (back view), #01 (jeans) and #05, about equal in #04 (the
+oversized tee widens the shoulders), #03 seated (not judgeable). Slips: #05 reads heavy, the waist not defined (belly
+under the satin dress) = over-corrected; #04 gray tee dress hides the shape; faces half-hidden by the phone in #01, #04.
+One run only; the day cap (50,000 neurons) is nearly spent, so no second round today.

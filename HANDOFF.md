@@ -20,6 +20,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   - **Lingerie on Nano Banana** (`PICTURE.LINGERIE`, $0.039, cap $0.50/day, klein when refused); **9:16** pictures;
     daily AI cap 50,000 neurons (pictures stop at 60%).
 
+- **Klein prompt reviewed (owner: hips wider than shoulders, soft shoulders and arms):** `PICTURE.REFERENCE`, `LOOKS`, the
+  lingerie `WHO` and the persona now say pear-shaped hourglass, soft smooth rounded arms, hips and thighs clearly wider than
+  the shoulders. 5-shot check: hips wider in 3 of 4 full-body shots, arms soft 5/5; one shot drifted heavy (waist lost).
+  Next round (after 00:00 UTC, the day cap is spent): keep "narrow defined waist" first, judge again.
+
 ## Owner's direction (DECISIONS 2026-10-04)
 - Providers: Cloudflare Workers AI and OpenRouter only. Nano Banana for lingerie, klein for the rest, all 9:16.
 - Voice: off ElevenLabs (credits running out); Sulafat first. Body: the Nano Banana body is "perfect".
