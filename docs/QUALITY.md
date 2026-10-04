@@ -203,3 +203,11 @@ All 6 read at full size. Bangs 6/6; hips clearly wider than the shoulders in #01
 "no visible muscle" lost to "thick"). Waist: not defined in #04, #05, #06 (a straight tube dress shape, belly line), so
 the waist drift seen in the last round is still there. Clothes as asked (#01 black dress + gray cardigan, #02 white shirt).
 Day cap raised to 53,000 neurons for this run on the owner's word ("test pictures, let me see now").
+
+### Waist-first + "soft, thick, plush arms", 2026-10-04 (face run 37178697615, same 6 shots and seeds as run 37178549177, sent to the owner)
+All 6 read at full size. Same compositions as the previous run (draw.mjs reuses each shot's seed), so the wording's effect
+is isolated and **small**: bangs 6/6; hips wider than shoulders 5/6; waist better defined in #06 (side view) and a little
+in #01, #03; **not fixed** in #05 (tube dress, belly line) and #04 (romper); **#04 upper arm still shows muscle** (the
+body picture's arms and "athletic" romper pose outweigh "no visible muscle"); arms thick in #01-#03. Words move this
+less than the body picture does: next try a body reference with plusher arms and a clearer waist (new Nano Banana body),
+or per-shot wording ("hand on waist" shots pull the pose toward muscle). Day cap raised to 56,000 for this run (owner: "test it").
