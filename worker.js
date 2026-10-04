@@ -673,6 +673,26 @@ Changing the story
     // Cloudflare's prompt filter (3030) refused every wording with these words (face runs 37151684663, 37152577208,
     // 2026-10-03; "top and bottoms" passed but drew pajamas, "cheeky bottoms" was refused), so her words are drawn
     // with the replacement: her color and fabric as a bodysuit or string bikini, which got through. "" drops the word.
+    // Lingerie (owner 2026-10-04: "Let's keep using nanobanana and klein"): her boudoir selfies go to Nano Banana on
+    // OpenRouter as text only (with her face attached Google refused 11/11; text only it drew 7/7 the same woman, whose
+    // face is now her reference). Real lingerie words, no FILTER_WORDS. klein draws them when it refuses or fails.
+    LINGERIE: {
+      ENABLED: true,
+      MODEL: "google/gemini-2.5-flash-image", // Nano Banana
+      TIERS: ["boudoir"],              // picture tiers that go to it
+      ASPECT: "9:16",
+      DAILY_USD: 0.5,                  // its own money cap a day (OpenRouter), about 12 pictures
+      USD_PER_PICTURE: 0.039,          // what one costs (image bench 2026-10-04)
+      TIMEOUT_MS: 60000,
+      // who she is, in words (the description Nano Banana drew her face from)
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair, and a curvy hourglass figure with a full bust, a small waist and wide hips.",
+      WARDROBE: [
+        "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
+        "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",
+        "a black lace bodysuit with a low open back", "a short black satin babydoll slip with lace trim and thin straps",
+        "a short silk robe hanging open over a black lace bralette and matching briefs",
+      ],
+    },
     FILTER_WORDS: { bra: "bodysuit", bras: "bodysuit", bralette: "bodysuit", panties: "", panty: "", briefs: "", thong: "", "g-string": "string", underwear: "bodysuit", lingerie: "lace bodysuit" },
     NOT_DRAWN: ["through the thin", "through her thin", "through the silk", "nude", "nudes", "naked", "topless", "bottomless", "nipple", "nipples", "areola", "areolas", "genitals", "genital", "pussy", "vagina", "penis", "cock", "dick", "sheer", "see-through", "see through", "transparent", "sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "undressed", "nothing on", "wearing nothing"],
     MIN_SCENE_WORDS: 8,                // a scene picture needs at least this many words about her
@@ -2262,6 +2282,7 @@ async function loadLedger(env) {
   return {
     day,
     neurons: fresh ? saved.neurons || 0 : 0,
+    usd: fresh ? saved.usd || 0 : 0, // OpenRouter pictures today (PICTURE.LINGERIE)
     out: fresh && saved.out ? saved.out : false, // the time Cloudflare said out of neurons (true = old format)
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
     recent: Array.isArray(saved.recent) ? saved.recent : [],
@@ -2568,10 +2589,14 @@ function selfieSubject(want, recent = [], said = "") {
 // expression, wardrobe and place of the tier, light for her time of day) and the phone rule; her own words
 // (`words`) replace wardrobe and place, `doing` comes before the wardrobe. {who} is left for drawPicture.
 // Returns { prompt, shot, tier, angle, what } (what: "type, her words or the wardrobe and place", for history).
-function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [] } = {}) {
+// `lingerie`: for PICTURE.LINGERIE (Nano Banana): her words as she wrote them and its WARDROBE for the clothes
+function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [], lingerie = false } = {}) {
   const P = CONFIG.PICTURE;
-  words = filterSafe(words);
-  doing = filterSafe(doing);
+  const args = { tier, shot, words, doing, hour, recentShots };
+  if (!lingerie) {
+    words = filterSafe(words);
+    doing = filterSafe(doing);
+  }
   const T = String(tier).toUpperCase();
   const template = P.SHOTS[shot] || P.SHOTS.selfie || Object.values(P.SHOTS)[0] || "{selfie} {wearing}{where}, {light}.";
   const lastAngle = (Number(P.RECENT_SHOTS) || 0) ? recentShots.slice(-1).map((s) => s && s.angle).filter(Boolean) : [];
@@ -2579,7 +2604,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const time = timeOfDay(hour);
   const hasWhere = template.includes("{where}");
   // "clothes | place" brings its own place, so only for shots with {where}
-  const wardrobe = ((P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
+  const wardrobe = ((lingerie && (P.LINGERIE || {}).WARDROBE) || (P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
   const [clothes = "", ownPlace = ""] = pickOne(wardrobe).split("|").map((x) => x.trim());
   const place = hasWhere ? ownPlace || pickOne((P.PLACES || {})[T]) : "";
   const wearing = words || [doing, clothes && `wearing ${clothes}`].filter(Boolean).join(", ");
@@ -2609,7 +2634,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const shown = named(words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", "));
   // In history and her recent pictures as "type, what" (just "what" when it already names the type)
   const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
-  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night };
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args };
 }
 
 // Her time of day (PICTURE.TIMES) at this hour
@@ -2771,6 +2796,18 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     let error = null;
     let model = P.MODEL;
     try {
+      // a boudoir selfie: Nano Banana first (its own money cap); klein when it refuses, fails or the money is spent
+      if (kind === "selfie" && wantsLingerie(env, ledger, pic)) {
+        const lp = composePicture({ ...pic.args, lingerie: true });
+        try {
+          const bytes = await drawLingerie(env, lp);
+          ledger.usd = (ledger.usd || 0) + (Number(P.LINGERIE.USD_PER_PICTURE) || 0);
+          model = null;
+          return { ...lp, bytes, kind };
+        } catch (e) {
+          await aiFailed(env, `drawing lingerie with ${P.LINGERIE.MODEL}: ${aiText_(e)}; klein drew it`);
+        }
+      }
       let drawn;
       try {
         drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night });
@@ -2798,11 +2835,51 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       await aiFailed(env, `drawing a picture: ${aiText_(e)}`);
       return null;
     } finally {
-      aiSpent(ledger, model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, error);
+      if (model) aiSpent(ledger, model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, error);
     }
   })();
   drawing.catch(() => {});
   return drawing;
+}
+
+// May this picture go to PICTURE.LINGERIE (Nano Banana) today?
+function wantsLingerie(env, ledger, pic) {
+  const L = CONFIG.PICTURE.LINGERIE || {};
+  if (!L.ENABLED || !L.MODEL || !env.OPENROUTER_API_KEY || !pic || !pic.args) return false;
+  if (!(L.TIERS || []).includes(pic.tier)) return false;
+  if (budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) return false;
+  return (ledger.usd || 0) + (Number(L.USD_PER_PICTURE) || 0) <= (Number(L.DAILY_USD) || 0);
+}
+
+// Nano Banana on OpenRouter, text only (LINGERIE.WHO instead of her face, the place in words): picture bytes.
+// Google's refusal is an answer with no picture (HTTP 200) and costs nothing; a picture adds USD_PER_PICTURE to ledger.usd.
+async function drawLingerie(env, pic) {
+  const P = CONFIG.PICTURE;
+  const L = P.LINGERIE;
+  const where = pic.location && (P.LOCATIONS || {})[pic.location];
+  const room = where ? (P.ROOM_TEXT || "").replace("{look}", where.LOOK || "") : "";
+  const prompt = pic.prompt.replace("{room}", room).replace("{who}", `Realistic smartphone photo of ${L.WHO}`).replace(/\s{2,}/g, " ").trim();
+  budget.used++;
+  let res;
+  try {
+    res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: L.MODEL, messages: [{ role: "user", content: prompt }], modalities: ["image", "text"], image_config: { aspect_ratio: L.ASPECT || "9:16" } }),
+      signal: AbortSignal.timeout(Number(L.TIMEOUT_MS) || 60000),
+    });
+  } catch (e) {
+    throw new Error(`OpenRouter unreachable or too slow (${e.name})`);
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${data?.error?.message || "request failed"}`);
+  const choice = (data.choices || [])[0] || {};
+  const url = choice.message?.images?.[0]?.image_url?.url || "";
+  if (!url.startsWith("data:")) {
+    // Google refused (no picture); a refusal costs nothing
+    throw new Error(`no picture (${choice.native_finish_reason || choice.finish_reason || "refused"})`);
+  }
+  return fromBase64(url.slice(url.indexOf(",") + 1));
 }
 
 // Sends a drawn picture, never one sent before (same bytes). Returns a history part, or null.

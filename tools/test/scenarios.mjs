@@ -211,13 +211,19 @@ eq(W.isOoc("a cooc: hi") || W.isOoc("oocupied") || W.isOoc("so ooc-ish"), false,
 /* ------------------------------------------------------------------ */
 /*  3. Whole conversations (mocked services)                           */
 /* ------------------------------------------------------------------ */
-let llm = []; const prompts = []; const calls = [];
+let llm = []; const prompts = []; const calls = []; const banana = { mode: "refuse", calls: [] };
 globalThis.fetch = async (url, init = {}) => {
   let body = init.body;
   if (body instanceof FormData) { const o = {}; for (const [k, v] of body) o[k] = typeof v === "string" ? v : "<blob>"; body = JSON.stringify(o); }
   const j = (o, status = 200) => new Response(JSON.stringify(o), { status });
   if (url.includes("openrouter")) {
     const b = JSON.parse(init.body);
+    if (b.modalities) { // Nano Banana (PICTURE.LINGERIE): banana = "draw" | "refuse" | "error"
+      banana.calls.push(b);
+      if (banana.mode === "error") return j({ error: { message: "upstream down" } }, 502);
+      if (banana.mode === "draw") return j({ choices: [{ message: { content: "", images: [{ image_url: { url: `data:image/png;base64,${btoa("banana " + banana.calls.length)}` } }] }, finish_reason: "stop" }] });
+      return j({ choices: [{ message: { content: "" }, finish_reason: "stop", native_finish_reason: "IMAGE_SAFETY" }] });
+    }
     if (!b.messages[0].content.includes("HOW YOU TALK")) return j({ choices: [{ message: { content: "- notes" }, finish_reason: "stop" }] });
     prompts.push(b);
     const next = llm.shift() ?? "mhm";
@@ -533,6 +539,34 @@ section("pictures: his photos (Workers AI vision)");
   r = await turn("send me a pic in lingerie", ["[selfie: mirror, red satin corset by the window]"], { history: APART });
   const tries = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).slice(-2).map((a) => a.fields.prompt);
   yes(r.photos.length === 1 && tries.length === 2 && tries[0].includes("red satin corset") && !tries[1].includes("corset") && W.CONFIG.PICTURE.WARDROBE.BOUDOIR.some((w) => tries[1].includes(w.split("|")[0].trim())), "safety filter (3030): drawn again in the code's own boudoir wardrobe (lingerie, not a tamer outfit)", tries[1]);
+  // owner 2026-10-04: lingerie on Nano Banana (OpenRouter, text only, 9:16), klein when it refuses or fails
+  {
+    const L = W.CONFIG.PICTURE.LINGERIE;
+    banana.mode = "draw"; banana.calls.length = 0;
+    const kleinBefore = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length;
+    const usdBefore = JSON.parse(store.get("pics") || "{}").usd || 0;
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, a black lace bra and panties by the window]"], { history: APART });
+    const nb = banana.calls.at(-1);
+    yes(r.photos.length === 1 && banana.calls.length === 1 && nb.model === L.MODEL && nb.image_config.aspect_ratio === "9:16", "lingerie: Nano Banana draws it, 9:16");
+    yes(/black lace bra and panties/.test(nb.messages[0].content) && nb.messages[0].content.includes(L.WHO) && !/image 0/.test(nb.messages[0].content), "...her real words (no filter words), her description, no face picture", nb.messages[0].content);
+    eq(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length, kleinBefore, "...klein not called");
+    eq(Math.round(((JSON.parse(store.get("pics")).usd || 0) - usdBefore) * 1000), Math.round(L.USD_PER_PICTURE * 1000), "...its price counted in the day's money");
+    banana.mode = "refuse";
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, a red lace bra and panties on the bed]"], { history: APART });
+    const k = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt;
+    yes(r.photos.length === 1 && banana.calls.length === 2 && !/\bbra\b|panties/.test(k), "Google refuses: klein draws it, filter words applied", k);
+    banana.mode = "error";
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, a white lace bra and panties on the bed]"], { history: APART });
+    yes(r.photos.length === 1 && banana.calls.length === 3, "OpenRouter fails: klein draws it");
+    banana.mode = "draw";
+    const pics = JSON.parse(store.get("pics")); store.set("pics", JSON.stringify({ ...pics, usd: L.DAILY_USD }));
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, a black lace bodysuit on the bed]"], { history: APART });
+    yes(r.photos.length === 1 && banana.calls.length === 3, "the day's lingerie money spent: klein, Nano Banana not called");
+    store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics")), usd: 0 }));
+    r = await turn("send me a selfie", ["[selfie: close, a grey hoodie on the couch]"], { history: APART });
+    eq(banana.calls.length, 3, "an everyday selfie never goes to Nano Banana");
+    banana.mode = "refuse";
+  }
   filterNext = 2;
   r = await turn("send me a pic in lingerie", ["[selfie: mirror, red satin corset by the window]"], { history: APART });
   const tries2 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).slice(-3).map((a) => a.fields.prompt);
