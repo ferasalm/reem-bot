@@ -53,6 +53,16 @@ const ROUTES = {
   "cf-schnell": { usd: 0.0011, family: "text", run: (p, r, s) => cfJson("@cf/black-forest-labs/flux-1-schnell", { prompt: p, steps: 8 }) },
   "or-grok": { usd: 0.024, run: (p, r, s) => openRouter("x-ai/grok-imagine-image", p, r, s) },
   "or-grok2": { usd: 0.06, run: (p, r, s) => openRouter("x-ai/grok-imagine-image-2.0", p, r, s) },
+  // Text-only candidates (owner, 2026-10-04: "drop maintaining face for now, check what other good cheap options we
+  // have"); OpenRouter bills image tokens, about 4,175 a picture (Seedream 4.5's $0.04), so the list prices are estimates
+  "or-seedream4.5-text": { usd: 0.04, family: "text", run: (p, r, s) => openRouter("bytedance-seed/seedream-4.5", p, [], s) },
+  "or-seedream5flash": { usd: 0.018, family: "text", run: (p, r, s) => openRouter("bytedance-seed/seedream-5-0-flash", p, [], s) },
+  "or-krea2turbo": { usd: 0.015, family: "text", run: (p, r, s) => openRouter("krea/krea-2-medium-turbo", p, [], s) },
+  "or-muse": { usd: 0.01, family: "text", run: (p, r, s) => openRouter("meta/muse-image", p, [], s) },
+  "or-recraft41flash": { usd: 0.007, family: "text", run: (p, r, s) => openRouter("recraft/recraft-v4.1-flash", p, [], s) },
+  "or-riverflow25fast": { usd: 0.019, family: "text", run: (p, r, s) => openRouter("sourceful/riverflow-v2.5-fast", p, [], s) },
+  "cf-phoenix": { usd: 0.026, family: "text", run: (p, r, s) => cfJson("@cf/leonardo/phoenix-1.0", { prompt: p, seed: s, width: 768, height: 1024, num_steps: 25 }) },
+  "cf-sdxl": { usd: 0, family: "sd", run: (p, r, s) => cfSD("@cf/stabilityai/stable-diffusion-xl-base-1.0", p, "text", s, [768, 1024]) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
 
@@ -83,8 +93,8 @@ async function cfJson(model, input) {
   return { error: `HTTP ${res.status} ${JSON.stringify(data.errors || data).slice(0, 400)}` };
 }
 
-async function cfSD(model, prompt, mode, seed = 4242) {
-  const [w, h] = job.sd_size || [480, 640];
+async function cfSD(model, prompt, mode, seed = 4242, size) {
+  const [w, h] = size || job.sd_size || [480, 640];
   const input = { prompt, num_steps: model.includes("lightning") || model.includes("lcm") ? 8 : 20, guidance: 7.5, width: w, height: h, seed };
   if (job.negative) input.negative_prompt = job.negative;
   if (mode !== "text") {
@@ -124,8 +134,8 @@ async function cfThirdParty(model, prompt, refs) {
 async function openRouter(model, prompt, refs, seed, providerOptions) {
   const body = {
     model, prompt, seed, aspect_ratio: "3:4", n: 1,
-    input_references: refs.map((f) => ({ type: "image_url", image_url: { url: dataUri(f) } })),
   };
+  if (refs.length) body.input_references = refs.map((f) => ({ type: "image_url", image_url: { url: dataUri(f) } }));
   if (providerOptions) body.provider = { options: providerOptions };
   const res = await fetch("https://openrouter.ai/api/v1/images", {
     method: "POST", headers: { Authorization: `Bearer ${orKey}`, "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -174,7 +184,9 @@ function save(name, bytes) {
 }
 
 if (job.want) {
-  const estimate = job.routes.reduce((s, r) => s + ROUTES[r].usd * (job.max_attempts - (job.start_at?.[r] || 0)), 0);
+  // refusals cost nothing on either provider (2026-10-04), so the expected spend is want pictures a route; the
+  // real cost is added up as it goes and stops the run past job.max_usd
+  const estimate = job.routes.reduce((s, r) => s + ROUTES[r].usd * Math.min(job.want, job.max_attempts - (job.start_at?.[r] || 0)), 0);
   console.log(`Bench until ${job.want} pictures a route, at most ${job.max_attempts} attempts each: worst case about $${estimate.toFixed(3)} at list prices (cap $${job.max_usd}).`);
   if (estimate > job.max_usd) { console.log("Refused: over the cap."); process.exit(1); }
   const table = [];
@@ -196,10 +208,10 @@ if (job.want) {
       const took = Date.now() - t0;
       n++; ms += took;
       // what Cloudflare billed (also on a refusal, if it says so), else the list price for a drawn picture
-      const cost = lastNeurons != null ? lastNeurons * NEURON_USD : r.error ? 0 : R.usd;
+      const cost = lastNeurons != null ? lastNeurons * NEURON_USD : Number.isFinite(Number(r.usage?.cost)) ? Number(r.usage.cost) : r.error ? 0 : R.usd;
       if (lastNeurons != null) neurons += lastNeurons;
       usd += cost; spentUsd += cost;
-      const bill = `${lastNeurons != null ? `${lastNeurons.toFixed(1)} neurons, ` : ""}$${cost.toFixed(4)}`;
+      const bill = `${lastNeurons != null ? `${lastNeurons.toFixed(1)} neurons, ` : ""}$${cost.toFixed(4)}${r.usage ? ` usage ${JSON.stringify(r.usage).slice(0, 160)}` : ""}`;
       if (r.error) {
         refused++;
         lines.push(`${name} (${job.labels[v]}): REFUSED ${r.error.slice(0, 220)} [${took} ms, ${bill}]`);
