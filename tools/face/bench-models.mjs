@@ -44,7 +44,8 @@ const ROUTES = {
 };
 
 async function cfSD(model, prompt, mode) {
-  const input = { prompt, num_steps: model.includes("lightning") || model.includes("lcm") ? 8 : 20, guidance: 7.5, width: 480, height: 640 };
+  const input = { prompt, num_steps: model.includes("lightning") || model.includes("lcm") ? 8 : 20, guidance: 7.5, width: 480, height: 640, seed: 4242 };
+  if (job.negative) input.negative_prompt = job.negative;
   if (mode !== "text") {
     const base = execFileSync("convert", [job.base, "-resize", "480x640!", "png:-"]);
     input.image = [...base];
@@ -52,7 +53,7 @@ async function cfSD(model, prompt, mode) {
   }
   if (mode === "inpaint") {
     const [x0, y0, x1, y1] = job.mask_box;
-    const mask = execFileSync("convert", ["-size", "480x640", "xc:black", "-fill", "white", "-draw", `rectangle ${x0},${y0} ${x1},${y1}`, "-blur", "0x6", "png:-"]);
+    const mask = execFileSync("convert", ["-size", "480x640", "xc:black", "-fill", "white", "-draw", `rectangle ${x0},${y0} ${x1},${y1}`, ...(job.mask_extra ? ["-draw", `rectangle ${job.mask_extra.join(",").replace(/^(\d+),(\d+),/, "$1,$2 ")}`] : []), "-blur", "0x6", "png:-"]);
     input.mask = [...mask];
   }
   const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${model}`, {

@@ -1,12 +1,9 @@
 {
-  "note": "Image bench run 5 (2026-10-04, owner: no Cloudflare credits, find free routes): Cloudflare's free beta Stable Diffusion models. Inpainting redraws only her body in a klein mirror picture (face kept); img2img and text-only check whether 3030 applies to them.",
+  "note": "Image bench run 6 (2026-10-04): free SD 1.5 inpainting again, mask over the shirt collar too, a negative prompt against the belly and garbled lace seen in run 5.",
   "max_usd": 0.0,
   "reference": "tools/face/reference.jpg",
   "routes": [
-    "cf-sd15-inpaint",
-    "cf-sd15-img2img",
-    "cf-sdxl-lightning",
-    "cf-dreamshaper"
+    "cf-sd15-inpaint"
   ],
   "fallbacks": {},
   "klein_options": {
@@ -16,22 +13,32 @@
   },
   "labels": [
     "black lace bra + panties",
-    "red lace lingerie set"
+    "red lace lingerie set",
+    "black lace bodysuit"
   ],
   "prompts": [
-    "A real smartphone mirror selfie photo of a curvy 29-year-old woman wearing a black lace bra and matching black lace panties, bare midriff, warm natural skin, photorealistic, sharp detail",
-    "A real smartphone mirror selfie photo of a curvy 29-year-old woman wearing a red lace bra and matching red lace thong, bare midriff, warm natural skin, photorealistic, sharp detail"
+    "photo, mirror selfie of a 29-year-old woman with an hourglass figure, full bust, narrow waist, flat toned stomach, wide hips, wearing a simple black lace bra and matching black lace panties, natural skin, realistic anatomy, sharp focus",
+    "photo, mirror selfie of a 29-year-old woman with an hourglass figure, full bust, narrow waist, flat toned stomach, wide hips, wearing a simple red lace bra and matching red lace panties, natural skin, realistic anatomy, sharp focus",
+    "photo, mirror selfie of a 29-year-old woman with an hourglass figure, full bust, narrow waist, flat toned stomach, wide hips, wearing a black lace bodysuit, natural skin, realistic anatomy, sharp focus"
   ],
   "refs": [
+    [],
     [],
     []
   ],
   "base": "tools/face/bench/klein-mirror-shirt.jpg",
   "mask_box": [
     40,
-    250,
+    262,
     420,
     640
   ],
-  "strength": 0.6
+  "strength": 0.6,
+  "mask_extra": [
+    150,
+    236,
+    330,
+    300
+  ],
+  "negative": "pregnant, belly, fat, chubby, deformed, distorted, extra limbs, blurry, cartoon, shirt, collar, white fabric"
 }
