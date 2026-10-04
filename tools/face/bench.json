@@ -1,5 +1,5 @@
 {
-  "note": "Image bench run 12 (owner, 2026-10-04: \"google safety filters are actually lenient ... just random. Let's test them before judging\"): Nano Banana (Gemini 2.5 Flash Image) on all 7 lingerie prompts with her face and the night bedroom; Nano Banana 2 on the first 4 (the bra/panties ones and the bodysuit); one Cloudflare attempt to see whether its third-party route has credits.",
+  "note": "Image bench run 12 (again: run 13 stopped at once, the Nano Banana routes had no prompt family) (owner, 2026-10-04: \"google safety filters are actually lenient ... just random. Let's test them before judging\"): Nano Banana (Gemini 2.5 Flash Image) on all 7 lingerie prompts with her face and the night bedroom; Nano Banana 2 on the first 4 (the bra/panties ones and the bodysuit); one Cloudflare attempt to see whether its third-party route has credits.",
   "want": 7,
   "max_attempts": 7,
   "max_usd": 0.6,

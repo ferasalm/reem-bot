@@ -66,10 +66,10 @@ const ROUTES = {
   // Nano Banana (owner, 2026-10-04: "google safety filters are actually lenient ... just random. Let's test them"):
   // Google's Gemini image models through OpenRouter's chat completions (images in, image out), and Cloudflare's copy
   // (third-party: needs AI Gateway credits). List prices: ~1,290 output tokens a picture at $30/M (Nano Banana 2: $60/M)
-  "or-nanobanana": { usd: 0.039, run: (p, r, s) => openRouterChat("google/gemini-2.5-flash-image", p, r, s) },
-  "or-nanobanana2": { usd: 0.067, run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-image-preview", p, r, s) },
-  "or-nanobananapro": { usd: 0.134, run: (p, r, s) => openRouterChat("google/gemini-3-pro-image-preview", p, r, s) },
-  "cf-nanobanana": { usd: 0.039, run: (p, r) => cfThirdParty("google/nano-banana", p, r) },
+  "or-nanobanana": { usd: 0.039, family: "ref", run: (p, r, s) => openRouterChat("google/gemini-2.5-flash-image", p, r, s) },
+  "or-nanobanana2": { usd: 0.067, family: "ref", run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-image-preview", p, r, s) },
+  "or-nanobananapro": { usd: 0.134, family: "ref", run: (p, r, s) => openRouterChat("google/gemini-3-pro-image-preview", p, r, s) },
+  "cf-nanobanana": { usd: 0.039, family: "ref", run: (p, r) => cfThirdParty("google/nano-banana", p, r) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
 
