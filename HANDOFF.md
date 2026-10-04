@@ -37,6 +37,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - **Laughs in Gemini voice:** judge the `[laughs]` sound by ear after the deploy (Whisper can't hear laughs).
 
 ## Verified this session (2026-10-04)
+- **Deployed 2026-10-04 (run 37180239145, `main` 711ef3a) and read back from Cloudflare:** arms "soft and fleshy", waist-first
+  prompt, Sulafat + `OR_FORMAT` "pcm", `pcmToMp3`/Mp3Encoder, body image 1, daily cap 50,000 all in the live Worker; no "plush"/"thick arms"
+  left; the deploy's /health drew a klein picture and the vision model read it. Not yet tried live: a Gemini voice note, a lingerie picture.
 - `node tools/check.mjs` all 6 ok; e2e: Gemini asked for pcm with Sulafat and its tags, MP3 sent, Grok path still ok;
   unit: `pcmToMp3` makes real MP3 frames. Not yet tried: a real Gemini voice note on Telegram (no live check).
 - Every picture read at full size: 5 Nano Banana (bangs), 13 klein with the new face, 8 klein with the body reference.
