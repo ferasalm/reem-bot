@@ -32,10 +32,38 @@ const ROUTES = {
   "cf-seedream4.5": { usd: 0.04, run: (p, r) => cfThirdParty("bytedance/seedream-4.5", p, r) },
   // The same Seedream 4.5 and klein through OpenRouter (chat completions with image output)
   "or-seedream4.5": { usd: 0.04, run: (p, r, s) => openRouter("bytedance-seed/seedream-4.5", p, r, s) },
+  // Cloudflare's free beta Stable Diffusion models ($0.00 a step): text only, img2img, or inpainting (job.base +
+  // job.mask_box [x0, y0, x1, y1] on a 480x640 copy: only that box is redrawn, so her face outside it stays klein's)
+  "cf-sd15-inpaint": { usd: 0, run: (p) => cfSD("@cf/runwayml/stable-diffusion-v1-5-inpainting", p, "inpaint") },
+  "cf-sd15-img2img": { usd: 0, run: (p) => cfSD("@cf/runwayml/stable-diffusion-v1-5-img2img", p, "img2img") },
+  "cf-sdxl-lightning": { usd: 0, run: (p) => cfSD("@cf/bytedance/stable-diffusion-xl-lightning", p, "text") },
+  "cf-dreamshaper": { usd: 0, run: (p) => cfSD("@cf/lykon/dreamshaper-8-lcm", p, "text") },
   "or-grok": { usd: 0.024, run: (p, r, s) => openRouter("x-ai/grok-imagine-image", p, r, s) },
   "or-grok2": { usd: 0.06, run: (p, r, s) => openRouter("x-ai/grok-imagine-image-2.0", p, r, s) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
+
+async function cfSD(model, prompt, mode) {
+  const input = { prompt, num_steps: model.includes("lightning") || model.includes("lcm") ? 8 : 20, guidance: 7.5, width: 480, height: 640 };
+  if (mode !== "text") {
+    const base = execFileSync("convert", [job.base, "-resize", "480x640!", "png:-"]);
+    input.image = [...base];
+    input.strength = mode === "img2img" ? job.strength || 0.6 : 1;
+  }
+  if (mode === "inpaint") {
+    const [x0, y0, x1, y1] = job.mask_box;
+    const mask = execFileSync("convert", ["-size", "480x640", "xc:black", "-fill", "white", "-draw", `rectangle ${x0},${y0} ${x1},${y1}`, "-blur", "0x6", "png:-"]);
+    input.mask = [...mask];
+  }
+  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${model}`, {
+    method: "POST", headers: { Authorization: `Bearer ${cfToken}`, "Content-Type": "application/json" }, body: JSON.stringify(input),
+  });
+  const type = res.headers.get("content-type") || "";
+  if (res.ok && type.startsWith("image/")) return { bytes: Buffer.from(await res.arrayBuffer()) };
+  const data = await res.json().catch(() => ({}));
+  if (res.ok && data?.result?.image) return { bytes: Buffer.from(data.result.image, "base64") };
+  return { error: `HTTP ${res.status} ${JSON.stringify(data.errors || data).slice(0, 400)}` };
+}
 
 async function cfThirdParty(model, prompt, refs) {
   const input = { prompt, aspect_ratio: "3:4", image_input: refs.map(dataUri) };
