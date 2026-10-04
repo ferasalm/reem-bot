@@ -3,7 +3,7 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-03, late night (night place pictures; FLUX prompting skill registered; on `dev`)
+**Last updated:** 2026-10-04 (lingerie image benches, nothing deployed; on `dev`)
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
@@ -24,7 +24,14 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - **Lingerie: not accepted as limited by Cloudflare's filter** → find a model or route on Cloudflare or OpenRouter
   that draws it (next step 2).
 
+## Lingerie bench results (2026-10-04, `docs/QUALITY.md`; nothing in the bot changed)
+- Her face + lingerie together: only **Seedream 4.5 on OpenRouter** ($0.04, 5/9 drawn, face strong). On Cloudflare it
+  needs AI Gateway credits (402).
+- Workers AI, 14 attempts each: flux-2-dev 2 (babydolls only, never bra/panties, $0.032, her face strong);
+  lucid-origin 1 ($0.031); schnell 2 ($0.0036, only the "bralette and briefs" wording); DreamShaper 0 (free, black).
+  lucid and schnell draw real lingerie but can't take her face, so it's another woman each time.
 ## Waiting on the owner
+- **Pick the lingerie route** (my recommendation: Seedream 4.5 for lingerie pictures only, klein for the rest).
 - **Open `/setup` once** (after the 22:24 deploy), then try a pic at night, a lingerie pic, "let me see you".
 - **Delete the old branches:** Actions > Delete retired branches > Run workflow, type `delete`. `face-candidates` stays.
 
@@ -43,8 +50,8 @@ Each has a recommended effort. The owner sets the effort; Claude only recommends
    Basbousa, windows still light at night (4/6). Try: image roles named ("image 0 is only her face; her clothes
    are..."), front-camera wording, age in the mirror template, "the window black with night" in NIGHT light.
    Check with a small face run, every picture read at full size. *Effort: medium*
-2. **Better models on Cloudflare or OpenRouter** (owner's direction): bench (a) pictures, esp. lingerie (other Workers
-   AI image models: flux-2-dev, lucid-origin, phoenix; OpenRouter image models: moderation and price first);
+2. **Better models on Cloudflare or OpenRouter** (owner's direction): (a) pictures done for lingerie (above), next
+   build the route the owner picks;
    (b) text: DeepSeek V4 Flash vs others, cost per reply and quality; (c) voice: ElevenLabs vs Workers AI TTS
    (melotts, aura). Report price, quality and refusals; the owner picks. *Effort: high*
 3. **Persona slips seen live:** Basbousa called "your cat"/"barbara", "him/his" for "you" in scenes, "tonight" in

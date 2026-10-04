@@ -97,3 +97,16 @@ asked 5/5 (the bodysuit real lace, not the reference's tee); night window black 
 selfie true 2/2 (arms toward the lens, no phone); mirror: iPhone + hand visible 3/3, but the back view drew her from
 behind *holding the phone at the mirror* (third-person, not a reflection) 1/3; body curvy 2/5 (slim in the bra mirror
 shot); room: arched mirror, bed and wood floor kept, but table lamps with fabric shades instead of the black iron lamp.
+
+### Lingerie bench on Workers AI, 2026-10-04 (runs 37168625788, 37168824902, 37168864870; `tools/face/bench.json` `want`)
+Owner: "until you get two for each model, with a maximum of 14 attempts each". The same 7 outfits in turn (bra + panties
+x3, bralette + briefs, lace bodysuit back view, satin babydoll, robe over bralette); flux-2-dev got her face + the night
+bedroom as references, the others (text only) her LOOKS in words. "Drawn" below = real lingerie, judged by eye at full
+size: the script's count (any picture not black) said flux-2-dev 2/4 and DreamShaper 2/11 when neither had one.
+Cloudflare's real cost (`cf-ai-neurons`): refusals cost nothing on every model. Spent $0.29 in all.
+| Model | Lingerie drawn / attempts | Cost a picture | What came back |
+|---|---|---|---|
+| flux-2-dev (20 steps, 768x1024, 2 refs) | **2/14**, both satin babydolls; bra/panties/bralette 0 | 2,909 neurons = $0.032 (25x klein); $0.13 per usable one | 6 refused (3030 "output flagged": every bra, panties, bralette and robe prompt but one), 8 drawn: 2 babydolls, 2 long-sleeved lace dresses with an open back (for "bodysuit"), 1 in the reference's black tee, 1 in a top and trousers, **2 empty rooms with no woman**. Face **strong** 6/6 (closest yet to the reference); room and night light right 8/8; selfie framing 0/8 (always a third-person photo, never a phone); body slim, not curvy. 10 s |
+| lucid-origin (25 steps, 768x1024) | **1/14** | 2,808 neurons = $0.031 | 13 refused before drawing (3030 "Input prompt contains NSFW content"; the prompt that passed failed word for word at attempt 8). The one: black lace bra + panties mirror selfie, iPhone and hand in the arched mirror, hand on hip, lamp and black window: everything asked; a different, older-looking woman (no reference possible), fuller body than asked |
+| flux-1-schnell (8 steps, 1024x1024) | **2/9** (stopped at 2) | 326 neurons = $0.0036 | 7 refused before drawing (8007 "NSFW"): only the "bralette and high-waisted briefs" wording passed, 2/2. Both real lace bralette + briefs on her bed at night, arched mirror, curvy; a generic model face with red lipstick, not hers; the phone shown in her hand for a front-camera selfie (rule broken 2/2). Square only. 2 s |
+| DreamShaper 8 LCM (free beta) | **0/14** | $0.00 | 11 black (safety checker), 3 dark blurred silhouettes with no visible outfit |
