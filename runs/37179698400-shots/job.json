@@ -1,0 +1,53 @@
+{
+  "note": "Arms: soft, smooth, feminine, no muscle definition (owner 2026-10-04: test again); day_neurons 60,000 on the owner's word. Check: arms not muscular, waist, hips wider than shoulders, bangs, face.",
+  "mode": "shots",
+  "reference": "tools/face/reference.jpg",
+  "width": 576,
+  "height": 1024,
+  "square": false,
+  "labels": [
+    "everyday/mirror @19h",
+    "flirty/mirror-back @14h",
+    "flirty/legs @23h",
+    "flirty/waist @10h",
+    "boudoir/mirror @19h",
+    "boudoir/waist @10h"
+  ],
+  "prompts": [
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft, smooth, feminine arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in the hallway between their doors, the room behind her, a soft half smile, wearing a simple black sundress, a little flash glare on the glass, warm lamp light. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: an old apartment-building hallway: worn wooden stairs with a dark banister, a checkered tile floor, two facing apartment doors painted dark green, a tall mirror on the wall by her door, a radiator under a window. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft, smooth, feminine arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Back view: she stands with her back to a mirror in her bedroom and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, a teasing smirk, wearing an oversized white shirt worn as a dress, unbuttoned at the collar, bright afternoon daylight. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft, smooth, feminine arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Taken from above while she sits on a chair on her back porch, her legs crossed and in the frame, a daring look straight into the camera, wearing a black bodycon mini dress, dim light from a bedside lamp. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a small second-floor wooden back porch: white railings, two mismatched chairs, string lights, maple trees and neighbors' rooftops behind. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft, smooth, feminine arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a mirror in her bedroom, one hand on her waist, her hip turned toward the mirror, a teasing smirk, wearing a low-cut black camisole and cotton shorts, soft morning daylight. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft, smooth, feminine arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in her bedroom, the room behind her, a teasing half smile, chin lowered, wearing a black lace cami and matching silk shorts, a little flash glare on the glass, the last of the evening light. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft, smooth, feminine arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a mirror in her bedroom, one hand on her waist, her hip turned toward the mirror, heavy-lidded eyes, lips slightly parted, wearing a black satin slip with thin straps, bright morning sun through the window. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity."
+  ],
+  "refs": [
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/hallway.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/porch.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/bedroom.jpg"
+    ]
+  ],
+  "per_prompt": 1,
+  "day_neurons": 60000,
+  "describe": true
+}
