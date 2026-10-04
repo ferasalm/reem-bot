@@ -59,6 +59,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
   pictures v3 grid job with the bot's own prompts) + `.github/workflows/face.yml`:
   draws face candidates or a consistency check through the Cloudflare REST API (runs when the job changes),
   pictures pushed to branch `face-candidates` (pictures only, listed in retired-branches.txt).
+  `bench-models.mjs` + `bench.json` + `.github/workflows/image-bench.yml`: image model bench (same prompts and
+  references through Workers AI, Cloudflare's third-party models, OpenRouter; capped by `max_usd`; never on dev).
 - `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`,
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
 - `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,

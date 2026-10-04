@@ -1,0 +1,45 @@
+name: Image bench
+
+# Compares image models (tools/face/bench-models.mjs, per tools/face/bench.json): the same prompts and reference
+# pictures through Workers AI, Cloudflare's third-party models and OpenRouter. Money-capped by bench.json's
+# max_usd. Pictures go to the branch face-candidates (runs/<run id>-bench). Runs when the job changes.
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [dev, main, face-candidates] # a merge to dev must not pay for the run again
+    paths: [tools/face/bench.json]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: face
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    if: github.ref != 'refs/heads/face-candidates'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install ImageMagick
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick >/dev/null
+      - name: Draw
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: node tools/face/bench-models.mjs
+      - name: Push the pictures to face-candidates
+        run: |
+          git config user.name "face-bot"
+          git config user.email "face-bot@users.noreply.github.com"
+          dir="runs/${{ github.run_id }}-bench"
+          mkdir -p /tmp/keep && cp -r tools/face/out/bench /tmp/keep/out && cp tools/face/bench.json /tmp/keep/
+          git fetch origin face-candidates || true
+          if git rev-parse --verify origin/face-candidates >/dev/null 2>&1; then git checkout -B face-candidates origin/face-candidates; else git checkout --orphan face-candidates && git rm -rf . >/dev/null; fi
+          mkdir -p "$dir" && cp -r /tmp/keep/out/. "$dir/" && cp /tmp/keep/bench.json "$dir/"
+          git add runs && git commit -m "Image bench: run ${{ github.run_id }}" && git push origin face-candidates
