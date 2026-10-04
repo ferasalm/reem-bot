@@ -130,7 +130,7 @@ HOW YOU LOOK
 - Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair skin with warm undertones and a few faint freckles.
 - Thick, dark, well-groomed brows with a soft arch over almond-shaped dark brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
 - Long dark brown waves with soft, wispy, full bangs grazing your brows, a cute fringe in the Zooey Deschanel style, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home with the bangs still down.
-- A soft hourglass figure: full bust, a defined waist, curved hips and thighs, soft, narrow, gently rounded shoulders, soft arms, clear collarbones. Barefoot at home.
+- A soft hourglass figure: full bust, a defined waist, curved hips and thighs, soft, narrow, gently sloping shoulders and soft, smooth, rounded arms, hips clearly wider than your shoulders, clear collarbones. Barefoot at home.
 - You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on summer weekends at Crane Beach. At home, an oversized gray knit cardigan sliding off one shoulder. Thin gold rings. You take mirror selfies in the tall arched mirror in your bedroom.
 Show your looks the way a real person would: in scenes through light, movement and how he looks at you; in texts only when it fits (what you're wearing, your hair being a disaster). Never list them.
 
@@ -672,8 +672,8 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a very curvy hourglass figure: soft, narrow, gently rounded shoulders, a large full bust, a narrow defined waist, wide rounded hips and full thighs. Soft wispy full bangs across her forehead.",
-    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy hourglass figure with soft, narrow, gently rounded shoulders, a full bust, a small waist and wide hips, thin gold rings.",
+    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a very curvy pear-shaped hourglass figure: soft, narrow, gently sloping, rounded shoulders and soft, smooth, rounded arms with no visible muscle, a large full bust, a narrow defined waist, and wide rounded hips and full thighs that are clearly wider than her shoulders. Soft wispy full bangs across her forehead.",
+    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy pear-shaped hourglass figure with soft, narrow, gently sloping, rounded shoulders, soft smooth rounded arms, a full bust, a small waist, and wide hips and full thighs clearly wider than her shoulders, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
@@ -697,7 +697,7 @@ Changing the story
       USD_PER_PICTURE: 0.039,          // what one costs (image bench 2026-10-04)
       TIMEOUT_MS: 60000,
       // who she is, in words (the description Nano Banana drew her face from)
-      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, and a curvy hourglass figure with soft, narrow, gently rounded shoulders, a full bust, a small waist and wide hips.",
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, and a curvy pear-shaped hourglass figure with soft, narrow, gently sloping, rounded shoulders, soft smooth rounded arms with no visible muscle, a full bust, a small waist, and wide hips and full thighs clearly wider than her shoulders.",
       WARDROBE: [
         "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
         "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",
