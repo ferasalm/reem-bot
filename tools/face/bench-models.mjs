@@ -149,6 +149,19 @@ async function fetchImage(url) {
   return Buffer.from(await res.arrayBuffer());
 }
 
+// job.list: print every image model each provider offers, with its price, and stop (nothing is drawn)
+if (job.list) {
+  const or = await fetch("https://openrouter.ai/api/v1/models?output_modalities=image", { headers: { Authorization: `Bearer ${orKey}` } }).then((r) => r.json()).catch((e) => ({ error: e.message }));
+  console.log(`OpenRouter image models (${or.data?.length ?? JSON.stringify(or).slice(0, 200)}):`);
+  for (const m of or.data || []) console.log(`  ${m.id} | in: ${m.architecture?.input_modalities} | pricing ${JSON.stringify(m.pricing)} | ${String(m.description || "").replace(/\s+/g, " ").slice(0, 160)}`);
+  for (const task of ["Text-to-Image", "Image-to-Image"]) {
+    const cf = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/models/search?task=${encodeURIComponent(task)}&per_page=100`, { headers: { Authorization: `Bearer ${cfToken}` } }).then((r) => r.json()).catch((e) => ({ error: e.message }));
+    console.log(`\nCloudflare ${task} models (${cf.result?.length ?? JSON.stringify(cf).slice(0, 200)}):`);
+    for (const m of cf.result || []) console.log(`  ${m.name} | ${(m.properties || []).map((p) => `${p.property_id}=${JSON.stringify(p.value)}`).join(" ").slice(0, 300)} | ${String(m.description || "").slice(0, 120)}`);
+  }
+  process.exit(0);
+}
+
 // Save a picture as a 768x1024-at-most JPEG; returns its size and whether it came back black (a safety checker)
 function save(name, bytes) {
   const raw = `${out}/${name}-raw`;
