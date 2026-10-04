@@ -6,11 +6,15 @@ globalThis.setTimeout = (f) => { f(); return 0; };
 let seed = 7; Math.random = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
 const RealDate = Date; let clock = RealDate.UTC(2026, 9, 1, 8, 0);
 globalThis.Date = class extends RealDate { constructor(...a){ super(...(a.length?a:[clock])); } static now(){ return clock; } };
-const log = []; let llm = []; const prompts = []; const calls = []; let mid = 5000; let ttsFail = false;
+const log = []; let llm = []; const prompts = []; const calls = []; let mid = 5000; let ttsFail = false; const orSpeech = []; let orSpeechFail = false;
 globalThis.fetch = async (url, init = {}) => {
   let body = init.body;
   if (body instanceof FormData) { const o={}; for (const [k,v] of body) o[k]= typeof v==="string"?v:"<blob>"; body=JSON.stringify(o); }
   const j = (o, status=200) => new Response(JSON.stringify(o), { status });
+  if (url.includes("openrouter.ai/api/v1/audio/speech")) {
+    orSpeech.push(JSON.parse(init.body));
+    return orSpeechFail ? new Response(JSON.stringify({ error: { message: "Provider returned 400" } }), { status: 400, headers: { "content-type": "application/json" } }) : new Response(new Uint8Array(300), { headers: { "content-type": "audio/mpeg" } });
+  }
   if (url.includes("openrouter")) {
     const b = JSON.parse(init.body); prompts.push(b);
     if (b.messages.some(m => m.at !== undefined)) throw new Error("history 'at' leaked to OpenRouter");
@@ -136,7 +140,7 @@ step("aura voice: Workers AI speaks, tags become cues, counted; ElevenLabs when 
   llm = [{ content: "[voice] [chuckles] 7abibi you're blushing\n[laughs] [whispers] knock on my door" }];
   await run(msg({ text: "send me a voice note" }));
   const a = aiCalls.at(-1);
-  console.log("aura used:", a?.model === "@cf/deepgram/aura-2-en" && a.input.speaker === "helena" && a.input.encoding === "opus" && a.input.container === "ogg" && a.options?.returnRawResponse === true,
+  console.log("aura used:", a?.model === "@cf/deepgram/aura-2-en" && a.input.speaker === "andromeda" && a.input.encoding === "opus" && a.input.container === "ogg" && a.options?.returnRawResponse === true,
     "| cues, no tags:", a?.input.text === "Hm... Habibi you're blushing... Knock on my door.", "| ElevenLabs not called:", eleven() === before, "| voice sent:", voices() === sent + 1,
     "| counted:", JSON.parse(store.get("pics")).neurons >= Math.ceil(a.input.text.length / 1000 * 2728));
   auraFails = true; before = eleven(); sent = voices();
@@ -154,6 +158,27 @@ step("aura voice: Workers AI speaks, tags become cues, counted; ElevenLabs when 
   const last = calls.filter((c) => c.m === "sendMessage").at(-1);
   console.log("no backup, budget spent -> text:", voices() === sent && /basbousa misses you/i.test(last.b.text));
   W.CONFIG.VOICE.ELEVENLABS_BACKUP = true; store.delete("pics"); delete env.AI;
+}
+step("OpenRouter voice: VOICE.PROVIDER openrouter, its own tags, its money cap; ElevenLabs when it fails");
+{
+  const V = W.CONFIG.VOICE; V.PROVIDER = "openrouter";
+  const eleven = () => log.filter((l) => l.includes("text-to-speech")).length;
+  let before = eleven(); const sent = calls.filter((c) => c.m === "sendVoice").length;
+  llm = [{ content: "[voice] [laughs] look at you\n[whispers] my door is unlocked" }];
+  await run(msg({ text: "send me a voice note" }));
+  const b = orSpeech.at(-1);
+  console.log("OpenRouter used:", b?.model === V.OR_MODEL && b.voice === V.OR_VOICE && b.response_format === "mp3", "| its tags:", b?.input === "[laugh] Look at you... My door is unlocked.", "| ElevenLabs not called:", eleven() === before,
+    "| sent:", calls.filter((c) => c.m === "sendVoice").length === sent + 1, "| money counted:", JSON.parse(store.get("pics")).voiceUsd > 0);
+  orSpeechFail = true; before = eleven();
+  llm = [{ content: "[voice] the hallway light is out again" }];
+  await run(msg({ text: "send me a voice note" }));
+  console.log("OpenRouter fails -> ElevenLabs:", eleven() === before + 1, "| kept for /setup:", JSON.parse(store.get("voice_error")).error.includes("Provider returned 400"));
+  orSpeechFail = false; const n = orSpeech.length; before = eleven();
+  store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics")), voiceUsd: V.OR_DAILY_USD }));
+  llm = [{ content: "[voice] i made too much tabbouleh" }];
+  await run(msg({ text: "send me a voice note" }));
+  console.log("money spent -> ElevenLabs, OpenRouter not called:", orSpeech.length === n && eleven() === before + 1);
+  V.PROVIDER = "aura"; store.delete("pics");
 }
 step("v3 audio tags: text reply");
 llm = [{ content: "[laughs] omg stop\n\nyou're the worst [sighs]" }];

@@ -314,11 +314,20 @@ const CONFIG = {
     // as the backup when it fails or the budget is spent), "elevenlabs" = ElevenLabs only (the settings below ID)
     PROVIDER: "aura",
     AURA_MODEL: "@cf/deepgram/aura-2-en",
-    AURA_SPEAKER: "helena",            // aura-2-en voice (owner picks; helena and andromeda benched 2026-10-04)
+    AURA_SPEAKER: "andromeda",         // aura-2-en voice (owner 2026-10-04: "Andromeda of course is much better than Helena")
     // aura reads [tags] aloud, so each allowed tag becomes a spoken cue here ("" = dropped; any tag not listed is dropped)
     // bench 2026-10-04: "heh" was heard as "Phew"/"Okay", "hehe" made her shout; "hm" and "mm" are performed well
     AURA_CUES: { laughs: "", giggles: "", chuckles: "hm" },
-    ELEVENLABS_BACKUP: true,           // aura failed or the budget is spent: ElevenLabs speaks it (else the note goes as text)
+    ELEVENLABS_BACKUP: true,           // aura/OpenRouter failed or the budget is spent: ElevenLabs speaks it (else the note goes as text)
+    // PROVIDER "openrouter": a speech model on OpenRouter (POST /api/v1/audio/speech, MP3 straight to Telegram), paid
+    // from OpenRouter credit with its own money cap a day. TTS bench 2026-10-04: x-ai/grok-voice-tts-1.0 (ara, eve),
+    // fish-audio/s2.1-pro, minimax/speech-2.8-hd, canopylabs/orpheus-3b-0.1-ft (tara, leah) all spoke her lines.
+    OR_MODEL: "x-ai/grok-voice-tts-1.0",
+    OR_VOICE: "ara",                   // "" = the model's own (Fish Audio needs none)
+    OR_INSTRUCTIONS: "",               // how she sounds, for models that take it (e.g. Gemini, OpenAI)
+    OR_CUES: { laughs: "[laugh]", giggles: "[laugh]", chuckles: "[laugh]", whispers: "", sighs: "" }, // tags as this model writes them ("" = dropped)
+    OR_USD_PER_1000_CHARS: 0.015,      // Grok and Fish Audio $0.015, Orpheus $0.007, MiniMax HD $0.10 (OpenRouter list prices)
+    OR_DAILY_USD: 0.3,                 // its money cap a day (about 70 notes)
     ID: "8SAEKgpGuII5UtUnpuYN",        // Reem: designed for her (husky, warm, close-mic, North Jersey). Sarah, built-in: EXAVITQu4vr4xnSDxMaL
     NAME: "Reem",                      // only shown on /setup
     MODEL: "eleven_v3",                // expressive, reads [laughs]-style tags; "eleven_multilingual_v2" is the steady older one
@@ -2283,6 +2292,7 @@ async function loadLedger(env) {
     day,
     neurons: fresh ? saved.neurons || 0 : 0,
     usd: fresh ? saved.usd || 0 : 0, // OpenRouter pictures today (PICTURE.LINGERIE)
+    voiceUsd: fresh ? saved.voiceUsd || 0 : 0, // OpenRouter voice notes today (VOICE.OR_DAILY_USD)
     out: fresh && saved.out ? saved.out : false, // the time Cloudflare said out of neurons (true = old format)
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
     recent: Array.isArray(saved.recent) ? saved.recent : [],
@@ -3080,6 +3090,7 @@ const voiceId = (env) => String(env.VOICE_ID || CONFIG.VOICE.ID).trim();
 // own when it has one, so a picture saved later keeps the count), ElevenLabs when aura fails or the budget is spent
 async function tts(env, text, ledger = null) {
   const V = CONFIG.VOICE;
+  if (V.PROVIDER === "openrouter") return openRouterTts(env, text, ledger);
   if (V.PROVIDER !== "aura") return elevenTts(env, text);
   const said = auraText(text);
   if (!said) throw new Error("Nothing to say aloud.");
@@ -3106,6 +3117,44 @@ async function tts(env, text, ledger = null) {
   return elevenTts(env, text);
 }
 
+// Her voice note on an OpenRouter speech model (VOICE.OR_*): MP3 bytes. ElevenLabs when it fails or the day's
+// OR_DAILY_USD is spent (if ELEVENLABS_BACKUP), else an error (the note goes as text).
+async function openRouterTts(env, text, ledger = null) {
+  const V = CONFIG.VOICE;
+  const said = auraText(text, V.OR_CUES);
+  if (!said) throw new Error("Nothing to say aloud.");
+  const backup = !!V.ELEVENLABS_BACKUP && !!env.ELEVENLABS_API_KEY;
+  ledger = ledger || (await loadLedger(env));
+  const usd = (said.length / 1000) * (Number(V.OR_USD_PER_1000_CHARS) || 0);
+  if (env.OPENROUTER_API_KEY && (ledger.voiceUsd || 0) + usd <= (Number(V.OR_DAILY_USD) || 0) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
+    try {
+      budget.used++;
+      const body = { model: V.OR_MODEL, input: said, response_format: "mp3" };
+      if (V.OR_VOICE) body.voice = V.OR_VOICE;
+      if (V.OR_INSTRUCTIONS) body.instructions = V.OR_INSTRUCTIONS;
+      const res = await xfetch("https://openrouter.ai/api/v1/audio/speech", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(CONFIG.LIMITS.HTTP_TIMEOUT_MS),
+      });
+      if (!res.ok || /json/.test(res.headers.get("content-type") || "")) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(`${V.OR_MODEL} ${res.status}: ${data?.error?.message || "no audio"}`);
+      }
+      const bytes = await res.arrayBuffer();
+      if (bytes.byteLength < 100) throw new Error(`${V.OR_MODEL} gave no audio`);
+      ledger.voiceUsd = (ledger.voiceUsd || 0) + usd;
+      await saveLedger(env, ledger);
+      return bytes;
+    } catch (e) {
+      await voiceFailed(env, `OpenRouter voice: ${e.message || e}${backup ? "; ElevenLabs spoke it" : ""}`);
+      if (!backup) throw e;
+    }
+  } else if (!backup) throw new Error("OpenRouter voice: today's money for voice notes is spent (VOICE.OR_DAILY_USD) and the ElevenLabs backup is off.");
+  return elevenTts(env, text);
+}
+
 // Workers AI's answer for audio: a raw Response (returnRawResponse), a stream, or bytes
 async function audioBytes(out, model) {
   if (out && typeof out.arrayBuffer === "function" && "status" in out) {
@@ -3119,8 +3168,11 @@ async function audioBytes(out, model) {
 
 // What aura reads: the allowed tags become VOICE.AURA_CUES ("[laughs] You're ridiculous" -> "Heh... You're ridiculous"),
 // every other [...] is dropped (aura would read it aloud)
-function auraText(text) {
-  const cues = CONFIG.VOICE.AURA_CUES || {};
+// `cues`: VOICE.OR_CUES for an OpenRouter model; a cue written as a tag ("[laugh]", "(laughs)", "<giggle>") stays
+// where the tag was, a spoken one ("hm") becomes "Hm..."
+function auraText(text, cues = CONFIG.VOICE.AURA_CUES || {}) {
+  cues = cues || {};
+  const kept = []; // the model's own tags, held as placeholders (TAG_MARK) while every other [...] goes
   const re = audioTagRe();
   let s = String(text || "");
   if (re) {
@@ -3128,6 +3180,7 @@ function auraText(text) {
       const key = t.toLowerCase().replace(/\s+/g, " ");
       const cue = Object.hasOwn(cues, key) ? String(cues[key] || "").trim() : "";
       if (!cue) return "";
+      if (/^[[(<]/.test(cue)) return `${String.fromCharCode(0xe000 + kept.push(cue) - 1)} `;
       const rest = all.slice(offset + _.length);
       return /\p{L}/u.test(rest) ? `${cue}... ` : `${cue}.`;
     });
@@ -3137,7 +3190,8 @@ function auraText(text) {
     .replace(/\s+([,.!?])/g, "$1")
     .replace(/\s+/g, " ")
     .replace(/(^|[.!?]\s+)([a-z])/g, (_, a, b) => a + b.toUpperCase())
-    .trim();
+    .trim()
+    .replace(TAG_MARK, (c) => kept[c.charCodeAt(0) - 0xe000]);
 }
 
 async function elevenTts(env, text) {
@@ -3246,7 +3300,10 @@ async function sendBubbles(env, chatId, bubbles, { deadline = Date.now() + 20000
 async function sendVoice(env, chatId, audio) {
   const form = new FormData();
   form.append("chat_id", String(chatId));
-  form.append("voice", new Blob([audio], { type: "audio/ogg" }), "voice.ogg");
+  // MP3 (ElevenLabs' mp3 formats, OpenRouter) or OGG/Opus (aura, ElevenLabs opus): Telegram takes both as a voice note
+  const head = new Uint8Array(audio instanceof ArrayBuffer ? audio.slice(0, 4) : new ArrayBuffer(0));
+  const ogg = !head.length || String.fromCharCode(...head) === "OggS";
+  form.append("voice", new Blob([audio], { type: ogg ? "audio/ogg" : "audio/mpeg" }), ogg ? "voice.ogg" : "voice.mp3");
   let res;
   try {
     res = await xfetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendVoice`, { method: "POST", body: form });
