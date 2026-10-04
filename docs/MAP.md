@@ -46,7 +46,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `picsCommand`, `faceCommand`; `health` (`/health`); `aiFailed` (KV `ai_error`)
   - hearing: `transcribe` (his voice notes: Workers AI Whisper `HEARING.MODEL`, counted in the AI ledger by
     `AI_BUDGET.HEARING_NEURONS_PER_MIN`; `scribe` = ElevenLabs backup when it fails or the budget is spent)
-  - voice: `bodyOf`/`clean`, `forSpeech` → `tidySpoken` → `sayArabizi`, `tts` (`voiceSettings`), `sendVoice`
+  - voice: `bodyOf`/`clean`, `forSpeech` → `tidySpoken` → `sayArabizi`, `tts` (`VOICE.PROVIDER` "aura": Workers AI
+    aura-2 with `auraText` (tags → `AURA_CUES`) and `audioBytes`, counted by `AI_BUDGET.VOICE_NEURONS_PER_1000_CHARS`;
+    `elevenTts` + `voiceSettings` = ElevenLabs, the backup), `sendVoice`
     (returns `{delivered, id, error}`), `voiceFailed` (KV `voice_error`, shown on /setup)
   - audio tags: `isV3`, `audioTagsOn`, `audioTagRe`, `isAudioTag`, `stripAudioTags`
   - overrides: `applyOverrides`/`mergeSettings` (`CONFIG_OVERRIDES` env var; PRONUNCIATIONS, ARABIZI_DIGITS,

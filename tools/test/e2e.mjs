@@ -126,6 +126,35 @@ await run(msg({ text: "i miss you, send me a voice note" })); // he asks: her ow
 const ttsLast = log.filter(l => l.includes("text-to-speech")).at(-1);
 console.log("tags offered:", herPrompts().at(-1).messages.some((m) => m.content.includes("[moans softly]")), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| v3 stability only:", ttsLast.includes('"voice_settings":{"stability":0.5}'));
 console.log("history has no tags:", JSON.parse(store.get("h:7")).at(-1).content);
+step("aura voice: Workers AI speaks, tags become cues, counted; ElevenLabs when aura fails or the budget is spent");
+{
+  const aiCalls = []; let auraFails = false;
+  env.AI = { async run(model, input, options) { aiCalls.push({ model, input, options }); if (auraFails) throw new Error("3040: capacity"); return new Response(new Uint8Array(400), { headers: { "content-type": "audio/ogg" } }); } };
+  const eleven = () => log.filter((l) => l.includes("text-to-speech")).length;
+  const voices = () => calls.filter((c) => c.m === "sendVoice").length;
+  let before = eleven(), sent = voices();
+  llm = [{ content: "[voice] [chuckles] 7abibi you're blushing\n[laughs] [whispers] knock on my door" }];
+  await run(msg({ text: "send me a voice note" }));
+  const a = aiCalls.at(-1);
+  console.log("aura used:", a?.model === "@cf/deepgram/aura-2-en" && a.input.speaker === "helena" && a.input.encoding === "opus" && a.input.container === "ogg" && a.options?.returnRawResponse === true,
+    "| cues, no tags:", a?.input.text === "Hm... Habibi you're blushing... Knock on my door.", "| ElevenLabs not called:", eleven() === before, "| voice sent:", voices() === sent + 1,
+    "| counted:", JSON.parse(store.get("pics")).neurons >= Math.ceil(a.input.text.length / 1000 * 2728));
+  auraFails = true; before = eleven(); sent = voices();
+  llm = [{ content: "[voice] come over" }];
+  await run(msg({ text: "send me a voice note" }));
+  console.log("aura fails -> ElevenLabs:", eleven() === before + 1 && voices() === sent + 1, "| error kept for /setup:", JSON.parse(store.get("ai_error")).error.includes("ElevenLabs spoke it"));
+  auraFails = false; const n = aiCalls.length; before = eleven();
+  const pics = JSON.parse(store.get("pics")); store.set("pics", JSON.stringify({ ...pics, neurons: W.CONFIG.AI_BUDGET.DAILY_NEURONS }));
+  llm = [{ content: "[voice] the door is open" }];
+  await run(msg({ text: "send me a voice note" }));
+  console.log("budget spent -> ElevenLabs, no aura:", aiCalls.length === n && eleven() === before + 1);
+  W.CONFIG.VOICE.ELEVENLABS_BACKUP = false; sent = voices();
+  llm = [{ content: "[voice] basbousa misses you" }];
+  await run(msg({ text: "send me a voice note" }));
+  const last = calls.filter((c) => c.m === "sendMessage").at(-1);
+  console.log("no backup, budget spent -> text:", voices() === sent && /basbousa misses you/i.test(last.b.text));
+  W.CONFIG.VOICE.ELEVENLABS_BACKUP = true; store.delete("pics"); delete env.AI;
+}
 step("v3 audio tags: text reply");
 llm = [{ content: "[laughs] omg stop\n\nyou're the worst [sighs]" }];
 await run(msg({ text: "lol" }));

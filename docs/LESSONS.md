@@ -79,8 +79,11 @@ At most 150 lines (`tools/doc-check.mjs`).
 - bench-models.mjs `want` mode reads `prompt_sets[route.family]`: a new route without `family` crashes the run at once
   (run 37172077483) → give every new route a family ("ref" or "text"). (2026-10-04)
 - Workers AI Whisper reads Telegram's OGG/Opus as base64 `audio` (32/32, voice bench 2026-10-04); aura-2 can return
-  OGG/Opus (`encoding: "opus", container: "ogg"`), ready for sendVoice. aura-2 performs "haha", "mm", "ha!" but not
-  "hhh" (a sigh is silent) and reads [tags] aloud. (2026-10-04)
+  OGG/Opus (`encoding: "opus", container: "ogg"`), ready for sendVoice. aura-2 performs "mm" and "hm" but not
+  "hhh" (a sigh is silent) and reads [tags] aloud; "haha" sounds robotic (owner), "heh" is heard as "Phew"/"Okay",
+  "hehe" makes the line shouted → `VOICE.AURA_CUES` drops laughs. aura costs 2.73 neurons a character. (2026-10-04)
+- e2e: a mocked reply that repeats a line she already said in an earlier step is cut by the repeat guard (her note
+  shrank to "Come over.") → give each mocked reply in a test its own words. (2026-10-04)
 - Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7
   outfits, none refused, $0.007 a picture; Seedream 4.5 passes every time without a face picture (5/9 with one).
   OpenRouter shapes vary by model (Krea has no 3:4: the bench falls back to its tallest shape). (2026-10-04)

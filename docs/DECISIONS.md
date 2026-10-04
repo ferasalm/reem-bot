@@ -5,12 +5,18 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-04 — **Switch voice and hearing off ElevenLabs; test Nano Banana Lite** (owner: "Let's try nano banana lite.
+  Eleven labs credits are running out, we gotta do the switch to the best speech and recognition models. Im confused
+  between Helena and Andromeda, need more explicit samples where they don't robotically say \"ha ha ha\""): her voice
+  notes move to Workers AI aura-2 (`VOICE.PROVIDER` "aura", ElevenLabs only as the backup), his voice notes to Whisper
+  (already on `dev`). Which aura voice: owner to pick (helena or andromeda); Claude's default until then: helena.
+  *Supersedes "aura-2-en is a test only: her voice stays ElevenLabs" (entry below).*
 - 2026-10-04 — **Speech recognition on Cloudflare; test aura-2-en and Nano Banana** (owner: "google safety filters
   are actually lenient, they're not strict, they're just random. Let's test them before judging. Go with your pick for
   speech recognition. Let's test aura-2-en, suggest a suitable voice and make it as expressive as appropriately
   possible."): his voice notes are heard by Workers AI Whisper large v3 turbo (Claude's pick, $0.0005 a minute), with
   ElevenLabs Scribe as the backup. Nano Banana is benched for lingerie (OpenRouter; Cloudflare's copy needs AI Gateway
-  credits). aura-2-en is a test only: her voice stays ElevenLabs until the owner picks.
+  credits). ~~aura-2-en is a test only: her voice stays ElevenLabs until the owner picks.~~ (superseded the same day: the switch to aura-2, above)
 - 2026-10-03 — **Deploy** (owner: "Deploy"): `dev` merged into `main`: night place pictures (`isDark`), ROOM without
   the reference's light, no bathroom in body-length mirror shots, `takeSelfie` ignoring bracketed pauses, the FLUX
   prompting skill in `.claude/settings.json`.
@@ -22,8 +28,8 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   openrouter. We are looking for high-quality, low-cost, efficient models for text, pictures, and voice."):
   Claude keeps proposing better, cheaper models for text, pictures and voice, but only on Cloudflare Workers AI or
   OpenRouter. No Runware, fal.ai or other image service. Cloudflare's lingerie filter is not accepted as final: find
-  a way inside these two (another model, another wording, another route). Voice stays ElevenLabs until the owner
-  says otherwise. *Narrows the open question "another image provider" in HANDOFF.*
+  a way inside these two (another model, another wording, another route).
+  ~~Voice stays ElevenLabs until the owner says otherwise.~~ (superseded 2026-10-04: voice moves to aura-2) *Narrows the open question "another image provider" in HANDOFF.*
 - 2026-10-03 — **Reem is Lebanese and lives in Belmont, MA** (owner: "She's Lebanese and lives in the US Boston MA
   around or within Belmont"): Claude's details, owner may change them: born in Beirut, family moved to North Jersey
   when she was ten; second-floor apartment in an old brick walk-up near Cushing Square; he lives across the hall;

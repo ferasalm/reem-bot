@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-04 (later): aura-2 voice switch on dev, Nano Banana 2 Lite bench (not deployed)
+- `tts`: `VOICE.PROVIDER` "aura" (Workers AI `@cf/deepgram/aura-2-en`, speaker `AURA_SPEAKER`, OGG/Opus straight to
+  sendVoice), ElevenLabs `elevenTts` as backup (`ELEVENLABS_BACKUP`); /setup tests the aura voice. e2e: aura used,
+  aura fails → ElevenLabs, budget spent → ElevenLabs, no backup → text.
+- Image bench run 37173093173 (Nano Banana 2 Lite), voice bench run 37173093194 (helena vs andromeda). docs/QUALITY.md.
+
 ## 2026-10-04: lingerie image benches, Whisper hearing, aura-2 voice test (not deployed)
 - Image benches runs 37168625788, 37168824902, 37168864870 (Workers AI), 37170059666, 37170599796 (text-only cheap),
   37172269285 (Nano Banana with face: 0/11), 37172411100 (Nano Banana text-only: 11/11). Tables in docs/QUALITY.md.

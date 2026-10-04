@@ -310,6 +310,15 @@ const CONFIG = {
 
   /* ---------------- Voice (ElevenLabs text-to-speech) ---------------- */
   VOICE: {
+    // Who speaks her voice notes: "aura" = Workers AI Deepgram aura-2 (counted in the day's AI budget, ElevenLabs
+    // as the backup when it fails or the budget is spent), "elevenlabs" = ElevenLabs only (the settings below ID)
+    PROVIDER: "aura",
+    AURA_MODEL: "@cf/deepgram/aura-2-en",
+    AURA_SPEAKER: "helena",            // aura-2-en voice (owner picks; helena and andromeda benched 2026-10-04)
+    // aura reads [tags] aloud, so each allowed tag becomes a spoken cue here ("" = dropped; any tag not listed is dropped)
+    // bench 2026-10-04: "heh" was heard as "Phew"/"Okay", "hehe" made her shout; "hm" and "mm" are performed well
+    AURA_CUES: { laughs: "", giggles: "", chuckles: "hm" },
+    ELEVENLABS_BACKUP: true,           // aura failed or the budget is spent: ElevenLabs speaks it (else the note goes as text)
     ID: "8SAEKgpGuII5UtUnpuYN",        // Reem: designed for her (husky, warm, close-mic, North Jersey). Sarah, built-in: EXAVITQu4vr4xnSDxMaL
     NAME: "Reem",                      // only shown on /setup
     MODEL: "eleven_v3",                // expressive, reads [laughs]-style tags; "eleven_multilingual_v2" is the steady older one
@@ -784,7 +793,8 @@ Changing the story
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
     HEALTH_NEURONS: 40,                // one /health check
-    HEARING_NEURONS_PER_MIN: 47,       // Whisper large v3 turbo: 46.63 neurons per audio minute (Cloudflare's price list)
+    HEARING_NEURONS_PER_MIN: 47,
+    VOICE_NEURONS_PER_1000_CHARS: 2728, // aura-2: $0.03 per 1,000 characters at $0.011 per 1,000 neurons       // Whisper large v3 turbo: 46.63 neurons per audio minute (Cloudflare's price list)
     OUT_RETRY_MS: 3600000,             // after "allocation used up", try again this much later (seen 2026-10-03: the block outlived the 00:00 UTC reset)
   },
 
@@ -1633,7 +1643,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
     if (out.kind === "voice") {
       let note = null;
       try {
-        const audioPromise = tts(env, out.spoken);
+        const audioPromise = tts(env, out.spoken, ledger);
         audioPromise.catch(() => {});
         await act(env, chatId, "record_voice", Math.min(speakingTime(out.spoken), deadline - Date.now() - CONFIG.TIMING.VOICE_MARGIN_MS), 1);
         const sent = await sendVoice(env, chatId, await audioPromise);
@@ -1646,7 +1656,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
       parts = parts.concat(note ? [note] : await sendBubbles(env, chatId, splitBubbles(out.voiceText), { deadline }));
     }
     if (out.kind === "scene" && sceneVoice) {
-      const clip = await sayScene(env, chatId, out.texts.join("\n"), deadline);
+      const clip = await sayScene(env, chatId, out.texts.join("\n"), deadline, ledger);
       if (clip) parts.push(clip);
     }
     // Her picture, after her words
@@ -1718,13 +1728,13 @@ function sceneSpeech(scene) {
 }
 
 // The audio clip after a scene: {id, text: ""} (nothing added to what the model reads back), or null
-async function sayScene(env, chatId, scene, deadline) {
+async function sayScene(env, chatId, scene, deadline, ledger = null) {
   const spoken = forSpeech(sceneSpeech(scene));
   if (!/\p{L}/u.test(stripAudioTags(spoken))) return null;
   const room = deadline - Date.now() - CONFIG.TIMING.VOICE_MARGIN_MS;
   if (room <= 0) return null;
   try {
-    const audioPromise = tts(env, spoken);
+    const audioPromise = tts(env, spoken, ledger);
     audioPromise.catch(() => {});
     await act(env, chatId, "record_voice", Math.min(speakingTime(spoken), room), 1);
     const sent = await sendVoice(env, chatId, await audioPromise);
@@ -2186,7 +2196,7 @@ async function act(env, chatId, action, ms, upcoming = 1) {
 
 // One Workers AI call (the AI binding), counted like an outside call and cut off after timeoutMs.
 // Capacity errors (3040) get one more try.
-async function aiRun(env, model, input, timeoutMs, retry = true) {
+async function aiRun(env, model, input, timeoutMs, retry = true, options = undefined) {
   budget.used++;
   const signal = AbortSignal.timeout(timeoutMs);
   const late = new Promise((_, reject) => {
@@ -2194,9 +2204,9 @@ async function aiRun(env, model, input, timeoutMs, retry = true) {
   });
   late.catch(() => {});
   try {
-    return await Promise.race([env.AI.run(model, input), late]);
+    return await Promise.race([options ? env.AI.run(model, input, options) : env.AI.run(model, input), late]);
   } catch (e) {
-    if (retry && aiBusy(e) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE) return aiRun(env, model, input, timeoutMs, false);
+    if (retry && aiBusy(e) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE) return aiRun(env, model, input, timeoutMs, false, options);
     throw e;
   }
 }
@@ -2267,7 +2277,7 @@ async function saveLedger(env, ledger) {
   await env.REEM_KV.put("pics", JSON.stringify(ledger)).catch((e) => console.error("couldn't save the picture ledger", e));
 }
 
-// May this kind of call ("picture", "photo", "health", "hearing") still be made today? `neurons`: its cost, if not fixed
+// May this kind of call ("picture", "photo", "health", "hearing", "voice") still be made today? `neurons`: its cost, if not fixed
 function aiAffordable(ledger, kind, neurons) {
   const B = CONFIG.AI_BUDGET;
   if (!ledger) return false;
@@ -2989,7 +2999,71 @@ async function scribe(env, model, bytes, mime, path) {
 
 const voiceId = (env) => String(env.VOICE_ID || CONFIG.VOICE.ID).trim();
 
-async function tts(env, text) {
+// Her voice note: Workers AI aura-2 (VOICE.PROVIDER "aura", counted in the day's AI budget; `ledger` is the reply's
+// own when it has one, so a picture saved later keeps the count), ElevenLabs when aura fails or the budget is spent
+async function tts(env, text, ledger = null) {
+  const V = CONFIG.VOICE;
+  if (V.PROVIDER !== "aura") return elevenTts(env, text);
+  const said = auraText(text);
+  if (!said) throw new Error("Nothing to say aloud.");
+  const backup = !!V.ELEVENLABS_BACKUP && !!env.ELEVENLABS_API_KEY;
+  if (env.AI && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
+    ledger = ledger || (await loadLedger(env));
+    const neurons = Math.ceil((said.length / 1000) * CONFIG.AI_BUDGET.VOICE_NEURONS_PER_1000_CHARS);
+    if (aiAffordable(ledger, "voice", neurons)) {
+      let error = null;
+      try {
+        const out = await aiRun(env, V.AURA_MODEL, { text: said, speaker: V.AURA_SPEAKER, encoding: "opus", container: "ogg" }, CONFIG.LIMITS.HTTP_TIMEOUT_MS, true, { returnRawResponse: true });
+        return await audioBytes(out, V.AURA_MODEL);
+      } catch (e) {
+        error = e;
+        await aiFailed(env, `her voice note: ${aiText_(e)}${backup ? "; ElevenLabs spoke it" : ""}`);
+        if (!backup) throw new Error(`Workers AI voice: ${aiText_(e)}`);
+      } finally {
+        aiSpent(ledger, neurons, error);
+        await saveLedger(env, ledger);
+      }
+    }
+  }
+  if (!backup) throw new Error("Workers AI voice: today's AI budget is spent (or Workers AI is missing) and the ElevenLabs backup is off.");
+  return elevenTts(env, text);
+}
+
+// Workers AI's answer for audio: a raw Response (returnRawResponse), a stream, or bytes
+async function audioBytes(out, model) {
+  if (out && typeof out.arrayBuffer === "function" && "status" in out) {
+    if (!out.ok || /json/.test(out.headers.get("content-type") || "")) throw new Error(`${model} ${out.status}: ${(await out.text().catch(() => "")).slice(0, 200)}`);
+    out = await out.arrayBuffer();
+  } else if (out && typeof out.getReader === "function") out = await new Response(out).arrayBuffer();
+  const bytes = out instanceof ArrayBuffer ? out : out?.buffer instanceof ArrayBuffer ? out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength) : null;
+  if (!bytes || bytes.byteLength < 100) throw new Error(`${model} gave no audio`);
+  return bytes;
+}
+
+// What aura reads: the allowed tags become VOICE.AURA_CUES ("[laughs] You're ridiculous" -> "Heh... You're ridiculous"),
+// every other [...] is dropped (aura would read it aloud)
+function auraText(text) {
+  const cues = CONFIG.VOICE.AURA_CUES || {};
+  const re = audioTagRe();
+  let s = String(text || "");
+  if (re) {
+    s = s.replace(new RegExp(`${re.source}\\s*`, "gi"), (_, t, offset, all) => {
+      const key = t.toLowerCase().replace(/\s+/g, " ");
+      const cue = Object.hasOwn(cues, key) ? String(cues[key] || "").trim() : "";
+      if (!cue) return "";
+      const rest = all.slice(offset + _.length);
+      return /\p{L}/u.test(rest) ? `${cue}... ` : `${cue}.`;
+    });
+  }
+  return s
+    .replace(/\[[^\]]*\]/g, "")
+    .replace(/\s+([,.!?])/g, "$1")
+    .replace(/\s+/g, " ")
+    .replace(/(^|[.!?]\s+)([a-z])/g, (_, a, b) => a + b.toUpperCase())
+    .trim();
+}
+
+async function elevenTts(env, text) {
   const V = CONFIG.VOICE;
   const res = await xfetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId(env)}?output_format=${V.FORMAT}`, {
     method: "POST",
@@ -3023,7 +3097,7 @@ async function checkVoice(env) {
     return { ok: false, detail: "This voice isn't in your account. On the free plan use a built-in voice or one you designed yourself." };
   }
   try {
-    await tts(env, fill(CONFIG.VOICE.TEST_PHRASE));
+    await elevenTts(env, fill(CONFIG.VOICE.TEST_PHRASE));
     return { ok: true, detail: "Test clip worked." };
   } catch (e) {
     return { ok: false, detail: e.message };
@@ -3773,7 +3847,21 @@ async function setup(url, env) {
     }
   }
 
-  if (env.ELEVENLABS_API_KEY) {
+  if (CONFIG.VOICE.PROVIDER === "aura") {
+    const V = CONFIG.VOICE;
+    if (!env.AI) add(false, "Workers AI voice", "The AI binding is missing (wrangler.toml), so ElevenLabs speaks every note.");
+    else {
+      try {
+        const out = await aiRun(env, V.AURA_MODEL, { text: fill(V.TEST_PHRASE), speaker: V.AURA_SPEAKER, encoding: "opus", container: "ogg" }, CONFIG.LIMITS.HTTP_TIMEOUT_MS, true, { returnRawResponse: true });
+        await audioBytes(out, V.AURA_MODEL);
+        add(true, `Workers AI voice: ${V.AURA_SPEAKER}`, `Test clip worked (${V.AURA_MODEL}).${V.ELEVENLABS_BACKUP ? " ElevenLabs is the backup." : ""}`);
+      } catch (e) {
+        add(false, `Workers AI voice: ${V.AURA_SPEAKER}`, aiText_(e));
+      }
+    }
+  }
+
+  if (env.ELEVENLABS_API_KEY && (CONFIG.VOICE.PROVIDER !== "aura" || CONFIG.VOICE.ELEVENLABS_BACKUP)) {
     const v = await checkVoice(env);
     const which = env.VOICE_ID ? ` (the VOICE_ID secret replaces CONFIG.VOICE.ID "${CONFIG.VOICE.ID}"; delete it to use ${CONFIG.VOICE.NAME})` : "";
     add(v.ok, `ElevenLabs voice: ${env.VOICE_ID ? env.VOICE_ID : CONFIG.VOICE.NAME}`, v.detail + which);

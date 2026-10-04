@@ -135,6 +135,8 @@ Same 7 outfits. OpenRouter chat completions (`openRouterChat`), price = billed `
 | Nano Banana on Cloudflare (`google/nano-banana`) | 0/1 | — | 402 "Insufficient balance" (AI Gateway credits) |
 | **Nano Banana, text only** | **7/7, 0 refused** | **$0.039**, 7 s | Every outfit as asked (black/red/white bra + panties, bralette + briefs, open-back bodysuit back view, babydoll, robe); curvy hourglass as described; real phone-photo look, iPhones in mirror shots, arched mirror, lamp, black window; the same-looking woman in all 7 (not Reem's face). Slips: "lying on her back" drawn sitting (1), selfie arm visible in front-camera shots (2) |
 | Nano Banana 2, text only | 4/4 drawn, 3 as asked | $0.068, 8 s | Rawest phone look, less curvy; red drawn burgundy; a ghost figure in the window once; the bodysuit drawn **with jeans** (tamer) |
+| **Nano Banana 2 Lite** (`google/gemini-3.1-flash-lite-image`), text only (run 37173093173) | **7/7, 0 refused** | **$0.034**, 5 s | Every outfit as asked, real phone-photo look, night lamp, arched mirror. A different woman in each (less consistent than Nano Banana); #2 and #5 slimmer than asked; mirror shot #1 with **two phones** (one in each hand); white lace bra semi-sheer (#7); front-camera selfies show the arm (2) |
+| Nano Banana 2 Lite, her face attached | **0/4** | $0 | IMAGE_SAFETY 4/4 |
 
 ### Voice: aura-2-en + Whisper, 2026-10-04 (run 37172077504, `tools/voice/bench.json`)
 4 voices (helena, andromeda, delia, vesta) x 4 of her lines, plain (tags dropped) vs expressive (spoken cues), OGG/Opus.
@@ -143,3 +145,10 @@ all 32 from OGG/Opus for 109 neurons ($0.001). Whisper heard: words right 30/32 
 for "yaani" once); "habibi" as "heavy bee"/"Khabiby" 2/16 (hint now has habibi); "yaani" as "Yanni" (fine).
 Expressive cues performed: "Haha" 4/4 heard, "Mm" 6/8 heard, "Ha!" 4/4; "Hhh..." (sigh) 0/4: silent. No accent choice
 (American voices only); the owner judges the sound by ear (samples sent in chat).
+
+### Voice run 2: helena vs andromeda, intimate lines + laugh spellings, 2026-10-04 (run 37173093194)
+Owner: "need more explicit samples where they don't robotically say 'ha ha ha'". 24 clips, 2,128 characters = 5,804
+neurons ($0.064, 2.73 neurons a character). Whisper heard every intimate line word for word (both voices). Laugh
+spellings: "heh" heard as "Heh" 1, "Phew" 1, "Okay" 1, nothing 1 (not a reliable laugh); "hehe" heard as "He?" and
+helena's whole line came out with "!" everywhere; "Mm-hmm" not heard (0/2); "Hm..." heard 1/2; "Mm" inside a line
+heard 3/4. Bot default since: laughs/giggles dropped, chuckles "hm". The owner judges the sound by ear (4 files sent).
