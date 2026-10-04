@@ -32,6 +32,8 @@ const ROUTES = {
   "cf-seedream4.5": { usd: 0.04, run: (p, r) => cfThirdParty("bytedance/seedream-4.5", p, r) },
   // The same Seedream 4.5 and klein through OpenRouter (chat completions with image output)
   "or-seedream4.5": { usd: 0.04, run: (p, r, s) => openRouter("bytedance-seed/seedream-4.5", p, r, s) },
+  "or-grok": { usd: 0.024, run: (p, r, s) => openRouter("x-ai/grok-imagine-image", p, r, s) },
+  "or-grok2": { usd: 0.06, run: (p, r, s) => openRouter("x-ai/grok-imagine-image-2.0", p, r, s) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
 
@@ -90,6 +92,7 @@ for (let q = 0; q < queue.length; q++) {
   for (const [p, prompt] of job.prompts.entries()) {
     const name = `${route}-${p + 1}`;
     if (broken) { rows.push(`${name}: skipped (route broken)`); continue; }
+    if (spentUsd + ROUTES[route].usd > job.max_usd) { rows.push(`${name}: skipped (money cap)`); continue; }
     const refs = [job.reference, ...(job.refs[p] || [])];
     const t0 = Date.now();
     let r;
