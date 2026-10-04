@@ -67,6 +67,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   random like 3030 (same words passed once, failed once); Grok Imagine 2.0 refused 2/2 with her face attached. Cloudflare's third-party models need AI Gateway credits
   (402 "Insufficient balance"); its Seedream 4.0 takes no reference image. OpenRouter image-only models answer on
   `POST /api/v1/images` (`input_references`, `data[0].b64_json`), not chat completions (404). (2026-10-04)
+- Free lingerie route (2026-10-04): Cloudflare's beta SD models cost $0.00 and skip 3030, but blank NSFW output to a
+  black picture (tiny grayscale file); SD 1.5 inpainting over a klein picture keeps her face (only the masked box is
+  redrawn) and passed 3/5, 1 of them good. A collar left outside the mask stays in the picture; say the body shape.
 - A check right after a deploy can hit the old code still serving (a 00:01 /health 5006 led to the wrong "klein
   rejects seed") → re-test a few minutes later before concluding. (2026-10-03)
 - Cloudflare's usage analytics lag several minutes → a guard reading them can't see the last minutes. (2026-10-03)
