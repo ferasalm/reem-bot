@@ -1,15 +1,15 @@
 {
-  "note": "Image bench run 14 (owner, 2026-10-04: test Nano Banana before judging): run 13 with her face attached was refused 11/11 (Nano Banana 7/7 IMAGE_PROHIBITED_CONTENT or IMAGE_SAFETY, Nano Banana 2 4/4 IMAGE_OTHER; Cloudflare 402). Now the same outfits as text only (no face, no room picture), to see whether the face picture is what Google refuses.",
+  "note": "Image bench run 15 (owner, 2026-10-04: \"Let's try nano banana lite\"): Nano Banana 2 Lite (google/gemini-3.1-flash-lite-image) on the same 7 lingerie outfits, text only (Nano Banana 7/7 that way), then 4 with her face picture attached (Nano Banana 0/11 that way; Google's filter may be random).",
   "want": 7,
   "max_attempts": 7,
-  "max_usd": 0.6,
+  "max_usd": 0.5,
   "reference": "tools/face/reference.jpg",
   "refs": [
     "tools/face/places/bedroom_night.jpg"
   ],
   "routes": [
-    "or-nanobanana-text",
-    "or-nanobanana2-text"
+    "or-nanobananalite-text",
+    "or-nanobananalite"
   ],
   "flux2_steps": 20,
   "lucid_steps": 25,
@@ -59,7 +59,7 @@
   "want_by": {},
   "start_at": {},
   "stop_at": {
-    "or-nanobanana2-text": 4
+    "or-nanobananalite": 4
   },
   "list_google": false
 }

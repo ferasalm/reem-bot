@@ -71,6 +71,9 @@ const ROUTES = {
   "or-nanobananapro": { usd: 0.134, family: "ref", run: (p, r, s) => openRouterChat("google/gemini-3-pro-image-preview", p, r, s) },
   "or-nanobanana-text": { usd: 0.039, family: "text", run: (p, r, s) => openRouterChat("google/gemini-2.5-flash-image", p, [], s) },
   "or-nanobanana2-text": { usd: 0.067, family: "text", run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-image-preview", p, [], s) },
+  // Nano Banana 2 Lite (owner 2026-10-04: "Let's try nano banana lite"): $30/M image tokens; price per picture unknown, capped at Nano Banana's
+  "or-nanobananalite": { usd: 0.039, family: "ref", run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-lite-image", p, r, s) },
+  "or-nanobananalite-text": { usd: 0.039, family: "text", run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-lite-image", p, [], s) },
   "cf-nanobanana": { usd: 0.039, family: "ref", run: (p, r) => cfThirdParty("google/nano-banana", p, r) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };

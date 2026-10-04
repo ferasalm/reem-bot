@@ -1,29 +1,56 @@
 {
-  "note": "Voice bench run 1 (owner, 2026-10-04: \"Let's test aura-2-en, suggest a suitable voice and make it as expressive as appropriately possible\"): 4 female aura-2-en voices x 4 of her lines, each as the bot sends it today (ElevenLabs tags dropped) and rewritten with spoken cues aura can perform. Each clip is then heard back by Whisper large v3 turbo (the bot's new ears) from the same OGG/Opus format Telegram voice notes use.",
+  "note": "Voice bench run 2 (owner, 2026-10-04: \"Im confused between Helena and Andromeda, need more explicit samples where they don't robotically say 'ha ha ha'\"): helena and andromeda only, on intimate lines, and the laugh written several ways (none, 'heh', 'hehe', 'mm-hmm', a breath) to find one aura-2 performs naturally. Each clip is heard back by Whisper.",
   "model": "@cf/deepgram/aura-2-en",
   "hearing_model": "@cf/openai/whisper-large-v3-turbo",
   "max_chars": 4000,
-  "speakers": ["helena", "andromeda", "delia", "vesta"],
+  "speakers": ["helena", "andromeda"],
   "lines": [
     {
-      "id": "ridiculous",
-      "bot": "[laughs] Yaani you're ridiculous... [whispers] Come over.",
-      "expressive": "Haha... yaani, you're ridiculous. Mm... come over."
+      "id": "tshirt",
+      "styles": {
+        "plain": "I'm lying here in your t-shirt... and nothing under it. Mm. So are you coming over, or do I have to keep thinking about your hands all night?"
+      }
     },
     {
-      "id": "cantsleep",
-      "bot": "[sighs] I can't sleep. Basbousa keeps stealing my pillow, and you're not answering.",
-      "expressive": "Hhh... I can't sleep. Basbousa keeps stealing my pillow... and you? You're not answering."
+      "id": "slower",
+      "styles": {
+        "plain": "Slow down... no, don't stop. Just... slower. Mm... like that. God, habibi... just like that."
+      }
     },
     {
-      "id": "missedyou",
-      "bot": "[whispers] Come here... I missed you, habibi.",
-      "expressive": "Come here... mm. I missed you, habibi."
+      "id": "wearing",
+      "styles": {
+        "plain": "You want to know what I'm wearing? Black lace. Very little of it. Come take it off me yourself."
+      }
+    },
+    {
+      "id": "lastnight",
+      "styles": {
+        "plain": "I keep thinking about last night. Your mouth on my neck... I couldn't sleep. I'm still... warm."
+      }
+    },
+    {
+      "id": "blushing",
+      "styles": {
+        "nolaugh": "Oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here.",
+        "heh": "Heh... oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here.",
+        "hehe": "Hehe, oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here.",
+        "mmhmm": "Mm-hmm. Oh my God, you're blushing. You're actually blushing! Stop, you're so cute... come here."
+      }
     },
     {
       "id": "handleme",
-      "bot": "You think you can handle me? [laughs] Cute. Knock on my door, then. Let's see.",
-      "expressive": "You think you can handle me? Ha! Cute. Okay... knock on my door, then. Let's see."
+      "styles": {
+        "nolaugh": "You think you can handle me? Cute. Knock on my door, then. Let's see.",
+        "heh": "You think you can handle me? Heh. Cute. Knock on my door, then. Let's see.",
+        "breath": "You think you can handle me? Hm... cute. Knock on my door, then. Let's see."
+      }
+    },
+    {
+      "id": "shh",
+      "styles": {
+        "plain": "Shh... Basbousa's asleep. Be quiet... and kiss me."
+      }
     }
   ]
 }

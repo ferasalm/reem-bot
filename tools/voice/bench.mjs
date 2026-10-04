@@ -13,8 +13,10 @@ const NEURON_USD = 0.011 / 1000;
 const strip = (t) => t.replace(/\[[^\]]*\]\s*/g, ""); // aura reads [tags] aloud: the bot would drop them
 
 const clips = [];
-for (const speaker of job.speakers) for (const line of job.lines) for (const style of ["bot", "expressive"]) {
-  clips.push({ speaker, id: line.id, style, text: style === "bot" ? strip(line.bot) : line.expressive });
+// a line is either {bot, expressive} (run 1) or {styles: {name: text}} (run 2: one text per way of writing a cue)
+for (const speaker of job.speakers) for (const line of job.lines) {
+  const styles = line.styles || { bot: strip(line.bot), expressive: line.expressive };
+  for (const [style, text] of Object.entries(styles)) clips.push({ speaker, id: line.id, style, text });
 }
 const chars = clips.reduce((s, c) => s + c.text.length, 0);
 console.log(`${clips.length} clips, ${chars} characters (cap ${job.max_chars}): about $${(chars / 1000 * 0.03).toFixed(3)} at $0.03 per 1,000.`);
