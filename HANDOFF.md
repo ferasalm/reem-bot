@@ -3,13 +3,13 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-04 night (Sulafat voice, bangs, body reference, all on `dev`; nothing deployed)
+**Last updated:** 2026-10-04 night (everything deployed to `main`: Sulafat voice, bangs, body reference, soft and fleshy arms)
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
-- **Live (`main`, deployed 2026-10-03 22:24 UTC):** v10 on DeepSeek V4 Flash; Lebanese Reem in Belmont, MA; fixed
-  places; pictures 768x1024 on klein; daily AI cap 28,000 neurons; voice and hearing on ElevenLabs.
-- **On `dev`, not deployed** (everything below):
+- **Live (`main`, deployed 2026-10-04, owner: "Deploy"):** v10 on DeepSeek V4 Flash; Lebanese Reem in Belmont, MA; fixed
+  places; everything below. Read back after the deploy: see "Verified".
+- **What the deploy brought:**
   - **Voice: Gemini 3.8 Flash TTS, Sulafat** (`VOICE.PROVIDER` "openrouter", `OR_MODEL`, `OR_VOICE`, `OR_FORMAT` "pcm"):
     raw PCM → MP3 in the Worker with lamejs (`mp3.js`, ~0.2 s per 5 s), tags `[laughs]` `[whispers]` `[sighs]`,
     `OR_DAILY_USD` $0.30 (~$0.015 per 1,000 characters), ElevenLabs backup. Aura (Andromeda) is still there: set
@@ -30,8 +30,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Voice: off ElevenLabs (credits running out); Sulafat first. Body: the Nano Banana body is "perfect".
 
 ## Waiting on the owner
-- **Deploy** (say "Deploy"): everything above. Then open `/setup` once, send her a voice note and ask for one, ask for a
-  lingerie picture. Delete the old branches (Actions > Delete retired branches).
+- **Open `/setup` once** (Telegram), send her a voice note and ask for one, ask for a lingerie picture. Delete the old
+  branches (Actions > Delete retired branches).
 - **Cost estimate** (given in chat): ~$0.08 a light user a day, ~$0.20 typical, caps are per bot (lingerie $0.50,
   voice $0.30, Workers AI $0.44 a day) plus $0.17 a day for the plan. Want a daily cap on the text model too?
 - **Laughs in Gemini voice:** judge the `[laughs]` sound by ear after the deploy (Whisper can't hear laughs).
@@ -43,7 +43,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **After "Deploy":** read the live Worker back, check /setup, one Gemini voice note (ask Reem to send one), one
+1. **After the deploy:** read the live Worker back (done below if listed), check /setup, one Gemini voice note (ask Reem to send one), one
    lingerie picture, one everyday picture with the body reference. *Effort: low*
 2. **Persona prompt for Gemini voice:** her voice notes may use `[laughs]`, `[whispers]`, `[sighs]` (now spoken, not aura's
    "mm"/"hm"); check `VOICE_TAGS` wording. *Effort: low*

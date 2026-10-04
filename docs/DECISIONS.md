@@ -5,6 +5,11 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-04 — **Arms soft and fleshy; Deploy** (owner, over the arms wording tests: "Arms should not be muscular. Remove the word
+  thick." / "Arms are plush, soft, fleshy" / "soften \"plush\" to \"soft and fleshy\" for the arms only. Then deploy"): her arms
+  are "soft and fleshy arms with no muscle definition" in the Klein prompt, the fallback and lingerie descriptions and the
+  persona; `dev` merged into `main` (deploy): Sulafat voice with lamejs, bangs, body reference, Nano Banana lingerie, 9:16,
+  daily AI cap 50,000. *Supersedes the arm wording "thick"/"rounded"/"plush" of the same day.*
 - 2026-10-04 — **Add lamejs; Nano Banana body as klein's second reference** (owner: "Add lamjes, use nanobanana body as second
   reference it's perfect."): `mp3.js` (lamejs, LGPL) encodes Gemini's raw PCM to MP3 in the Worker; Sulafat
   (`google/gemini-3.8-flash-tts`, `OR_FORMAT` "pcm") is the default voice (`VOICE.PROVIDER` "openrouter"), ElevenLabs the
