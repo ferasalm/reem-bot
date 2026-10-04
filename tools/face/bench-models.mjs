@@ -131,9 +131,9 @@ async function cfThirdParty(model, prompt, refs) {
 }
 
 // OpenRouter's image API (image-only models aren't served on chat completions: 404 "output modalities")
-async function openRouter(model, prompt, refs, seed, providerOptions) {
+async function openRouter(model, prompt, refs, seed, providerOptions, aspect = "3:4") {
   const body = {
-    model, prompt, seed, aspect_ratio: "3:4", n: 1,
+    model, prompt, seed, aspect_ratio: aspect, n: 1,
   };
   if (refs.length) body.input_references = refs.map((f) => ({ type: "image_url", image_url: { url: dataUri(f) } }));
   if (providerOptions) body.provider = { options: providerOptions };
@@ -141,6 +141,13 @@ async function openRouter(model, prompt, refs, seed, providerOptions) {
     method: "POST", headers: { Authorization: `Bearer ${orKey}`, "Content-Type": "application/json" }, body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));
+  const accepted = res.status === 400 && /aspect_ratio: not supported\. Accepted: ([\d:, ]+)/.exec(JSON.stringify(data));
+  if (accepted && body.aspect_ratio !== "1:1") {
+    // the shape refused (Krea has no 3:4): take its tallest portrait shape, else a square
+    const tall = accepted[1].split(/,\s*/).map((r) => r.trim().split(":").map(Number)).filter(([w, h]) => w < h).sort((a, b) => a[0] / a[1] - b[0] / b[1]).at(-1);
+    console.log(`  3:4 refused; using ${tall ? tall.join(":") : "1:1"}`);
+    return openRouter(model, prompt, refs, seed, providerOptions, tall ? tall.join(":") : "1:1");
+  }
   if (res.status === 400 && providerOptions) {
     // the strictness setting refused as a parameter: say so, then draw at the provider's default
     console.log(`  provider options ${JSON.stringify(providerOptions)} refused: ${JSON.stringify(data.error || data).slice(0, 300)}; retrying without`);
@@ -186,7 +193,7 @@ function save(name, bytes) {
 if (job.want) {
   // refusals cost nothing on either provider (2026-10-04), so the expected spend is want pictures a route; the
   // real cost is added up as it goes and stops the run past job.max_usd
-  const estimate = job.routes.reduce((s, r) => s + ROUTES[r].usd * Math.min(job.want, job.max_attempts - (job.start_at?.[r] || 0)), 0);
+  const estimate = job.routes.reduce((s, r) => s + ROUTES[r].usd * Math.min(job.want_by?.[r] ?? job.want, (job.stop_at?.[r] ?? job.max_attempts) - (job.start_at?.[r] || 0)), 0);
   console.log(`Bench until ${job.want} pictures a route, at most ${job.max_attempts} attempts each: worst case about $${estimate.toFixed(3)} at list prices (cap $${job.max_usd}).`);
   if (estimate > job.max_usd) { console.log("Refused: over the cap."); process.exit(1); }
   const table = [];
@@ -196,7 +203,9 @@ if (job.want) {
     let drawn = 0, refused = 0, black = 0, neurons = 0, usd = 0, ms = 0, n = 0;
     const lines = [];
     // job.start_at: attempts a route already used in an earlier run (they count toward max_attempts)
-    for (let a = job.start_at?.[route] || 0; a < job.max_attempts && drawn < job.want; a++) {
+    // job.want_by / job.stop_at: per-route goal and last attempt (e.g. to try a good model's remaining outfits)
+    const want = job.want_by?.[route] ?? job.want, end = Math.min(job.stop_at?.[route] ?? job.max_attempts, job.max_attempts);
+    for (let a = job.start_at?.[route] || 0; a < end && drawn < want; a++) {
       const v = a % set.length;
       const name = `${route}-${String(a + 1).padStart(2, "0")}-v${v + 1}`;
       const refs = R.family === "ref" ? [job.reference, ...(job.refs || [])] : [];

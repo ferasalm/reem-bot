@@ -1,20 +1,16 @@
 {
-  "note": "Image bench run 10 (owner, 2026-10-04: 'drop maintaining face for now, check what other good cheap options we have'): text-only lingerie on the cheap models not tried yet, until 2 each, at most 14 attempts (the run-7 rule).",
+  "note": "Image bench run 11 (owner, 2026-10-04, cheap text-only options): Krea 2 Medium Turbo again (run 10 sent it 3:4, which it has no shape for); SDXL's remaining 8 attempts (run 10 counted a doubled woman as drawn); the outfits Recraft and Riverflow didn't reach in run 10 (they stopped at 2), to see their refusal rate.",
   "want": 2,
   "max_attempts": 14,
-  "max_usd": 0.6,
+  "max_usd": 0.3,
   "reference": "tools/face/reference.jpg",
   "refs": [
     "tools/face/places/bedroom_night.jpg"
   ],
   "routes": [
-    "or-recraft41flash",
-    "or-muse",
     "or-krea2turbo",
-    "or-seedream5flash",
+    "or-recraft41flash",
     "or-riverflow25fast",
-    "or-seedream4.5-text",
-    "cf-phoenix",
     "cf-sdxl"
   ],
   "flux2_steps": 20,
@@ -61,5 +57,19 @@
       "photo, mirror selfie, iPhone visible, three-quarter body, hand on hip, 29 year old woman, long dark wavy hair, dark brown eyes, curvy hourglass figure, full bust, wide hips, wearing a short silk robe hanging open over a black lace bralette and matching briefs, cozy bedroom at night, warm lamp light, natural skin, realistic, sharp focus",
       "photo, lying on bed, selfie from above, hair spread on pillow, soft smile, 29 year old woman, long dark wavy hair, dark brown eyes, curvy hourglass figure, full bust, wide hips, wearing a white lace bra and matching white lace panties, cozy bedroom at night, warm lamp light, natural skin, realistic, sharp focus"
     ]
+  },
+  "want_by": {
+    "or-recraft41flash": 14,
+    "or-riverflow25fast": 14,
+    "cf-sdxl": 14
+  },
+  "start_at": {
+    "or-recraft41flash": 2,
+    "or-riverflow25fast": 3,
+    "cf-sdxl": 6
+  },
+  "stop_at": {
+    "or-recraft41flash": 7,
+    "or-riverflow25fast": 7
   }
 }
