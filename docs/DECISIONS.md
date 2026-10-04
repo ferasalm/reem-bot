@@ -5,6 +5,11 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-04 — **Add lamejs; Nano Banana body as klein's second reference** (owner: "Add lamjes, use nanobanana body as second
+  reference it's perfect."): `mp3.js` (lamejs, LGPL) encodes Gemini's raw PCM to MP3 in the Worker; Sulafat
+  (`google/gemini-3.8-flash-tts`, `OR_FORMAT` "pcm") is the default voice (`VOICE.PROVIDER` "openrouter"), ElevenLabs the
+  backup; klein gets her face as image 0, a Nano Banana body picture (`tools/face/body.jpg`, `face.js`) as image 1 and the
+  place as image 2. *Completes the Sulafat part of the entry below.*
 - 2026-10-04 — **Bangs, softer shoulders, a redone face; Gemini Sulafat first** (owner: "She should have softer, narrower,
   round shoulders, also give her cute hair bangs similar to Zoe Dechanel's. Redo the Gemini lingerie generation, crop
   face and use it as reference for klein again. Tts-Gemini-sulafat sounds so good; prioritize it over Andromeda. Add it

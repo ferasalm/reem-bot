@@ -86,8 +86,11 @@ At most 150 lines (`tools/doc-check.mjs`).
   (24 kHz 16-bit mono; ffmpeg `-f s16le -ar 24000`); a wrong `voice` makes Deepgram list its voices in the error;
   Sesame needs a voice; MAI-Voice-2 and Qwen gave a bare "Provider returned 400". Telegram's sendVoice takes MP3.
   Whisper never transcribes laughs: judge them by ear. (2026-10-04)
-- The auto-mode classifier refused vendoring a third-party npm package (lamejs, an MP3 encoder) into the repo for
-  Gemini TTS's PCM → MP3 step: not done without the owner's say-so (HANDOFF). (2026-10-04)
+- Vendoring a third-party npm package into the repo (lamejs for Gemini TTS's PCM → MP3) was refused by the session's
+  permission check until the owner said "add lamejs": ask first, then add. 5 s of speech encode in ~0.2 s. (2026-10-04)
+- Slim bodies on klein (6/15, then 5/13) were fixed by a body reference picture as image 1 (8/8 curvy, clothes not copied):
+  words alone don't move klein's body; a faceless clothed Nano Banana picture does. face.yml refuses a job past
+  `day_neurons` of the account's real usage today (47,467 used by earlier tests): trim the job rather than raise the cap. (2026-10-04)
 - e2e: a mocked reply that repeats a line she already said in an earlier step is cut by the repeat guard (her note
   shrank to "Come over.") → give each mocked reply in a test its own words. (2026-10-04)
 - Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7

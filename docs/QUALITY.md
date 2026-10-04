@@ -178,3 +178,13 @@ and thinner in the face), phone rule right. Slips: body drawn **slim, not curvy*
 6/15 as before; shoulders then look narrow but the hourglass is missing); #13 a beach picture with a bedroom lamp behind
 her (the "one-shoulder swimsuit | on Crane Beach" wardrobe item wins over the room); #03 hallway in daylight, #14 night
 bedroom drawn as day (asked 19h/10h). Bangs and soft shoulders work; the curvy body is still the open problem (HANDOFF).
+
+### Nano Banana body as klein's second reference, 2026-10-04 (body bench 37176541884, face run 37177960246, 8 of 15 shots)
+Body reference: Nano Banana text-only, clothed, face out of frame (3 outfits, $0.12, none refused); the black knit dress
+(#01) shows the hourglass best: cropped below the chin to `tools/face/body.jpg` (317x480; `face.js` BODY_JPEG_BASE64).
+Klein with face = image 0, body = image 1, place = image 2 (the 15-shot job was refused by the 50,000 day cap, 47,467
+used: 8 shots, including the 5 that came slim before). All 8 read at full size: **curvy hourglass 8/8** (was slim in 5 of
+13), bangs 8/8, soft narrow shoulders in the mirror shots (#04, #06, #07), face the same woman where visible (3 hidden by
+the phone), clothes as asked (the body picture's black dress was not copied: #01 gray tee, #02 gray tee, #03 black shirt
+dress, #05 bikini). Slips: #08 asked "boudoir/waist" and got a long black lace dress (klein's filter dodge, known); #05 a
+boudoir selfie on a beach from the wardrobe item "string bikini | on Crane Beach" (known); #04 phone covers half the face.

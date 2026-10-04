@@ -4,6 +4,11 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-04 (late night): Sulafat voice, bangs, body reference (on dev, not deployed)
+- `mp3.js` (lamejs) + `pcmToMp3`, `VOICE.OR_FORMAT`, defaults Gemini Sulafat; bangs and shoulders in persona and picture
+  prompts; reference face from bench 37175758855 #05; `BODY_JPEG_BASE64` (bench 37176541884 #01) as klein image 1, place image 2
+  (`bodyBytes`, `drawPicture`, `compose.mjs`); face run 37177960246 (8 shots).
+
 ## 2026-10-04 (night): new face, Nano Banana lingerie, 9:16, OpenRouter voice provider (not deployed)
 - `face.js`/`tools/face/reference.jpg` cropped from image bench run 37172411100 (or-nanobanana-text-02); face run
   37174181550 at 576x1024. `PICTURE.LINGERIE` (`wantsLingerie`, `drawLingerie`, `composePicture({lingerie})`,
