@@ -161,7 +161,7 @@ function save(name, bytes) {
 }
 
 if (job.want) {
-  const estimate = job.routes.reduce((s, r) => s + ROUTES[r].usd * job.max_attempts, 0);
+  const estimate = job.routes.reduce((s, r) => s + ROUTES[r].usd * (job.max_attempts - (job.start_at?.[r] || 0)), 0);
   console.log(`Bench until ${job.want} pictures a route, at most ${job.max_attempts} attempts each: worst case about $${estimate.toFixed(3)} at list prices (cap $${job.max_usd}).`);
   if (estimate > job.max_usd) { console.log("Refused: over the cap."); process.exit(1); }
   const table = [];
@@ -170,7 +170,8 @@ if (job.want) {
     const set = job.prompt_sets[R.family];
     let drawn = 0, refused = 0, black = 0, neurons = 0, usd = 0, ms = 0, n = 0;
     const lines = [];
-    for (let a = 0; a < job.max_attempts && drawn < job.want; a++) {
+    // job.start_at: attempts a route already used in an earlier run (they count toward max_attempts)
+    for (let a = job.start_at?.[route] || 0; a < job.max_attempts && drawn < job.want; a++) {
       const v = a % set.length;
       const name = `${route}-${String(a + 1).padStart(2, "0")}-v${v + 1}`;
       const refs = R.family === "ref" ? [job.reference, ...(job.refs || [])] : [];
