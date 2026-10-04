@@ -1,5 +1,5 @@
 {
-  "note": "Image bench run 12 (again: run 13 stopped at once, the Nano Banana routes had no prompt family) (owner, 2026-10-04: \"google safety filters are actually lenient ... just random. Let's test them before judging\"): Nano Banana (Gemini 2.5 Flash Image) on all 7 lingerie prompts with her face and the night bedroom; Nano Banana 2 on the first 4 (the bra/panties ones and the bodysuit); one Cloudflare attempt to see whether its third-party route has credits.",
+  "note": "Image bench run 14 (owner, 2026-10-04: test Nano Banana before judging): run 13 with her face attached was refused 11/11 (Nano Banana 7/7 IMAGE_PROHIBITED_CONTENT or IMAGE_SAFETY, Nano Banana 2 4/4 IMAGE_OTHER; Cloudflare 402). Now the same outfits as text only (no face, no room picture), to see whether the face picture is what Google refuses.",
   "want": 7,
   "max_attempts": 7,
   "max_usd": 0.6,
@@ -8,9 +8,8 @@
     "tools/face/places/bedroom_night.jpg"
   ],
   "routes": [
-    "or-nanobanana",
-    "or-nanobanana2",
-    "cf-nanobanana"
+    "or-nanobanana-text",
+    "or-nanobanana2-text"
   ],
   "flux2_steps": 20,
   "lucid_steps": 25,
@@ -60,8 +59,7 @@
   "want_by": {},
   "start_at": {},
   "stop_at": {
-    "or-nanobanana2": 4,
-    "cf-nanobanana": 1
+    "or-nanobanana2-text": 4
   },
-  "list_google": true
+  "list_google": false
 }
