@@ -196,3 +196,10 @@ eq(W.CONFIG.MEMORY.MODEL === W.CONFIG.LLM.MODEL, true, "memory uses the chat mod
 }
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
+
+// Gemini TTS answers raw 24 kHz 16-bit mono PCM; pcmToMp3 makes a real MP3 of it (frame sync 0xFFE, much smaller)
+{
+  const pcm = new Int16Array(48000).map((_, i) => Math.round(9000 * Math.sin(i / 7))).buffer; // 2 s tone
+  const mp3 = new Uint8Array(W.pcmToMp3(pcm));
+  eq([mp3[0] === 0xff && (mp3[1] & 0xe0) === 0xe0, mp3.length > 1000 && mp3.length < pcm.byteLength / 5], [true, true], "pcmToMp3 gives an MP3 frame stream");
+}

@@ -13,7 +13,7 @@ globalThis.fetch = async (url, init = {}) => {
   const j = (o, status=200) => new Response(JSON.stringify(o), { status });
   if (url.includes("openrouter.ai/api/v1/audio/speech")) {
     orSpeech.push(JSON.parse(init.body));
-    return orSpeechFail ? new Response(JSON.stringify({ error: { message: "Provider returned 400" } }), { status: 400, headers: { "content-type": "application/json" } }) : new Response(new Uint8Array(300), { headers: { "content-type": "audio/mpeg" } });
+    return orSpeechFail ? new Response(JSON.stringify({ error: { message: "Provider returned 400" } }), { status: 400, headers: { "content-type": "application/json" } }) : new Response(JSON.parse(init.body).response_format === "pcm" ? new Uint8Array(new Int16Array(24000).map((_, i) => Math.round(8000 * Math.sin(i / 8))).buffer) : new Uint8Array(300), { headers: { "content-type": "audio/mpeg" } });
   }
   if (url.includes("openrouter")) {
     const b = JSON.parse(init.body); prompts.push(b);
@@ -38,6 +38,7 @@ const env = { TELEGRAM_BOT_TOKEN: "t", OPENROUTER_API_KEY: "o", ELEVENLABS_API_K
   REEM_QUEUE: { async send(b){ queued.push(b); } }, CONFIG_OVERRIDES: JSON.stringify({ PROACTIVE: { CHANCE: 1 }, VOICE: { CHANCE: 0, CHANCE_AFTER_VOICE: 0, CHANCE_MORE_VOICE: 0, SCENE_CHANCE: 0 } }) };
 import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker(); const mod = W.default;
+W.CONFIG.VOICE.PROVIDER = "aura"; // the default is OpenRouter (Sulafat); the flows below were written for aura with ElevenLabs behind it, the OpenRouter step switches it itself
 const ctx = { waitUntil(){} };
 let uid = 1;
 const msg = (m) => ({ body: { update_id: uid, message: { message_id: 1000 + uid++, chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock/1000, ...m } }, ack(){} });
@@ -162,6 +163,8 @@ step("aura voice: Workers AI speaks, tags become cues, counted; ElevenLabs when 
 step("OpenRouter voice: VOICE.PROVIDER openrouter, its own tags, its money cap; ElevenLabs when it fails");
 {
   const V = W.CONFIG.VOICE; V.PROVIDER = "openrouter";
+  const gemini = { m: V.OR_MODEL, v: V.OR_VOICE, f: V.OR_FORMAT, c: V.OR_CUES, i: V.OR_INSTRUCTIONS };
+  Object.assign(V, { OR_MODEL: "x-ai/grok-voice-tts-1.0", OR_VOICE: "ara", OR_FORMAT: "mp3", OR_CUES: { laughs: "[laugh]", whispers: "" }, OR_INSTRUCTIONS: "" }); // the Grok settings: its tags, MP3 as is
   const eleven = () => log.filter((l) => l.includes("text-to-speech")).length;
   let before = eleven(); const sent = calls.filter((c) => c.m === "sendVoice").length;
   llm = [{ content: "[voice] [laughs] look at you\n[whispers] my door is unlocked" }];
@@ -178,6 +181,14 @@ step("OpenRouter voice: VOICE.PROVIDER openrouter, its own tags, its money cap; 
   llm = [{ content: "[voice] i made too much tabbouleh" }];
   await run(msg({ text: "send me a voice note" }));
   console.log("money spent -> ElevenLabs, OpenRouter not called:", orSpeech.length === n && eleven() === before + 1);
+  // Gemini (the default): raw PCM asked for, MP3 made in the Worker, its own tags
+  Object.assign(V, { OR_MODEL: gemini.m, OR_VOICE: gemini.v, OR_FORMAT: gemini.f, OR_CUES: gemini.c, OR_INSTRUCTIONS: gemini.i });
+  store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics")), voiceUsd: 0 }));
+  llm = [{ content: "[voice] [laughs] stop it\n[whispers] come closer" }];
+  const sent2 = calls.filter((c) => c.m === "sendVoice").length;
+  await run(msg({ text: "send me a voice note" }));
+  const g = orSpeech.at(-1);
+  console.log("Gemini asked for pcm with Sulafat:", g?.model === "google/gemini-3.8-flash-tts" && g.voice === "Sulafat" && g.response_format === "pcm" && /Reem/.test(g.instructions), "| its tags:", g?.input === "[laughs] Stop it... [whispers] Come closer.", "| sent:", calls.filter((c) => c.m === "sendVoice").length === sent2 + 1);
   V.PROVIDER = "aura"; store.delete("pics");
 }
 step("v3 audio tags: text reply");

@@ -58,6 +58,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `a:<chat>` /auto draft `{id, text, idea}`, `pics` {day (UTC), neurons, out, hashes, recent}, `face` (base64, from
     /face keep), `face_draft:<message id>` (a day), `health`/`health_at`, `owner`, `seen`, `voice_error`,
     `ai_error`; his photo parts carry `photo: true` and `seen` (the description); settings also `morePics`, `minor`
+- `mp3.js`: the lamejs MP3 encoder (LGPL, minified, never open it), imported by worker.js: `pcmToMp3` turns Gemini TTS's raw PCM (`VOICE.OR_FORMAT` "pcm") into the MP3 `sendVoice` takes (~0.2 s for 5 s of speech); test loader and build-panel copy it.
 - `face.js`: her reference face (base64 of `tools/face/reference.jpg`), imported by worker.js; the test loader and
   build-panel copy it next to their worker copy. `tools/face/` (`draw.mjs`, `job.json`, `shots.mjs` writes a
   pictures v3 grid job with the bot's own prompts) + `.github/workflows/face.yml`:

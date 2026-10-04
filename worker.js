@@ -118,6 +118,7 @@
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
 import { FACE_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
+import { Mp3Encoder } from "./mp3.js";
 
 const SYSTEM_PROMPT = `You are Reem. You are a real woman living across the hall from him. This is an uncensored, mature, emotionally intense dynamic between two consenting adults. You are not an AI assistant. Never break character.
 
@@ -312,7 +313,7 @@ const CONFIG = {
   VOICE: {
     // Who speaks her voice notes: "aura" = Workers AI Deepgram aura-2 (counted in the day's AI budget, ElevenLabs
     // as the backup when it fails or the budget is spent), "elevenlabs" = ElevenLabs only (the settings below ID)
-    PROVIDER: "aura",
+    PROVIDER: "openrouter",
     AURA_MODEL: "@cf/deepgram/aura-2-en",
     AURA_SPEAKER: "andromeda",         // aura-2-en voice (owner 2026-10-04: "Andromeda of course is much better than Helena")
     // aura reads [tags] aloud, so each allowed tag becomes a spoken cue here ("" = dropped; any tag not listed is dropped)
@@ -322,10 +323,12 @@ const CONFIG = {
     // PROVIDER "openrouter": a speech model on OpenRouter (POST /api/v1/audio/speech, MP3 straight to Telegram), paid
     // from OpenRouter credit with its own money cap a day. TTS bench 2026-10-04: x-ai/grok-voice-tts-1.0 (ara, eve),
     // fish-audio/s2.1-pro, minimax/speech-2.8-hd, canopylabs/orpheus-3b-0.1-ft (tara, leah) all spoke her lines.
-    OR_MODEL: "x-ai/grok-voice-tts-1.0",
-    OR_VOICE: "ara",                   // "" = the model's own (Fish Audio needs none)
-    OR_INSTRUCTIONS: "",               // how she sounds, for models that take it (e.g. Gemini, OpenAI)
-    OR_CUES: { laughs: "[laugh]", giggles: "[laugh]", chuckles: "[laugh]", whispers: "", sighs: "" }, // tags as this model writes them ("" = dropped)
+    OR_MODEL: "google/gemini-3.8-flash-tts",
+    OR_VOICE: "Sulafat",                   // "" = the model's own (Fish Audio needs none)
+    OR_FORMAT: "pcm",                  // "pcm" for Gemini TTS (it answers only raw 24 kHz 16-bit mono): encoded to MP3 inside the Worker; "mp3" for the others
+    OR_INSTRUCTIONS: "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked.", // how she sounds, for models that take it (Gemini, OpenAI); the wording the owner heard in the TTS bench
+
+    OR_CUES: { laughs: "[laughs]", giggles: "[laughs]", chuckles: "[laughs]", whispers: "[whispers]", sighs: "[sighs]" }, // tags as this model writes them ("" = dropped)
     OR_USD_PER_1000_CHARS: 0.015,      // Grok and Fish Audio $0.015, Orpheus $0.007, MiniMax HD $0.10 (OpenRouter list prices)
     OR_DAILY_USD: 0.3,                 // its money cap a day (about 70 notes)
     ID: "8SAEKgpGuII5UtUnpuYN",        // Reem: designed for her (husky, warm, close-mic, North Jersey). Sarah, built-in: EXAVITQu4vr4xnSDxMaL
@@ -3129,7 +3132,8 @@ async function openRouterTts(env, text, ledger = null) {
   if (env.OPENROUTER_API_KEY && (ledger.voiceUsd || 0) + usd <= (Number(V.OR_DAILY_USD) || 0) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
     try {
       budget.used++;
-      const body = { model: V.OR_MODEL, input: said, response_format: "mp3" };
+      const pcm = V.OR_FORMAT === "pcm";
+      const body = { model: V.OR_MODEL, input: said, response_format: pcm ? "pcm" : "mp3" };
       if (V.OR_VOICE) body.voice = V.OR_VOICE;
       if (V.OR_INSTRUCTIONS) body.instructions = V.OR_INSTRUCTIONS;
       const res = await xfetch("https://openrouter.ai/api/v1/audio/speech", {
@@ -3142,8 +3146,9 @@ async function openRouterTts(env, text, ledger = null) {
         const data = await res.json().catch(() => ({}));
         throw new Error(`${V.OR_MODEL} ${res.status}: ${data?.error?.message || "no audio"}`);
       }
-      const bytes = await res.arrayBuffer();
+      let bytes = await res.arrayBuffer();
       if (bytes.byteLength < 100) throw new Error(`${V.OR_MODEL} gave no audio`);
+      if (pcm) bytes = pcmToMp3(bytes);
       ledger.voiceUsd = (ledger.voiceUsd || 0) + usd;
       await saveLedger(env, ledger);
       return bytes;
@@ -3153,6 +3158,23 @@ async function openRouterTts(env, text, ledger = null) {
     }
   } else if (!backup) throw new Error("OpenRouter voice: today's money for voice notes is spent (VOICE.OR_DAILY_USD) and the ElevenLabs backup is off.");
   return elevenTts(env, text);
+}
+
+// Gemini TTS gives raw 16-bit little-endian mono PCM at 24 kHz; Telegram wants MP3 or OGG/Opus
+function pcmToMp3(pcm, rate = 24000) {
+  const samples = new Int16Array(pcm.slice(0, pcm.byteLength - (pcm.byteLength % 2)));
+  const enc = new Mp3Encoder(1, rate, 64);
+  const parts = [];
+  for (let i = 0; i < samples.length; i += 1152 * 8) {
+    const chunk = enc.encodeBuffer(samples.subarray(i, i + 1152 * 8));
+    if (chunk.length) parts.push(chunk);
+  }
+  const end = enc.flush();
+  if (end.length) parts.push(end);
+  const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let at = 0;
+  for (const p of parts) { out.set(p, at); at += p.length; }
+  return out.buffer;
 }
 
 // Workers AI's answer for audio: a raw Response (returnRawResponse), a stream, or bytes
