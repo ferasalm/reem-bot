@@ -47,14 +47,14 @@ async function cfThirdParty(model, prompt, refs) {
   return { bytes: await fetchImage(url) };
 }
 
+// OpenRouter's image API (image-only models aren't served on chat completions: 404 "output modalities")
 async function openRouter(model, prompt, refs, seed, providerOptions) {
   const body = {
-    model, modalities: ["image", "text"], seed,
-    messages: [{ role: "user", content: [{ type: "text", text: prompt }, ...refs.map((f) => ({ type: "image_url", image_url: { url: dataUri(f) } }))] }],
-    image_config: { aspect_ratio: "3:4" },
+    model, prompt, seed, aspect_ratio: "3:4", n: 1,
+    input_references: refs.map((f) => ({ type: "image_url", image_url: { url: dataUri(f) } })),
   };
   if (providerOptions) body.provider = { options: providerOptions };
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const res = await fetch("https://openrouter.ai/api/v1/images", {
     method: "POST", headers: { Authorization: `Bearer ${orKey}`, "Content-Type": "application/json" }, body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));
@@ -63,9 +63,9 @@ async function openRouter(model, prompt, refs, seed, providerOptions) {
     console.log(`  provider options ${JSON.stringify(providerOptions)} refused: ${JSON.stringify(data.error || data).slice(0, 300)}; retrying without`);
     return openRouter(model, prompt, refs, seed);
   }
-  const msg = data?.choices?.[0]?.message;
-  const url = msg?.images?.[0]?.image_url?.url;
-  if (!res.ok || !url) return { error: `HTTP ${res.status} ${JSON.stringify(data.error || msg || data).slice(0, 500)}`, usage: data.usage };
+  const img = data?.data?.[0];
+  const url = img?.b64_json ? `data:image/png;base64,${img.b64_json}` : img?.url;
+  if (!res.ok || !url) return { error: `HTTP ${res.status} ${JSON.stringify(data.error || data).slice(0, 500)}`, usage: data.usage };
   return { bytes: await fetchImage(url), usage: data.usage };
 }
 
