@@ -211,3 +211,11 @@ in #01, #03; **not fixed** in #05 (tube dress, belly line) and #04 (romper); **#
 body picture's arms and "athletic" romper pose outweigh "no visible muscle"); arms thick in #01-#03. Words move this
 less than the body picture does: next try a body reference with plusher arms and a clearer waist (new Nano Banana body),
 or per-shot wording ("hand on waist" shots pull the pose toward muscle). Day cap raised to 56,000 for this run (owner: "test it").
+
+### Arms "soft, smooth, feminine, no muscle definition" (no "thick"), 2026-10-04 (face run 37179555469, 6 shots, sent to the owner)
+All 6 read at full size; the compositions changed from the last run (the wording moved the draws). Bangs 6/6; hips wider than
+shoulders in #01, #05, #06 (#02, #03, #04 hidden by the shirt or the pose); waist clearly defined in #01 (hallway
+dress) and #06, fair in #05, weak in #04. Arms: soft in #01, #02, #03, #05; **#04 and #06 (hand on waist, upper arm raised)
+still show shoulder/arm tone**, #06 the most: the "one hand on her waist" pose in SHOTS.waist pulls the arm into a flexed
+shape. Next: reword that pose ("one hand resting on her hip, arm relaxed") and/or a softer-armed body reference. Day cap
+raised to 60,000 for this run (owner: "test again").
