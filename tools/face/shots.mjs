@@ -36,6 +36,7 @@ const job = {
   prompts,
   refs,
   per_prompt: 1,
+  day_neurons: 50000, // Workers Paid (the owner's cap is AI_BUDGET.DAILY_NEURONS); draw.mjs's default 7,000 dates from the free plan
   describe: true,
 };
 writeFileSync(new URL("./job.json", import.meta.url), JSON.stringify(job, null, 2) + "\n");

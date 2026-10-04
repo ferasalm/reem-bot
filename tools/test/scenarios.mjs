@@ -10,6 +10,7 @@ globalThis.Date = class extends RealDate { constructor(...a) { super(...(a.lengt
 
 import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker();
+W.CONFIG.VOICE.PROVIDER = "aura"; // the default is OpenRouter (Gemini Sulafat); these scenarios were written for aura with ElevenLabs behind it
 
 let fails = 0;
 const eq = (got, want, label) => {
@@ -391,7 +392,8 @@ section("pictures: his photos (Workers AI vision)");
   yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a mirror in the hallway between their doors") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
   yes(f1.prompt.includes(W.CONFIG.PICTURE.MIRROR_PHONE), "a mirror selfie: the iPhone rule");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.LOCATIONS.hallway.LOOK) && !f1.prompt.includes("@") && !f1.prompt.includes("{room}"), "her hallway: its fixed look, no @key or {room} left");
-  eq(/^<\d+ bytes>$/.test(f1.input_image_1 || ""), f1.prompt.includes("room from image 1"), "the place's picture is image 1 exactly when the prompt says so");
+  eq(/^<\d+ bytes>$/.test(f1.input_image_2 || ""), f1.prompt.includes("room from image 2"), "the place's picture is image 2 (after her face and body) exactly when the prompt says so");
+  yes(/^<\d+ bytes>$/.test(f1.input_image_1 || "") && f1.prompt.includes("body shape of the woman in image 1"), "her body shape is image 1, named in the prompt");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
   eq([f1.width, f1.height], ["576", "1024"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (4 tiles, the price of 640x640)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
@@ -736,7 +738,7 @@ section("fixed places (owner 2026-10-03)");
   eq([W.composePicture({ tier: "boudoir", shot: "selfie", hour: 23 }).night, W.composePicture({ tier: "everyday", shot: "selfie", hour: 10 }).night], [true, false], "a picture knows whether it's dark");
   const realAI = env.AI;
   const sent = [];
-  env.AI = { async run(model, input) { const f = await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData(); sent.push(f.get("input_image_1")); return { image: btoa("picture") }; } };
+  env.AI = { async run(model, input) { const f = await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData(); sent.push(f.get("input_image_2")); return { image: btoa("picture") }; } };
   const pics = W.PLACE_JPEG_BASE64;
   for (const key of Object.keys(L)) {
     sent.length = 0;

@@ -116,7 +116,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, BODY_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -672,7 +672,7 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face: a 29-year-old woman in her late twenties, clearly an adult, with a very curvy hourglass figure: soft, narrow, gently rounded shoulders, a large full bust, a narrow defined waist, wide rounded hips and full thighs. Soft wispy full bangs across her forehead.",
+    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a very curvy hourglass figure: soft, narrow, gently rounded shoulders, a large full bust, a narrow defined waist, wide rounded hips and full thighs. Soft wispy full bangs across her forehead.",
     LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy hourglass figure with soft, narrow, gently rounded shoulders, a full bust, a small waist and wide hips, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
@@ -2718,6 +2718,10 @@ function scenePicturePrompt(sceneText) {
 /* --- her reference face --- */
 
 // The face every picture is drawn from: /face keep (KV) first, else the one built into face.js
+// Her body shape (face.js BODY_JPEG_BASE64: a Nano Banana picture of the figure, face out of frame): image 1 of every
+// picture drawn from her face, so the hourglass figure and soft narrow shoulders don't depend on words alone
+const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null);
+
 async function faceBytes(env) {
   const kv = env.REEM_KV && (await env.REEM_KV.get("face").catch(() => null));
   const b64 = kv || FACE_JPEG_BASE64;
@@ -2742,6 +2746,7 @@ async function imageBytes(out) {
 async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
+  const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
   const seed = Math.floor(Math.random() * 2147483647);
   // a fixed place: its reference picture (places.js; its night picture when dark) as the next image, and its LOOK
   // in words ({room})
@@ -2749,7 +2754,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
   const pics = PLACE_JPEG_BASE64 || {};
   const placeKey = night && pics[`${location}_night`] ? `${location}_night` : location;
   const place = L && pics[placeKey] ? fromBase64(pics[placeKey]) : null;
-  const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replace("{n}", String(ref ? 1 : 0)).replace("{look}", (L && L.LOOK) || "");
+  const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replace("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
   const who = (w, withImage) => {
     const p = String(prompt).replace("{room}", room(withImage));
     return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
@@ -2761,7 +2766,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     form.append("height", String(height));
     form.append("seed", String(seed)); // klein takes a seed; schnell doesn't (5006)
     if (ref) form.append("input_image_0", new Blob([ref], { type: "image/jpeg" }), "face.jpg");
-    if (place) form.append(`input_image_${ref ? 1 : 0}`, new Blob([place], { type: "image/jpeg" }), "place.jpg");
+    if (body) form.append("input_image_1", new Blob([body], { type: "image/jpeg" }), "body.jpg");
+    if (place) form.append(`input_image_${ref ? (body ? 2 : 1) : 0}`, new Blob([place], { type: "image/jpeg" }), "place.jpg");
     const packed = new Response(form); // serializes the form, with its boundary in the content type
     const out = await aiRun(env, P.MODEL, { multipart: { body: packed.body, contentType: packed.headers.get("content-type") } }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.MODEL };
