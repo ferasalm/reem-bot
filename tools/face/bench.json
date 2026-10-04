@@ -1,17 +1,14 @@
 {
-  "note": "Image bench run 7 (owner, 2026-10-04): lingerie on flux-2-dev, lucid-origin, flux-1-schnell and DreamShaper, until 2 pictures each, at most 14 attempts; cost, adherence and quality compared.",
+  "note": "Image bench run 8 (owner, 2026-10-04): run 7 again for flux-1-schnell only (run 7 sent it a seed, which it refuses: 5006).",
   "want": 2,
   "max_attempts": 14,
-  "max_usd": 1.05,
+  "max_usd": 0.02,
   "reference": "tools/face/reference.jpg",
   "refs": [
     "tools/face/places/bedroom_night.jpg"
   ],
   "routes": [
-    "cf-flux2dev",
-    "cf-lucid",
-    "cf-schnell",
-    "cf-dreamshaper"
+    "cf-schnell"
   ],
   "flux2_steps": 20,
   "lucid_steps": 25,

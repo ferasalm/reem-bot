@@ -49,8 +49,8 @@ const ROUTES = {
   "cf-flux2dev": { usd: 0.0413, family: "ref", run: (p, r, s) => cfFlux2("@cf/black-forest-labs/flux-2-dev", p, r, s, { steps: job.flux2_steps || 20 }) },
   // Leonardo Lucid Origin: text only (no reference image), 636 neurons per output tile + 12 per step
   "cf-lucid": { usd: 0.0313, family: "text", run: (p, r, s) => cfJson("@cf/leonardo/lucid-origin", { prompt: p, seed: s, width: 768, height: 1024, num_steps: job.lucid_steps || 25 }) },
-  // FLUX.1 schnell (the bot's backup model): text only, always 1024x1024, 4.8 neurons per tile + 9.6 per step
-  "cf-schnell": { usd: 0.0011, family: "text", run: (p, r, s) => cfJson("@cf/black-forest-labs/flux-1-schnell", { prompt: p, seed: s, steps: 8 }) },
+  // FLUX.1 schnell (the bot's backup model): text only, no seed (5006), always 1024x1024, 4.8 neurons per tile + 9.6 per step
+  "cf-schnell": { usd: 0.0011, family: "text", run: (p, r, s) => cfJson("@cf/black-forest-labs/flux-1-schnell", { prompt: p, steps: 8 }) },
   "or-grok": { usd: 0.024, run: (p, r, s) => openRouter("x-ai/grok-imagine-image", p, r, s) },
   "or-grok2": { usd: 0.06, run: (p, r, s) => openRouter("x-ai/grok-imagine-image-2.0", p, r, s) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
