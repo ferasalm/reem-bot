@@ -167,3 +167,14 @@ minimax/speech-2.8-hd (English_captivating_female1), orpheus-3b (tara, leah), de
 Failed: microsoft/mai-voice-2 and qwen-audio-3.0-tts-plus (provider 400, voice names unknown), sesame/csm-1b (needs a
 voice). Whisper drops laughs, so laughs are judged by ear only. List prices per 1,000 characters: Orpheus $0.007,
 Grok $0.015, Fish $0.015, aura-2 $0.03, MiniMax HD $0.10. 9 files sent to the owner.
+
+### Bangs + softer shoulders: Nano Banana redo and the new face on klein, 2026-10-04 (bench 37175758855, face run 37175866255)
+Nano Banana (text only, $0.039, 5 pictures, 0 refused): bangs 5/5 (wispy curtain fringe), a different woman each time as
+before; shoulders soft and narrow in the mirror shots (#1, #3, #4), the front selfies show a broad arm in the foreground
+(#2, #5). Face source: #5 (large, lit, adult), cropped 460x480 (head, neck, bangs; no clothes). Klein with it, 576x1024,
+13 of 15 came back (09 boudoir/mirror-back and 15 never arrived: filter or timeout, not read from the log). Each of the 13
+read at full size: bangs in 12 (hidden by phone glare in #12), face the same woman in 11 (#08 and #10 look a little older
+and thinner in the face), phone rule right. Slips: body drawn **slim, not curvy** in #03, #08, #10, #12, #14 (the same
+6/15 as before; shoulders then look narrow but the hourglass is missing); #13 a beach picture with a bedroom lamp behind
+her (the "one-shoulder swimsuit | on Crane Beach" wardrobe item wins over the room); #03 hallway in daylight, #14 night
+bedroom drawn as day (asked 19h/10h). Bangs and soft shoulders work; the curvy body is still the open problem (HANDOFF).

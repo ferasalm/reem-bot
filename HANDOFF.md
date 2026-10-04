@@ -3,7 +3,7 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-04 night (new face, Nano Banana lingerie, 9:16, voice providers; on branch, not deployed)
+**Last updated:** 2026-10-04 night (bangs + soft shoulders, new face with bangs, TTS bench in the MAP; Sulafat waits on the owner; not deployed)
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
@@ -20,6 +20,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
     with its own money cap `OR_DAILY_USD` $0.30, MP3 voice notes; ElevenLabs stays the backup.
   - **Daily AI cap 50,000 neurons** (at most $0.44/day); pictures stop at 60%, so voice/hearing/photos keep 20,000.
 
+- **This session (2026-10-04, owner's list):** persona + picture prompts say wispy full bangs and soft, narrow, rounded
+  shoulders (described, never the real person's name, in image prompts); Nano Banana redone with them (bench 37175758855),
+  new reference face cropped from #05 (`face.js`); klein face run 37175866255: bangs in 12/13, slim body in 5/13 again.
+  MAP line for the TTS bench added (`docs/MAP.md`, docs check passes). **Not done: Sulafat as the voice** (below).
+
 ## Owner's direction (DECISIONS 2026-10-04)
 - Providers: Cloudflare Workers AI and OpenRouter only. Nano Banana for lingerie, klein for the rest, all 9:16.
 - Voice: off ElevenLabs (credits running out); Andromeda beats Helena but nothing matches ElevenLabs yet.
@@ -28,8 +33,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - **Pick a voice** from the 9 OpenRouter samples sent (Gemini Sulafat/Despina, Grok ara/eve, Fish Audio, MiniMax HD,
   Orpheus tara/leah, Deepgram Flux maeve), or keep Andromeda. Grok/Fish/MiniMax/Orpheus plug in with 2 settings.
   Gemini needs one more step (it only gives raw audio).
-- **Allow the MAP line:** the TTS bench files must be named in `docs/MAP.md` for the docs check to pass (my edit of
-  it was blocked by the session's permission check). Say "add it" or add the line yourself.
+- **Sulafat (Gemini 3.8 Flash TTS, $0.015 per 1,000 chars) needs PCM → MP3 inside the Worker.** The only route I found is
+  vendoring `@breezystack/lamejs` (LGPL, 165 KB as `mp3.js`); the session's permission check blocked it. Say "add lamejs"
+  (or pick another route) and I wire `OR_FORMAT: "pcm"`, `OR_MODEL`, `OR_VOICE: "Sulafat"`, an e2e test and a MAP line.
 - **Deploy** (say "Deploy"): everything above plus `dev`. Then open `/setup` once and send her a voice note.
 - **Delete the old branches** (Actions > Delete retired branches).
 
