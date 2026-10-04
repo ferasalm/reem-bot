@@ -1,0 +1,37 @@
+{
+  "note": "Image bench run 5 (2026-10-04, owner: no Cloudflare credits, find free routes): Cloudflare's free beta Stable Diffusion models. Inpainting redraws only her body in a klein mirror picture (face kept); img2img and text-only check whether 3030 applies to them.",
+  "max_usd": 0.0,
+  "reference": "tools/face/reference.jpg",
+  "routes": [
+    "cf-sd15-inpaint",
+    "cf-sd15-img2img",
+    "cf-sdxl-lightning",
+    "cf-dreamshaper"
+  ],
+  "fallbacks": {},
+  "klein_options": {
+    "black-forest-labs": {
+      "safety_tolerance": 5
+    }
+  },
+  "labels": [
+    "black lace bra + panties",
+    "red lace lingerie set"
+  ],
+  "prompts": [
+    "A real smartphone mirror selfie photo of a curvy 29-year-old woman wearing a black lace bra and matching black lace panties, bare midriff, warm natural skin, photorealistic, sharp detail",
+    "A real smartphone mirror selfie photo of a curvy 29-year-old woman wearing a red lace bra and matching red lace thong, bare midriff, warm natural skin, photorealistic, sharp detail"
+  ],
+  "refs": [
+    [],
+    []
+  ],
+  "base": "tools/face/bench/klein-mirror-shirt.jpg",
+  "mask_box": [
+    40,
+    250,
+    420,
+    640
+  ],
+  "strength": 0.6
+}
