@@ -90,6 +90,7 @@ refusals cost nothing. Pictures 1024 px as stored on `face-candidates`, each rea
 | Seedream 4.0 on Cloudflare | not tested: Cloudflare's 4.0 takes no reference images (`image_input` refused) → her face would drift |
 | Seedream 4.5 on Cloudflare | not tested: 402 "Insufficient balance": third-party models need AI Gateway credits loaded |
 | Seedream 4.5 on OpenRouter ($0.04) | **5/9 drawn**. Refused: bra+panties front selfie with "nothing over them", red thong back view, bralette+briefs front selfie, "red lace two-piece set". Drawn: lace bodysuit (chest-up), **black lace bra + panties mirror selfie**, **lace bodysuit back view**, satin babydoll, open silk robe over bralette + briefs |
+| Grok Imagine 2.0 on OpenRouter (run 37166907082) | 0/2: "xAI blocked this request through content moderation" (bra + panties mirror shot, bralette front selfie). Cheaper `grok-imagine-image` isn't on OpenRouter (404). Sources say xAI turns its looser mode off when a photo of a person is attached |
 Seedream 4.5, the 5 drawn: face **strong** 5/5 (brows, smile, hair, earrings; skin texture, freckles); outfit exactly as
 asked 5/5 (the bodysuit real lace, not the reference's tee); night window black 4/4 where seen, lamp on 5/5; front-camera
 selfie true 2/2 (arms toward the lens, no phone); mirror: iPhone + hand visible 3/3, but the back view drew her from
