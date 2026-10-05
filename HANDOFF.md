@@ -35,7 +35,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches);
   Lunaris via DeepInfra; cost estimate questions from 2026-10-04.
 
-## Verified this session (2026-10-05, seventh session)
+## Verified this session (2026-10-05, eighth session)
+- Nemo: `[live]` 37363619497 read reply by reply (0 broken); deploy run 37371425888 green, live code read back.
+
+## Verified earlier (2026-10-05, seventh session)
 - `node tools/check.mjs` all 6 ok. Face runs read picture by picture: 37339347977 (rewording: 1/6 another angle;
   klein lingerie 2/3 refused, 1 "red silk romper"), 37340198460 (crops: 8/8 another part of the same room).
 - `[live]` 37339438191 (2 broken: invented apart scenes → fixed) and 37340567117 (0 broken, every reply read).

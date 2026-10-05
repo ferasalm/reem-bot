@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05 (eighth session): Mistral Nemo deployed
+- fe1ea79: `LLM.MODEL` mistralai/mistral-nemo, DeepSeek V4 Flash as `LLM.BACKUP_MODEL` with its own routing (`BACKUP_PROVIDER`,
+  `BACKUP_REASONING`); memory and /auto stay on DeepSeek. [live] 37363619497: attempts 1-2 cancelled by GitHub's runner incident,
+  attempt 3 read (0 broken). a34bbe7: stray '[' fix. `backup-before-nemo` = da3ae1a (the DeepSeek version).
+- Deploy run 37371425888: attempts 1-2 cancelled (no runner), attempt 3 green (Deploy Worker and /health); live code read back
+  with the Cloudflare MCP (Nemo model, DeepSeek backup, the bracket fix present).
+
 ## 2026-10-05 (seventh session): deployed
 - 9c65b91: lingerie check (klein → vision → Nano Banana), wider picture asks, two-piece retry, in-person lingerie; /auto moves.
 - ROOM_VIEWS (rewording) tried and dropped (face run 37339347977: 1/6); place crops instead (b6d4343, face run 37340198460: 8/8).

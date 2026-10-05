@@ -9,7 +9,8 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   deploy. If the live test still isn't working, you may skip it and deploy directly so I can test it myself. Also, create a
   backup branch in the case things don't work and we want to revert back to the previous version."): `backup-before-nemo` =
   the live `main` before the switch (da3ae1a, DeepSeek); live run 37363619497 read (0 broken, persona facts weaker, see
-  `docs/QUALITY.md`); `dev` fast-forwarded into `main`. To revert: push `backup-before-nemo` to `main`.
+  `docs/QUALITY.md`); `dev` (a34bbe7) fast-forwarded into `main`; deploy run 37371425888 green on attempt 3 (GitHub's
+  runner incident cancelled 1-2), live code read back. To revert: push `backup-before-nemo` to `main`.
 - 2026-10-05 — **Chat model: Mistral Nemo, DeepSeek as the backup** (owner: "Let's switch our LLM model to mistral nemo. With
   deepseek as our backup model."): `LLM.MODEL` `mistralai/mistral-nemo` (OpenRouter picks its provider, no reasoning block);
   `LLM.BACKUP_MODEL` `deepseek/deepseek-v4-flash` keeps DeepSeek's providers and reasoning off (`LLM.BACKUP_PROVIDER`,
