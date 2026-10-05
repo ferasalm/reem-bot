@@ -1,0 +1,40 @@
+{
+  "note": "2026-10-05: scene pictures with the clothes the scene named (sceneWearing) vs the old prompt that drew image 1's black dress; night kitchen at 1:30.",
+  "mode": "scene-wearing",
+  "reference": "tools/face/reference.jpg",
+  "width": 576,
+  "height": 1024,
+  "square": false,
+  "labels": [
+    "S1 kitchen scene, cardigan + socks (new)",
+    "S2 kitchen scene, cardigan + socks (new) #2",
+    "S3 doorway scene, cardigan (new)",
+    "S4 kitchen scene, old prompt (no clothes)"
+  ],
+  "prompts": [
+    "Realistic candid photo, seen from the eyes of the man in front of her, natural light, caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. She steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway, catching the steam rising from a battered brass pot on the stove. She gestures at the cluttered table—papers, a calculator, a highlighter—then at the chair across from her spot. She is wearing an old cardigan and wool socks. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid photo, seen from the eyes of the man in front of her, natural light, caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. She steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway, catching the steam rising from a battered brass pot on the stove. She gestures at the cluttered table—papers, a calculator, a highlighter—then at the chair across from her spot. She is wearing an old cardigan and wool socks. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid photo, seen from the eyes of the man in front of her, natural light, caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. She takes a step back into her doorway, one hand still on the frame, the cardigan slipping off her shoulder. She is wearing an old cardigan and wool socks. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid photo, seen from the eyes of the man in front of her, natural light, caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. She steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway, catching the steam rising from a battered brass pot on the stove. She gestures at the cluttered table—papers, a calculator, a highlighter—then at the chair across from her spot. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Natural skin texture, slight grain. No nudity."
+  ],
+  "refs": [
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/kitchen_night.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/kitchen_night.jpg"
+    ],
+    [
+      "tools/face/body.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/kitchen_night.jpg"
+    ]
+  ],
+  "per_prompt": 1,
+  "describe": false,
+  "day_neurons": 40000
+}
