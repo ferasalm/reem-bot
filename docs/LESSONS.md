@@ -24,7 +24,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   Pushing a job to `dev`, or restoring job.json on your branch, drew it again (run 59, 2026-10-05) → face.yml now skips
   dev/main pushes and its own edits (like tts/stt benches); a job.json push to your branch still draws. (2026-10-05)
 - The sync report listed an old branch with "26 commits not here" → the clone was shallow (depth 50), so the
-  merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03)
+  merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03) `git cherry origin/dev origin/<b>` counts what's really missing. Deploy = `git push origin origin/dev:main` (fast-forward). (2026-10-05)
 - face.yml refused a job at 6,618 neurons used: draw.mjs's day cap 7,000 dates from the free plan → set
   `day_neurons` in job.json (Workers Paid; the owner's cap is AI_BUDGET.DAILY_NEURONS 28,000). (2026-10-03)
 - `/plugin marketplace add` / `/plugin install` can't be run by Claude (CLI commands) → put the marketplace in

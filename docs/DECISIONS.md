@@ -5,6 +5,9 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **Deploy** (owner: "Deploy"): `dev` (cdf631f) fast-forwarded into `main`; deploy run 37267949894 green
+  (Worker deployed, /health step passed). Live now: v11 Reem Nabot in Watertown, the stronger accent, the owner's place
+  pictures, Gemini 3.8 Flash hearing, klein-first lingerie with Nano Banana for "spicier". *Completes the 2026-10-05 entries.*
 - 2026-10-05 — **Gemini 3.8 Flash hears his voice notes; klein first unless spicier** (owner: "Go with Gemini 3.8 flash
   for voice. Let klein try first unless it's more explicit or user asks for two pieces or a \"spicier\" picture or
   something similar to attached", with a Nano Banana picture and its JSON prompt, "change it to Reem's description"):

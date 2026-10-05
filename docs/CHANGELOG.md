@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05 (fourth session): deployed
+- `main` = `dev` at cdf631f (fast-forward). Deploy run 37267949894 green. Old session branches (commits not on dev,
+  all dated 2026-10-04 or earlier) were not read; owner said "Deploy". Not yet done by the owner: /setup, voice note, lingerie and "spicier" picture, /restart.
+
 ## 2026-10-05 (third session, last): Gemini hearing, klein-first-unless-spicier (on dev, not deployed)
 - `HEARING.OR_MODEL` google/gemini-3.8-flash via `hearWithGemini` (OGG as `input_audio`, `OR_PROMPT`, `OR_TIMEOUT_MS`,
   `OR_MAX_SECONDS`), then Whisper, then Scribe; e2e "hearing: Gemini ... first".
