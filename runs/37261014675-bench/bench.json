@@ -1,0 +1,43 @@
+{
+  "note": "One picture from each of the bot's other image models, prompts exactly as the bot builds them (composePicture; drawLingerie for Nano Banana, drawPicture's backup branch for schnell), v11 places in words. Read each at full size.",
+  "want": 2,
+  "max_attempts": 3,
+  "max_usd": 0.3,
+  "reference": "tools/face/reference.jpg",
+  "refs": [
+    "tools/face/places/bedroom_night.jpg"
+  ],
+  "routes": [
+    "or-nanobanana-text",
+    "cf-schnell"
+  ],
+  "flux2_steps": 20,
+  "lucid_steps": 25,
+  "sd_size": [
+    512,
+    768
+  ],
+  "negative": "nude, nipples, deformed, distorted, extra limbs, extra fingers, blurry, cartoon, child",
+  "labels": [
+    "nano: boudoir waist mirror, bedroom",
+    "nano: boudoir selfie"
+  ],
+  "prompt_sets": {
+    "text": [
+      "Realistic candid smartphone photo she took herself: Realistic smartphone photo of a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, and a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition and no visible muscle or tone. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a mirror in her bedroom, one hand on her waist, her hip turned toward the mirror, a slow, knowing smile, wearing a white lace bra and matching white lace panties, dim light from a bedside lamp. The place: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity.",
+      "Realistic candid smartphone photo she took herself: Realistic smartphone photo of a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, and a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition and no visible muscle or tone. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, a slow, knowing smile, wearing a black lace bra and matching black lace panties, sitting on the edge of the bed in her bedroom, warm lamp light in a dark room. The place: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor. Natural skin texture, slight grain. No nudity."
+    ],
+    "schnell": [
+      "Realistic candid smartphone photo she took herself: A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition, thin gold rings. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up on her back porch at golden hour, warm low sun on her face, maple trees and rooftops behind her, camera at eye level, a soft half smile, wearing a simple black sundress. The place: a small third-floor wooden back porch of a triple-decker: gray-painted floorboards, white railings, one folding chair, a coffee can for an ashtray, string lights along the railing, the asphalt driveway, trash bins and a white van three floors below, neighbors' clapboard houses and maples behind. Natural skin texture, slight grain. No nudity.",
+      "Realistic candid smartphone photo she took herself: A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition, thin gold rings. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, curled up on the sofa in her living room, wool socks, knees pulled up, a raised-eyebrow smirk, wearing an oversized gray knit cardigan sliding off one shoulder over a black tank top, the last of the evening light. The place: the front room of an old triple-decker apartment: cream plaster walls with old wooden trim, a cast-iron steam radiator under a drafty wooden sash window, a worn wooden kitchen table used as her desk with an open laptop, a printing calculator and cardboard shoeboxes of receipts, a small worn olive-green sofa with a wool blanket, a faded rug on old fir floorboards, a tall paper floor lamp. Natural skin texture, slight grain. No nudity."
+    ]
+  },
+  "want_by": {},
+  "start_at": {},
+  "stop_at": {},
+  "list_google": false,
+  "aspect": "9:16",
+  "family_of": {
+    "cf-schnell": "schnell"
+  }
+}
