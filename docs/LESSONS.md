@@ -76,8 +76,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   IMAGE_OTHER) and drew 11/11 text-only: Google refuses the face reference + lingerie, not lingerie. Gemini image models
   answer on chat completions (`modalities: ["image","text"]`, `image_config.aspect_ratio`, picture in
   `message.images[0].image_url.url`); a refusal is HTTP 200 with no picture and `native_finish_reason`. (2026-10-04)
-- bench-models.mjs `want` mode reads `prompt_sets[route.family]`: a new route without `family` crashes the run at once
-  (run 37172077483) → give every new route a family ("ref" or "text"). (2026-10-04)
+- bench-models.mjs reads `prompt_sets[job.family_of[route] || route.family]`: a route without a family crashes the run
+  (run 37172077483). face.yml, image-bench and tts-bench share one queue that keeps one waiting run: a third push
+  cancels the waiting one (2026-10-05) → push one job, wait, then the next; tts `max_chars` counts instructions too.
 - Workers AI Whisper reads Telegram's OGG/Opus as base64 `audio` (32/32, voice bench 2026-10-04); aura-2 can return
   OGG/Opus (`encoding: "opus", container: "ogg"`), ready for sendVoice. aura-2 performs "mm" and "hm" but not
   "hhh" (a sigh is silent) and reads [tags] aloud; "haha" sounds robotic (owner), "heh" is heard as "Phew"/"Okay",

@@ -230,3 +230,26 @@ Hips clearly wider than shoulders in #01, #04, #05, #06; waist defined in #01, #
 (shapewear-like leggings, waist smaller than hips but the whole body is large). #03 is a wide living-room shot: she is
 small in the frame, face not judgeable. Wording works on the arms; the hand-on-waist pose still pulls toward tone.
 Day cap raised to 64,000 for this run (owner: "change and test again").
+
+## v11 places and one picture per model (2026-10-05), each read at full size
+Places (klein, empty rooms, 3 tries each, run 37260893375 day / 37261146711 night): living 02 kept (plaster, radiator
+under the sash window, kitchen table with laptop and shoeboxes; 01 paper litter on the floor, 03 two tables); porch 04
+kept (driveway, bins, white van, clapboard houses; all three look one floor up, not three); landing 09 kept (stairs
+down, facing doors, bare bulb, tall mirror by her door; 07 no wall mirror). Night: living 02 (01 too orange, 03 too
+dark), porch 04 (05/06 lose the street), landing 09.
+
+| Run / pic | Model, shot | Face, body | Phone rule | Room | Light, artifacts | Verdict |
+|---|---|---|---|---|---|---|
+| 37261302407/01 | klein cozy, living 11h | face + bangs match | arm toward camera, no phone | exact match | ok | pass |
+| 37261302407/02 | klein selfie, living 21h night | match | ok | night living, lamp + laptop | ok | pass |
+| 37261302407/03 | klein golden, porch 17h | match, eyes down | ok | porch + driveway | golden light | pass |
+| 37261302407/04 | klein legs, porch 22h night | match, curvy | framed by someone else, not "from above" | porch | dusk sky at 22h (known, next step 4) | weak |
+| 37261302407/05 | klein mirror, landing 10h | match, curvy | iPhone + flash | landing + mirror | ok | pass |
+| 37261302407/06 | klein mirror-back, landing 23h night | match | iPhone | night landing, bulb on | side view more than back | pass |
+| 37261014675 nano 01 | Nano Banana boudoir mirror, bedroom | not her face (words only), body right, bangs | iPhone | arched mirror, lamp | dusk, not lamp-lit | pass |
+| 37261014675 nano 02 | Nano Banana boudoir selfie | as above | no phone; a hand on the bed, 3/4 not chest-up | bedroom | lamp light | pass |
+| 37261014675 schnell 01/02 | schnell (backup) golden porch, cozy living | a different woman, no real bangs | ok | neither room matches | square; warped leg (02) | backup only |
+
+Voice (run 37261464781, Sulafat, 4 v11 lines x 3 wordings): Whisper heard every word of the live (light Levantine)
+and stronger-accent wordings; the old wording dropped a sentence and said "Whisper" aloud once. "Walaw" heard as
+"Voila" in all three. Accent and laughs: the owner's ears (clips on the owner's preview page).

@@ -4,6 +4,16 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05: v11 places redrawn (on dev, not deployed)
+- `PICTURE.LOCATIONS` LOOK for `living` (plaster, steam radiator, kitchen-table desk with laptop, calculator, receipt
+  shoeboxes, olive sofa), `porch` (third floor over the driveway, bins and a van) and `hallway` (narrow wooden
+  third-floor landing, facing doors, bare bulb, mirror by her door); living WORDS + front room, laptop, calculator,
+  radiator, shoebox(es); "by the radiator under the window" in PLACES.EVERYDAY; `places.mjs` night lights.
+- Pictures: day run 37260893375 (living 02, porch 04, landing 09), night run 37261146711 (02, 04, 09); `places.js`
+  rebuilt. Checks: klein run 37261302407 (her in each place, day and night), image bench 37261014675 (Nano Banana and
+  schnell, the bot's prompts; `family_of` and `aspect` added to bench-models.mjs), voice run 37261464781 (Sulafat,
+  live vs stronger vs old accent wording). Verdicts in `docs/QUALITY.md`.
+
 ## 2026-10-05: v11 persona built (on dev, not deployed)
 - `SYSTEM_PROMPT` rewritten from `docs/REEM-BIBLE.md` (Reem Nabot, Armenian-Lebanese bookkeeper, Watertown triple-decker;
   deflect then interrogate, cold reads, no polite filler, one question a reply, Levantine English); Basbousa dropped

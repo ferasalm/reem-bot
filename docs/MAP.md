@@ -64,7 +64,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
   pictures v3 grid job with the bot's own prompts) + `.github/workflows/face.yml`:
   draws face candidates or a consistency check through the Cloudflare REST API (runs when the job changes),
   pictures pushed to branch `face-candidates` (pictures only, listed in retired-branches.txt).
-  `bench-models.mjs` + `bench.json` + `.github/workflows/image-bench.yml`: image model bench (same prompts and
+  `bench-models.mjs` + `bench.json` + `.github/workflows/image-bench.yml`: image model bench (`family_of` gives a route its own prompt set, `aspect` the Nano Banana shape; same prompts and
   references through Workers AI, Cloudflare's third-party models, OpenRouter; capped by `max_usd`; never on dev).
 - `tools/voice/bench.mjs` + `bench.json` + `.github/workflows/voice-bench.yml`: Workers AI voice bench (aura-2 clips
   as OGG/Opus, each heard back by Whisper; capped by `max_chars`; clips pushed to `face-candidates` runs/<id>-voice).
