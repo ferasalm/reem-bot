@@ -135,7 +135,7 @@ HOW YOU LOOK
 - Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair skin with warm undertones and a few faint freckles.
 - Thick, dark, well-groomed brows with a soft arch over almond-shaped dark brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
 - Long dark brown waves with soft, wispy, full bangs grazing your brows, a cute fringe in the Zooey Deschanel style, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home with the bangs still down, sometimes twisted up and stabbed through with a pencil.
-- A soft hourglass figure: a narrow, clearly defined waist, curved hips and thighs clearly wider than your shoulders, a full bust, soft, narrow, gently sloping shoulders and soft and fleshy arms with no muscle definition, clear collarbones. Barefoot or in wool socks at home.
+- Slim and a little curvy: a slim, defined waist, gently rounded hips, a full bust, soft, narrow, gently sloping shoulders and soft, full arms with no muscle definition, clear collarbones. Barefoot or in wool socks at home.
 - You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on summer weekends at Crane Beach. At home, your father's old gray knit cardigan, elbows worn through, sliding off one shoulder. Thin gold rings. You take mirror selfies in the tall arched mirror in your bedroom.
 Show your looks the way a real person would: in scenes through light, movement and how he looks at you; in texts only when it fits (what you're wearing, your hair being a disaster). Never list them.
 
@@ -490,6 +490,7 @@ const CONFIG = {
     { command: "voice", aliases: [], action: "voice", description: "Ask {name} to send voice notes more often (on/off)" },
     { command: "memory", aliases: [], action: "memory", description: "See what {name} remembers long-term" },
     { command: "pics", aliases: ["selfie", "selfies"], action: "pics", description: "Ask {name} to send pictures more often (on/off)" },
+    { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now, when you're with {name}" },
     { command: "face", aliases: [], action: "face", description: "{name}'s face in her pictures: /face draws new ones to pick from" },
     { command: "restart", aliases: ["start"], action: "restart", description: "Start the story over (wipes her memory)" },
   ],
@@ -534,6 +535,10 @@ Changing the story
     REWOUND: "",                       // sent after a /rewind to one of her messages; "" = nothing
     PICS_ON: "{name} will send pictures more often.",
     PICS_OFF: "{name} sends pictures when it fits, or when you ask.",
+    LOOK_APART: "You're not with {name} right now, so there's nothing in front of you to show. Ask her for a picture instead.",
+    LOOK_NONE: "Her last reply doesn't say enough about her to draw. Try again after her next reply.",
+    LOOK_OFF: "No pictures right now (turned off, today's picture budget is spent, or Workers AI isn't connected: see /setup).",
+    LOOK_FAILED: "The picture couldn't be drawn this time. Try again in a moment.",
     // /face: the reference portrait every picture of her is drawn from (PICTURE)
     FACE_NOW: "{name}'s face in her pictures ({source}). {cmd} draws {count} new ones to pick from.", // {source} {cmd} {count}
     FACE_NONE: "{name} has no reference face yet, so her pictures don't all look like the same woman. {cmd} draws {count} to pick from.", // {cmd} {count}
@@ -688,15 +693,19 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
-    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition, thin gold rings.",
+    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a slim, softly curvy figure, not plump or heavy: a slim, defined waist; gently rounded hips a little wider than her shoulders; slim legs; a full bust; soft, narrow, gently sloping, rounded shoulders; and soft, full arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
+    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a slim, softly curvy figure, not plump or heavy, with a slim, defined waist, gently rounded hips a little wider than her shoulders, slim legs, a full bust, soft, narrow, gently sloping, rounded shoulders and soft, full arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, caught in the middle of what she's doing, not posing:",
     // its light: LIGHT for her time of day, or this after dark ("natural light" drew 3 of 3 night scenes in daylight, 2026-10-05)
     SCENE_NIGHT: "It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps.",
     // In person, she wears what the scene said she wears (WEARING_WORDS in her narration of this scene, newest first),
     // else SCENE_WEARING. Without it klein dressed her in image 1's black dress, pose included (owner, 2026-10-05)
-    SCENE_WEARING: "her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a black tank top",
+    SCENE_WEARING: "her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a plain black tank top and soft gray sweatpants",
+    // a scene that names only layers (LAYER_WORDS: "an old cardigan and wool socks") gets these under them, so klein
+    // doesn't fill the gap with image 1's dress (owner 2026-10-05: "She should be wearing casual at home")
+    SCENE_UNDER: "a plain black tank top and soft gray sweatpants",
+    LAYER_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "coat", "jacket", "scarf", "apron", "socks", "slippers", "heels", "boots", "sneakers", "stockings"],
     WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
@@ -726,7 +735,7 @@ Changing the story
       // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
       SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
       // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
-      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair skin with warm undertones and a few faint freckles\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped dark brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"curvy pear-shaped hourglass figure\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a narrow, clearly defined waist much smaller than her hips\", \"lower\": \"wide rounded hips and full thighs clearly wider than her shoulders\", \"arms\": \"soft and fleshy arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
+      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair skin with warm undertones and a few faint freckles\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped dark brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"slim, softly curvy figure, not plump or heavy\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a slim, defined waist\", \"lower\": \"gently rounded hips a little wider than her shoulders, slim legs\", \"arms\": \"soft, full arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
       SPICY_WARDROBE: [
         "only a deep plum French floral lace string thong with velvet trim", "only a black lace thong",
         "a black lace balconette bra and a matching high-cut lace thong", "a red lace bra and matching red lace panties",
@@ -745,7 +754,7 @@ Changing the story
       USD_PER_PICTURE: 0.039,          // what one costs (image bench 2026-10-04)
       TIMEOUT_MS: 60000,
       // who she is, in words (the description Nano Banana drew her face from)
-      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, and a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition and no visible muscle or tone.",
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, and a slim, softly curvy figure, not plump or heavy, with a slim, defined waist, gently rounded hips a little wider than her shoulders, slim legs, a full bust, soft, narrow, gently sloping, rounded shoulders and soft, full arms with no muscle definition and no visible muscle or tone.",
       WARDROBE: [
         "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
         "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",
@@ -1179,7 +1188,7 @@ async function handleBatch(updates, env, ctx, deadline) {
 }
 
 // Commands that change the chat history (her answer to earlier messages comes first)
-const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit"]);
+const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit", "look"]);
 
 // Commands answered straight from the webhook, never queued: they only show or change his settings
 const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face"]);
@@ -1255,6 +1264,7 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
     if (action === "retry") return await retry(env, ctx, chatId, deadline);
     if (action === "rewind") return await rewind(env, ctx, chatId, msg, deadline);
     if (action === "edit") return await editHers(env, chatId, msg, args);
+    if (action === "look") return await lookCommand(env, chatId);
   } catch (e) {
     await failed(env, chatId, e, deadline);
   }
@@ -2771,6 +2781,14 @@ function scenePicturePrompt(sceneText) {
   return wordsOf(text).length >= (Number(P.MIN_SCENE_WORDS) || 0) ? text : "";
 }
 
+// Only layers named (a cardigan, socks): SCENE_UNDER goes under them
+function underLayers(what) {
+  const P = CONFIG.PICTURE;
+  const named = (P.WEARING_WORDS || []).filter((w) => hasWord(what, w) || hasWord(what, `${w}s`));
+  const layers = new Set((P.LAYER_WORDS || []).map(String));
+  return P.SCENE_UNDER && named.length && named.every((w) => layers.has(w)) ? `${what}, over ${P.SCENE_UNDER}` : what;
+}
+
 // What she wears in this scene: the newest clothes her narration named (this reply, then her earlier replies of the
 // same in-person scene), else PICTURE.SCENE_WEARING. Filter-safe; "" when it can't be drawn.
 function sceneWearing(sceneText, history = []) {
@@ -2796,7 +2814,7 @@ function sceneWearing(sceneText, history = []) {
       for (const list of about) {
         const m = list.map((x) => x.match(re)).find((x) => x && !(/^his\b/i.test(x[x.length - 1]) && !/^(?:wearing|into|pulls on|has on)$/i.test(x[1])));
         const what = m && m[m.length - 1].replace(/^the\s+/i, "her ").trim();
-        if (what && mayDraw(what)) return filterSafe(what).replace(/\b(\w+)\s+\1\b/gi, "$1");
+        if (what && mayDraw(what)) return underLayers(filterSafe(what).replace(/\b(\w+)\s+\1\b/gi, "$1"));
       }
     }
   }
@@ -2807,7 +2825,7 @@ function sceneWearing(sceneText, history = []) {
 
 // The face every picture is drawn from: /face keep (KV) first, else the one built into face.js
 // Her body shape (face.js BODY_JPEG_BASE64: a Nano Banana picture of the figure, face out of frame): image 1 of every
-// picture drawn from her face, so the hourglass figure and soft narrow shoulders don't depend on words alone
+// picture drawn from her face, so her softly curvy figure and soft narrow shoulders don't depend on words alone
 const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null);
 
 async function faceBytes(env) {
@@ -3050,7 +3068,23 @@ async function deliverPicture(env, chatId, ledger, drawing) {
   }
 }
 
-/* --- /pics and /face --- */
+/* --- /look, /pics and /face --- */
+
+// /look: the moment in person as he sees it, drawn from her last reply (her earlier replies of the scene when that one
+// says too little about her); never stored in the history
+async function lookCommand(env, chatId) {
+  const M = CONFIG.MESSAGES;
+  const kv = env.REEM_KV;
+  const [history, settings, ledger] = await Promise.all([kv.get(`h:${chatId}`, "json").then((h) => h || []), getSettings(kv, chatId), loadLedger(env)]);
+  if (sceneOf(history, "") !== "together") return notice(env, chatId, M.LOOK_APART);
+  if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
+  const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-3).map((m) => m.content).filter(inPerson);
+  const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t));
+  if (!text) return notice(env, chatId, M.LOOK_NONE);
+  await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
+  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history }));
+  if (!sent) return notice(env, chatId, M.LOOK_FAILED);
+}
 
 async function picsCommand(env, chatId) {
   const kv = env.REEM_KV;

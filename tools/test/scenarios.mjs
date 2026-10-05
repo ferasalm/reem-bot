@@ -480,9 +480,10 @@ section("pictures: his photos (Workers AI vision)");
     const later = "*She takes a step back into her doorway, the cardigan slipping off her shoulder. She looks at you for a beat too long.*";
     const now = "*Reem steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway.*";
     const h = [{ role: "assistant", content: intro, at: Date.now() - 600000 }, { role: "user", content: "ADHD...", at: Date.now() - 500000 }, { role: "assistant", content: later, at: Date.now() - 400000 }];
-    eq(W.sceneWearing(now, h), "an old cardigan and wool socks", "live: a scene picture wears what the scene said (a later 'the cardigan' doesn't replace it)");
+    eq(W.sceneWearing(now, h), `an old cardigan and wool socks, over ${W.CONFIG.PICTURE.SCENE_UNDER}`, "live: a scene picture wears what the scene said (a later 'the cardigan' doesn't replace it), casual clothes under the layers (owner: not the dress)");
+    eq(W.sceneWearing("*She stands by the stove in a black ribbed tank top and sweatpants, stirring.*", h), "a black ribbed tank top and sweatpants", "...clothes that aren't only layers stay as she said");
     eq(W.sceneWearing(now, [{ role: "assistant", content: intro, at: Date.now() - 9e6 }]), W.CONFIG.PICTURE.SCENE_WEARING, "...an earlier scene's clothes don't carry over");
-    eq(W.sceneWearing("*She pulls on his hoodie, laughing.*", h), "his hoodie", "...she may wear his clothes");
+    eq(W.sceneWearing("*She pulls on his hoodie, laughing.*", h), `his hoodie, over ${W.CONFIG.PICTURE.SCENE_UNDER}`, "...she may wear his clothes");
     eq(W.sceneWearing("*She buries her face in his shirt.*", []), W.CONFIG.PICTURE.SCENE_WEARING, "...but his shirt she presses her face into isn't what she wears");
   }
   eq(W.scenePicturePrompt("*The hallway is dim, the only light spilling from behind her, catching the curve of her shoulder where the robe has slipped. A pause. Her voice drops, mock-soft.*"), "The hallway is dim, the only light spilling from behind her, catching the curve of her shoulder where the robe has slipped.", "live: her voice and pauses aren't drawn");
@@ -685,6 +686,19 @@ section("pictures: his photos (Workers AI vision)");
   r = await turn("*sits on the couch*", ["*Reem curls up at the other end of the couch, tucking her bare feet under a gray knit cardigan.* \"comfy?\""], { history: SCENE });
   eq(r.photos.length, 1, "in person on SCENE_CHANCE (like the voice clip)");
   W.CONFIG.PICTURE.SCENE_CHANCE = 0;
+
+  // /look (owner 2026-10-05: "a slash command that can send a picture showing what the user sees at the moment")
+  const LOOK_SCENE = [{ role: "assistant", content: "*Her door opened anyway—Reem in an old cardigan and wool socks, a calculator's paper roll trailing from one hand.*" },
+    { role: "user", content: "can i have some coffee?" },
+    { role: "assistant", content: "*Reem steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway.* \"Sit wherever.\"" }];
+  const n0 = ai.length;
+  r = await turn("/look", [], { history: LOOK_SCENE });
+  const look = ai.slice(n0).find((a) => a.model === W.CONFIG.PICTURE.MODEL);
+  eq(r.order, ["sendPhoto"], "/look in person: only a picture, no reply from her");
+  yes(look && look.fields.prompt.includes("holding the door wider") && look.fields.prompt.includes("old cardigan and wool socks, over") && /kitchen/i.test(look.fields.prompt), "...of her last reply, in the clothes the scene named, in her kitchen", look && look.fields.prompt);
+  eq(JSON.parse(store.get("h:7")).length, LOOK_SCENE.length, "...and nothing added to the history");
+  r = await turn("/look", [], { history: APART });
+  yes(r.photos.length === 0 && r.texts.length === 1 && r.texts[0].includes("not with"), "/look apart: a notice, no picture", r.texts);
 
   section("pictures: never");
   r = await turn("OOC: can she send a selfie?", ["Sure, just ask her. [selfie: mirror selfie]"], { history: APART });
