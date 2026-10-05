@@ -3,7 +3,8 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-04 night (everything deployed to `main`: Sulafat voice, bangs, body reference, soft and fleshy arms)
+**Last updated:** 2026-10-05 (no code change: new persona decided and written up in `docs/REEM-BIBLE.md`, not built;
+`docs/PLAYBOOK-EXPORT.md` written for the owner's other repos). Live is still the 2026-10-04 deploy below.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
@@ -25,7 +26,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   the shoulders. 5-shot check: hips wider in 3 of 4 full-body shots, arms soft 5/5; one shot drifted heavy (waist lost).
   Next round (after 00:00 UTC, the day cap is spent): keep "narrow defined waist" first, judge again.
 
-## Owner's direction (DECISIONS 2026-10-04)
+## Owner's direction (DECISIONS 2026-10-04/05)
+- **New Reem (2026-10-05):** replace all of her with `docs/REEM-BIBLE.md` (Armenian-Lebanese bookkeeper in Watertown,
+  Levantine accent); pictures are Claude's call. The owner wants it built in a new chat, not this one.
 - Providers: Cloudflare Workers AI and OpenRouter only. Nano Banana for lingerie, klein for the rest, all 9:16.
 - Voice: off ElevenLabs (credits running out); Sulafat first. Body: the Nano Banana body is "perfect".
 
@@ -46,20 +49,24 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **After the deploy:** read the live Worker back (done below if listed), check /setup, one Gemini voice note (ask Reem to send one), one
-   lingerie picture, one everyday picture with the body reference. *Effort: low*
-2. **Persona prompt for Gemini voice:** her voice notes may use `[laughs]`, `[whispers]`, `[sighs]` (now spoken, not aura's
-   "mm"/"hm"); check `VOICE_TAGS` wording. *Effort: low*
-3. **Night light and outfit places:** daylight in night shots; a beach outfit chosen at 23h; boudoir/waist drawn as a long
+1. **After the deploy:** check /setup, one Gemini voice note (ask Reem to send one), one lingerie picture, one everyday
+   picture with the body reference. *Effort: low*
+2. **Build the new Reem** (owner, 2026-10-05): follow "Building it" in `docs/REEM-BIBLE.md`: persona in `SYSTEM_PROMPT`
+   distilled (not pasted), `CITY`, place words, /auto prompt; ask about Basbousa first; fold in the voice-tag wording
+   (`[laughs]` `[whispers]` `[sighs]`, check `VOICE_TAGS`) and the live slips ("your cat", "him/his" for "you",
+   "tonight" in the afternoon); scenario rows, then a `[live]` run read in full. Recommended: Opus. *Effort: medium*
+3. **Redraw her places** for the triple-decker: living room, porch, hallway (day and night), per the bible; keep the
+   rest. Own chat, after step 2. *Effort: medium*
+4. **Night light and outfit places:** daylight in night shots; a beach outfit chosen at 23h; boudoir/waist drawn as a long
    dress (klein's filter dodge). *Effort: low*
-4. **Selfie quality with the FLUX skill's rules:** phone covering half the face in mirror shots, a second Basbousa. *Effort: medium*
-5. **Text model** (owner's direction): DeepSeek V4 Flash vs others, cost per reply and quality. *Effort: high*
-6. **Persona slips seen live:** "your cat"/"barbara", "him/his" for "you", "tonight" in the afternoon. *Effort: medium*
+5. **Selfie quality with the FLUX skill's rules:** phone covering half the face in mirror shots, a second Basbousa. *Effort: medium*
+6. **Text model** (owner's direction): DeepSeek V4 Flash vs others, cost per reply and quality. *Effort: high*
 7. **Context and memory:** stable prompt prefix for caching, then a "story state" in the notes. *Effort: medium*
 
 ## Open questions for the owner
+- Basbousa in the new Reem: keep her or drop her? (Asked 2026-10-05; not in the bible.)
 - Time-awareness, a daily plan, explicitness, natural-looking pictures (asked 2026-10-03): which proposal to do.
 
 ## Prompt for the next chat (paste as-is)
 > Continue reem-bot. Follow CLAUDE.md (the sync report first; if it lists other branches with work, stop and ask
-> me). <describe the next change>. Finish with /handoff.
+> me). Do next step 2: build the new Reem from docs/REEM-BIBLE.md. Basbousa: <keep / drop>. Finish with /handoff.

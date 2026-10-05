@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **Replace all of Reem with the character bible; Levantine accent** (owner: "replace all of her",
+  "Levantine", pictures: "Your judgement"; and "don't replace the current Reem yourself, we need to hand it off"):
+  `docs/REEM-BIBLE.md` becomes her persona: Reem Nabot, 29, Armenian-Lebanese from Bourj Hammoud, in Boston since
+  2020, freelance bookkeeper in a Watertown triple-decker across the landing from him. A later session builds it (its
+  "Building it" section); pictures are Claude's call (redraw her living room, porch and hallway, keep the rest). Not
+  yet built. *Supersedes "Reem is Lebanese and lives in Belmont, MA" (2026-10-03) once built.*
 - 2026-10-04 — **Arms soft and fleshy; Deploy** (owner, over the arms wording tests: "Arms should not be muscular. Remove the word
   thick." / "Arms are plush, soft, fleshy" / "soften \"plush\" to \"soft and fleshy\" for the arms only. Then deploy"): her arms
   are "soft and fleshy arms with no muscle definition" in the Klein prompt, the fallback and lingerie descriptions and the
@@ -58,7 +64,7 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   OpenRouter. No Runware, fal.ai or other image service. Cloudflare's lingerie filter is not accepted as final: find
   a way inside these two (another model, another wording, another route).
   ~~Voice stays ElevenLabs until the owner says otherwise.~~ (superseded 2026-10-04: voice moves to aura-2) *Narrows the open question "another image provider" in HANDOFF.*
-- 2026-10-03 — **Reem is Lebanese and lives in Belmont, MA** (owner: "She's Lebanese and lives in the US Boston MA
+- ~~2026-10-03 — **Reem is Lebanese and lives in Belmont, MA**~~ (superseded 2026-10-05: Armenian-Lebanese in Watertown, still live until built and deployed) (owner: "She's Lebanese and lives in the US Boston MA
   around or within Belmont"): Claude's details, owner may change them: born in Beirut, family moved to North Jersey
   when she was ten; second-floor apartment in an old brick walk-up near Cushing Square; he lives across the hall;
   her clock is America/New_York; Lebanese Arabizi; beach weekends at Crane Beach. *Supersedes Egyptian/Zamalek.*
