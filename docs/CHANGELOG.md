@@ -8,7 +8,7 @@ New entries: when a session's HANDOFF "Where we are" item is finished, move its 
 - 9c65b91: lingerie check (klein → vision → Nano Banana), wider picture asks, two-piece retry, in-person lingerie; /auto moves.
 - ROOM_VIEWS (rewording) tried and dropped (face run 37339347977: 1/6); place crops instead (b6d4343, face run 37340198460: 8/8).
 - 3386d5c: /auto HOT_MOVES, lengths, AGAIN after the ask; HER_MOVE for apart scenes ([live] 37339438191 → 37340567117, 0 broken).
-- Owner: "I am allowing all edits. Fix everything then deploy." `dev` fast-forwarded into `main`: DEPLOY_RUN.
+- Owner: "I am allowing all edits. Fix everything then deploy." `dev` fast-forwarded into `main` (da3ae1a): deploy run 37341573464 green (Deploy Worker and /health).
 
 ## 2026-10-05 (sixth session): deployed
 - `main` = `dev` at b5c4d60 (fast-forward). Deploy run 37272358522 green. Old session branches (14, all dated 2026-10-04 or

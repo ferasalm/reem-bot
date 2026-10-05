@@ -8,7 +8,7 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
 - 2026-10-05 — **Fix everything, then deploy** (owner: "I am allowing all edits. Fix everything then deploy."): Claude checked
   the fixes with real pictures and two `[live]` runs and fixed what they showed: the place picture is one of three crops of the
   owner's picture (rewording alone changed 1 of 6), /auto keeps a heated chat heated (`AUTO.HOT_MOVES`) and stays short, a scene
-  while apart needs her to go to him (`HER_MOVE`). Then `dev` deployed to `main`.
+  while apart needs her to go to him (`HER_MOVE`). Deployed: `main` = da3ae1a, deploy run 37341573464 green.
 - 2026-10-05 — **Lingerie and spicy pictures when he asks; better /auto; places as a reference** (owner: "She is not sending
   lingerie pics, two-piece lingerie, or spicy pics even when I ask her to" / "Auto reply mode is so bad, bland, cliché, cringe,
   does not advance, and doesn't yield variety of outcomes" / "Location pictures are not treated as reference but they're included
