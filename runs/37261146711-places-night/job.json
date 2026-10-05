@@ -1,0 +1,29 @@
+{
+  "note": "Her fixed places at night, drawn from the day pictures: pick the one with the same room (walls, furniture, angle) and believable night light.",
+  "mode": "places-night",
+  "size": 640,
+  "labels": [
+    "living_night",
+    "porch_night",
+    "hallway_night"
+  ],
+  "prompts": [
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the sash window is black with night; the paper floor lamp is switched on and the open laptop glows blue-white on the kitchen table, warm amber light across the shoeboxes of receipts, the small sofa and the cream plaster walls, the radiator in soft shadow. The room is warmly lit and easy to see, only its corners in soft shadow, a cozy lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the string lights are on, small warm bulbs glowing along the white railings and the folding chair, the driveway below lit by an orange streetlight, the neighbors' houses and maples in deep blue darkness. The room is warmly lit and easy to see, only its corners in soft shadow, a cozy lived-in mood, the room empty. Realistic phone photo taken at night, natural grain.",
+    "The same room from image 0, with exactly the same walls, furniture, window and camera angle, now late at night: the bare bulb on the slanted ceiling is switched on, warm yellow light on the two facing wooden doors and the worn floorboards, the back stairs going down into soft shadow. The room is warmly lit and easy to see, only its corners in soft shadow, a cozy lived-in mood, the room empty. Realistic phone photo taken at night, natural grain."
+  ],
+  "refs": [
+    [
+      "tools/face/places/living.jpg"
+    ],
+    [
+      "tools/face/places/porch.jpg"
+    ],
+    [
+      "tools/face/places/hallway.jpg"
+    ]
+  ],
+  "per_prompt": 3,
+  "describe": false,
+  "day_neurons": 30000
+}
