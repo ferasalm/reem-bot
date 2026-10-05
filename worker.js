@@ -403,7 +403,13 @@ const CONFIG = {
   /* ---------------- Ears (speech-to-text: Workers AI Whisper, ElevenLabs Scribe as the backup) ---------------- */
   // Owner 2026-10-04: use the Cloudflare plan for speech recognition. Whisper costs ~47 neurons a minute ($0.0005).
   HEARING: {
-    MODEL: "@cf/openai/whisper-large-v3-turbo", // Workers AI; "" = ElevenLabs only
+    // Gemini on OpenRouter first (owner 2026-10-05: "Go with Gemini 3.8 flash for voice"): it hears his words, Arabic and
+    // Arabizi, and writes laughs, sighs and tone in parentheses (stt bench run 37266123079); Whisper when it fails
+    OR_MODEL: "google/gemini-3.8-flash", // OpenRouter, audio in (Telegram's OGG as is); "" = Whisper first
+    OR_PROMPT: "This is a voice note a man sent to a woman on Telegram. Transcribe it exactly as spoken: English in English, Arabic in Arabic script, Arabizi or Arabic words mixed into English in Latin letters as he says them (habibti, yalla, khalas). Put non-speech sounds and tone in parentheses where they happen, for example (laughs), (sighs), (whispering), (teasing), (annoyed), only when you clearly hear them. Output only the transcript.",
+    OR_TIMEOUT_MS: 25000,              // Gemini's limit before Whisper takes over
+    OR_MAX_SECONDS: 300,               // longer voice notes go straight to Whisper (cost: about $0.02 a minute on Gemini)
+    MODEL: "@cf/openai/whisper-large-v3-turbo", // Workers AI (the backup since 2026-10-05); "" = ElevenLabs only
     PROMPT: "Reem, habibi, yaani, khalas.", // Whisper's hint: words it should spell right ("" = none; "habibi" was heard as "heavy bee" without it)
     TIMEOUT_MS: 30000,                 // Whisper's limit before the backup takes over
     BACKUP_MODEL: "scribe_v2",         // ElevenLabs, when Whisper fails or today's AI budget is spent; "" = none
@@ -3065,7 +3071,16 @@ async function transcribe(env, fileId, mime, seconds) {
   if (!audio?.ok) throw new ApiError("Couldn't download the voice note from Telegram.", true);
   const bytes = await audio.arrayBuffer();
 
-  // Workers AI first (counted in the day's AI budget); ElevenLabs when it fails or the budget is spent
+  // Gemini on OpenRouter first (words, Arabic, laughs and tone); Whisper when it fails
+  if (H.OR_MODEL && env.OPENROUTER_API_KEY && (Number(seconds) || 0) <= (Number(H.OR_MAX_SECONDS) || 300) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) {
+    try {
+      return await hearWithGemini(env, bytes);
+    } catch (e) {
+      await aiFailed(env, `hearing a voice note with ${H.OR_MODEL}: ${aiText_(e)}; used ${H.MODEL || H.BACKUP_MODEL}`);
+    }
+  }
+
+  // Workers AI (counted in the day's AI budget); ElevenLabs when it fails or the budget is spent
   if (H.MODEL && env.AI && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
     const ledger = await loadLedger(env);
     const neurons = Math.ceil((Math.max(Number(seconds) || 0, 1) / 60) * CONFIG.AI_BUDGET.HEARING_NEURONS_PER_MIN);
@@ -3091,6 +3106,27 @@ async function transcribe(env, fileId, mime, seconds) {
   }
   if (!H.BACKUP_MODEL && H.MODEL) throw new ApiError("Speech-to-text: today's Workers AI budget is spent and no backup is set.", false);
   return scribe(env, H.BACKUP_MODEL || "scribe_v2", bytes, mime, path);
+}
+
+// His voice note heard by an audio model on OpenRouter (HEARING.OR_MODEL): the transcript, with (laughs) and the like
+async function hearWithGemini(env, bytes) {
+  const H = CONFIG.HEARING;
+  budget.used++;
+  const res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: H.OR_MODEL, temperature: 0,
+      messages: [{ role: "user", content: [{ type: "text", text: H.OR_PROMPT }, { type: "input_audio", input_audio: { data: toBase64(bytes), format: "ogg" } }] }],
+    }),
+    signal: AbortSignal.timeout(Number(H.OR_TIMEOUT_MS) || 25000),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${data?.error?.message || "no answer"}`);
+  const text = String(data?.choices?.[0]?.message?.content || "")
+    .replace(/^```\w*\s*|\s*```$/g, "").replace(/^\s*(?:transcript(?:ion)?)\s*:\s*/i, "").replace(/^["“](.*)["”]$/s, "$1").trim();
+  if (!text) throw new Error("no transcript");
+  return text;
 }
 
 // ElevenLabs speech-to-text (the backup)

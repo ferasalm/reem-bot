@@ -7,6 +7,7 @@ let seed = 7; Math.random = () => { seed = (seed * 16807) % 2147483647; return s
 const RealDate = Date; let clock = RealDate.UTC(2026, 9, 1, 8, 0);
 globalThis.Date = class extends RealDate { constructor(...a){ super(...(a.length?a:[clock])); } static now(){ return clock; } };
 const log = []; let llm = []; const prompts = []; const calls = []; let mid = 5000; let ttsFail = false; const orSpeech = []; let orSpeechFail = false;
+const gemini = { mode: "fail", calls: [] };
 globalThis.fetch = async (url, init = {}) => {
   let body = init.body;
   if (body instanceof FormData) { const o={}; for (const [k,v] of body) o[k]= typeof v==="string"?v:"<blob>"; body=JSON.stringify(o); }
@@ -14,6 +15,10 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.includes("openrouter.ai/api/v1/audio/speech")) {
     orSpeech.push(JSON.parse(init.body));
     return orSpeechFail ? new Response(JSON.stringify({ error: { message: "Provider returned 400" } }), { status: 400, headers: { "content-type": "application/json" } }) : new Response(JSON.parse(init.body).response_format === "pcm" ? new Uint8Array(new Int16Array(24000).map((_, i) => Math.round(8000 * Math.sin(i / 8))).buffer) : new Uint8Array(300), { headers: { "content-type": "audio/mpeg" } });
+  }
+  if (url.includes("openrouter") && JSON.stringify(JSON.parse(init.body).messages || []).includes("input_audio")) {
+    gemini.calls.push(JSON.parse(init.body)); // HEARING.OR_MODEL hearing his voice note; "fail" unless a step says otherwise
+    return gemini.mode === "hear" ? j({ choices: [{ message: { content: "Transcript: come over (laughs) yalla habibti" }, finish_reason: "stop" }] }) : j({ error: { message: "upstream down" } }, 503);
   }
   if (url.includes("openrouter")) {
     const b = JSON.parse(init.body); prompts.push(b);
@@ -101,6 +106,8 @@ step("hearing: Whisper on Workers AI first, Scribe when it fails or the day's bu
   llm = [{ content: "mm ok" }];
   await run(msg({ voice: { file_id: "w3", duration: 3 } }));
   console.log("budget spent -> scribe, no whisper:", aiCalls.length === n && scribeCalls() === before + 1);
+  store.delete("pics");
+  // owner 2026-10-05: "Go with Gemini 3.8 flash for voice": Gemini hears first, Whisper only when it fails
   store.delete("pics"); delete env.AI;
 }
 step("webhook: /help skips the queue, /rewind doesn't");
@@ -340,6 +347,27 @@ store.set("h:7", JSON.stringify(long));
 await run(msg({ text: "hey" }));
 const chars = herPrompt().messages.reduce((n, m) => n + m.content.length, 0);
 console.log("prompt chars:", chars, "| under the limit:", chars < (W.CONFIG.LLM.CONTEXT_TOKENS - 220) * W.CONFIG.LLM.CHARS_PER_TOKEN, "| no parts/at leaked:", !prompts.some((p) => JSON.stringify(p).includes('"parts"')));
+
+step("hearing: Gemini (HEARING.OR_MODEL) first, Whisper when it fails or the note is too long");
+{
+  const aiCalls = []; env.AI = { async run(model, input) { aiCalls.push({ model, input }); return { text: "whisper heard it" }; } };
+  const scribeCalls = () => log.filter((l) => l.includes("speech-to-text")).length; let before;
+  clock += 3600e3; const picsOn = W.CONFIG.PICTURE.ENABLED; W.CONFIG.PICTURE.ENABLED = false; // only hearing here
+  gemini.mode = "hear"; gemini.calls.length = 0; const w = aiCalls.length; before = scribeCalls();
+  llm = [{ content: "on my way up" }];
+  await run(msg({ voice: { file_id: "g1", duration: 5 } }));
+  const g = gemini.calls.at(-1); const heardG = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
+  console.log("gemini hears first:", gemini.calls.length === 1 && g.model === W.CONFIG.HEARING.OR_MODEL && g.messages[0].content[1].input_audio.format === "ogg",
+    "| laugh + arabizi kept, label dropped:", heardG.includes("come over (laughs) yalla habibti") && !heardG.includes("Transcript"), "| no whisper, no scribe:", aiCalls.length === w && scribeCalls() === before);
+  llm = [{ content: "long one" }];
+  await run(msg({ voice: { file_id: "g2", duration: W.CONFIG.HEARING.OR_MAX_SECONDS + 1 } }));
+  console.log("too long for gemini -> whisper:", gemini.calls.length === 1 && aiCalls.length === w + 1);
+  gemini.mode = "fail";
+  llm = [{ content: "mm hm" }];
+  await run(msg({ voice: { file_id: "g3", duration: 4 } }));
+  console.log("gemini fails -> whisper:", gemini.calls.length === 2 && aiCalls.length === w + 2 && JSON.parse(store.get("ai_error")).error.includes(W.CONFIG.HEARING.OR_MODEL));
+  W.CONFIG.PICTURE.ENABLED = picsOn; store.delete("pics"); delete env.AI;
+}
 
 step("everything down: fallback line");
 globalThis.fetch = ((f) => async (url, init) => url.includes("openrouter") ? new Response("{}", { status: 503 }) : f(url, init))(globalThis.fetch);
