@@ -336,7 +336,7 @@ const CONFIG = {
     OR_MODEL: "google/gemini-3.8-flash-tts",
     OR_VOICE: "Sulafat",                   // "" = the model's own (Fish Audio needs none)
     OR_FORMAT: "pcm",                  // "pcm" for Gemini TTS (it answers only raw 24 kHz 16-bit mono): encoded to MP3 inside the Worker; "mp3" for the others
-    OR_INSTRUCTIONS: "Speak as Reem, a dry, confident 29-year-old woman from Beirut, in fluent English with a light Lebanese (Levantine) accent, close to the mic: low, warm, a little husky, deadpan on the jokes, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked.", // how she sounds, for models that take it (Gemini, OpenAI); the Levantine accent is the owner's (2026-10-05), the rest the wording the owner heard in the TTS bench
+    OR_INSTRUCTIONS: "Speak as Reem, a dry, confident 29-year-old Armenian-Lebanese woman who grew up in Beirut and moved to Boston at 23, in fluent English with a clear Lebanese Arabic accent: soft rolled r, slightly clipped vowels, Levantine rising question endings, Arabic and French words said natively. Close to the mic: low, warm, a little husky, deadpan on the jokes, intimate and teasing, unhurried. Laugh naturally where marked.", // how she sounds, for models that take it (Gemini, OpenAI); the stronger accent wording the owner picked over the light one (2026-10-05, tts-bench run 37261464781)
 
     OR_CUES: { laughs: "[laughs]", giggles: "[laughs]", chuckles: "[laughs]", whispers: "[whispers]", sighs: "[sighs]" }, // tags as this model writes them ("" = dropped)
     OR_USD_PER_1000_CHARS: 0.015,      // Grok and Fish Audio $0.015, Orpheus $0.007, MiniMax HD $0.10 (OpenRouter list prices)
@@ -697,9 +697,11 @@ Changing the story
     // with the replacement: her color and fabric as a bodysuit or string bikini, which got through. "" drops the word.
     // Lingerie (owner 2026-10-04: "Let's keep using nanobanana and klein"): her boudoir selfies go to Nano Banana on
     // OpenRouter as text only (with her face attached Google refused 11/11; text only it drew 7/7 the same woman, whose
-    // face is now her reference). Real lingerie words, no FILTER_WORDS. klein draws them when it refuses or fails.
+    // face is now her reference). Real lingerie words, no FILTER_WORDS. Since 2026-10-05 klein tries them first
+    // (KLEIN_FIRST) and Nano Banana draws them when klein refuses; klein's own wardrobe is the last resort.
     LINGERIE: {
       ENABLED: true,
+      KLEIN_FIRST: true,               // klein (her face) tries the real lingerie words first; Nano Banana when it refuses (owner 2026-10-05)
       MODEL: "google/gemini-2.5-flash-image", // Nano Banana
       TIERS: ["boudoir"],              // picture tiers that go to it
       ASPECT: "9:16",
@@ -2825,7 +2827,21 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     let error = null;
     let model = P.MODEL;
     try {
-      // a boudoir selfie: Nano Banana first (its own money cap); klein when it refuses, fails or the money is spent
+      // a boudoir selfie (owner 2026-10-05: "Let klein draw lingerie first, then nanobanana if klein refuses"): klein
+      // with the real lingerie words and her face (LINGERIE.KLEIN_FIRST), then Nano Banana (its own money cap) when
+      // klein refuses or fails, then klein in its own filter-safe wardrobe (below) when Nano Banana can't either
+      const L = P.LINGERIE || {};
+      if (kind === "selfie" && L.ENABLED && L.KLEIN_FIRST && (L.TIERS || []).includes(pic.tier) && pic.args) {
+        const kp = composePicture({ ...pic.args, lingerie: true });
+        try {
+          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night });
+          model = drawn.model;
+          return { ...kp, bytes: drawn.bytes, kind };
+        } catch (e) {
+          aiSpent(ledger, CONFIG.AI_BUDGET.PICTURE_NEURONS, e); // a refused picture was still drawn
+          await aiFailed(env, `drawing lingerie with ${P.MODEL}: ${aiText_(e)}; ${wantsLingerie(env, ledger, pic) ? `asked ${L.MODEL}` : "drew it in klein's own wardrobe"}`);
+        }
+      }
       if (kind === "selfie" && wantsLingerie(env, ledger, pic)) {
         const lp = composePicture({ ...pic.args, lingerie: true });
         try {

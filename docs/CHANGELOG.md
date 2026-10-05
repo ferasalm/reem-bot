@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05 (third session): klein lingerie first, stronger accent (on dev, not deployed)
+- `startPicture`: a boudoir selfie goes to klein first with the real lingerie words and her face
+  (`PICTURE.LINGERIE.KLEIN_FIRST`, panel field added); on a refusal or failure Nano Banana, then klein's filter-safe
+  wardrobe. The refused klein picture is counted in the ledger. Scenarios: 4 new rows, the older fallback rows run
+  with KLEIN_FIRST off.
+- `VOICE.OR_INSTRUCTIONS` = the "sulafat-stronger" wording (tts bench run 37261464781).
+- `tools/face/place-prompts.md`: day and night prompts for every place, for the owner to draw himself.
+
 ## 2026-10-05: v11 places redrawn (on dev, not deployed)
 - `PICTURE.LOCATIONS` LOOK for `living` (plaster, steam radiator, kitchen-table desk with laptop, calculator, receipt
   shoeboxes, olive sofa), `porch` (third floor over the driveway, bins and a van) and `hallway` (narrow wooden

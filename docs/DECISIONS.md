@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **klein draws lingerie first; the stronger accent** (owner: "Let klein draw lingerie first, then
+  nanobanana if klein refuses." / "Let's use the stronger accent."): boudoir selfies go to klein with her face and the
+  real lingerie words (`PICTURE.LINGERIE.KLEIN_FIRST`), Nano Banana only when klein refuses or fails, klein's own
+  filter-safe wardrobe last; `VOICE.OR_INSTRUCTIONS` is the "sulafat-stronger" wording of the tts bench. The owner
+  draws the place pictures himself from Claude's prompts and sends them. *Supersedes the Nano-Banana-first order of
+  2026-10-04 ("lingerie on Nano Banana") and the light-accent wording.*
 - 2026-10-05 — **Basbousa dropped** (owner: "Basbousa: drop"): the new Reem has no cat; the persona, intro scene,
   nudges, picture words and Whisper's hint no longer name her. *Supersedes "Basbousa is a she" (2026-10-03) and the
   Basbousa part of the v10 commands entry (2026-10-01).*

@@ -372,6 +372,7 @@ section("pictures: his photos (Workers AI vision)");
     return { response: "A man in a gray hoodie smiling in a car [selfie]" };
   } };
   Object.assign(W.CONFIG.PICTURE, { CHANCE: 0, CHANCE_AFTER_PHOTO: 0, CHANCE_MORE: 0, SCENE_CHANCE: 0 });
+  W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = false; // the fallbacks below; klein first is tested after them
   const lastUser = (x) => x.prompts[0].messages.filter((m) => m.role === "user").at(-1).content;
   const ledger = () => JSON.parse(store.get("pics") || "{}");
   const photoId = 1000 + uid;
@@ -580,6 +581,26 @@ section("pictures: his photos (Workers AI vision)");
     store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics")), usd: 0 }));
     r = await turn("send me a selfie", ["[selfie: close, a grey hoodie on the couch]"], { history: APART });
     eq(banana.calls.length, 3, "an everyday selfie never goes to Nano Banana");
+    // owner 2026-10-05: "Let klein draw lingerie first, then nanobanana if klein refuses"
+    W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = true;
+    banana.mode = "draw";
+    const nb0 = banana.calls.length;
+    const klein = () => ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL);
+    let kn = klein().length;
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, a lilac lace bra and panties on the armchair]"], { history: APART });
+    yes(r.photos.length === 1 && banana.calls.length === nb0 && klein().length === kn + 1 && /lilac lace bra and panties/.test(klein().at(-1).fields.prompt) && klein().at(-1).fields.input_image_0, "klein first: her real words and her face, Nano Banana not called", klein().at(-1).fields.prompt);
+    kn = klein().length;
+    const neuronsBefore = JSON.parse(store.get("pics")).neurons;
+    filterNext = true;
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, an emerald satin bra and panties by the radiator]"], { history: APART });
+    yes(r.photos.length === 1 && klein().length === kn + 1 && banana.calls.length === nb0 + 1 && /emerald satin bra and panties/.test(banana.calls.at(-1).messages[0].content), "klein refuses (3030): Nano Banana draws it, real words");
+    eq(JSON.parse(store.get("pics")).neurons - neuronsBefore, W.CONFIG.AI_BUDGET.PICTURE_NEURONS, "...the refused klein picture is counted once");
+    kn = klein().length;
+    banana.mode = "refuse"; filterNext = true;
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, a navy mesh bra and panties at the mirror]"], { history: APART });
+    const last = klein().at(-1).fields.prompt;
+    yes(r.photos.length === 1 && klein().length === kn + 2 && banana.calls.length === nb0 + 2 && !/\bbra\b|panties/.test(last), "both refuse: klein draws it with filter words", last);
+    W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = false;
     banana.mode = "refuse";
   }
   filterNext = 2;
