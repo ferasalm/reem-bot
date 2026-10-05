@@ -65,6 +65,10 @@ const L3 = [
   ["text: narration only -> asks again", "*She sighs and puts the phone down.*", {}, { kind: "none" }],
   ["text: narration only, last resort -> scene", "*She sighs and puts the phone down.*", { lastResort: true }, { kind: "scene" }],
   ["text: going over to him starts a scene", "*She opens the door before you can knock.* \"took you long enough\"", {}, { kind: "scene" }],
+  // live 2026-10-05 (run 37339438191): apart, he only texted, and she narrated his knock or leaned on her own doorframe
+  ["live: apart, his knock invented: asked again", "*You hear the floorboard crack outside your door. Then his knock: two quick raps.* *Reem walks to the door and opens it just wide enough to lean against the frame.* \"Two knocks. I counted the pause.\"", {}, { kind: "none" }],
+  ["live: apart, her own doorframe: asked again, at last her words as texts", "*Reem hooks a strand of hair behind her ear.* \"Oh, that's how it's going to be over a text now?\" *She leans against the doorframe, arms crossed.* \"If you're really coming over, the coffee's already boiled twice.\"", { lastResort: true }, { kind: "text", texts: ["Oh, that's how it's going to be over a text now?", "If you're really coming over, the coffee's already boiled twice."] }],
+  ["text: she crosses the landing: a scene", "*Reem crosses the landing and knocks on your door, cardigan pulled tight.* \"open up\"", {}, { kind: "scene" }],
   ["text: audio tags never in texts", "[laughs] omg stop\n\nyou're the worst [sighs]", {}, { kind: "text", texts: ["omg stop", "you're the worst"] }],
 
   // --- Llama 3 / roleplay-model leaks

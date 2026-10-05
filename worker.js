@@ -571,7 +571,7 @@ Changing the story
     TRANSCRIPT_MAX_CHARS: 6000,        // how much of the recent chat the draft is based on
     // owner 2026-10-05: drafts were "bland, cliché, cringe, does not advance, and doesn't yield variety": a specific man,
     // one story move per draft (MOVES, never the same one twice in a row), no stock lines, nothing he already said
-    PROMPT: "You write the next message of {user}, a man in a roleplay chat with {name}, his neighbor across the hall. Write only his next message, as him, in first person. He is a real, specific man, not a romance-novel hero: he answers the exact thing she just said or did, uses details from the chat, has his own humor and opinions, and moves the story forward. Every message of his changes something: a decision, a move, a plan, a question that matters, a confession, a touch. Never stall, never just agree, never only compliment her. No stock lines or filler: no \"you're so beautiful\", \"can't stop thinking about you\", \"what are you up to\", \"you're driving me crazy\", \"I'm all yours\", \"oh really?\", \"is that so?\", \"tell me more\", \"that's hot\", no smirks, winks or 😏. Never repeat or rephrase anything he already said in the chat. Never write {name}'s lines, never explain.", // {user}
+    PROMPT: "You write the next message of {user}, a man in a roleplay chat with {name}, his neighbor across the hall. Write only his next message, as him, in first person. He is a real, specific man, not a romance-novel hero: he answers the exact thing she just said or did, uses details from the chat, has his own humor and opinions, and moves the story forward. Every message of his changes something: a decision, a move, a plan, a question that matters, a confession, a touch. Never stall, never just agree, never only compliment her. No stock lines or filler: no \"you're so beautiful\", \"can't stop thinking about you\", \"what are you up to\", \"you're driving me crazy\", \"I'm all yours\", \"oh really?\", \"is that so?\", \"tell me more\", \"that's hot\", no smirks, winks or 😏. Never repeat or rephrase anything he already said in the chat. When things are heating up between them, he never cools it down, changes the subject or suggests going somewhere else: he keeps it going or takes it further, in plain, explicit words when it turns sexual. Never write {name}'s lines, never explain.", // {user}
     // one of these per draft (picked by the code; Another picks a different one), as {move} in MOVE
     MOVES: [
       "pick up one specific detail she just said or did and turn it into a tease",
@@ -585,12 +585,24 @@ Changing the story
       "a quick, dry joke that still moves things forward",
       "slow down and get tender for a moment, then raise the stakes",
     ],
+    // ...and these when the chat is warm or hot (PICTURE.HEAT_WORDS; live 2026-10-05: "don't you dare stop now" got
+    // "we finish this over dinner" and a diner trip)
+    HOT_MOVES: [
+      "take it further: his next move on her, in plain, explicit words",
+      "tell her exactly what he wants to do to her, in plain words",
+      "take charge: tell her what happens next, no asking",
+      "tease her by slowing down on purpose, so she has to ask for it",
+      "pick up one detail of her body or of what she just did and use it",
+      "ask her, specifically, what she wants him to do next",
+      "say what she does to him, honestly and plainly",
+    ],
     MOVE: "\n\nThis time, his move: {move}.", // {move}
-    AGAIN: "\n\nHe didn't like these drafts. Write something completely different from them, with other words and another idea:\n{drafts}", // {drafts}: the drafts he skipped with Another
+    // after ASK: the drafts he skipped (live 2026-10-05: in the system prompt, "Another" came back as the same confession)
+    AGAIN: "\n\nHe skipped these drafts:\n{drafts}\nWrite something completely different: another idea and other words. Reuse no fact, joke or phrase from them.", // {drafts}
     ABOUT: "\n\nABOUT {user}\n{about}",  // {user} {about}
     NOTES: "\n\nWHAT HAS HAPPENED SO FAR\n{notes}", // {notes}
-    TOGETHER: "\n\nThey're together in person: write his actions in *asterisks* and his words in \"quotes\", 1 to 3 sentences.",
-    APART: "\n\nThey're apart, texting: write a short, casual text message, no *actions*.",
+    TOGETHER: "\n\nThey're together in person: his actions in *asterisks*, present tense, with no subject and calling her \"you\" (like *pulls you closer*), never \"I\" or \"he\" inside them; his words in \"quotes\". 1 to 3 sentences, under 50 words.",
+    APART: "\n\nThey're apart, texting: write a short, casual text message, under 30 words, no *actions*.",
     IDEA: "\n\nWhat he wants to say, roughly: {idea}", // {idea}
     ASK: "The chat so far:\n\n{transcript}\n\nWrite {user}'s next message.", // {transcript} {user}
     DRAFT: "✍️ Your next message (tap it to copy):\n\n{text}", // {text}
@@ -1575,13 +1587,14 @@ async function autoDraft(env, state, idea, { avoid = [], skipped = [] } = {}) {
   if (state.notes) system += fill(A.NOTES, { notes: state.notes });
   system += fill(sceneOf(state.history, "") === "together" ? A.TOGETHER : A.APART);
   if (idea) system += fill(A.IDEA, { idea });
-  const moves = (A.MOVES || []).filter((m) => String(m).trim());
+  // a warm or hot chat (its words, not the hour) gets HOT_MOVES
+  const hot = chatHeat(state.history, "", 12) >= 1 && (A.HOT_MOVES || []).some((m) => String(m).trim());
+  const moves = ((hot ? A.HOT_MOVES : A.MOVES) || []).filter((m) => String(m).trim());
   const move = pickOne(moves.filter((m) => !avoid.includes(m))) || pickOne(moves);
   if (move && A.MOVE) system += fill(A.MOVE, { move });
-  if (skipped.length && A.AGAIN) system += fill(A.AGAIN, { drafts: skipped.map((d) => `- ${d}`).join("\n") });
   const messages = [
     { role: "system", content: system },
-    { role: "user", content: fill(A.ASK, { transcript: transcript || fill(CONFIG.INBOX.CONVERSATION_START), user }) },
+    { role: "user", content: fill(A.ASK, { transcript: transcript || fill(CONFIG.INBOX.CONVERSATION_START), user }) + (skipped.length && A.AGAIN ? fill(A.AGAIN, { drafts: skipped.map((d) => `- ${d}`).join("\n") }) : "") },
   ];
   const out = await callModel(env, messages, A.SAMPLING, { model: A.MODEL, timeoutMs: A.TIMEOUT_MS, trimCut: true });
   return { text: cleanDraft(out, user), move };
@@ -3963,6 +3976,9 @@ function toYou(body) {
 
 const ON_PHONE = /\b(?:phone|screen|reads?|reading|texts?|texting|types?|typing|message|messages)\b/i;
 const GOES_OVER = /\b(?:door|doorframe|knocks?|knocking|landing|hallway|stairs|across the hall|comes over|goes over|walks over|crosses)\b/i;
+// She herself goes to him (a scene she starts while apart). Live 2026-10-05 (run 37339438191): "Then his knock: two quick
+// raps" and her leaning on her own doorframe while he only texted were sent as scenes: he never came over
+const HER_MOVE = /\b(?:crosses|crossing|walks over|goes over|comes over|heads? (?:over|across)|across the (?:hall|landing)|(?:at|on|to) your door|(?:she|reem) knocks|knocks (?:on|at) (?:your|his)|before you (?:can )?knock)\b/i;
 
 function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact = false, canSelfie = false, history = [], heard = "", lastResort = false } = {}) {
   const { emoji, rest: unreacted } = takeReaction(scrubModel(raw, { ooc }));
@@ -4051,9 +4067,18 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
     // ...unless the narration has her on her phone and not at his door ("sets the phone face-down and goes
     // back to the receipt", live 2026-10-05): then her quoted words are the texts
     const acts = [...body.matchAll(/\*([^*\n]+)\*/g)].map((m) => m[1]).join(" ");
-    if (ON_PHONE.test(acts) && !GOES_OVER.test(acts)) {
+    const quoted = () => {
       const said = [...body.replace(/\*[^*\n]*\*/g, "\n").matchAll(/["“]([^"”\n]+)["”]/g)].map((m) => m[1].trim()).filter(Boolean).join("\n\n");
-      const text = said && fresh(texting(said));
+      return said && fresh(texting(said));
+    };
+    if (ON_PHONE.test(acts) && !GOES_OVER.test(acts)) {
+      const text = quoted();
+      if (text) { out.repaired = true; return as("text", text, splitBubbles(text)); }
+    }
+    // ...and a scene only when she goes to him: otherwise she's asked again, and at last her quoted words are the texts
+    if (!HER_MOVE.test(acts)) {
+      if (!lastResort) return Object.assign(out, { narrationOnly: true });
+      const text = quoted();
       if (text) { out.repaired = true; return as("text", text, splitBubbles(text)); }
     }
     return asScene(body);
