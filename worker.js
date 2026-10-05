@@ -691,7 +691,9 @@ Changing the story
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
     LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
-    SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light, caught in the middle of what she's doing, not posing:",
+    SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, caught in the middle of what she's doing, not posing:",
+    // its light: LIGHT for her time of day, or this after dark ("natural light" drew 3 of 3 night scenes in daylight, 2026-10-05)
+    SCENE_NIGHT: "It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps.",
     // In person, she wears what the scene said she wears (WEARING_WORDS in her narration of this scene, newest first),
     // else SCENE_WEARING. Without it klein dressed her in image 1's black dress, pose included (owner, 2026-10-05)
     SCENE_WEARING: "her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a black tank top",
@@ -2894,7 +2896,10 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     if (!what) return null;
     const location = locationOf(what);
     const wearing = sceneWearing(want, history);
-    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wearing && `She is wearing ${wearing}.`, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: isDark(), wearing };
+    const night = timeOfDay() === "night";
+    const lightText = night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]);
+    const light = night ? lightText : lightText && `Lit by ${lightText}.`;
+    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wearing && `She is wearing ${wearing}.`, light, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
   } else {
     pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
   }
