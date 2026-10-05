@@ -1,0 +1,22 @@
+{
+  "note": "Speech-to-text bench (owner 2026-10-05: \"do the new speech-to-text bench\"): his voice notes as Telegram sends them (OGG/Opus), made by Gemini TTS in male voices with laughs, a sigh, a whisper, Levantine Arabic, Arabizi code-switching and a heavy accent; each heard by Whisper (live), Nova-3 and OpenRouter's audio-input models. Judge: words right, Arabic right, sounds/tone noted.",
+  "max_clips": 8,
+  "tts": { "model": "google/gemini-3.8-flash-tts", "format": "pcm", "rate": 24000 },
+  "lines": [
+    { "id": "laugh", "voice": "Puck", "instructions": "A relaxed man in his late twenties talking to his girlfriend, amused. Laugh out loud where marked.", "text": "[laughs] No way, you actually said that to him? [laughs] Okay, okay, I'm coming over." },
+    { "id": "sigh", "voice": "Charon", "instructions": "A tired man after a long day, low and slow, a long audible sigh where marked.", "text": "[sighs] Long day. My boss kept me late again... I just want to lie down and hear your voice." },
+    { "id": "whisper", "voice": "Puck", "instructions": "A man whispering close to the phone, teasing.", "text": "[whispers] Don't tell anyone... but I've been thinking about you all day." },
+    { "id": "arabic", "voice": "Orus", "instructions": "A Lebanese man speaking natural Levantine Arabic, warm and casual.", "text": "كيفك حبيبتي؟ اشتقتلك كتير. شو عم تعملي هلق؟" },
+    { "id": "switch", "voice": "Fenrir", "instructions": "A Lebanese man mixing Arabic and English mid-sentence, playful and a little impatient, with a Lebanese accent.", "text": "Habibti, yalla, open the door, ana barra, I'm literally standing outside, khalas!" },
+    { "id": "accent", "voice": "Algenib", "instructions": "A man with a heavy Arabic accent speaking English, annoyed then laughing at himself at the end.", "text": "I am so tired of this weather, honestly. Every day rain, rain, rain. I want to go back home to the sun. [laughs]" }
+  ],
+  "prompt": "This is a voice note a man sent to his girlfriend on Telegram. Transcribe it exactly as spoken: English in English, Arabic in Arabic script, Arabizi or mixed words as he says them. Put non-speech sounds and tone in parentheses where they happen, for example (laughs), (sighs), (whispering), (teasing), (annoyed). Output only the transcript.",
+  "hearers": [
+    { "name": "whisper", "kind": "workers", "model": "@cf/openai/whisper-large-v3-turbo" },
+    { "name": "nova3", "kind": "nova", "model": "@cf/deepgram/nova-3" },
+    { "name": "gemini-flash-lite", "kind": "chat", "match": ["gemini", "flash", "lite"], "not": ["image", "tts", "preview-0"] },
+    { "name": "gemini-flash", "kind": "chat", "match": ["gemini", "flash"], "not": ["lite", "image", "tts"] },
+    { "name": "voxtral-small", "kind": "chat", "match": ["voxtral", "small"] },
+    { "name": "or-transcribe", "kind": "transcriptions", "match": ["transcribe"] }
+  ]
+}
