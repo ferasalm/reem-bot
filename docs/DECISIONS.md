@@ -5,6 +5,10 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **Deploy** (owner: "Deploy"): `dev` (b5c4d60) fast-forwarded into `main`; deploy run 37272358522 green
+  (Worker deployed, /health step passed). Live now: in-person pictures wearing what the scene said, night light, BMI ~26
+  body picture with rounded shoulders, fitted everyday clothes, `/look`, the `/setup` checks. *Completes the 2026-10-05 entries
+  marked "Not deployed yet".*
 - 2026-10-05 — **BMI about 26, rounded shoulders, fitted clothes** (owner: "Why are her shoulders sharp like a square and not
   rounded with klein? Also yes I want her looking not obese and not slim, as if her BMI is 26. Let's see her in clothes that
   better reflect her body shape and contours."): new body picture for klein's image 1 (`tools/face/body.jpg`, Nano Banana

@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05 (sixth session): deployed
+- `main` = `dev` at b5c4d60 (fast-forward). Deploy run 37272358522 green. Old session branches (14, all dated 2026-10-04 or
+  earlier) not read; owner said "Deploy". Live code not read back from Cloudflare.
+
 ## 2026-10-05 (fourth session): deployed
 - `main` = `dev` at cdf631f (fast-forward). Deploy run 37267949894 green. Old session branches (commits not on dev,
   all dated 2026-10-04 or earlier) were not read; owner said "Deploy". Not yet done by the owner: /setup, voice note, lingerie and "spicier" picture, /restart.

@@ -3,8 +3,8 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-05 (fourth session). **Deployed:** `main` = `dev` = cdf631f (deploy run 37267949894 green).
-v11, klein-first lingerie, the stronger accent, Gemini hearing and the owner's place pictures are live.
+**Last updated:** 2026-10-05 (sixth session). **Deployed:** `main` = `dev` = b5c4d60 (deploy run 37272358522 green).
+Everything on `dev` is live, including the fifth session's picture, body, /look and /setup work.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
@@ -14,7 +14,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   - **Hearing:** Gemini 3.8 Flash (OpenRouter) first, laughs and tone in parentheses; Whisper, then Scribe, as backups.
   - **Lingerie:** klein first (`LINGERIE.KLEIN_WARDROBE`, her face); Nano Banana when klein refuses; two pieces,
     "spicier", from behind or explicit words go straight to Nano Banana with `SPICY_PROMPT`.
-- **On `dev` but not on `main` (2026-10-05, fifth session):** in-person pictures wear what the scene said (`sceneWearing`),
+- **Live since 2026-10-05 (fifth session's work):** in-person pictures wear what the scene said (`sceneWearing`),
   casual clothes under a cardigan (`SCENE_UNDER`), night light (`SCENE_NIGHT`), only she in the frame; a little curvy, not
   heavy; new body picture (BMI ~26, rounded shoulders, gray tank + leggings) and fitted everyday clothes; `/look` sends
   what he sees in person. /setup tests Sulafat,
@@ -22,19 +22,18 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
-- **Say "Deploy"** to put the picture, body, /look and /setup fixes live. After it: `/setup` once (the command menu
-  gets /look). Selfies come out a bit slimmer than BMI 26 (2 of 3 at ~23):
+- **Deployed.** `/setup` once (the command menu gets /look). Selfies come out a bit slimmer than BMI 26 (2 of 3 at ~23):
   judge live; next lever is the words or a second body picture. Lunaris (backup) answered via DeepInfra, which DeepSeek's
   routing excludes: exclude it for Lunaris too?
-- **After the deploy, in Telegram:** `/setup`, a voice note with a laugh, a lingerie picture, a "spicier" picture
+- **In Telegram now:** `/setup`, a voice note with a laugh, a lingerie picture, a "spicier" picture
   ("send me a spicier pic"), then `/restart`. Tell Claude what slipped.
 - The ElevenLabs backup voice is "North Jersey": keep or redesign. Delete old branches (Actions > Delete retired
   branches). Cost estimate questions from 2026-10-04 still open.
 
-## Verified this session (2026-10-05, fourth session)
-- `node tools/check.mjs` all 6 ok before the push; `main` fast-forwarded to cdf631f; deploy run 37267949894 completed
-  with success (Deploy Worker step ok, /health step ran in the same run).
-- Not checked: no `[live]` run, no real voice note or picture through the bot yet; the sync report's 13 old session
+## Verified this session (2026-10-05, sixth session)
+- `node tools/check.mjs` all 6 ok; `main` fast-forwarded cdf631f to b5c4d60; deploy run 37272358522 completed
+  with success (Deploy Worker and /health steps).
+- Not checked: no `[live]` run, no real voice note or picture through the bot yet; the sync report's 14 old session
   branches (commits not on dev, all dated 2026-10-04 or earlier) were not read.
 
 ## Next steps (in order)
