@@ -1,0 +1,53 @@
+{
+  "note": "v11 places with her in them (klein, prompts from composePicture, night pictures after dark as drawPicture does). Check: face vs reference, bangs, body, the new room (plaster/radiator/kitchen table; porch over the driveway; wooden landing), phone rule, light.",
+  "mode": "shots",
+  "reference": "tools/face/reference.jpg",
+  "width": 576,
+  "height": 1024,
+  "square": false,
+  "labels": [
+    "everyday/cozy @11h living",
+    "everyday/selfie @21h living night",
+    "everyday/golden @17h porch",
+    "flirty/legs @22h porch night",
+    "everyday/mirror @10h hallway",
+    "flirty/mirror-back @23h hallway night"
+  ],
+  "prompts": [
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera a little below her chin, tilted up, curled up under a blanket on the sofa in her living room, an unimpressed deadpan look, wearing an oversized gray vintage tee, bright afternoon daylight. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: the front room of an old triple-decker apartment: cream plaster walls with old wooden trim, a cast-iron steam radiator under a drafty wooden sash window, a worn wooden kitchen table used as her desk with an open laptop, a printing calculator and cardboard shoeboxes of receipts, a small worn olive-green sofa with a wool blanket, a faded rug on old fir floorboards, a tall paper floor lamp. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, a sleepy, lazy smile, wearing an oversized gray vintage tee, in her living room, warm lamp light in a dark room. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: the front room of an old triple-decker apartment: cream plaster walls with old wooden trim, a cast-iron steam radiator under a drafty wooden sash window, a worn wooden kitchen table used as her desk with an open laptop, a printing calculator and cardboard shoeboxes of receipts, a small worn olive-green sofa with a wool blanket, a faded rug on old fir floorboards, a tall paper floor lamp. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up on her back porch at golden hour, warm low sun on her face, maple trees and rooftops behind her, camera held a little above her eyes, tilted down, a soft half smile, wearing an oversized gray knit cardigan sliding off one shoulder over a black tank top. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a small third-floor wooden back porch of a triple-decker: gray-painted floorboards, white railings, one folding chair, a coffee can for an ashtray, string lights along the railing, the asphalt driveway, trash bins and a white van three floors below, neighbors' clapboard houses and maples behind. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Taken from above while she sits on a chair on her back porch, her legs crossed and in the frame, a daring look straight into the camera, wearing a black bodycon mini dress, warm lamp light in a dark room. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a small third-floor wooden back porch of a triple-decker: gray-painted floorboards, white railings, one folding chair, a coffee can for an ashtray, string lights along the railing, the asphalt driveway, trash bins and a white van three floors below, neighbors' clapboard houses and maples behind. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in the hallway between their doors, the room behind her, biting back a smile, wearing a black ribbed tank top, a little flash glare on the glass, bright morning sun through the window. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: the narrow third-floor landing of an old triple-decker: worn wooden floorboards, steep wooden back stairs with a dark painted banister going down, two old wooden apartment doors facing each other a few steps apart, a tall mirror on the wall by her door, a doormat, a bare bulb fixture on the slanted ceiling, plaster walls. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Back view: she stands with her back to a mirror in the hallway between their doors and twists to look over her shoulder at her phone; the reflection shows her back, 3/4 body, lips slightly parted, eyes on the camera, wearing a black off-shoulder top and a short skirt, warm lamp light in a dark room. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: the narrow third-floor landing of an old triple-decker: worn wooden floorboards, steep wooden back stairs with a dark painted banister going down, two old wooden apartment doors facing each other a few steps apart, a tall mirror on the wall by her door, a doormat, a bare bulb fixture on the slanted ceiling, plaster walls. Natural skin texture, slight grain. No nudity."
+  ],
+  "refs": [
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/living.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/living_night.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/porch.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/porch_night.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/hallway.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/hallway_night.jpg"
+    ]
+  ],
+  "per_prompt": 1,
+  "describe": false,
+  "day_neurons": 30000
+}
