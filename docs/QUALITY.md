@@ -308,3 +308,14 @@ Caveat: Gemini made the clips, so Gemini hearing them may be easier than real vo
 | **Gemini 3.8 Flash** | all right | right | all right (Arabic words in Arabic script), "(annoyed)" | laugh 2/3, sigh ok, whispering ok; 2 false sighs, 1 "gasp" | 3-7 s | ~$0.02 |
 | Voxtral Small 24B | good, "wanna" | "حبيبي" for "حبيبتي" | "ana barra" translated to "I'm outside" | "(Exhales)", whispering ok, laughs 0/3 | 0.7 s | ~$0.006 |
 | Gemini 3.5 Transcribe | good | good | "ya Allah", dropped "ana barra" | none | 1.2 s | words only |
+
+## Spicier route on Nano Banana, the owner's JSON style with Reem's description (2026-10-05, image bench 37267630601)
+4/4 drawn on the first try ($0.16), none refused. Her look in words only (no face picture): bangs, dark wavy hair,
+curvy; the face varies a little between pictures, as with every text-only Nano Banana picture.
+
+| Pic | Ask | Drawn | Verdict |
+|---|---|---|---|
+| 01 | only a plum lace thong, from behind, 23h | from behind, plum lace thong, but a matching bra strap added; arched mirror, radiator, lamp on | pass (not "only") |
+| 02 | black balconette bra + high-cut thong, 15h | exactly that, hand on hip, iPhone in the arched mirror | pass |
+| 03 | spicier, no outfit named (SPICY_WARDROBE), 22h | black lace bra + lace thong, hand in her hair; drawn in daylight | pass (light wrong at night) |
+| 04 | red lace bra + panties, kneeling on the bed, 20h | exactly that, kneeling on the bed | pass |
