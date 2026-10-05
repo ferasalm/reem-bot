@@ -475,6 +475,16 @@ section("pictures: his photos (Workers AI vision)");
   // seen live: "lying on her side in bed" (no type) drawn as a mirror waist shot
   eq(W.selfiePicture({ want: "lying on my side in bed, hair spilled across the pillow", plan: { tier: "everyday", shot: "selfie" } }).shot, "selfie", "live: her description without a type keeps the shot she was told");
   eq(new Set(Array.from({ length: 50 }, () => W.selfiePicture({ want: "lying on my side in bed, hair on the pillow" }).shot)).size, 1, "...and with no plan, always the plain selfie (never a random framing)");
+  { // live 2026-10-05: a kitchen scene in a cardigan and wool socks was drawn in image 1's black dress (no clothes in the prompt)
+    const intro = "*Her door opened anyway—Reem in an old cardigan and wool socks, a calculator's paper roll trailing from one hand.*";
+    const later = "*She takes a step back into her doorway, the cardigan slipping off her shoulder. She looks at you for a beat too long.*";
+    const now = "*Reem steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway.*";
+    const h = [{ role: "assistant", content: intro, at: Date.now() - 600000 }, { role: "user", content: "ADHD...", at: Date.now() - 500000 }, { role: "assistant", content: later, at: Date.now() - 400000 }];
+    eq(W.sceneWearing(now, h), "an old cardigan and wool socks", "live: a scene picture wears what the scene said (a later 'the cardigan' doesn't replace it)");
+    eq(W.sceneWearing(now, [{ role: "assistant", content: intro, at: Date.now() - 9e6 }]), W.CONFIG.PICTURE.SCENE_WEARING, "...an earlier scene's clothes don't carry over");
+    eq(W.sceneWearing("*She pulls on his hoodie, laughing.*", h), "his hoodie", "...she may wear his clothes");
+    eq(W.sceneWearing("*She buries her face in his shirt.*", []), W.CONFIG.PICTURE.SCENE_WEARING, "...but his shirt she presses her face into isn't what she wears");
+  }
   eq(W.scenePicturePrompt("*The hallway is dim, the only light spilling from behind her, catching the curve of her shoulder where the robe has slipped. A pause. Her voice drops, mock-soft.*"), "The hallway is dim, the only light spilling from behind her, catching the curve of her shoulder where the robe has slipped.", "live: her voice and pauses aren't drawn");
   W.CONFIG.PICTURE.CHANCE = 1;
   r = await turn("what are you up to", ["just finished dinner, basbousa is judging me from the counter\n\nyou?"], { history: APART });

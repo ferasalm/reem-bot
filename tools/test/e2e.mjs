@@ -12,6 +12,8 @@ globalThis.fetch = async (url, init = {}) => {
   let body = init.body;
   if (body instanceof FormData) { const o={}; for (const [k,v] of body) o[k]= typeof v==="string"?v:"<blob>"; body=JSON.stringify(o); }
   const j = (o, status=200) => new Response(JSON.stringify(o), { status });
+  if (url.includes("openrouter.ai/api/v1/models/")) return j({ data: { endpoints: [{ provider_name: "Google" }] } }); // /setup: the lingerie model is listed
+  if (url.endsWith("/getMe")) return j({ ok: true, result: { username: "reem_nabot" } });
   if (url.includes("openrouter.ai/api/v1/audio/speech")) {
     orSpeech.push(JSON.parse(init.body));
     return orSpeechFail ? new Response(JSON.stringify({ error: { message: "Provider returned 400" } }), { status: 400, headers: { "content-type": "application/json" } }) : new Response(JSON.parse(init.body).response_format === "pcm" ? new Uint8Array(new Int16Array(24000).map((_, i) => Math.round(8000 * Math.sin(i / 8))).buffer) : new Uint8Array(300), { headers: { "content-type": "audio/mpeg" } });
@@ -367,6 +369,23 @@ step("hearing: Gemini (HEARING.OR_MODEL) first, Whisper when it fails or the not
   await run(msg({ voice: { file_id: "g3", duration: 4 } }));
   console.log("gemini fails -> whisper:", gemini.calls.length === 2 && aiCalls.length === w + 2 && JSON.parse(store.get("ai_error")).error.includes(W.CONFIG.HEARING.OR_MODEL));
   W.CONFIG.PICTURE.ENABLED = picsOn; store.delete("pics"); delete env.AI;
+}
+
+step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip, failures as notes, money today");
+{
+  const V = W.CONFIG.VOICE; const prov = V.PROVIDER; V.PROVIDER = "openrouter"; gemini.mode = "hear";
+  const eleven = () => log.filter((l) => l.includes("text-to-speech")).length; const before = eleven(); const spoke = orSpeech.length;
+  store.set("ai_error", JSON.stringify({ at: clock - 2 * 86400000, error: "drawing a boudoir mirror: 3030" }));
+  store.set("voice_error", JSON.stringify({ at: clock - 3600000, error: "OpenRouter voice: x 500; ElevenLabs spoke it" }));
+  env.AI = { async run() { throw new Error("not called by /setup"); } };
+  const html = await (await mod.fetch(new Request("https://reem.example/setup"), env, ctx)).text();
+  const row = (label) => (html.match(new RegExp(`<div class="row"><div>([^<]*)</div><div><b>${label}[^<]*</b><span>([^<]*)</span>`)) || []).slice(1);
+  console.log("setup: her voice tested:", orSpeech.length === spoke + 1 && row("Her voice")[0] === "✅", "| Gemini heard it:", row("Hearing")[0] === "✅" && /come over/.test(row("Hearing")[1]) && gemini.calls.at(-1).messages[0].content[1].input_audio.format === "mp3",
+    "| ElevenLabs no clip:", eleven() === before && row("ElevenLabs \\(backup\\) voice")[0] === "✅",
+    "| old failure is a note:", row("Last Workers AI call")[0] === "ℹ️" && /2 days ago/.test(row("Last Workers AI call")[1]),
+    "| voice failure not 'as text':", !/as text instead/.test(row("Last voice note")[1] || "") && row("Last voice note")[0] === "ℹ️",
+    "| all set:", html.includes("All set."));
+  V.PROVIDER = prov; gemini.mode = "fail"; delete env.AI; store.delete("ai_error"); store.delete("voice_error");
 }
 
 step("everything down: fallback line");

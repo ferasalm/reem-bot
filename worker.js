@@ -691,7 +691,11 @@ Changing the story
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a curvy pear-shaped hourglass figure: a narrow, clearly defined waist, much smaller than her hips; wide rounded hips and full thighs that are clearly wider than her shoulders; a large full bust; soft, narrow, gently sloping, rounded shoulders; and soft and fleshy arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
     LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, a curvy pear-shaped hourglass figure with a narrow, clearly defined waist much smaller than her hips, wide hips and full thighs clearly wider than her shoulders, a full bust, soft, narrow, gently sloping, rounded shoulders and soft and fleshy arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
-    SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light:",
+    SCENE_STYLE: "Realistic candid photo, seen from the eyes of the man in front of her, natural light, caught in the middle of what she's doing, not posing:",
+    // In person, she wears what the scene said she wears (WEARING_WORDS in her narration of this scene, newest first),
+    // else SCENE_WEARING. Without it klein dressed her in image 1's black dress, pose included (owner, 2026-10-05)
+    SCENE_WEARING: "her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a black tank top",
+    WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
     ROOM: "Behind her is the room from image {n}, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
@@ -1689,7 +1693,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
     drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked });
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
-    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"));
+    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history });
   }
   if (out.reaction) {
     const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
@@ -2765,6 +2769,38 @@ function scenePicturePrompt(sceneText) {
   return wordsOf(text).length >= (Number(P.MIN_SCENE_WORDS) || 0) ? text : "";
 }
 
+// What she wears in this scene: the newest clothes her narration named (this reply, then her earlier replies of the
+// same in-person scene), else PICTURE.SCENE_WEARING. Filter-safe; "" when it can't be drawn.
+function sceneWearing(sceneText, history = []) {
+  const P = CONFIG.PICTURE;
+  const texts = [sceneText];
+  let after = Date.now();
+  for (const m of [...history].reverse()) {
+    if (m.role !== "assistant" || m.ooc) continue;
+    if (!inPerson(m.content) || (m.at && after - m.at > CONFIG.TEXTING.SCENE_TIMEOUT_MIN * 60000)) break;
+    texts.push(m.content);
+    after = m.at || after;
+  }
+  const words = (P.WEARING_WORDS || []).map(String).filter((w) => w.trim()).sort((a, b) => b.length - a.length).map(escapeRegex);
+  if (words.length) {
+    const cloth = `(?:${words.join("|")})s?`;
+    const pre = "(?:[\\w'’-]+\\s+){0,4}?";
+    const worn = new RegExp(`\\b(in|wearing|into|pulls on|has on)\\s+(${pre}${cloth}(?:\\s+(?:and|over|with)\\s+${pre}${cloth})?)\\b`, "i");
+    const bare = new RegExp(`\\b((?:an?|the|her)\\s+(?:(?!(?:in|on|at|of|to|into|with|his|her|the|a|an)\\b)[\\w'’-]+\\s+){0,3}?${cloth})\\b`, "i");
+    // only sentences about her ("pulls on his hoodie" is hers to wear; "her face in his shirt" isn't)
+    const about = texts.map((t) => sentencesOf(String(t).replace(/\*/g, " ")).filter((x) => !/\b(?:you|your|he|him)\b/i.test(x)));
+    // "in an old cardigan and wool socks" anywhere in the scene beats a later "the cardigan slipping off"
+    for (const re of [worn, bare]) {
+      for (const list of about) {
+        const m = list.map((x) => x.match(re)).find((x) => x && !(/^his\b/i.test(x[x.length - 1]) && !/^(?:wearing|into|pulls on|has on)$/i.test(x[1])));
+        const what = m && m[m.length - 1].replace(/^the\s+/i, "her ").trim();
+        if (what && mayDraw(what)) return filterSafe(what).replace(/\b(\w+)\s+\1\b/gi, "$1");
+      }
+    }
+  }
+  return filterSafe(P.SCENE_WEARING || "");
+}
+
 /* --- her reference face --- */
 
 // The face every picture is drawn from: /face keep (KV) first, else the one built into face.js
@@ -2857,7 +2893,8 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const what = scenePicturePrompt(want);
     if (!what) return null;
     const location = locationOf(what);
-    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: isDark() };
+    const wearing = sceneWearing(want, history);
+    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wearing && `She is wearing ${wearing}.`, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: isDark(), wearing };
   } else {
     pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
   }
@@ -3159,7 +3196,7 @@ async function transcribe(env, fileId, mime, seconds) {
 }
 
 // His voice note heard by an audio model on OpenRouter (HEARING.OR_MODEL): the transcript, with (laughs) and the like
-async function hearWithGemini(env, bytes) {
+async function hearWithGemini(env, bytes, format = "ogg") {
   const H = CONFIG.HEARING;
   budget.used++;
   const res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -3167,7 +3204,7 @@ async function hearWithGemini(env, bytes) {
     headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: H.OR_MODEL, temperature: 0,
-      messages: [{ role: "user", content: [{ type: "text", text: H.OR_PROMPT }, { type: "input_audio", input_audio: { data: toBase64(bytes), format: "ogg" } }] }],
+      messages: [{ role: "user", content: [{ type: "text", text: H.OR_PROMPT }, { type: "input_audio", input_audio: { data: toBase64(bytes), format } }] }],
     }),
     signal: AbortSignal.timeout(Number(H.OR_TIMEOUT_MS) || 25000),
   });
@@ -3249,24 +3286,7 @@ async function openRouterTts(env, text, ledger = null) {
   const usd = (said.length / 1000) * (Number(V.OR_USD_PER_1000_CHARS) || 0);
   if (env.OPENROUTER_API_KEY && (ledger.voiceUsd || 0) + usd <= (Number(V.OR_DAILY_USD) || 0) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
     try {
-      budget.used++;
-      const pcm = V.OR_FORMAT === "pcm";
-      const body = { model: V.OR_MODEL, input: said, response_format: pcm ? "pcm" : "mp3" };
-      if (V.OR_VOICE) body.voice = V.OR_VOICE;
-      if (V.OR_INSTRUCTIONS) body.instructions = V.OR_INSTRUCTIONS;
-      const res = await xfetch("https://openrouter.ai/api/v1/audio/speech", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(CONFIG.LIMITS.HTTP_TIMEOUT_MS),
-      });
-      if (!res.ok || /json/.test(res.headers.get("content-type") || "")) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(`${V.OR_MODEL} ${res.status}: ${data?.error?.message || "no audio"}`);
-      }
-      let bytes = await res.arrayBuffer();
-      if (bytes.byteLength < 100) throw new Error(`${V.OR_MODEL} gave no audio`);
-      if (pcm) bytes = pcmToMp3(bytes);
+      const bytes = await orSpeech(env, said);
       ledger.voiceUsd = (ledger.voiceUsd || 0) + usd;
       await saveLedger(env, ledger);
       return bytes;
@@ -3276,6 +3296,29 @@ async function openRouterTts(env, text, ledger = null) {
     }
   } else if (!backup) throw new Error("OpenRouter voice: today's money for voice notes is spent (VOICE.OR_DAILY_USD) and the ElevenLabs backup is off.");
   return elevenTts(env, text);
+}
+
+// `said` spoken by VOICE.OR_MODEL on OpenRouter: MP3 bytes (Gemini's raw PCM encoded here), or an error
+async function orSpeech(env, said) {
+  const V = CONFIG.VOICE;
+  budget.used++;
+  const pcm = V.OR_FORMAT === "pcm";
+  const body = { model: V.OR_MODEL, input: said, response_format: pcm ? "pcm" : "mp3" };
+  if (V.OR_VOICE) body.voice = V.OR_VOICE;
+  if (V.OR_INSTRUCTIONS) body.instructions = V.OR_INSTRUCTIONS;
+  const res = await xfetch("https://openrouter.ai/api/v1/audio/speech", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(CONFIG.LIMITS.HTTP_TIMEOUT_MS),
+  });
+  if (!res.ok || /json/.test(res.headers.get("content-type") || "")) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(`${V.OR_MODEL} ${res.status}: ${data?.error?.message || "no audio"}`);
+  }
+  const bytes = await res.arrayBuffer();
+  if (bytes.byteLength < 100) throw new Error(`${V.OR_MODEL} gave no audio`);
+  return pcm ? pcmToMp3(bytes) : bytes;
 }
 
 // Gemini TTS gives raw 16-bit little-endian mono PCM at 24 kHz; Telegram wants MP3 or OGG/Opus
@@ -3361,12 +3404,14 @@ function voiceSettings() {
 }
 
 // Checks the voice works on this account with a short test clip
-async function checkVoice(env) {
+// clip: false checks the key and the voice only (no credits spent)
+async function checkVoice(env, clip = true) {
   const v = await xfetch(`https://api.elevenlabs.io/v1/voices/${voiceId(env)}`, { headers: { "xi-api-key": env.ELEVENLABS_API_KEY } });
   if (v.status === 401) return { ok: false, detail: "ElevenLabs rejected the key. Check ELEVENLABS_API_KEY." };
   if (!v.ok) {
     return { ok: false, detail: "This voice isn't in your account. On the free plan use a built-in voice or one you designed yourself." };
   }
+  if (!clip) return { ok: true, detail: "The key works and the voice is in your account (no test clip, to save credits)." };
   try {
     await elevenTts(env, fill(CONFIG.VOICE.TEST_PHRASE));
     return { ok: true, detail: "Test clip worked." };
@@ -4117,14 +4162,25 @@ function forSpeech(t) {
 /*  /setup page                                                        */
 /* ------------------------------------------------------------------ */
 
+// "2 days ago" for a saved time
+function ago(at) {
+  const min = Math.max(0, Math.round((Date.now() - (Number(at) || 0)) / 60000));
+  if (min < 60) return `${min} min ago`;
+  const h = Math.round(min / 60);
+  return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`;
+}
+
 async function setup(url, env) {
   const rows = [];
   const add = (ok, label, detail = "") => rows.push({ ok, label, detail });
   const name = CONFIG.CHARACTER.NAME;
   let botName = CONFIG.CHARACTER.BOT_USERNAME;
 
-  const missing = ["TELEGRAM_BOT_TOKEN", "OPENROUTER_API_KEY", "ELEVENLABS_API_KEY"].filter((k) => !env[k]);
+  // ok: true ✅, false ❌, null ℹ️ (a note, not a check)
+  const elevenNeeded = !["aura", "openrouter"].includes(CONFIG.VOICE.PROVIDER);
+  const missing = ["TELEGRAM_BOT_TOKEN", "OPENROUTER_API_KEY", ...(elevenNeeded ? ["ELEVENLABS_API_KEY"] : [])].filter((k) => !env[k]);
   if (missing.length) add(false, "Secrets", `Missing: ${missing.join(", ")}. Add them in Settings > Variables and Secrets, then reload this page.`);
+  if (!elevenNeeded && !env.ELEVENLABS_API_KEY) add(null, "ElevenLabs (backup)", "ELEVENLABS_API_KEY isn't set: no backup voice and no last-resort hearing. She still talks and hears without it.");
 
   const overrides = applyOverrides(env);
   if (overrides.set) add(overrides.ok, "Settings (CONFIG_OVERRIDES)", overrides.detail);
@@ -4167,6 +4223,32 @@ async function setup(url, env) {
     }
   }
 
+  let clip = null;
+  if (CONFIG.VOICE.PROVIDER === "openrouter" && env.OPENROUTER_API_KEY) {
+    const V = CONFIG.VOICE;
+    const label = `Her voice: ${V.OR_VOICE || V.OR_MODEL}`;
+    try {
+      clip = await orSpeech(env, auraText(fill(V.TEST_PHRASE), V.OR_CUES));
+      add(true, label, `Test clip made (${V.OR_MODEL}, ${Math.round(clip.byteLength / 1024)} KB MP3).${V.ELEVENLABS_BACKUP && env.ELEVENLABS_API_KEY ? " ElevenLabs is the backup." : ""}`);
+    } catch (e) {
+      add(false, label, `${e.message}${V.ELEVENLABS_BACKUP && env.ELEVENLABS_API_KEY ? ". ElevenLabs speaks her notes until this works." : ". Her voice notes go as text until this works."}`);
+    }
+  }
+  const H = CONFIG.HEARING;
+  if (H.OR_MODEL && env.OPENROUTER_API_KEY) {
+    const backups = [H.MODEL && "Whisper", H.BACKUP_MODEL && env.ELEVENLABS_API_KEY && "Scribe"].filter(Boolean).join(", then ");
+    const after = backups ? ` ${backups} ${backups.includes(",") ? "are" : "is"} the backup (not tested here).` : "";
+    if (!clip) add(null, `Hearing: ${H.OR_MODEL}`, `Not tested: it listens to her test clip, and there was none.${after}`);
+    else {
+      try {
+        const heard = await hearWithGemini(env, clip, "mp3");
+        add(true, `Hearing: ${H.OR_MODEL}`, `It heard her test clip as: “${heard.slice(0, 120)}”.${after}`);
+      } catch (e) {
+        add(false, `Hearing: ${H.OR_MODEL}`, `${e.message}.${after}`);
+      }
+    }
+  }
+
   if (CONFIG.VOICE.PROVIDER === "aura") {
     const V = CONFIG.VOICE;
     if (!env.AI) add(false, "Workers AI voice", "The AI binding is missing (wrangler.toml), so ElevenLabs speaks every note.");
@@ -4182,22 +4264,23 @@ async function setup(url, env) {
   }
 
   if (env.ELEVENLABS_API_KEY && (CONFIG.VOICE.PROVIDER !== "aura" || CONFIG.VOICE.ELEVENLABS_BACKUP)) {
-    const v = await checkVoice(env);
+    const v = await checkVoice(env, elevenNeeded);
     const which = env.VOICE_ID ? ` (the VOICE_ID secret replaces CONFIG.VOICE.ID "${CONFIG.VOICE.ID}"; delete it to use ${CONFIG.VOICE.NAME})` : "";
-    add(v.ok, `ElevenLabs voice: ${env.VOICE_ID ? env.VOICE_ID : CONFIG.VOICE.NAME}`, v.detail + which);
+    add(v.ok, `ElevenLabs${elevenNeeded ? "" : " (backup)"} voice: ${env.VOICE_ID ? env.VOICE_ID : CONFIG.VOICE.NAME}`, v.detail + which);
   }
 
   const lastVoiceError = env.REEM_KV && (await env.REEM_KV.get("voice_error", "json").catch(() => null));
   if (lastVoiceError) {
     const when = new Date(lastVoiceError.at).toLocaleString(CONFIG.CHARACTER.CLOCK_LOCALE, { timeZone: CONFIG.CHARACTER.TIMEZONE });
-    add(true, "Last voice note that failed", `${when} (${CONFIG.CHARACTER.CITY} time): ${lastVoiceError.error}. She sent it as text instead.`);
+    // the error says itself when ElevenLabs spoke it instead
+    add(null, "Last voice note that failed", `${when} (${CONFIG.CHARACTER.CITY} time, ${ago(lastVoiceError.at)}): ${lastVoiceError.error}${/ElevenLabs spoke it/.test(lastVoiceError.error) ? "." : ". She sent it as text instead."}`);
   }
 
   // Workers AI: his photos seen (VISION), her pictures drawn (PICTURE) from her reference face
   const PIC = CONFIG.PICTURE;
   if (CONFIG.VISION.ENABLED || PIC.ENABLED) {
     add(!!env.AI, "Workers AI (AI)", env.AI
-      ? `Connected: ${[CONFIG.VISION.ENABLED && `she sees your photos (${CONFIG.VISION.MODEL})`, PIC.ENABLED && `she draws her pictures (${PIC.MODEL})`].filter(Boolean).join("; ")}.`
+      ? `Bound to this Worker (not test-called here): ${[CONFIG.VISION.ENABLED && `she sees your photos (${CONFIG.VISION.MODEL})`, PIC.ENABLED && `she draws her pictures (${PIC.MODEL})`].filter(Boolean).join("; ")}.`
       : "Not connected. Add an AI binding named AI (wrangler.toml has it: deploy again). Until then she can't see photos or send pictures.");
   }
   if (PIC.ENABLED && env.REEM_KV) {
@@ -4205,12 +4288,25 @@ async function setup(url, env) {
     add(!!(picked || FACE_JPEG_BASE64), "Her face in pictures", picked ? `Picked with ${commandFor("face")}.` : FACE_JPEG_BASE64 ? `Built in (face.js). ${commandFor("face")} shows it and draws others to pick from.` : `None: her pictures won't all show the same face. Send ${commandFor("face")} in the chat to pick one.`);
     const ledger = await loadLedger(env);
     const B = CONFIG.AI_BUDGET;
-    add(true, "Workers AI today (UTC)", ledger.out ? `Cloudflare said the allocation is used up: no pictures for now, the next try after ${new Date((Number(ledger.out) || 0) + B.OUT_RETRY_MS).toISOString().slice(11, 16)} UTC.` : `About ${Math.round(ledger.neurons)} of ${B.DAILY_NEURONS} neurons used (pictures stop at ${Math.round(B.DAILY_NEURONS * B.PICTURE_SHARE)}; the first 10,000 are free, then about $0.011 per 1,000).`);
+    add(ledger.out ? false : null, "Workers AI today (UTC)", ledger.out ? `Cloudflare said the allocation is used up: no pictures for now, the next try after ${new Date((Number(ledger.out) || 0) + B.OUT_RETRY_MS).toISOString().slice(11, 16)} UTC.` : `About ${Math.round(ledger.neurons)} of ${B.DAILY_NEURONS} neurons used by the bot's own count (test runs on GitHub aren't in it; Cloudflare's dashboard has the real total). Pictures stop at ${Math.round(B.DAILY_NEURONS * B.PICTURE_SHARE)}; the first 10,000 a day are free, then about $0.011 per 1,000.`);
+    const L = PIC.LINGERIE || {};
+    const usd = (n) => `$${(Number(n) || 0).toFixed(2)}`;
+    add(null, "OpenRouter today (UTC)", [CONFIG.VOICE.PROVIDER === "openrouter" && `her voice notes about ${usd(ledger.voiceUsd)} of ${usd(CONFIG.VOICE.OR_DAILY_USD)}`, L.ENABLED && `lingerie pictures ${usd(ledger.usd)} of ${usd(L.DAILY_USD)}`].filter(Boolean).join("; ") + ". Her text replies and hearing aren't counted here (OpenRouter's activity page has them).");
+    if (L.ENABLED && env.OPENROUTER_API_KEY) {
+      // a real picture would cost USD_PER_PICTURE on every reload: only that the model is there
+      try {
+        const res = await xfetch(`https://openrouter.ai/api/v1/models/${L.MODEL}/endpoints`, { headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}` } });
+        const n = ((await res.json().catch(() => ({})))?.data?.endpoints || []).length;
+        add(res.ok && n > 0, `Lingerie pictures: ${L.MODEL}`, res.ok && n > 0 ? `Available on OpenRouter (${n} provider${n === 1 ? "" : "s"}). Not drawn here: a test picture costs about ${usd(L.USD_PER_PICTURE)}.` : `OpenRouter doesn't list it now (HTTP ${res.status}): klein's own wardrobe draws them instead.`);
+      } catch (e) {
+        add(false, `Lingerie pictures: ${L.MODEL}`, e.message);
+      }
+    }
   }
   const lastAiError = env.REEM_KV && (await env.REEM_KV.get("ai_error", "json").catch(() => null));
   if (lastAiError) {
     const when = new Date(lastAiError.at).toLocaleString(CONFIG.CHARACTER.CLOCK_LOCALE, { timeZone: CONFIG.CHARACTER.TIMEZONE });
-    add(true, "Last Workers AI call that failed", `${when} (${CONFIG.CHARACTER.CITY} time): ${lastAiError.error}`);
+    add(null, "Last Workers AI call that failed", `${when} (${CONFIG.CHARACTER.CITY} time, ${ago(lastAiError.at)}): ${lastAiError.error}`);
   }
 
   if (env.REEM_KV) {
@@ -4226,7 +4322,7 @@ async function setup(url, env) {
     add(false, "Queue (REEM_QUEUE)", `Not connected. Create a queue "reem-inbox", bind it as REEM_QUEUE and add this Worker as its consumer. Until then every reply must fit in 30 seconds, so she types much faster than ${CONFIG.TIMING.TYPING_CHARS_PER_MIN} characters a minute.`);
   }
 
-  const allOk = rows.every((r) => r.ok);
+  const allOk = rows.every((r) => r.ok !== false);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const restart = commandFor("restart");
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -4239,8 +4335,8 @@ h1{font-size:22px;margin:0 0 4px}.sub{color:#666;margin:0 0 20px}
 a{color:#0a66c2}
 @media (prefers-color-scheme:dark){body{background:#151514;color:#eee}.row{background:#222}.row span{color:#aaa}.done{background:${allOk ? "#173323" : "#3a2c12"}}}
 </style></head><body>
-<h1>${esc(name)} setup</h1><p class="sub">Reload this page any time to re-check.</p>
-${rows.map((r) => `<div class="row"><div>${r.ok ? "✅" : "❌"}</div><div><b>${esc(r.label)}</b><span>${esc(r.detail)}</span></div></div>`).join("")}
+<h1>${esc(name)} setup</h1><p class="sub">Reload to re-check. Each load reconnects Telegram${CONFIG.TELEGRAM.DROP_PENDING_UPDATES ? " and drops messages still waiting to be answered" : ""}, and the voice test costs about $0.001.</p>
+${rows.map((r) => `<div class="row"><div>${r.ok === null ? "ℹ️" : r.ok ? "✅" : "❌"}</div><div><b>${esc(r.label)}</b><span>${esc(r.detail)}</span></div></div>`).join("")}
 <div class="done">${allOk ? `All set. Open <a href="https://t.me/${esc(botName)}">@${esc(botName)}</a>${restart ? ` and send ${esc(restart)}` : ""} to meet the new ${esc(name)}.` : "Fix the ❌ items above, then reload this page."}</div>
 </body></html>`;
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
