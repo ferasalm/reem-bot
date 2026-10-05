@@ -35,8 +35,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 
 ## 2. Known traps
 - History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either.
-  Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD).
-- Telegram deletes bot messages only for 48 h (`DELETE_FAILED`); history is cut anyway.
+  Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.
 - After deploying v10: open `/setup` once (Telegram must start sending `edited_message` and `callback_query`; the
   command menu updates), then `/restart` or `/rewind` to a clean point, since old narrated replies in history pull
   the model back to that style. A `VOICE_ID` Worker secret, if set, overrides `VOICE.ID`: remove it.
@@ -92,7 +91,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   chat models take Telegram's OGG as `input_audio` format "ogg"; Nova-3 turns Arabic into Devanagari.
 - Vendoring a third-party npm package into the repo (lamejs for Gemini TTS's PCM → MP3) was refused by the session's
   permission check until the owner said "add lamejs": ask first, then add. 5 s of speech encode in ~0.2 s. (2026-10-04)
-- Slim bodies on klein (6/15, then 5/13) were fixed by a body reference picture as image 1 (8/8 curvy, clothes not copied):
+- Slim bodies on klein (6/15, then 5/13) were fixed by a body reference picture as image 1 (8/8 curvy, clothes not copied
+  when the prompt names clothes; a scene prompt naming none got image 1's black dress and pose, live 2026-10-05 → `sceneWearing`):
   words alone don't move klein's body; a faceless clothed Nano Banana picture does. face.yml refuses a job past
   `day_neurons` of the account's real usage today (47,467 used by earlier tests): trim the job rather than raise the cap. (2026-10-04)
 - e2e: a mocked reply that repeats a line she already said in an earlier step is cut by the repeat guard (her note
@@ -112,7 +112,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   "top and bottoms" passes but draws pajamas. (face runs 37151684663, 37152577208, round 3; 2026-10-03)
 - Night pictures came out in daylight (0/12) → klein copies the place picture's light, and wording alone turned the
   lamp on 1/3 → night place pictures (`places/<key>_night.jpg`): lamp on 6/6, night window 2/6 (round 5). Drawing
-  them, "deep shadow" made 3 of 7 rooms too dark to use → "warmly lit and easy to see". (2026-10-03)
+  them, "deep shadow" made 3 of 7 rooms too dark to use → "warmly lit and easy to see". (2026-10-03) Scene pictures with "natural light": 3/3
+  daylight at 1:30 even with the night place → `SCENE_NIGHT`: 3/3 night (face runs 37269519565, 37269696933; 2026-10-05).
   Bathroom body-length mirror shots broke 3/3 (its mirror is small and round) → bedroom/hallway only. (2026-10-03)
 - With a place's picture attached she came out small in a wide room shot → klein copies the reference's framing →
   `ROOM` puts the room "behind her" and says she fills the frame (verified in round 2: she fills it). (2026-10-03)
@@ -130,7 +131,6 @@ At most 150 lines (`tools/doc-check.mjs`).
   reply in the job log (GitHub MCP `get_job_logs`), REVIEW lines included.
 - Don't spawn sub-agents to explore: they start cold and re-read what you already know.
 - Moving text between files: use a script that asserts each old string exists, never retype it.
-
 - The live log cuts each model reply at ~400 characters → to reproduce a slip, rebuild the reply and run it through
   `shapeReply` from a scratch script with `loadWorker()` (`tools/test/load-worker.mjs`). (2026-10-05)
 

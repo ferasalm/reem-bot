@@ -37,7 +37,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `drawPicture`); 3030 → `aiFiltered`, one tamer try in `startPicture`
   - fixed places (2026-10-03): `PICTURE.LOCATIONS`; `@key` in SHOTS/PLACES → NAME; `locationOf` (her words, a scene);
     `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
-    `places.js` as image 1, else ROOM_TEXT); after dark (`isDark`: night, or evening unless the light is daylight;
+    `places.js` as image 1, else ROOM_TEXT); scene pictures (`startPicture` kind "scene"): `scenePicturePrompt` + `sceneWearing`
+    (clothes her narration of this scene named, else `SCENE_WEARING`) + the time's LIGHT or `SCENE_NIGHT`; after dark (`isDark`: night, or evening unless the light is daylight;
     `timeOfDay`) `composePicture`/scene pictures set `night` and `drawPicture` sends `<key>_night` when it exists
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,
     `photoLine`); ledger `loadLedger`/`saveLedger`/`aiAffordable`/`aiSpent` (KV `pics`); `picturesAllowed`,
@@ -48,7 +49,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `AI_BUDGET.HEARING_NEURONS_PER_MIN`; `scribe` = ElevenLabs backup when it fails or the budget is spent)
   - voice: `bodyOf`/`clean`, `forSpeech` → `tidySpoken` → `sayArabizi`, `tts` (`VOICE.PROVIDER` "aura": Workers AI
     aura-2 with `auraText` (tags → `AURA_CUES`) and `audioBytes`, counted by `AI_BUDGET.VOICE_NEURONS_PER_1000_CHARS`;
-    `elevenTts` + `voiceSettings` = ElevenLabs, the backup), `sendVoice`
+    `orSpeech` = the OpenRouter voice (also /setup's test clip, heard back by `hearWithGemini`); `elevenTts` + `voiceSettings` = ElevenLabs, the backup), `sendVoice`
     (returns `{delivered, id, error}`), `voiceFailed` (KV `voice_error`, shown on /setup)
   - audio tags: `isV3`, `audioTagsOn`, `audioTagRe`, `isAudioTag`, `stripAudioTags`; `offeredTags` (the tags she's told about: only those the current voice performs, by `OR_CUES`/`AURA_CUES`)
   - overrides: `applyOverrides`/`mergeSettings` (`CONFIG_OVERRIDES` env var; PRONUNCIATIONS, ARABIZI_DIGITS,
