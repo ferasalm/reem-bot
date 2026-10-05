@@ -6,7 +6,8 @@ name: Face
 on:
   workflow_dispatch:
   push:
-    paths: [tools/face/job.json, tools/face/draw.mjs, .github/workflows/face.yml]
+    branches-ignore: [dev, main, face-candidates] # a merge to dev (or restoring job.json) must not pay for the run again
+    paths: [tools/face/job.json, tools/face/draw.mjs]
 
 permissions:
   contents: write
