@@ -357,7 +357,7 @@ W.CONFIG.REACTIONS.CHANCE = 0.25;
 
 section("pictures: his photos (Workers AI vision)");
 {
-  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false; let filterNext = false;
+  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false; let filterNext = false; let seenOutfit = "a black lace bodysuit and thigh-high stockings";
   const formOf = async (input) => Object.fromEntries([...(await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData())].map(([k, v]) => [k, typeof v === "string" ? v : `<${v.size} bytes>`]));
   env.AI = { async run(model, input) {
     if (model.includes("flux")) {
@@ -368,6 +368,7 @@ section("pictures: his photos (Workers AI vision)");
       return { image: btoa(sameBytes ? "same picture" : `picture ${++pictureNo}`) };
     }
     ai.push({ model, input });
+    if (input.messages && input.messages[0].content[0].text === W.CONFIG.PICTURE.LINGERIE.CHECK_PROMPT) return { response: seenOutfit }; // klein's lingerie, checked
     if (visionError && (model === W.CONFIG.VISION.MODEL || !/5035/.test(visionError.message))) throw visionError;
     return { response: "A man in a gray hoodie smiling in a car [selfie]" };
   } };
@@ -406,7 +407,8 @@ section("pictures: his photos (Workers AI vision)");
   yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a mirror in the hallway between their doors") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
   yes(f1.prompt.includes(W.CONFIG.PICTURE.MIRROR_PHONE), "a mirror selfie: the iPhone rule");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.LOCATIONS.hallway.LOOK) && !f1.prompt.includes("@") && !f1.prompt.includes("{room}"), "her hallway: its fixed look, no @key or {room} left");
-  eq(/^<\d+ bytes>$/.test(f1.input_image_2 || ""), f1.prompt.includes("room from image 2"), "the place's picture is image 2 (after her face and body) exactly when the prompt says so");
+  eq(/^<\d+ bytes>$/.test(f1.input_image_2 || ""), f1.prompt.includes("Image 2 is only a reference for what her room looks like"), "the place's picture is image 2 (after her face and body) exactly when the prompt says so");
+  yes(!/\{view\}|\{n\}/.test(f1.prompt) && W.CONFIG.PICTURE.ROOM_VIEWS.some((v) => f1.prompt.includes(v.replaceAll("{n}", "2"))), "the place is a reference, seen from one of ROOM_VIEWS (owner 2026-10-05: not pasted in as is)");
   yes(/^<\d+ bytes>$/.test(f1.input_image_1 || "") && f1.prompt.includes("body shape of the woman in image 1"), "her body shape is image 1, named in the prompt");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
   eq([f1.width, f1.height], ["576", "1024"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (4 tiles, the price of 640x640)");
@@ -581,17 +583,17 @@ section("pictures: his photos (Workers AI vision)");
     banana.mode = "refuse";
     r = await turn("send me a pic in lingerie", ["[selfie: mirror, a red lace bra and panties on the bed]"], { history: APART });
     const k = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt;
-    yes(r.photos.length === 1 && banana.calls.length === 2 && !/\bbra\b|panties/.test(k), "Google refuses: klein draws it, filter words applied", k);
+    yes(r.photos.length === 1 && banana.calls.length === 3 && !/\bbra\b|panties/.test(k), "Google refuses (twice: her words, then a two-piece set): klein draws it, filter words applied", k);
     banana.mode = "error";
     r = await turn("send me a pic in lingerie", ["[selfie: mirror, a white lace bra and panties on the bed]"], { history: APART });
-    yes(r.photos.length === 1 && banana.calls.length === 3, "OpenRouter fails: klein draws it");
+    yes(r.photos.length === 1 && banana.calls.length === 5, "OpenRouter fails: klein draws it");
     banana.mode = "draw";
     const pics = JSON.parse(store.get("pics")); store.set("pics", JSON.stringify({ ...pics, usd: L.DAILY_USD }));
     r = await turn("send me a pic in lingerie", ["[selfie: mirror, a black lace bodysuit on the bed]"], { history: APART });
-    yes(r.photos.length === 1 && banana.calls.length === 3, "the day's lingerie money spent: klein, Nano Banana not called");
+    yes(r.photos.length === 1 && banana.calls.length === 5, "the day's lingerie money spent: klein, Nano Banana not called");
     store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics")), usd: 0 }));
     r = await turn("send me a selfie", ["[selfie: close, a grey hoodie on the couch]"], { history: APART });
-    eq(banana.calls.length, 3, "an everyday selfie never goes to Nano Banana");
+    eq(banana.calls.length, 5, "an everyday selfie never goes to Nano Banana");
     // owner 2026-10-05: "Let klein draw lingerie first, then nanobanana if klein refuses"
     // owner 2026-10-05: "Let klein try first unless it's more explicit or user asks for two pieces or a \"spicier\" picture"
     W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = true;
@@ -623,7 +625,24 @@ section("pictures: his photos (Workers AI vision)");
     banana.mode = "refuse";
     r = await turn("send me a pic from behind", ["[selfie: mirror, a plum lace thong only]"], { history: APART });
     const last = klein().at(-1).fields.prompt;
-    yes(r.photos.length === 1 && banana.calls.length === nb0 + 4 && klein().length > kn && !/\bthong\b/.test(last), "spicier but Nano Banana refuses: klein draws it with filter words", last);
+    yes(r.photos.length === 1 && banana.calls.length === nb0 + 5 && klein().length > kn && !/\bthong\b/.test(last), "spicier but Nano Banana refuses: klein draws it with filter words", last);
+    eq(W.CONFIG.PICTURE.LINGERIE.WARDROBE.some((w) => banana.calls.at(-1).messages[0].content.includes(w)), true, "...Google refused the outfit with no top: one more try in a two-piece set");
+    // owner 2026-10-05: "She is not sending lingerie pics ... even when I ask": klein's picture is checked
+    banana.mode = "draw";
+    let nb1 = banana.calls.length;
+    kn = klein().length;
+    seenOutfit = "a gray knit sweater and jeans";
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror]"], { history: APART });
+    yes(r.photos.length === 1 && klein().length === kn + 1 && banana.calls.length === nb1 + 1 && W.CONFIG.PICTURE.LINGERIE.WARDROBE.some((w) => r.saved.parts.at(-1).text.includes(w)), "klein drew her tamer (the check sees a sweater): Nano Banana draws it and that's what's sent", r.saved.parts.at(-1).text);
+    banana.mode = "refuse";
+    nb1 = banana.calls.length;
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror]"], { history: APART });
+    yes(r.photos.length === 1 && banana.calls.length === nb1 + 1 && KW.some((w) => r.saved.parts.at(-1).text.includes(w)), "...and Google refuses: klein's picture is sent, not a third drawing", r.saved.parts.at(-1).text);
+    seenOutfit = "a black lace bodysuit and thigh-high stockings";
+    banana.mode = "draw";
+    nb1 = banana.calls.length;
+    r = await turn("send me a pic in lingerie", ["[selfie: curled up on the couch in his hoodie]"], { history: APART });
+    yes(r.photos.length === 1 && banana.calls.length === nb1 && KW.some((w) => klein().at(-1).fields.prompt.includes(w)) && !/hoodie/.test(klein().at(-1).fields.prompt), "he asked for lingerie, her words name none: klein draws KLEIN_WARDROBE, not her hoodie", klein().at(-1).fields.prompt);
     W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = false;
     banana.mode = "refuse";
   }
@@ -686,6 +705,20 @@ section("pictures: his photos (Workers AI vision)");
   r = await turn("*sits on the couch*", ["*Reem curls up at the other end of the couch, tucking her bare feet under a gray knit cardigan.* \"comfy?\""], { history: SCENE });
   eq(r.photos.length, 1, "in person on SCENE_CHANCE (like the voice clip)");
   W.CONFIG.PICTURE.SCENE_CHANCE = 0;
+  // owner 2026-10-05: lingerie in person came out as nothing (klein refuses "bra" in the scene's clothes)
+  {
+    banana.mode = "draw";
+    const nb2 = banana.calls.length;
+    r = await turn("*steps closer* let me see you", ["*Reem stands by the bed in a black lace bra and matching panties, one hand on her hip, chin tipped up.* \"well?\""], { history: SCENE });
+    const c2 = banana.calls.at(-1)?.messages[0].content || "";
+    yes(r.photos.length === 1 && banana.calls.length === nb2 + 1 && /black lace bra/.test(c2) && c2.startsWith(W.CONFIG.PICTURE.SCENE_STYLE) && c2.includes(W.CONFIG.PICTURE.LINGERIE.WHO), "in person in two pieces: Nano Banana draws the moment, her real words, her description", c2);
+    W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = true;
+    const k0 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length;
+    r = await turn("*steps closer* let me see you", ["*Reem leans in the doorway in a red satin teddy with lace trim, one knee bent, smiling slowly.* \"better?\""], { history: SCENE });
+    yes(r.photos.length === 1 && banana.calls.length === nb2 + 1 && ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length === k0 + 1, "in person in a one-piece: klein first, the check sees lingerie, Nano Banana not called");
+    W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = false;
+    banana.mode = "refuse";
+  }
 
   // /look (owner 2026-10-05: "a slash command that can send a picture showing what the user sees at the moment")
   const LOOK_SCENE = [{ role: "assistant", content: "*Her door opened anyway—Reem in an old cardigan and wool socks, a calculator's paper roll trailing from one hand.*" },

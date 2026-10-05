@@ -566,10 +566,27 @@ Changing the story
    */
   AUTO: {
     MODEL: "deepseek/deepseek-v4-flash", // same as LLM.MODEL, so it gets the same providers (LLM.PROVIDER)
-    SAMPLING: { temperature: 0.9, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 160 },
+    SAMPLING: { temperature: 1.0, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 160 },
     TIMEOUT_MS: 15000,
     TRANSCRIPT_MAX_CHARS: 6000,        // how much of the recent chat the draft is based on
-    PROMPT: "You write the next message of {user}, a man in a roleplay chat with {name}, his neighbor across the hall. Write only his next message, as him, in first person: natural, confident, matching the mood and where the story is going. Never write {name}'s lines, never explain.", // {user}
+    // owner 2026-10-05: drafts were "bland, cliché, cringe, does not advance, and doesn't yield variety": a specific man,
+    // one story move per draft (MOVES, never the same one twice in a row), no stock lines, nothing he already said
+    PROMPT: "You write the next message of {user}, a man in a roleplay chat with {name}, his neighbor across the hall. Write only his next message, as him, in first person. He is a real, specific man, not a romance-novel hero: he answers the exact thing she just said or did, uses details from the chat, has his own humor and opinions, and moves the story forward. Every message of his changes something: a decision, a move, a plan, a question that matters, a confession, a touch. Never stall, never just agree, never only compliment her. No stock lines or filler: no \"you're so beautiful\", \"can't stop thinking about you\", \"what are you up to\", \"you're driving me crazy\", \"I'm all yours\", \"oh really?\", \"is that so?\", \"tell me more\", \"that's hot\", no smirks, winks or 😏. Never repeat or rephrase anything he already said in the chat. Never write {name}'s lines, never explain.", // {user}
+    // one of these per draft (picked by the code; Another picks a different one), as {move} in MOVE
+    MOVES: [
+      "pick up one specific detail she just said or did and turn it into a tease",
+      "make a bold move that raises the stakes: physical if they're together, a daring proposal if they're apart",
+      "change the scene: suggest going somewhere or doing something together, right now",
+      "ask her something personal and specific that she'll have to think about",
+      "challenge her playfully: a dare, a bet or a game with stakes",
+      "confess something about himself that she doesn't know yet",
+      "take charge: tell her what happens next",
+      "call her out on something she's dodging or hinting at",
+      "a quick, dry joke that still moves things forward",
+      "slow down and get tender for a moment, then raise the stakes",
+    ],
+    MOVE: "\n\nThis time, his move: {move}.", // {move}
+    AGAIN: "\n\nHe didn't like these drafts. Write something completely different from them, with other words and another idea:\n{drafts}", // {drafts}: the drafts he skipped with Another
     ABOUT: "\n\nABOUT {user}\n{about}",  // {user} {about}
     NOTES: "\n\nWHAT HAS HAPPENED SO FAR\n{notes}", // {notes}
     TOGETHER: "\n\nThey're together in person: write his actions in *asterisks* and his words in \"quotes\", 1 to 3 sentences.",
@@ -687,10 +704,10 @@ Changing the story
     CHANCE_MORE: 0.3,                  // ...when /pics is on (voice: 0.5 with /voice)
     SCENE_CHANCE: 0.15,                // in person, per reply (voice clip: 0.25)
     // He asks for a picture (apart) or to see her (in person): a regular expression, any case. Only his own words count.
-    ASK_PATTERN: "\\b(?:send|show|give)\\b[^.?!\\n]{0,20}\\b(?:pic|pics|picture|pictures|photo|photos|selfie|selfies|snap|nudes?)\\b|\\bselfie\\b|\\bbelfie\\b|\\b(?:pic|picture|photo) of (?:you|u|yourself)\\b|\\blet me see you\\b|\\b(?:show|send) me (?:your|ur|that) (?:legs|booty|butt|ass|cleavage|body|curves|outfit|fit)\\b",
+    ASK_PATTERN: "\\b(?:send|show|give)\\b[^.?!\\n]{0,20}\\b(?:pic|pics|picture|pictures|photo|photos|selfie|selfies|snap|nudes?)\\b|\\bselfie\\b|\\bbelfie\\b|\\b(?:pic|picture|photo) of (?:you|u|yourself)\\b|\\blet me see you\\b|\\b(?:show|send) me (?:your|ur|that) (?:legs|booty|butt|ass|cleavage|body|curves|outfit|fit)\\b|\\b(?:send|show)\\b[^.?!\\n]{0,30}\\b(?:lingerie|bras?|bralette|panties|thongs?|underwear|bikini|two[- ]piece|something (?:spicy|spicier|sexy|sexier|hot|hotter|naughty|naughtier))\\b|\\b(?:let me|lemme|can i|could i|i (?:wanna|want to|need to|have to|gotta)) see (?:you|u) in\\b|\\b(?:see|show me) (?:your|ur) (?:lingerie|bra|panties|thong|underwear|bikini)\\b|\\b(?:another|one more)\\s+(?:pic|pics|picture|photo|selfie)\\b|\\b(?:a |one )?(?:spicier|sexier|hotter|naughtier)\\s+(?:one|pic|pics|picture|photo|selfie)\\b", // owner 2026-10-05: lingerie asks without "pic" got no picture
     SCENE_ASK_PATTERN: "\\blet me see (?:you|it|that)\\b|\\bshow me\\b|\\bi (?:wanna|want to|need to) see (?:you|it)\\b|\\b(?:take|snap) a (?:pic|picture|photo)\\b",
     // ...and he asks for a sexy one: never an everyday picture. BOUDOIR_ASK_PATTERN: lingerie, satin or swimwear.
-    SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|naughty|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
+    SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|spicier|naughty|naughtier|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
@@ -709,7 +726,16 @@ Changing the story
     WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
-    ROOM: "Behind her is the room from image {n}, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
+    // owner 2026-10-05: "90% from the same angle as the location pictures ... included as is": the picture is now only a
+    // reference for the room, seen from a ROOM_VIEWS view ({view}) picked per picture
+    ROOM: "Image {n} is only a reference for what her room looks like (its walls, furniture, colors and style): do not copy image {n}'s composition, camera position or framing, and do not paste it in as the background. She is in that room, seen {view}, close behind her and softly out of focus, lit by this picture's own light as described above; she fills most of the frame. The room: {look}.",
+    ROOM_VIEWS: [
+      "from a different angle than image {n}, with only one corner of the room in view",
+      "from the opposite side of the room from where image {n} was taken",
+      "in a close, partial view: one wall and one piece of its furniture",
+      "from a low angle, with only part of the room in view",
+      "from the side, with a window or doorway at the edge of the frame",
+    ], // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
     ROOM_TEXT: "The place: {look}.",   // ...without one (or drawn by the backup model)
     SAFE: "No nudity.",
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
@@ -732,6 +758,15 @@ Changing the story
         "his oversized white button-down shirt worn open over a black lace triangle top and tiny matching lace bottoms, her legs bare",
         "a dusty pink satin and lace one-piece with thin straps, light boning at the waist and high-cut legs, her legs bare",
       ],
+      // owner 2026-10-05: "She is not sending lingerie pics ... even when I ask": klein's picture is looked at (VISION.MODEL,
+      // CHECK_PROMPT); when what it sees has no WORDS (klein drew her tamer) Nano Banana draws it, klein's picture the fallback
+      CHECK: true,
+      CHECK_PROMPT: "What is the woman in this picture wearing? Answer in one short line that names each piece of clothing, nothing else.",
+      // what counts as lingerie: in what the check sees, in what she wears in a scene, in her words
+      WORDS: "\\b(?:lingerie|bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|bodysuit|teddy|babydoll|corset|bustier|garters?|stockings|negligee|chemise|nightie|(?:lace|satin|silk|mesh)\\s+(?:top|set|bottoms|one-piece|slip|cami|camisole|robe))\\b",
+      // in person: a moment in lingerie (WORDS in what she wears, or his ask) goes the same way (klein, checked, then
+      // Nano Banana; spicier asks straight to Nano Banana). Before, klein refused the real words and nothing came
+      SCENES: true,
       // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
       SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
       // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
@@ -1525,7 +1560,8 @@ async function failed(env, chatId, e, deadline) {
 /*  /auto: she drafts his next message                                 */
 /* ------------------------------------------------------------------ */
 
-async function autoDraft(env, state, idea) {
+// Returns { text, move }. `avoid`: the moves of the drafts he skipped; `skipped`: those drafts' words.
+async function autoDraft(env, state, idea, { avoid = [], skipped = [] } = {}) {
   const A = CONFIG.AUTO;
   const C = CONFIG.CHARACTER;
   const user = hisName(state.settings) || C.USER_LABEL;
@@ -1539,12 +1575,16 @@ async function autoDraft(env, state, idea) {
   if (state.notes) system += fill(A.NOTES, { notes: state.notes });
   system += fill(sceneOf(state.history, "") === "together" ? A.TOGETHER : A.APART);
   if (idea) system += fill(A.IDEA, { idea });
+  const moves = (A.MOVES || []).filter((m) => String(m).trim());
+  const move = pickOne(moves.filter((m) => !avoid.includes(m))) || pickOne(moves);
+  if (move && A.MOVE) system += fill(A.MOVE, { move });
+  if (skipped.length && A.AGAIN) system += fill(A.AGAIN, { drafts: skipped.map((d) => `- ${d}`).join("\n") });
   const messages = [
     { role: "system", content: system },
     { role: "user", content: fill(A.ASK, { transcript: transcript || fill(CONFIG.INBOX.CONVERSATION_START), user }) },
   ];
   const out = await callModel(env, messages, A.SAMPLING, { model: A.MODEL, timeoutMs: A.TIMEOUT_MS, trimCut: true });
-  return cleanDraft(out, user);
+  return { text: cleanDraft(out, user), move };
 }
 
 // Only his message: no "Sam:" prefix, no wrapping quotes, nothing after a line of hers
@@ -1575,10 +1615,10 @@ function draftButtons() {
 
 async function autoCommand(env, chatId, idea) {
   const kv = env.REEM_KV;
-  const text = await autoDraft(env, await loadState(kv, chatId), idea);
+  const { text, move } = await autoDraft(env, await loadState(kv, chatId), idea);
   if (!text) return notice(env, chatId, CONFIG.AUTO.FAILED);
   const sent = await tg(env, "sendMessage", { chat_id: chatId, text: draftHtml(text), parse_mode: "HTML", reply_markup: draftButtons() });
-  if (sent.ok) await kv.put(`a:${chatId}`, JSON.stringify({ id: sent.result.message_id, text, idea }));
+  if (sent.ok) await kv.put(`a:${chatId}`, JSON.stringify({ id: sent.result.message_id, text, idea, moves: [move], skipped: [] }));
 }
 
 // The draft's buttons: Another (a new draft in the same message) or Send (she answers it)
@@ -1595,10 +1635,11 @@ async function onButton(env, ctx, cq, deadline) {
   }
   try {
     if (cq.data === "auto:again") {
-      const text = await autoDraft(env, await loadState(kv, chatId), draft.idea);
+      const skipped = [...(draft.skipped || []), draft.text].filter(Boolean).slice(-4);
+      const { text, move } = await autoDraft(env, await loadState(kv, chatId), draft.idea, { avoid: draft.moves || [], skipped });
       if (!text) return notice(env, chatId, A.FAILED);
       await tg(env, "editMessageText", { chat_id: chatId, message_id: id, text: draftHtml(text), parse_mode: "HTML", reply_markup: draftButtons() });
-      await kv.put(`a:${chatId}`, JSON.stringify({ ...draft, text }));
+      await kv.put(`a:${chatId}`, JSON.stringify({ ...draft, text, moves: [...(draft.moves || []), move].slice(-4), skipped }));
       return;
     }
     if (cq.data === "auto:send") {
@@ -1706,7 +1747,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
     drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked });
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
-    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history });
+    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history, asked });
   }
   if (out.reaction) {
     const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
@@ -2762,7 +2803,7 @@ function isSpicy(pic) {
   const L = CONFIG.PICTURE.LINGERIE || {};
   if (!pic || !pic.args) return false;
   if (pic.explicit) return true;
-  try { return !!L.SPICY_PATTERN && new RegExp(L.SPICY_PATTERN, "i").test(`${pic.asked || ""} ${pic.args.words || ""} ${pic.args.doing || ""}`); } catch { return false; }
+  return !!L.SPICY_PATTERN && spicyWords(`${pic.asked || ""} ${pic.args.words || ""} ${pic.args.doing || ""}`);
 }
 
 // The prompt for a picture of the moment in person, from the scene's narration about her: only sentences
@@ -2861,7 +2902,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
   const pics = PLACE_JPEG_BASE64 || {};
   const placeKey = night && pics[`${location}_night`] ? `${location}_night` : location;
   const place = L && pics[placeKey] ? fromBase64(pics[placeKey]) : null;
-  const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replace("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
+  const view = pickOne(P.ROOM_VIEWS) || "from a different angle than image {n}";
+  const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replace("{view}", view).replaceAll("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
   const who = (w, withImage) => {
     const p = String(prompt).replace("{room}", room(withImage));
     return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
@@ -2909,7 +2951,9 @@ async function sendPhoto(env, chatId, bytes, caption = "") {
 // `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
 function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "" } = {}) {
   const P = CONFIG.PICTURE;
+  const L = P.LINGERIE || {};
   let pic;
+  let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
   if (kind === "scene") {
     const what = scenePicturePrompt(want);
     if (!what) return null;
@@ -2918,7 +2962,13 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const night = timeOfDay() === "night";
     const lightText = night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]);
     const light = night ? lightText : lightText && `Lit by ${lightText}.`;
-    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wearing && `She is wearing ${wearing}.`, light, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
+    const wornSafe = filterSafe(wearing);
+    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
+    if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
+      pic.lingerie = true;
+      pic.spicy = spicyWords(`${asked} ${wearing}`);
+      nanoScene = { prompt: [P.SCENE_STYLE, `${L.WHO}.`, what.replace(/[.\s]*$/, "."), wearing && `She is wearing ${wearing}.`, light, location && "{room}", P.CRAFT].filter(Boolean).join(" "), what, location, night: pic.night, wearing };
+    }
   } else {
     pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
   }
@@ -2926,31 +2976,54 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     let error = null;
     let model = P.MODEL;
     try {
-      // a boudoir or spicier selfie (owner 2026-10-05): spicier (isSpicy) → Nano Banana with SPICY_PROMPT; else klein
-      // first in KLEIN_WARDROBE (her face), Nano Banana when klein refuses or fails; klein's filter-safe chain last
-      const L = P.LINGERIE || {};
-      const spicy = kind === "selfie" && L.ENABLED && isSpicy(pic);
-      if (kind === "selfie" && L.ENABLED && L.KLEIN_FIRST && !spicy && (L.TIERS || []).includes(pic.tier) && pic.args) {
-        const kp = { ...composePicture({ ...pic.args, wardrobeList: L.KLEIN_WARDROBE }), asked: pic.asked };
+      // a boudoir or spicier picture (owner 2026-10-05): spicier → Nano Banana straight away; else klein first in
+      // KLEIN_WARDROBE (her face), its picture checked for lingerie (CHECK); Nano Banana when klein refuses or drew her
+      // tamer; then klein's tamer picture; klein's filter-safe chain last
+      const spicy = L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
+      const lingerie = L.ENABLED && (kind === "selfie" ? !!pic.args && (L.TIERS || []).includes(pic.tier) : !!pic.lingerie);
+      let kleinPic = null;
+      let kleinRefused = null;
+      if (lingerie && L.KLEIN_FIRST && !spicy) {
+        const kp = kind === "scene" ? pic : { ...composePicture({ ...lingerieArgs(pic), wardrobeList: L.KLEIN_WARDROBE }), asked: pic.asked };
         try {
           const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night });
-          model = drawn.model;
-          return { ...kp, bytes: drawn.bytes, kind };
+          aiSpent(ledger, drawn.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, null);
+          const seen = await lingerieSeen(env, ledger, drawn.bytes);
+          kleinPic = { ...kp, bytes: drawn.bytes, kind };
+          if (seen.ok || !wantsLingerie(env, ledger, pic, spicy)) {
+            model = null;
+            return kleinPic;
+          }
+          await aiFailed(env, `klein drew lingerie tamer (seen: ${seen.text.slice(0, 120)}); asked ${L.MODEL}`);
         } catch (e) {
+          kleinRefused = e;
           aiSpent(ledger, CONFIG.AI_BUDGET.PICTURE_NEURONS, e); // a refused picture was still drawn
           await aiFailed(env, `drawing lingerie with ${P.MODEL}: ${aiText_(e)}; ${wantsLingerie(env, ledger, pic) ? `asked ${L.MODEL}` : "drew it in klein's own wardrobe"}`);
         }
       }
-      if (kind === "selfie" && (spicy || (L.TIERS || []).includes(pic.tier)) && wantsLingerie(env, ledger, pic, spicy)) {
-        const lp = spicy ? spicyPicture(pic) : composePicture({ ...pic.args, lingerie: true });
-        try {
-          const bytes = await drawLingerie(env, lp);
-          ledger.usd = (ledger.usd || 0) + (Number(P.LINGERIE.USD_PER_PICTURE) || 0);
-          model = null;
-          return { ...lp, bytes, kind };
-        } catch (e) {
-          await aiFailed(env, `drawing lingerie with ${P.LINGERIE.MODEL}: ${aiText_(e)}; klein drew it`);
+      if ((spicy || lingerie) && (kind === "selfie" ? !!pic.args : !!nanoScene)) {
+        // a spicier selfie Google refuses (an outfit with no top, seen in SPICY_WARDROBE) gets one more try in a two-piece set
+        const tries = kind === "scene" ? [nanoScene] : spicy ? [spicyPicture(pic), spicyPicture(pic, pickOne(L.WARDROBE))] : [composePicture({ ...lingerieArgs(pic), lingerie: true })];
+        for (const [i, lp] of tries.entries()) {
+          if (!wantsLingerie(env, ledger, pic, spicy || kind === "scene")) break;
+          try {
+            const bytes = await drawLingerie(env, lp);
+            ledger.usd = (ledger.usd || 0) + (Number(L.USD_PER_PICTURE) || 0);
+            model = null;
+            return { ...lp, bytes, kind };
+          } catch (e) {
+            await aiFailed(env, `drawing lingerie with ${L.MODEL}: ${aiText_(e)}; ${i < tries.length - 1 ? "tried a two-piece set" : kleinPic ? "sent klein's" : "klein drew it"}`);
+          }
         }
+      }
+      if (kleinPic) {
+        model = null;
+        return kleinPic;
+      }
+      // klein already refused this very moment: drawing it again would only be refused again
+      if (kind === "scene" && kleinRefused) {
+        model = null;
+        throw kleinRefused;
       }
       let drawn;
       try {
@@ -2986,24 +3059,62 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
   return drawing;
 }
 
+// Lingerie (PICTURE.LINGERIE.WORDS) or a spicier ask (SPICY_PATTERN) in a text
+const lingerieWords = (t) => patternIn((CONFIG.PICTURE.LINGERIE || {}).WORDS, t);
+const spicyWords = (t) => patternIn((CONFIG.PICTURE.LINGERIE || {}).SPICY_PATTERN, t);
+function patternIn(src, text) {
+  try {
+    return !!src && new RegExp(src, "i").test(String(text || ""));
+  } catch {
+    return false;
+  }
+}
+
+// A lingerie selfie's words: he asked for lingerie and her words name none (her hoodie, her pajamas): they make way
+// for the lingerie wardrobe, so his ask is what's drawn
+function lingerieArgs(pic) {
+  const a = pic.args || {};
+  return lingerieWords(pic.asked) && !lingerieWords(`${a.words || ""} ${a.doing || ""}`) ? { ...a, words: "", doing: "" } : a;
+}
+
+// Does klein's picture show lingerie? VISION.MODEL says what she wears (LINGERIE.CHECK_PROMPT) and LINGERIE.WORDS must
+// be in it. { ok, text }; ok when it can't be checked (no check, no budget, an error): the picture is sent as drawn.
+async function lingerieSeen(env, ledger, bytes) {
+  const L = CONFIG.PICTURE.LINGERIE || {};
+  const V = CONFIG.VISION;
+  if (!L.CHECK || !L.WORDS || !env.AI || !aiAffordable(ledger, "photo") || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return { ok: true, text: "" };
+  let error = null;
+  try {
+    const input = { messages: [{ role: "user", content: [{ type: "text", text: L.CHECK_PROMPT }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(bytes)}` } }] }], max_tokens: 60 };
+    const text = String(aiText(await aiRun(env, V.MODEL, input, V.TIMEOUT_MS)) || "").trim();
+    return { ok: !text || lingerieWords(text), text };
+  } catch (e) {
+    error = e;
+    return { ok: true, text: "" };
+  } finally {
+    aiSpent(ledger, CONFIG.AI_BUDGET.PHOTO_NEURONS, error);
+  }
+}
+
 // May this picture go to PICTURE.LINGERIE (Nano Banana) today?
 function wantsLingerie(env, ledger, pic, spicy = false) {
   const L = CONFIG.PICTURE.LINGERIE || {};
-  if (!L.ENABLED || !L.MODEL || !env.OPENROUTER_API_KEY || !pic || !pic.args) return false;
-  if (!spicy && !(L.TIERS || []).includes(pic.tier)) return false;
+  if (!L.ENABLED || !L.MODEL || !env.OPENROUTER_API_KEY || !pic || !(pic.args || pic.lingerie)) return false;
+  if (!spicy && !pic.lingerie && !(L.TIERS || []).includes(pic.tier)) return false;
   if (budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) return false;
   return (ledger.usd || 0) + (Number(L.USD_PER_PICTURE) || 0) <= (Number(L.DAILY_USD) || 0);
 }
 
 // A spicier selfie for Nano Banana: SPICY_PROMPT (JSON, her description in words) with her words as the garment (else
-// SPICY_WARDROBE), what she's doing (else a SPICY_POSES pose), a boudoir expression, her bedroom (or the place her words name) and its light.
+// SPICY_WARDROBE; `outfit` instead of both), what she's doing (else a SPICY_POSES pose), a boudoir expression, her bedroom (or the place her words name) and its light.
 // Returns { prompt (ready, no {who}/{room}), shot, tier, what, location, spicy }
-function spicyPicture(pic) {
+function spicyPicture(pic, outfit = "") {
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE;
   const a = pic.args || {};
   const words = String(a.words || "").trim();
-  const garment = words || pickOne(L.SPICY_WARDROBE) || pickOne(L.WARDROBE) || "";
+  // her words name lingerie, or they're not an outfit for this picture (seen in tests: "a hoodie" drawn as the garment)
+  const garment = outfit || (lingerieWords(words) ? words : "") || pickOne(L.SPICY_WARDROBE) || pickOne(L.WARDROBE) || "";
   const location = locationOf(`${words} ${a.doing || ""}`) || "bedroom";
   const where = (P.LOCATIONS || {})[location];
   const time = timeOfDay(a.hour ?? herHour());

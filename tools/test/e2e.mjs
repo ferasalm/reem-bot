@@ -281,8 +281,11 @@ console.log("draft:", draft.b.text, "| buttons:", JSON.stringify(draft.b.reply_m
 const draftId = JSON.parse(store.get("a:7")).id;
 const tap = (data, id = draftId) => run(upd({ callback_query: { id: "cb" + uid, from: { id: 7 }, data, message: { message_id: id, chat: { id: 7, type: "private" } } } }));
 llm = [{ content: "open the door, i brought koshary" }];
+const firstSys = prompts.at(-1).messages[0].content;
+const moveOf = (t) => W.CONFIG.AUTO.MOVES.find((m) => t.includes(m));
 await tap("auto:again");
-console.log("another:", tgCalls("editMessageText").at(-1).b.text);
+const againSys = prompts.at(-1).messages[0].content;
+console.log("another:", tgCalls("editMessageText").at(-1).b.text, "| a move each time:", !!moveOf(firstSys) && !!moveOf(againSys), "| another move:", moveOf(firstSys) !== moveOf(againSys), "| the skipped draft in the prompt:", againSys.includes("- \"knock knock. open up\"") || againSys.includes("- knock knock. open up"));
 llm = [{ content: "wait you did??\n\ncoming" }];
 await tap("auto:send");
 console.log("sent:", tgCalls("editMessageText").at(-1).b.text, "| she answered:", lastSent().b.text, "| saved as his turn:", hist().at(-2).content, hist().at(-2).parts[0].id === draftId);
