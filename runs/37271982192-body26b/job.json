@@ -1,0 +1,35 @@
+{
+  "note": "2026-10-05: body words round 3 (165 cm, 71 kg, not slim and not obese) with the BMI-26 body picture: round 2 drew 3 of 4 selfies slimmer",
+  "mode": "body26b",
+  "reference": "tools/face/reference.jpg",
+  "width": 576,
+  "height": 1024,
+  "square": false,
+  "labels": [
+    "M1 mirror selfie, fitted black ribbed tank top + high-waisted jeans, bedroom 14h",
+    "M2 waist selfie, fitted gray ribbed tee + high-waisted jeans, living room 11h",
+    "M3 mirror selfie, fitted black ribbed knit midi dress, bedroom 19h"
+  ],
+  "prompts": [
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in her bedroom, the room behind her, a sleepy, lazy smile, a fitted black ribbed tank top and high-waisted jeans in her bedroom, a little flash glare on the glass, bright afternoon daylight. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp on a small wooden nightstand with books, a tall arched black floor mirror leaning on the wall, sheer white curtains on a wide old wooden sash window, a white radiator, a jute rug on dark worn wood floors. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. 3/4-body reflection in a mirror in her bedroom, one hand on her waist, her hip turned toward the mirror, an unimpressed deadpan look, a fitted gray ribbed tee and high-waisted jeans in her living room, bright afternoon daylight. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: the front room of an old triple-decker apartment: cream plaster walls with dark wooden trim, a silver-painted cast-iron steam radiator beside tall drafty wooden sash windows, a worn wooden kitchen table used as her desk with an open laptop, a printing calculator and cardboard boxes of receipts, a worn olive-green sofa with a green plaid wool blanket, a faded rug on old fir floorboards, a tall white paper floor lamp. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in her bedroom, the room behind her, a sleepy, lazy smile, a fitted black ribbed knit midi dress in her bedroom, a little flash glare on the glass, warm lamp light. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp on a small wooden nightstand with books, a tall arched black floor mirror leaning on the wall, sheer white curtains on a wide old wooden sash window, a white radiator, a jute rug on dark worn wood floors. Natural skin texture, slight grain. No nudity."
+  ],
+  "refs": [
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/living.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/bedroom.jpg"
+    ]
+  ],
+  "per_prompt": 1,
+  "describe": false,
+  "day_neurons": 40000
+}
