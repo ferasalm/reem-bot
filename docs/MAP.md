@@ -70,6 +70,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
   as OGG/Opus, each heard back by Whisper; capped by `max_chars`; clips pushed to `face-candidates` runs/<id>-voice).
 - `tools/voice/tts-bench.mjs` + `tts-bench.json` + `.github/workflows/tts-bench.yml`: OpenRouter text-to-speech bench (Gemini, Grok, Fish Audio,
   MiniMax, Orpheus, Deepgram clips, each heard back by Whisper; capped by `max_chars`; clips pushed to `face-candidates` runs/<id>-tts).
+- `tools/voice/stt-bench.mjs` + `stt-bench.json` + `.github/workflows/stt-bench.yml`: speech-to-text bench (his voice notes
+  made by Gemini TTS in male voices, heard by Whisper, Nova-3 and OpenRouter audio-input models; clips to `face-candidates` runs/<id>-stt).
 - `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`,
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
 - `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,

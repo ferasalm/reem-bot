@@ -1,0 +1,46 @@
+name: STT bench
+
+# Speech-to-text test (tools/voice/stt-bench.mjs, per tools/voice/stt-bench.json): his voice notes made by Gemini TTS,
+# heard by Whisper, Nova-3 and OpenRouter's audio models. Clips go to face-candidates (runs/<run id>-stt). Runs when the job changes.
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [dev, main, face-candidates] # a merge to dev must not pay for the run again
+    paths: [tools/voice/stt-bench.json, tools/voice/stt-bench.mjs]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stt
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: ffmpeg
+        run: which ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+      - name: Speak and hear
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: node tools/voice/stt-bench.mjs
+      - name: Push the clips to face-candidates
+        run: |
+          git config user.name "face-bot"
+          git config user.email "face-bot@users.noreply.github.com"
+          dir="runs/${{ github.run_id }}-stt"
+          mkdir -p /tmp/keep && cp tools/voice/out/stt-*.ogg /tmp/keep/ && cp tools/voice/stt-bench.json /tmp/keep/
+          for i in 1 2 3; do
+            git fetch origin face-candidates || true
+            git checkout -B face-candidates origin/face-candidates
+            mkdir -p "$dir" && cp /tmp/keep/* "$dir/"
+            git add runs && git commit -qm "STT bench: run ${{ github.run_id }}" && git push origin face-candidates && break
+            git reset -q --hard origin/face-candidates; sleep 5
+          done
