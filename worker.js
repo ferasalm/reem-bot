@@ -821,7 +821,8 @@ Changing the story
     },
     // From her persona. "clothes | place" brings its own place (only for shots with {where})
     WARDROBE: {
-      EVERYDAY: ["an oversized gray knit cardigan sliding off one shoulder over a black tank top", "a fitted black t-shirt and jeans", "a black linen shirt dress", "a black ribbed tank top", "an oversized gray vintage tee", "a black turtleneck and small gold hoops", "a simple black sundress"],
+      // fitted, so her shape shows (owner 2026-10-05: "clothes that better reflect her body shape and contours")
+      EVERYDAY: ["a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted black ribbed knit midi dress", "a fitted black ribbed tank top and high-waisted jeans", "a fitted gray ribbed tee and high-waisted jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a fitted black wrap dress"],
       FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh"],
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
       BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
