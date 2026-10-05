@@ -9,8 +9,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
     (cron → `proactiveChat` → queue task)
   - `handleBatch`: messages, `edited_message` (`onEdited`), `callback_query` (`onButton`), commands
     (`parseCommand` → `runCommand`). Story commands (`STORY_ACTIONS`) first flush pending messages through `reply`.
-  - commands: `nameCommand`, `aboutCommand` (`hisName`, `aboutHim`), `autoCommand`/`autoDraft`/`cleanDraft`/
-    `draftHtml`, `retry`, `rewind`, `editHers`; helpers `findPart`, `cutAfter`, `deleteIds`, `clearReactions`,
+  - commands: `nameCommand`, `aboutCommand` (`hisName`, `aboutHim`), `autoCommand`/`autoDraft` (one of `AUTO.MOVES` per draft; Another avoids the last moves and is told
+    the skipped drafts, KV `a:` `moves`/`skipped`)/`cleanDraft`/`draftHtml`, `retry`, `rewind`, `editHers`; helpers `findPart`, `cutAfter`, `deleteIds`, `clearReactions`,
     `answerAgain`, `failed`
   - `reply` (builds `heard` + his `parts`, `noticeTime`) → **`respond`**: `isOoc`, `sceneOf`, `replyMode`
     (text/voice/scene; OOC always text; in a scene `asksToHear`/SCENE_CHANCE adds a `sayScene` clip), `think`, wait, **`shapeReply`**, reaction, texts then voice note,
@@ -34,7 +34,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
   - timing: `noticeTime`, `typingTime`, `act`, `sendBubbles` (returns `[{id, text}]`)
   - pictures v3: `planShot` (`pickTier`, `chatHeat`, `shotNamed`, `pickShot`), `selfieSubject` (her marker →
     {shot, words, doing}), `selfiePicture` (keeps `asked`, `explicit`) → `composePicture` (`wardrobeList`); lingerie route in `startPicture`: `isSpicy` (LINGERIE.SPICY_PATTERN) → `spicyPicture` (SPICY_PROMPT JSON) → `drawLingerie`, else klein in KLEIN_WARDROBE, then Nano Banana, then klein's filter-safe chain (template + slots + phone rule, `{who}` filled by
-    `drawPicture`); 3030 → `aiFiltered`, one tamer try in `startPicture`
+    `drawPicture`); 3030 → `aiFiltered`, one tamer try in `startPicture`. Since 2026-10-05: `lingerieSeen` (VISION.MODEL says what klein drew; no
+    LINGERIE.WORDS → Nano Banana, klein's picture the fallback), `lingerieArgs` (his lingerie ask beats her non-lingerie words), a refused spicier
+    outfit retried in a two-piece set, in-person lingerie (`LINGERIE.SCENES`) as `nanoScene`; `drawPicture` fills ROOM's `{view}` from `ROOM_VIEWS`
   - fixed places (2026-10-03): `PICTURE.LOCATIONS`; `@key` in SHOTS/PLACES → NAME; `locationOf` (her words, a scene);
     `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
     `places.js` as image 1, else ROOM_TEXT); scene pictures (`startPicture` kind "scene"): `scenePicturePrompt` + `sceneWearing`

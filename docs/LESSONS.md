@@ -8,7 +8,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` works (face.yml). Klein needs
   multipart form data even with only a prompt; reference images must be under 512x512 (ours: 480).
 - Claude's cloud container can't reach openrouter.ai or workers.dev (network policy; the owner can allow a host in
-  the environment's Network access settings); deleting branches is refused too. `gh run download` is blocked. Live checks and the bench run on
+  the environment's Network access settings); deleting branches is refused too. The permission check refused reading files under `tools/face/` and a workflow dumping the live KV chat (2026-10-05): work from code, tests and the owner's report. `gh run download` is blocked. Live checks and the bench run on
   GitHub Actions; read their logs with the GitHub MCP (`actions_list` / `get_job_logs`).
 - The ElevenLabs MCP needs any voice description and sample line to come from the owner. Transcribing a TTS node
   in a flow only echoes its prompt: upload the MP3 as an asset to really transcribe it.

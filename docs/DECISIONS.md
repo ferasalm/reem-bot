@@ -5,6 +5,13 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **Lingerie and spicy pictures when he asks; better /auto; places as a reference** (owner: "She is not sending
+  lingerie pics, two-piece lingerie, or spicy pics even when I ask her to" / "Auto reply mode is so bad, bland, cliché, cringe,
+  does not advance, and doesn't yield variety of outcomes" / "Location pictures are not treated as reference but they're included
+  as is"): Claude's fixes, klein-first kept: klein's lingerie is checked by the vision model and redrawn by Nano Banana when
+  tamer; "send me something spicier" and "show me your lingerie" now count as asking for a picture (answers the open question
+  of 2026-10-05); /auto drafts take one story move each (`AUTO.MOVES`); the place picture is a reference seen from another view
+  (`ROOM_VIEWS`). Not deployed yet.
 - 2026-10-05 — **Deploy** (owner: "Deploy"): `dev` (b5c4d60) fast-forwarded into `main`; deploy run 37272358522 green
   (Worker deployed, /health step passed). Live now: in-person pictures wearing what the scene said, night light, BMI ~26
   body picture with rounded shoulders, fitted everyday clothes, `/look`, the `/setup` checks. *Completes the 2026-10-05 entries

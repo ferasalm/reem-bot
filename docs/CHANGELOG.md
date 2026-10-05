@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05 (seventh session): fixes on dev, not deployed
+- 9c65b91: lingerie check (klein → vision → Nano Banana), wider picture asks, two-piece retry, in-person lingerie; /auto moves;
+  ROOM_VIEWS. Mocked tests only; no picture drawn and no `[live]` run (tools/face and KV reads refused by the permission check).
+
 ## 2026-10-05 (sixth session): deployed
 - `main` = `dev` at b5c4d60 (fast-forward). Deploy run 37272358522 green. Old session branches (14, all dated 2026-10-04 or
   earlier) not read; owner said "Deploy". Live code not read back from Cloudflare.
