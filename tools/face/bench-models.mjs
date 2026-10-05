@@ -175,7 +175,7 @@ async function openRouter(model, prompt, refs, seed, providerOptions, aspect = "
 // (image 0, image 1), then the words. A refusal comes back as text with no picture: reported as "(content)".
 async function openRouterChat(model, prompt, refs, seed) {
   const content = [...refs.map((f) => ({ type: "image_url", image_url: { url: dataUri(f) } })), { type: "text", text: prompt }];
-  const body = { model, seed, messages: [{ role: "user", content }], modalities: ["image", "text"], image_config: { aspect_ratio: "3:4" }, usage: { include: true } };
+  const body = { model, seed, messages: [{ role: "user", content }], modalities: ["image", "text"], image_config: { aspect_ratio: job.aspect || "3:4" }, usage: { include: true } };
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST", headers: { Authorization: `Bearer ${orKey}`, "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(300000),
   });
@@ -236,7 +236,7 @@ if (job.want) {
   const table = [];
   for (const route of job.routes) {
     const R = ROUTES[route];
-    const set = job.prompt_sets[R.family];
+    const set = job.prompt_sets[job.family_of?.[route] || R.family]; // job.family_of: a route's own prompt set
     let drawn = 0, refused = 0, black = 0, neurons = 0, usd = 0, ms = 0, n = 0;
     const lines = [];
     // job.start_at: attempts a route already used in an earlier run (they count toward max_attempts)
