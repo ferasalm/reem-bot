@@ -411,8 +411,8 @@ section("pictures: his photos (Workers AI vision)");
   yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a mirror in the hallway between their doors") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
   yes(f1.prompt.includes(W.CONFIG.PICTURE.MIRROR_PHONE), "a mirror selfie: the iPhone rule");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.LOCATIONS.hallway.LOOK) && !f1.prompt.includes("@") && !f1.prompt.includes("{room}"), "her hallway: its fixed look, no @key or {room} left");
-  eq(/^<\d+ bytes>$/.test(f1.input_image_2 || ""), f1.prompt.includes("Image 2 is only a reference for what her room looks like"), "the place's picture is image 2 (after her face and body) exactly when the prompt says so");
-  yes(!/\{view\}|\{n\}/.test(f1.prompt) && W.CONFIG.PICTURE.ROOM_VIEWS.some((v) => f1.prompt.includes(v.replaceAll("{n}", "2"))), "the place is a reference, seen from one of ROOM_VIEWS (owner 2026-10-05: not pasted in as is)");
+  eq(/^<\d+ bytes>$/.test(f1.input_image_2 || ""), f1.prompt.includes("the part of her room shown in image 2"), "the place's picture is image 2 (after her face and body) exactly when the prompt says so");
+  yes(W.placePictures("hallway").length === 3 && W.placePictures("hallway").map((b) => `<${W.fromBase64(b).length} bytes>`).includes(f1.input_image_2), "the place picture is one of its three crops (owner 2026-10-05: not the same angle every time)");
   yes(/^<\d+ bytes>$/.test(f1.input_image_1 || "") && f1.prompt.includes("body shape of the woman in image 1"), "her body shape is image 1, named in the prompt");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
   eq([f1.width, f1.height], ["576", "1024"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (4 tiles, the price of 640x640)");
@@ -847,13 +847,13 @@ section("fixed places (owner 2026-10-03)");
   const realAI = env.AI;
   const sent = [];
   env.AI = { async run(model, input) { const f = await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData(); sent.push(f.get("input_image_2")); return { image: btoa("picture") }; } };
-  const pics = W.PLACE_JPEG_BASE64;
   for (const key of Object.keys(L)) {
     sent.length = 0;
     await W.drawPicture(env, "{who} {room}", { location: key, night: true });
     await W.drawPicture(env, "{who} {room}", { location: key, night: false });
-    const want = [pics[`${key}_night`] || pics[key], pics[key]].map((b) => b && W.fromBase64(b).length);
-    eq(sent.map((f) => f && f.size), want, `${key}: its night picture when dark${pics[`${key}_night`] ? "" : " (none yet: the day one)"}, else the day one`);
+    const sizes = (k) => W.placePictures(k).map((b) => W.fromBase64(b).length);
+    const dark = sizes(`${key}_night`).length ? `${key}_night` : key;
+    yes(sizes(dark).includes(sent[0] && sent[0].size) && sizes(key).includes(sent[1] && sent[1].size) && (!sizes(key).length || !sizes(dark).length || dark === key || !sizes(key).includes(sent[0].size)), `${key}: one of its night pictures when dark${dark === key ? " (none yet: the day ones)" : ""}, else a day one`);
   }
   env.AI = realAI;
 }

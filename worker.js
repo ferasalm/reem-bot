@@ -738,16 +738,11 @@ Changing the story
     WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
-    // owner 2026-10-05: "90% from the same angle as the location pictures ... included as is": the picture is now only a
-    // reference for the room, seen from a ROOM_VIEWS view ({view}) picked per picture
-    ROOM: "Image {n} is only a reference for what her room looks like (its walls, furniture, colors and style): do not copy image {n}'s composition, camera position or framing, and do not paste it in as the background. She is in that room, seen {view}, close behind her and softly out of focus, lit by this picture's own light as described above; she fills most of the frame. The room: {look}.",
-    ROOM_VIEWS: [
-      "from a different angle than image {n}, with only one corner of the room in view",
-      "from the opposite side of the room from where image {n} was taken",
-      "in a close, partial view: one wall and one piece of its furniture",
-      "from a low angle, with only part of the room in view",
-      "from the side, with a window or doorway at the edge of the frame",
-    ], // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
+    // owner 2026-10-05: "90% from the same angle as the location pictures ... included as is": klein copies the place
+    // picture's framing (rewording it as "only a reference" changed 1 of 6, face run 37339347977), so each place is
+    // three crops of the owner's picture (tools/face/places/views) and a picture gets one: 8 of 8 showed another part
+    // of the same room (face run 37340198460)
+    ROOM: "Behind her is the part of her room shown in image {n}, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
     ROOM_TEXT: "The place: {look}.",   // ...without one (or drawn by the backup model)
     SAFE: "No nudity.",
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
@@ -2912,11 +2907,10 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
   // a fixed place: its reference picture (places.js; its night picture when dark) as the next image, and its LOOK
   // in words ({room})
   const L = location && (P.LOCATIONS || {})[location];
-  const pics = PLACE_JPEG_BASE64 || {};
-  const placeKey = night && pics[`${location}_night`] ? `${location}_night` : location;
-  const place = L && pics[placeKey] ? fromBase64(pics[placeKey]) : null;
-  const view = pickOne(P.ROOM_VIEWS) || "from a different angle than image {n}";
-  const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replace("{view}", view).replaceAll("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
+  const placeKey = night && placePictures(`${location}_night`).length ? `${location}_night` : location;
+  const shown = L ? pickOne(placePictures(placeKey)) : "";
+  const place = shown ? fromBase64(shown) : null;
+  const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replaceAll("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
   const who = (w, withImage) => {
     const p = String(prompt).replace("{room}", room(withImage));
     return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
@@ -2940,6 +2934,13 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const out = await aiRun(env, P.BACKUP_MODEL, { prompt: who(P.LOOKS, false), steps: P.BACKUP_STEPS }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.BACKUP_MODEL };
   }
+}
+
+// A place's pictures in places.js (base64): its crops "<key>~1".. when it has them, else "<key>" itself; [] when none
+function placePictures(key) {
+  const pics = PLACE_JPEG_BASE64 || {};
+  const crops = Object.keys(pics).filter((k) => k.startsWith(`${key}~`)).map((k) => pics[k]);
+  return crops.length ? crops : pics[key] ? [pics[key]] : [];
 }
 
 // Sends picture bytes. Returns the message id, or null.
