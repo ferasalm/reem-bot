@@ -33,7 +33,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `LLM.BACKUP_CONTEXT_TOKENS`) → `askModel`; `remember` (memory folding)
   - timing: `noticeTime`, `typingTime`, `act`, `sendBubbles` (returns `[{id, text}]`)
   - pictures v3: `planShot` (`pickTier`, `chatHeat`, `shotNamed`, `pickShot`), `selfieSubject` (her marker →
-    {shot, words, doing}), `selfiePicture` → `composePicture` (template + slots + phone rule, `{who}` filled by
+    {shot, words, doing}), `selfiePicture` (keeps `asked`, `explicit`) → `composePicture` (`wardrobeList`); lingerie route in `startPicture`: `isSpicy` (LINGERIE.SPICY_PATTERN) → `spicyPicture` (SPICY_PROMPT JSON) → `drawLingerie`, else klein in KLEIN_WARDROBE, then Nano Banana, then klein's filter-safe chain (template + slots + phone rule, `{who}` filled by
     `drawPicture`); 3030 → `aiFiltered`, one tamer try in `startPicture`
   - fixed places (2026-10-03): `PICTURE.LOCATIONS`; `@key` in SHOTS/PLACES → NAME; `locationOf` (her words, a scene);
     `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
@@ -44,7 +44,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `pictureMode`; `takeSelfie` (in `shapeReply`); `startPicture` (`selfieSubject` or `scenePicturePrompt` →
     `drawPicture` with `faceBytes`) and `deliverPicture` (hash check, `sendPhoto`); `noteMinor`/`saysMinor`;
     `picsCommand`, `faceCommand`; `health` (`/health`); `aiFailed` (KV `ai_error`)
-  - hearing: `transcribe` (his voice notes: Workers AI Whisper `HEARING.MODEL`, counted in the AI ledger by
+  - hearing: `transcribe` (his voice notes: `hearWithGemini` first = `HEARING.OR_MODEL` on OpenRouter, OGG as `input_audio`, laughs/tone in parentheses; then Workers AI Whisper `HEARING.MODEL`, counted in the AI ledger by
     `AI_BUDGET.HEARING_NEURONS_PER_MIN`; `scribe` = ElevenLabs backup when it fails or the budget is spent)
   - voice: `bodyOf`/`clean`, `forSpeech` → `tidySpoken` → `sayArabizi`, `tts` (`VOICE.PROVIDER` "aura": Workers AI
     aura-2 with `auraText` (tags → `AURA_CUES`) and `audioBytes`, counted by `AI_BUDGET.VOICE_NEURONS_PER_1000_CHARS`;

@@ -5,6 +5,13 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **Gemini 3.8 Flash hears his voice notes; klein first unless spicier** (owner: "Go with Gemini 3.8 flash
+  for voice. Let klein try first unless it's more explicit or user asks for two pieces or a \"spicier\" picture or
+  something similar to attached", with a Nano Banana picture and its JSON prompt, "change it to Reem's description"):
+  `HEARING.OR_MODEL` google/gemini-3.8-flash first (Whisper, then Scribe as backups); boudoir selfies go to klein in
+  `LINGERIE.KLEIN_WARDROBE` (the one-pieces and layers of round 2), Nano Banana when klein refuses; two pieces,
+  "spicier", from behind or explicit words (`SPICY_PATTERN`) go straight to Nano Banana with `SPICY_PROMPT` (the
+  owner's JSON style, her description). *Supersedes klein-first with the real lingerie words (same day).*
 - 2026-10-05 — **klein draws lingerie first; the stronger accent** (owner: "Let klein draw lingerie first, then
   nanobanana if klein refuses." / "Let's use the stronger accent."): boudoir selfies go to klein with her face and the
   real lingerie words (`PICTURE.LINGERIE.KLEIN_FIRST`), Nano Banana only when klein refuses or fails, klein's own
