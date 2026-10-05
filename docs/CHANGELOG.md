@@ -4,6 +4,17 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05: v11 persona built (on dev, not deployed)
+- `SYSTEM_PROMPT` rewritten from `docs/REEM-BIBLE.md` (Reem Nabot, Armenian-Lebanese bookkeeper, Watertown triple-decker;
+  deflect then interrogate, cold reads, no polite filler, one question a reply, Levantine English); Basbousa dropped
+  (owner); `INTRO_MESSAGE` = the bible's runtime scene; `CHARACTER.CITY`/`SCHEDULE`, `PERSONA.TEXTURE`,
+  `PROACTIVE.PROMPT`, `NUDGES.TIME` ("tonight" only in the evening), `VOICE.OR_INSTRUCTIONS` (light Lebanese accent),
+  `HEARING.PROMPT`, picture words (`SHOTS.cozy/detail`, `PLACES.EVERYDAY`, `LOCATIONS.living.WORDS`).
+- Code: `offeredTags` (only the tags her voice performs: Sulafat [laughs] [sighs] [whispers]); `toYou` (scene narration
+  him/his → you/your); `clean` drops whole [bracket] lines of any length; `takeSelfie` takes `[photos: ...]` and drops a
+  one-word label; OOC acting as a last resort sends her quoted words; apart acting on her phone sends her words as texts.
+- `[live]` runs 37259031783 (1 broken), 37259492385 (2 broken), 37259888697 (0 broken), all read in full (docs/QUALITY.md).
+
 ## 2026-10-04 (late night): Sulafat voice, bangs, body reference (on dev, not deployed)
 - `mp3.js` (lamejs) + `pcmToMp3`, `VOICE.OR_FORMAT`, defaults Gemini Sulafat; bangs and shoulders in persona and picture
   prompts; reference face from bench 37175758855 #05; `BODY_JPEG_BASE64` (bench 37176541884 #01) as klein image 1, place image 2

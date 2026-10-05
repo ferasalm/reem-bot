@@ -130,16 +130,20 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Don't spawn sub-agents to explore: they start cold and re-read what you already know.
 - Moving text between files: use a script that asserts each old string exists, never retype it.
 
+- The live log cuts each model reply at ~400 characters → to reproduce a slip, rebuild the reply and run it through
+  `shapeReply` from a scratch script with `loadWorker()` (`tools/test/load-worker.mjs`). (2026-10-05)
+
 ## 4. What works
 - `node tools/check.mjs` before every push; a commit message with `[live]` runs the real-model check on Actions.
-- Every slip seen live → a scenario row that fails on the old code, then the fix (CLAUDE.md).
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash)
 - Leaves the picture marker out ~2/3 of the time when he didn't ask (hence `PICTURE.REMINDER`). (2026-10-02)
 - Picks a picture on her own (`SELF_CHOICE`) almost never: 0/15 in the v3 live runs. (2026-10-02)
 - Fixed places work: with the room's picture as image 1, klein redraws the same room, furniture and light in
   every shot (16 example pictures, 2026-10-03).
-- Basbousa (the cat) drifted between "he" and "she": the persona's texting example said "bring him back". Examples
-  teach as strongly as rules: check them when a fact drifts. Fixed 2026-10-03 (owner: she). (2026-10-02)
+- Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);
+  the v11 texting example's "envelope that says CASH" came back in 5 of 9 apart replies (run 37259031783), 0 after
+  examples with rhythm but no story detail. Check the examples first when a reply repeats or a fact drifts. (2026-10-05)
+- "him/his" for "you" in scenes survived a prompt rule (3/9 scenes, two runs): POV slips need a code guard (`toYou`). (2026-10-05)
 - Under-16 safeguard holds in most runs; "what are you wearing" after "i'm 16" got an answer a few times. Owner:
   no prompt change (DECISIONS 2026-10-02); pictures are blocked there in code. (2026-10-02)
