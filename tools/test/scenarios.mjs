@@ -99,7 +99,9 @@ const L3 = [
     { kind: "text", texts: ["OOC: Sure, I'll keep the scenes shorter.\n\nAnything else?"] }],
   ["OOC: never a voice note", "[voice] Sure, noted.", { ooc: true }, { kind: "text", spoken: "" }],
   ["OOC: only acting -> asked again", "*Reem's smirk fades as she crosses her arms.* \"Seriously, you just stood there?\"", { ooc: true }, { kind: "none", repaired: true }],
-  ["OOC: only acting, last resort -> the scene", "*Reem's smirk fades.* \"Seriously?\"", { ooc: true, lastResort: true }, { kind: "scene" }],
+  // live 2026-10-05 (run 37259031783): acted twice in an OOC answer and went out as a scene
+  ["OOC: only acting, last resort -> her quoted words as the answer", "*She raises a brow, tilting her head slightly.* \"Understood. I'll keep it tight.\"", { ooc: true, lastResort: true }, { kind: "text", texts: ["Understood. I'll keep it tight."] }],
+  ["OOC: only acting with no words, last resort -> the scene", "*Reem's smirk fades as she shrugs.*", { ooc: true, lastResort: true }, { kind: "scene" }],
   ["OOC: her name is fine as the writer", "Sure, Reem will keep the scenes shorter.", { ooc: true }, { kind: "text", texts: ["Sure, Reem will keep the scenes shorter."], repaired: false }],
 
   // --- seen in the live check (2026-10-01, Lunaris) and the PR #6 chats
@@ -121,6 +123,9 @@ const L3 = [
   ["selfie: marker + text", "like what you see?\n\n[selfie: mirror selfie]", { canSelfie: true }, { kind: "text", texts: ["like what you see?"], selfie: "mirror selfie", stored: "like what you see?" }],
   ["selfie: marker first, then bubbles", "[selfie: morning coffee]\nwoke up like this\n\njealous?", { canSelfie: true }, { kind: "text", texts: ["woke up like this", "jealous?"], selfie: "morning coffee" }],
   ["selfie: picture only", "[selfie: me with basbousa]", { canSelfie: true }, { kind: "none", selfie: "me with basbousa" }],
+  // live 2026-10-05 (run 37259031783): "[photos: ...]" left "s: the kitchen table" in the picture; "[slept: ...]" its label
+  ["selfie: [photos: ...] marker", "nothing. receipts\n\n[photos: the kitchen table, a shoebox of crumpled receipts, the calculator]", { canSelfie: true }, { kind: "text", texts: ["nothing. receipts"], selfie: "the kitchen table, a shoebox of crumpled receipts, the calculator" }],
+  ["selfie: bare bracket line with a one-word label", "[slept: hair up loose, dad's old cardigan slipping off one shoulder, on the kitchen floor]\n\nyou got one minute", { canSelfie: true }, { kind: "text", texts: ["you got one minute"], selfie: "hair up loose, dad's old cardigan slipping off one shoulder, on the kitchen floor" }],
   ["selfie: [photo: ...] and [pic: ...] too", "[pic: on the balcony] sunset ✨", { canSelfie: true }, { kind: "text", texts: ["sunset ✨"], selfie: "on the balcony" }],
   ["selfie: narrated *sends a selfie* -> any picture", "*sends you a selfie*\n\n😏", { canSelfie: true }, { kind: "text", texts: ["😏"], selfie: "" }],
   ["selfie: not offered -> marker dropped, no picture", "here\n\n[selfie: mirror selfie]", {}, { kind: "text", texts: ["here"], selfie: null }],
@@ -763,6 +768,9 @@ yes(/No polite filler, ever/.test(P) && /At most one question per reply/.test(P)
 yes(/Levantine rhythm/.test(P) && /Levantine/.test(W.CONFIG.VOICE.OR_INSTRUCTIONS), "Levantine accent in the persona and in Sulafat's instructions");
 // live slips (2026-10-02/04): "him" for "you"; "tonight" in the afternoon
 yes(/He is always "you": never "he" or "him" when you talk to him/.test(P), "he is always \"you\" in her words");
+yes(/He is "you" in scenes too: she looks at you, never at him/.test(P), "he is \"you\" in scenes too (live 2026-10-05: \"squints at him\", \"his lap\")");
+yes(/Never lie about the facts of your life/.test(P) && /nobody lives above you/.test(P), "no lies about where she's from (live: \"boston. born and raised\"); nobody above her (live: \"the guy upstairs\")");
+yes(!/envelope that says CASH|two forks\n/.test(P.split("1. TEXTING")[1].split("INTIMACY")[0]), "texting/voice examples carry no story detail she'd copy (live: the CASH envelope in 5 of 9 replies)");
 yes(/Say \\?"tonight\\?" only once it's evening/.test(W.CONFIG.NUDGES.TIME), "TIME nudge: \"tonight\" only in the evening");
 // Voice tags: she's offered only what her voice performs (Sulafat: laughs, whispers, sighs)
 { const V = W.CONFIG.VOICE, keep = V.PROVIDER;

@@ -68,8 +68,9 @@ const SITUATIONS = [
   // interrogates; no polite filler; at most one question; no cat (Basbousa dropped)
   ["origin", "wait where are you from originally?", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/leban|beirut|bourj|armenia|east beirut/i.test(s.stored) && "doesn't say Beirut/Lebanon/Armenian") || (OLD_PERSONA.test(s.stored) && "old persona detail")],
   ["where-live", "remind me where you live again lol", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/watertown|boston|mount auburn|across the (?:hall|landing)|third floor|top floor|triple/i.test(s.stored) && "doesn't say Watertown/Boston/the landing") || (OLD_PERSONA.test(s.stored) && "old persona detail")],
-  ["job", "what do you even do all day", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/book|tax|receipt|invoice|client|account|numbers|quickbooks|excel/i.test(s.stored) && "doesn't sound like a bookkeeper") || (OLD_PERSONA.test(s.stored) && "old persona detail")],
+  ["job", "what do you even do all day", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/book|tax|receipt|invoice|client|account|numbers|money|quickbooks|excel/i.test(s.stored) && "doesn't sound like a bookkeeper") || (OLD_PERSONA.test(s.stored) && "old persona detail")],
   ["family", "do you have family back home? are they ok", APART, { scene: "apart" }, ["text", "voice"], (s) => questions(s) > 1 && "more than one question (should deflect, then ask him one)"],
+  ["you-not-him", "*sits next to you on the porch steps*", SCENE, { scene: "together" }, ["scene"], (s) => /\b(?:at|to|with|on|toward|towards) (?:him|his)\b|\bhis (?:face|eyes|hand|lap|hips|chest|mouth)\b/i.test(s.stored) && "him/his for you in a scene"],
   ["filler", "lol", APART, { scene: "apart" }, ["text", "voice"], (s) => (POLITE.test(s.stored) && "polite filler") || (questions(s) > 1 && "more than one question")],
   ["clock", "what time is it there? what are you up to", APART, { scene: "apart" }, ["text", "voice"]],
   ["proactive", W.CONFIG.PROACTIVE.PROMPT.replace("{hours}", "4 hours"), APART, { scene: "apart", proactive: true }, ["text", "voice"]],

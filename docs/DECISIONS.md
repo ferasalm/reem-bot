@@ -5,6 +5,9 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **Basbousa dropped** (owner: "Basbousa: drop"): the new Reem has no cat; the persona, intro scene,
+  nudges, picture words and Whisper's hint no longer name her. *Supersedes "Basbousa is a she" (2026-10-03) and the
+  Basbousa part of the v10 commands entry (2026-10-01).*
 - 2026-10-05 — **Replace all of Reem with the character bible; Levantine accent** (owner: "replace all of her",
   "Levantine", pictures: "Your judgement"; and "don't replace the current Reem yourself, we need to hand it off"):
   `docs/REEM-BIBLE.md` becomes her persona: Reem Nabot, 29, Armenian-Lebanese from Bourj Hammoud, in Boston since
@@ -76,7 +79,7 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   doubled (Claude's values), the body described in every prompt, 768x1024 pictures at the same price as 640x640.
 - 2026-10-03 — **Branch clean-up button** (owner: "Add the button, I'll press it"): Actions > Delete retired
   branches deletes what `tools/retired-branches.txt` lists, `Worker.js` included; `face-candidates` stays.
-- 2026-10-03 — **Basbousa is a she** (owner: "Basbousa is a she"): the persona says so; its texting example
+- ~~2026-10-03 — **Basbousa is a she**~~ (superseded 2026-10-05: Basbousa dropped) (owner: "Basbousa is a she"): the persona says so; its texting example
   no longer calls her "him" (the likely source of the he/she drift seen live).
 - 2026-10-03 — **Handbook restructured (option D of the SWOT analysis)** (owner: "Agree with 1 D and agree with 2
   and 3"): HANDOFF.md holds only the current state and is rewritten every session; this decision log moved word for
