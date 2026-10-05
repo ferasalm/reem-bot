@@ -270,3 +270,41 @@ described 3/16**; 9 drawn tamer (klein covers her up instead of refusing).
 | 13 | d7 strappy lace two-piece + thigh-high stockings (waist) | black bodysuit with lace leg edges + lace-top stockings | match | iPhone | **close** |
 | 14 | d7 again | plain black bodysuit + opaque tights; slim, toned arms | body off | iPhone | tamer |
 | 15, 16 | d8 short satin babydoll (control) | black satin slip dress, midi with slit / short | match; phone covers half the face | iPhone | tamer |
+
+## The owner's place pictures + lingerie round 2 (2026-10-05, face run 37266040257), each read at full size
+Places (owner's pictures, LOOK rewritten to match them): **6/6 rooms right**, day and night.
+
+| Pic | Shot | Face, body | Phone | Room, light | Verdict |
+|---|---|---|---|---|---|
+| 01 | everyday selfie, kitchen 10h | match | none, mug in hand | kitchen exact (shelves, mugs, window) | pass |
+| 02 | flirty waist, bedroom 22h | match | iPhone | night bedroom, lamp on | pass (no hand on waist) |
+| 03 | golden, porch 17h | match, curvy | none | porch, railing, chair, can, foliage | pass (no golden light) |
+| 04 | cozy, living 21h | match | none | night living room exact | weak: framed by someone else |
+| 05 | everyday mirror, hallway 9h | match | iPhone | landing exact (green doors, bulb, mat) | pass (odd shorts under the coat) |
+| 06 | close, bathroom 23h | match, laughing | none | bathroom (tiles, round mirror) | pass |
+
+Lingerie round 2 (one-pieces and layers only, no trigger words, 2 tries each): **refused 4/12** (L4 #2, L5 x2, L6 #1);
+**as asked 4/12**; half 4/12; tamer 0/12 (round 1: 3/16 as asked, 9 tamer).
+
+| Pic | Wording | Drawn | Verdict |
+|---|---|---|---|
+| 07, 13 | L1 black satin corset one-piece, kneeling on the bed | the corset, but with black shorts added; phone visible in a "no phone" selfie | half x2 |
+| 08 | L2 black lace bodysuit + lace-top stockings (mirror) | exactly that | **as asked** |
+| 14 | L2 again | lace-trimmed slip dress + stockings; phone hides the face | half |
+| 09 | L3 red satin robe open over a red lace set (waist) | robe tied over the lace top | half |
+| 15 | L3 again | robe open over the red lace top and bottoms | **as asked** (phone covers face) |
+| 10 | L4 his white shirt open over a black lace set | exactly that (phone visible in a "no phone" selfie) | **as asked** |
+| 18 | L6 dusty pink satin-and-lace one-piece (mirror) | exactly that; body slimmer than her reference | **as asked** (body off) |
+
+## Speech-to-text bench (2026-10-05, run 37266123079), every transcript read
+Six of his voice notes made by Gemini TTS (male voices) as OGG/Opus. All audio models took OGG directly (no MP3 needed).
+Caveat: Gemini made the clips, so Gemini hearing them may be easier than real voice notes.
+
+| Hearer | Words | Arabic | Arabizi clip | Sounds/tone (laugh x3, sigh, whisper) | Time a clip | Cost a minute |
+|---|---|---|---|---|---|---|
+| Whisper turbo (live) | good | good | "ya Allah", "habibi" | none | 1-6 s | $0.0005 |
+| Nova-3 (Workers AI) | good | **Devanagari gibberish** | dropped "ana barra", "khalas" | none | 0.5 s | $0.0052 |
+| Gemini 3.5 Flash Lite | good | good | "ya Allah" | laugh 1/3, sigh ok, whisper heard as "sighs", 1 false sigh | 1-1.6 s | ~$0.0015 |
+| **Gemini 3.8 Flash** | all right | right | all right (Arabic words in Arabic script), "(annoyed)" | laugh 2/3, sigh ok, whispering ok; 2 false sighs, 1 "gasp" | 3-7 s | ~$0.02 |
+| Voxtral Small 24B | good, "wanna" | "حبيبي" for "حبيبتي" | "ana barra" translated to "I'm outside" | "(Exhales)", whispering ok, laughs 0/3 | 0.7 s | ~$0.006 |
+| Gemini 3.5 Transcribe | good | good | "ya Allah", dropped "ana barra" | none | 1.2 s | words only |

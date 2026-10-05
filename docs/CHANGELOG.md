@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-05 (third session, later): owner's places, lingerie wording rounds, STT bench (on dev, not deployed)
+- Places: the owner's 15 pictures (all 8 places by day, 7 by night; bathroom day only) in `tools/face/places/`,
+  `places.js` rebuilt; every `LOCATIONS` LOOK rewritten to match them. Check: face run 37266040257 (6/6 rooms right).
+- Lingerie on klein without trigger words: round 1 run 37263536954 (3/16 as asked), round 2 run 37266040257 (4/12).
+- `tools/voice/stt-bench.*` + workflow: run 37266123079 (Whisper, Nova-3, Gemini 3.5 Flash Lite, Gemini 3.8 Flash,
+  Voxtral Small, Gemini 3.5 Transcribe). `face.yml` no longer runs on dev/main pushes or its own edits.
+
 ## 2026-10-05 (third session): klein lingerie first, stronger accent (on dev, not deployed)
 - `startPicture`: a boudoir selfie goes to klein first with the real lingerie words and her face
   (`PICTURE.LINGERIE.KLEIN_FIRST`, panel field added); on a refusal or failure Nano Banana, then klein's filter-safe

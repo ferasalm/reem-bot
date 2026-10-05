@@ -21,8 +21,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   checks (face vs reference, age, outfit, phone rule, room vs reference, framing, hands and reflections).
 - Test pictures: push a `tools/face/job.json` to your own branch (not `dev`); face.yml draws and pushes them to
   `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
-  Pushing those commits to `dev` later runs face.yml once more (job.json changed in the push): ~4 pictures spent
-  twice on 2026-10-03. Fine when small; for a big job, push it to `dev` before the last job.json edit lands. (2026-10-03)
+  Pushing a job to `dev`, or restoring job.json on your branch, drew it again (run 59, 2026-10-05) → face.yml now skips
+  dev/main pushes and its own edits (like tts/stt benches); a job.json push to your branch still draws. (2026-10-05)
 - The sync report listed an old branch with "26 commits not here" → the clone was shallow (depth 50), so the
   merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03)
 - face.yml refused a job at 6,618 neurons used: draw.mjs's day cap 7,000 dates from the free plan → set
@@ -56,8 +56,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   (`fitMessages`). History folds into notes at 40 messages, keeping 24 (PR #6 had cut this to 24/14 for Lunaris).
 - Tests: `CONFIG_OVERRIDES` is cached once per run, so tests set `W.CONFIG` directly. Voice chances are 0 in e2e and
   scenarios except where a test asks. e2e `herPrompts()`/`sys()` read her prompts (not memory or /auto).
-- Telegram reactions accept only its fixed emoji list (❤ without FE0F, 🤣 rather than 😂).
-- Panel textareas: a leading "\n" is added on purpose (browsers drop the first newline).
+- Telegram reactions: only its fixed emoji list (❤ without FE0F, 🤣 not 😂). Panel textareas get a leading "\n" on purpose.
 - Pictures stopped, /setup showed `5006 '/seed'` → the real cause was out of neurons (4006, whose text says
   "upgrade") read as "model unavailable", and face.yml runs bypassing the bot's ledger → when an AI error looks odd,
   run the AI diagnosis workflow (`ai-diag.yml`) and read Cloudflare's analytics before fixing the error shown. (2026-10-03)
@@ -67,9 +66,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   random like 3030 (same words passed once, failed once); Grok Imagine 2.0 refused 2/2 with her face attached. Cloudflare's third-party models need AI Gateway credits
   (402 "Insufficient balance"); its Seedream 4.0 takes no reference image. OpenRouter image-only models answer on
   `POST /api/v1/images` (`input_references`, `data[0].b64_json`), not chat completions (404). (2026-10-04)
-- Lingerie on klein without trigger words (run 37263536954): the filter let 12/16 through, but klein covered her (dresses,
-  skirts, shorts, tights): 3/16 as described, all one-pieces or layers (corset, robe open over a set, bodysuit +
-  stockings); "top + bottoms" never. Words alone don't buy lingerie on klein. (2026-10-05)
+- Lingerie on klein without trigger words: two-piece "top + bottoms" wordings get covered up (round 1: 3/16 as asked,
+  9 tamer); one-pieces and layers do better (round 2: 4/12 as asked, 4 half, 4 refused, 0 tamer: bodysuit + stockings,
+  robe or his shirt open over a set, satin one-piece; the corset gets shorts added). Runs 37263536954, 37266040257. (2026-10-05)
 - Lingerie on Workers AI's own models (bench 2026-10-04, `docs/QUALITY.md`): flux-2-dev has klein's output filter
   (bra/panties 0, babydoll 2/14, and it dodges by drawing tamer clothes or an empty room); lucid-origin and schnell
   filter the *prompt* (free refusal, 1/14 and 2/9) and draw real lingerie when it passes, but take no face reference.
@@ -89,7 +88,8 @@ At most 150 lines (`tools/doc-check.mjs`).
 - OpenRouter speech (`POST /api/v1/audio/speech`, run 37174172123): Gemini TTS answers only `response_format: "pcm"`
   (24 kHz 16-bit mono; ffmpeg `-f s16le -ar 24000`); a wrong `voice` makes Deepgram list its voices in the error;
   Sesame needs a voice; MAI-Voice-2 and Qwen gave a bare "Provider returned 400". Telegram's sendVoice takes MP3.
-  Whisper never transcribes laughs: judge them by ear. (2026-10-04)
+  Whisper never transcribes laughs: judge them by ear. (2026-10-04) Hearing (stt bench 2026-10-05): OpenRouter audio
+  chat models take Telegram's OGG as `input_audio` format "ogg"; Nova-3 turns Arabic into Devanagari.
 - Vendoring a third-party npm package into the repo (lamejs for Gemini TTS's PCM → MP3) was refused by the session's
   permission check until the owner said "add lamejs": ask first, then add. 5 s of speech encode in ~0.2 s. (2026-10-04)
 - Slim bodies on klein (6/15, then 5/13) were fixed by a body reference picture as image 1 (8/8 curvy, clothes not copied):
