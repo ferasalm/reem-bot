@@ -1,8 +1,8 @@
 /**
  * Reem (@reem_nabot): roleplay companion on Cloudflare Workers (free plan)
  *
- *   Brain:  DeepSeek V4 Flash via OpenRouter (writes every text and every voice note; CONFIG.LLM).
- *           Lunaris 8B answers only when DeepSeek is down (LLM.BACKUP_MODEL).
+ *   Brain:  Mistral Nemo via OpenRouter (writes every text and every voice note; CONFIG.LLM).
+ *           DeepSeek V4 Flash answers when Nemo is down (LLM.BACKUP_MODEL), and folds memory and drafts /auto.
  *   Ears:   Workers AI Whisper large v3 turbo (speech-to-text), ElevenLabs Scribe v2 as the backup
  *   Voice:  ElevenLabs text-to-speech (eleven_v3), voice "Reem" designed for her (works on the free plan)
  *
@@ -278,26 +278,29 @@ const CONFIG = {
 
   /* ---------------- Brain (OpenRouter) ---------------- */
   LLM: {
-    MODEL: "deepseek/deepseek-v4-flash",
-    // Novita, Baidu and StreamLake ignore min_p; Relace and the backup model use it
+    MODEL: "mistralai/mistral-nemo",   // owner 2026-10-05: Mistral Nemo writes her replies, DeepSeek is the backup
+    // Novita, Baidu and StreamLake ignore min_p (DeepSeek's providers); others use it
     SAMPLING: { temperature: 0.95, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 420 },
-    // OpenRouter routing, sent only with MODEL (memory too when MEMORY.MODEL is the same model).
+    // OpenRouter routing sent with MODEL. Empty = OpenRouter picks the provider.
+    PROVIDER: {},
+    REASONING: {},                     // Mistral Nemo has no thinking step
+    BACKUP_MODEL: "deepseek/deepseek-v4-flash", // one try with this model when every try with MODEL failed; "" = off
+    // OpenRouter routing sent with BACKUP_MODEL (memory and /auto too, while they use the same model).
     // Provider slugs as OpenRouter lists them; allow_fallbacks: false = never any other provider.
-    PROVIDER: {
+    BACKUP_PROVIDER: {
       order: ["novita", "baidu", "relace", "streamlake"],
       ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], // filter, cut replies, or rate-limited
       allow_fallbacks: false,
     },
-    REASONING: { enabled: false },     // no thinking step: faster, cheaper, and the bench was run this way
-    BACKUP_MODEL: "sao10k/l3-lunaris-8b", // one try with this model when every try with MODEL failed; "" = off
+    BACKUP_REASONING: { enabled: false }, // no thinking step: faster, cheaper, and the bench was run this way
     // Reply length per kind of reply (max_tokens above is used if one is missing). Shorter = less rambling.
     MAX_TOKENS: { TEXT: 220, VOICE: 120, SCENE: 380 },
     // How much of the chat is sent with each reply, in tokens. The oldest messages are left out so the
-    // prompt always fits. DeepSeek V4 Flash reads far more; this keeps replies fast and cheap.
+    // prompt always fits. Mistral Nemo reads far more (128k); this keeps replies fast and cheap.
     CONTEXT_TOKENS: 32768,
-    // The same for the backup model (Lunaris 8B reads 8192 tokens): when it answers, older messages
+    // The same for the backup model (DeepSeek V4 Flash): when it answers, older messages
     // are left out first, so OpenRouter never cuts the middle (her rules) out silently.
-    BACKUP_CONTEXT_TOKENS: 8192,
+    BACKUP_CONTEXT_TOKENS: 32768,
     CHARS_PER_TOKEN: 3.5,              // rough estimate used for both (lower = safer)
     RETRY_TEMPERATURE: 1.05,           // the second try, when her first reply repeated herself
     TIMEOUT_MS: 15000,
@@ -307,7 +310,7 @@ const CONFIG = {
 
   /* ---------------- Long-term memory ---------------- */
   MEMORY: {
-    MODEL: "deepseek/deepseek-v4-flash",
+    MODEL: "deepseek/deepseek-v4-flash", // same as LLM.BACKUP_MODEL, so it gets its providers (LLM.BACKUP_PROVIDER)
     PROMPT: MEMORY_PROMPT,             // defined above
     SAMPLING: { temperature: 0.3, max_tokens: 600 },
     TIMEOUT_MS: 25000,
@@ -565,7 +568,7 @@ Changing the story
    * The draft is tap-to-copy, so he can also edit it and send it himself.
    */
   AUTO: {
-    MODEL: "deepseek/deepseek-v4-flash", // same as LLM.MODEL, so it gets the same providers (LLM.PROVIDER)
+    MODEL: "deepseek/deepseek-v4-flash", // same as LLM.BACKUP_MODEL, so it gets its providers (LLM.BACKUP_PROVIDER)
     SAMPLING: { temperature: 1.0, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 160 },
     TIMEOUT_MS: 15000,
     TRANSCRIPT_MAX_CHARS: 6000,        // how much of the recent chat the draft is based on
@@ -983,7 +986,7 @@ const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArr
 const REPLACED_WHOLE = new Set(["PRONUNCIATIONS", "FILTER_WORDS", "ARABIZI_DIGITS", "STAGE_DIRECTIONS", "SHOTS", "SHOT_WORDS", "SHOT_HOURS", "ANGLES", "ANGLE_WEIGHTS"]);
 
 // Blocks passed to OpenRouter as they are, so they may also take new parameters
-const OPEN_BLOCKS = /(^|\.)(SAMPLING|PROVIDER|REASONING)$/;
+const OPEN_BLOCKS = /(^|\.)(SAMPLING|PROVIDER|REASONING|BACKUP_PROVIDER|BACKUP_REASONING)$/;
 
 // Only names that exist in CONFIG are changed (OPEN_BLOCKS excepted)
 function mergeSettings(target, src, path, unknown) {
@@ -2183,10 +2186,12 @@ const RETRYABLE = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 // that model (so a backup or another memory model is routed by OpenRouter as usual). Empty values are left out.
 function openRouterBody(model, messages, sampling) {
   const body = { model, messages, ...sampling };
-  if (model !== CONFIG.LLM.MODEL) return body;
+  const L = CONFIG.LLM;
+  const main = model === L.MODEL;
+  if (!main && model !== L.BACKUP_MODEL) return body;
   const kept = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v != null && v !== "" && !(Array.isArray(v) && !v.length)));
-  const provider = kept(CONFIG.LLM.PROVIDER);
-  const reasoning = kept(CONFIG.LLM.REASONING);
+  const provider = kept(main ? L.PROVIDER : L.BACKUP_PROVIDER);
+  const reasoning = kept(main ? L.REASONING : L.BACKUP_REASONING);
   if (Object.keys(provider).length) body.provider = provider;
   if (Object.keys(reasoning).length) body.reasoning = reasoning;
   return body;
@@ -4383,7 +4388,7 @@ async function setup(url, env) {
   }
 
   if (env.OPENROUTER_API_KEY) {
-    // The same routing as her replies (LLM.PROVIDER, LLM.REASONING), then the backup model
+    // The same routing as her replies (LLM.PROVIDER, LLM.REASONING), then the backup model (LLM.BACKUP_*)
     const models = [[CONFIG.LLM.MODEL, ""], ...(CONFIG.LLM.BACKUP_MODEL && CONFIG.LLM.BACKUP_MODEL !== CONFIG.LLM.MODEL ? [[CONFIG.LLM.BACKUP_MODEL, " (backup)"]] : [])];
     for (const [model, label] of models) {
       try {

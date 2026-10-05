@@ -157,24 +157,27 @@ Maintain adult themes freely without moralizing. If he ever says he is under 18,
 W.applyOverrides({ CONFIG_OVERRIDES: JSON.stringify({ VOICE: { PRONUNCIATIONS: { ya3ni: "yani" } } }) });
 eq(Object.keys(W.CONFIG.VOICE.PRONUNCIATIONS), ["ya3ni"], "pronunciations replaced whole");
 eq(W.forSpeech("ya3ni 7abibi"), "Yani habibi.", "override + fallback");
-// OpenRouter routing goes with LLM.MODEL only
-const ds = W.openRouterBody(W.CONFIG.LLM.MODEL, [], { max_tokens: 5 });
-eq({ provider: ds.provider, reasoning: ds.reasoning }, { provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "DeepSeek: provider + reasoning");
-eq(Object.keys(W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "backup model: no routing");
-eq(W.CONFIG.MEMORY.MODEL === W.CONFIG.LLM.MODEL, true, "memory uses the chat model (same routing)");
+// OpenRouter routing: LLM.PROVIDER/REASONING with LLM.MODEL, LLM.BACKUP_* with the backup (DeepSeek)
+eq(W.CONFIG.LLM.MODEL, "mistralai/mistral-nemo", "chat model: Mistral Nemo");
+eq(Object.keys(W.openRouterBody(W.CONFIG.LLM.MODEL, [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "Nemo: no routing (OpenRouter picks)");
+const ds = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 });
+eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "DeepSeek backup: provider + reasoning");
+eq(Object.keys(W.openRouterBody("sao10k/l3-lunaris-8b", [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "another model: no routing");
+eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.BACKUP_MODEL), true, "memory and /auto use DeepSeek (the backup's routing)");
 {
   const saved = structuredClone(W.CONFIG.LLM);
-  W.CONFIG.LLM.PROVIDER.ignore = [];
-  W.CONFIG.LLM.REASONING = {};
-  const b = W.openRouterBody(W.CONFIG.LLM.MODEL, [], {});
+  W.CONFIG.LLM.BACKUP_PROVIDER.ignore = [];
+  W.CONFIG.LLM.BACKUP_REASONING = {};
+  const b = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], {});
   eq({ ignore: "ignore" in b.provider, reasoning: "reasoning" in b }, { ignore: false, reasoning: false }, "empty routing values dropped");
   W.CONFIG.LLM = saved;
 }
 // overrides reach the new LLM keys; PROVIDER/REASONING take new OpenRouter keys, LLM itself doesn't
 {
   const copy = structuredClone(W.CONFIG), unknown = [];
-  W.mergeSettings(copy, { LLM: { PROVIDER: { order: ["baidu"], ignore: ["novita"], allow_fallbacks: true, sort: "latency" }, REASONING: { enabled: true, effort: "low" }, BACKUP_MODEL: "", FOO: 1 } }, "", unknown);
+  W.mergeSettings(copy, { LLM: { PROVIDER: { order: ["baidu"], ignore: ["novita"], allow_fallbacks: true, sort: "latency" }, REASONING: { enabled: true, effort: "low" }, BACKUP_PROVIDER: { sort: "price" }, BACKUP_MODEL: "", FOO: 1 } }, "", unknown);
   eq([copy.LLM.PROVIDER, copy.LLM.REASONING, copy.LLM.BACKUP_MODEL], [{ order: ["baidu"], ignore: ["novita"], allow_fallbacks: true, sort: "latency" }, { enabled: true, effort: "low" }, ""], "LLM routing overrides");
+  eq(copy.LLM.BACKUP_PROVIDER.sort, "price", "backup routing takes new OpenRouter keys");
   eq(unknown, ["LLM.FOO"], "unknown LLM key rejected");
 }
 // Every CONFIG setting has a field in the settings panel (TELEGRAM.ALLOWED_UPDATES is technical, on purpose)

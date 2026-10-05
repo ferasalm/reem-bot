@@ -5,6 +5,11 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **Chat model: Mistral Nemo, DeepSeek as the backup** (owner: "Let's switch our LLM model to mistral nemo. With
+  deepseek as our backup model."): `LLM.MODEL` `mistralai/mistral-nemo` (OpenRouter picks its provider, no reasoning block);
+  `LLM.BACKUP_MODEL` `deepseek/deepseek-v4-flash` keeps DeepSeek's providers and reasoning off (`LLM.BACKUP_PROVIDER`,
+  `LLM.BACKUP_REASONING`). Claude's call: memory folding and /auto stay on DeepSeek. Not deployed yet. *Supersedes the
+  DeepSeek chat model and the Lunaris backup of 2026-10-01.*
 - 2026-10-05 — **Fix everything, then deploy** (owner: "I am allowing all edits. Fix everything then deploy."): Claude checked
   the fixes with real pictures and two `[live]` runs and fixed what they showed: the place picture is one of three crops of the
   owner's picture (rewording alone changed 1 of 6), /auto keeps a heated chat heated (`AUTO.HOT_MOVES`) and stays short, a scene

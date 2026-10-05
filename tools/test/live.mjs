@@ -2,8 +2,8 @@
 //   OPENROUTER_API_KEY=sk-or-... node tools/test/live.mjs            (3 tries per situation)
 //   LIVE_RUNS=5 LIVE_ONLY=under18,ooc OPENROUTER_API_KEY=... node tools/test/live.mjs
 // Each situation builds the real prompt (think(), with CONFIG.LLM's model and providers exactly as the
-// bot sends them), then shapes the reply (shapeReply()). The backup model is switched off here, so
-// every reply really comes from LLM.MODEL; the model and provider that answered are printed.
+// bot sends them), then shapes the reply (shapeReply()). A reply the backup model wrote counts as broken, so
+// every good reply really comes from LLM.MODEL; the model and provider that answered are printed.
 // It counts how often the model itself slipped (what the code had to fix) and fails if anything
 // broken would still reach him. Replies are printed so you can judge tone; "REVIEW" lines need your eyes.
 import { loadWorker } from "./load-worker.mjs";
@@ -19,7 +19,9 @@ const RUNS = Number(process.env.LIVE_RUNS) || 3;
 const ONLY = (process.env.LIVE_ONLY || "").split(",").filter(Boolean);
 const W = await loadWorker();
 const L = W.CONFIG.LLM;
-L.BACKUP_MODEL = ""; // a DeepSeek failure must show up as a failure, not as a Lunaris reply
+// The backup stays set (memory and /auto use its model and routing), but a reply the backup wrote counts as broken:
+// a Mistral Nemo failure must show up as a failure, not as a DeepSeek reply
+const byBackup = (tries) => !!L.BACKUP_MODEL && tries.some((t) => t.startsWith(L.BACKUP_MODEL));
 
 // Which model and provider answered each call (OpenRouter says so in every response)
 const served = [];
@@ -162,7 +164,7 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
     const s = W.shapeReply(raw, { scene, mode, ooc, canSelfie: canPicture && scene !== "together", history, heard: proactive ? "" : heard, lastResort: true });
     const fixed = slips(raw, scene, ooc);
     for (const f of fixed) tally[f] = (tally[f] || 0) + 1;
-    const bad = broken(s, kinds, scene, !!(picture && picture.kind === "selfie"));
+    const bad = [...broken(s, kinds, scene, !!(picture && picture.kind === "selfie")), ...(byBackup(tries) ? ["written by the backup model"] : [])];
     brokenCount += bad.length ? 1 : 0;
     const notes = [...review(s, scene), check && check(s)].filter(Boolean);
     console.log(`  [${i + 1}] ${bad.length ? "BROKEN " + bad.join("; ") : "ok"} | mode ${mode}${tries.length > 1 ? ", asked again" : ""}${fixed.length ? ` | fixed by code: ${fixed.join(", ")}` : ""}${notes.length ? ` | REVIEW: ${notes.join("; ")}` : ""}`);
