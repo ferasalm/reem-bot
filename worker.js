@@ -781,7 +781,7 @@ Changing the story
     },
     // @name = one of her fixed places (LOCATIONS): the same room in every picture
     PLACES: {
-      EVERYDAY: ["on @porch", "in @kitchen", "at a bakery café on Mount Auburn Street with a coffee", "at her table in @living, laptop open, shoeboxes of receipts around her", "in @living", "by the tall window in @living", "in @hallway, by her door"],
+      EVERYDAY: ["on @porch", "in @kitchen", "at a bakery café on Mount Auburn Street with a coffee", "at her table in @living, laptop open, shoeboxes of receipts around her", "in @living", "by the radiator under the window in @living", "in @hallway, by her door"],
       FLIRTY: ["in @bedroom", "in @living", "on @porch", "in @hallway, leaning on her doorframe"],
       BOUDOIR: ["on the bed in @bedroom, rumpled white sheets", "by the window in @bedroom", "sitting on the edge of the bed in @bedroom", "in @bedroom"],
     },
@@ -794,9 +794,9 @@ Changing the story
       bedroom: { NAME: "her bedroom", LOOK: "a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp, a tall arched floor mirror leaning on the wall, sheer white curtains on an old sash window, warm wood floor", WORDS: ["bedroom", "bed", "sheets", "pillows", "pillow"] },
       bathroom: { NAME: "her bathroom", LOOK: "a small bathroom: white subway tiles, a round mirror with a thin brass frame over a white pedestal sink, black-and-white hexagon floor tiles, warm vanity light", WORDS: ["bathroom", "shower", "bath", "sink"] },
       kitchen: { NAME: "her kitchen", LOOK: "a narrow kitchen: white cabinets, open wooden shelves with mismatched mugs, a small window over the sink with herbs on the sill, warm under-cabinet light", WORDS: ["kitchen", "stove", "counter", "cooking"] },
-      living: { NAME: "her living room", LOOK: "a living room in an old brick building: an exposed red brick wall, tall windows with white trim, a deep green velvet sofa, a worn Persian rug, a brass floor lamp, plants, a desk in the corner with fabric samples and a mood board", WORDS: ["living room", "sofa", "couch", "desk", "receipts", "rug"] },
-      porch: { NAME: "her back porch", LOOK: "a small second-floor wooden back porch: white railings, two mismatched chairs, string lights, maple trees and neighbors' rooftops behind", WORDS: ["porch", "balcony", "railing"] },
-      hallway: { NAME: "the hallway between their doors", LOOK: "an old apartment-building hallway: worn wooden stairs with a dark banister, a checkered tile floor, two facing apartment doors painted dark green, a tall mirror on the wall by her door, a radiator under a window", WORDS: ["hallway", "hall", "doorframe", "landing", "stairs", "your door", "my door"] },
+      living: { NAME: "her living room", LOOK: "the front room of an old triple-decker apartment: cream plaster walls with old wooden trim, a cast-iron steam radiator under a drafty wooden sash window, a worn wooden kitchen table used as her desk with an open laptop, a printing calculator and cardboard shoeboxes of receipts, a small worn olive-green sofa with a wool blanket, a faded rug on old fir floorboards, a tall paper floor lamp", WORDS: ["living room", "front room", "sofa", "couch", "desk", "receipts", "shoebox", "shoeboxes", "laptop", "calculator", "radiator", "rug"] },
+      porch: { NAME: "her back porch", LOOK: "a small third-floor wooden back porch of a triple-decker: gray-painted floorboards, white railings, one folding chair, a coffee can for an ashtray, string lights along the railing, the asphalt driveway, trash bins and a white van three floors below, neighbors' clapboard houses and maples behind", WORDS: ["porch", "balcony", "railing"] },
+      hallway: { NAME: "the hallway between their doors", LOOK: "the narrow third-floor landing of an old triple-decker: worn wooden floorboards, steep wooden back stairs with a dark painted banister going down, two old wooden apartment doors facing each other a few steps apart, a tall mirror on the wall by her door, a doormat, a bare bulb fixture on the slanted ceiling, plaster walls", WORDS: ["hallway", "hall", "doorframe", "landing", "stairs", "your door", "my door"] },
     },
     // Light by her time of day (TIMES: hours, her time)
     TIMES: { morning: "5-11", afternoon: "11-17", evening: "17-21", night: "21-5" },

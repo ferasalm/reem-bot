@@ -16,12 +16,12 @@ const only = process.argv.slice(2).filter((a) => a !== "--night");
 // at night ("deep shadow" drew living, kitchen and porch too dark to use, run 37156755166): where the light comes from in each place (its LOOK and its day picture); bathroom: already lamp-lit
 const NIGHT_LIGHT = {
   bedroom: "the window is dark night blue behind the sheer curtains; the black iron bedside lamp is switched on, a warm amber pool of light over the rumpled white sheets and the cream throw, the floor mirror catching its glow",
-  living: "the tall windows are black with night; the brass floor lamp is switched on, warm amber light across the green velvet sofa and the red brick wall, the plants throwing soft shadows",
+  living: "the sash window is black with night; the paper floor lamp is switched on and the open laptop glows blue-white on the kitchen table, warm amber light across the shoeboxes of receipts, the small sofa and the cream plaster walls, the radiator in soft shadow",
   his_bedroom: "the window is dark; a warm ceiling light is on, the dark gray sheets in soft light, a faint orange streetlight glow through the half-open blinds",
   his_living: "a warm ceiling light is on and the TV screen glows softly, light on the gray couch and the coffee table",
   kitchen: "the small window over the sink is black with night; the warm under-cabinet lights are on, glowing on the counter, the herbs on the sill and the mugs on the open shelves",
-  hallway: "the window at the end is dark; an old ceiling fixture lights the stairwell with warm yellow light, the green doors and the banister in soft shadow",
-  porch: "the string lights are on, small warm bulbs glowing along the white railings, the maples and the rooftops behind in deep blue darkness",
+  hallway: "the bare bulb on the slanted ceiling is switched on, warm yellow light on the two facing wooden doors and the worn floorboards, the back stairs going down into soft shadow",
+  porch: "the string lights are on, small warm bulbs glowing along the white railings and the folding chair, the driveway below lit by an orange streetlight, the neighbors' houses and maples in deep blue darkness",
 };
 const keys = Object.keys(L).filter((k) => (!only.length || only.includes(k)) && (!night || NIGHT_LIGHT[k]));
 const job = night ? {
