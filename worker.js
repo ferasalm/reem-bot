@@ -3385,6 +3385,8 @@ function clean(t) {
   const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
   if (names) t = t.replace(new RegExp(`^[ \\t]*(${names})[ \\t]*:[ \\t]*`, "gim"), "");
   return t
+    // a whole line in [brackets], however long, is never for him (a narrated paragraph, live 2026-10-05)
+    .replace(/^[ \t]*\[[^\]\n]{61,}\][ \t]*$/gm, (m) => (isAudioTag(m) ? m : ""))
     .replace(/^[ \t]*\[[^\]\n]{1,60}\][ \t]*/gm, (m) => (isAudioTag(m) ? m : ""))
     .replace(/^#{1,6}\s*/gm, "")
     .replace(/\*{2,}/g, "*")
@@ -3649,6 +3651,21 @@ function mayChooseVoice(history = []) {
  * or acting had to be cut from her words: think() asks once more), selfie (null, or what the picture
  * of her should show, "" = any; only with canSelfie, while apart and not OOC) }
  */
+// In a scene he is "you": narration that calls him "him"/"his" ("squints at him", "the hem of his shirt", live
+// 2026-10-04/05) is turned to "you"/"your". Her quoted words are never touched, nor a sentence that names another
+// man or says "he" (it may be about someone else).
+const OTHER_MAN = /\b(?:he|father|dad|hayrig|dikran|thiago|sevag|garo|vatche|fadi|brother|uncle|cousin|man|guy|boy|landlord|roofer|tiler|client|baby)\b/i;
+function toYou(body) {
+  return String(body).split(/(["“][^"”\n]*["”])/).map((part, i) => (i % 2 ? part : part.replace(/[^.!?*\n]+[.!?]*/g, (sentence) =>
+    OTHER_MAN.test(sentence) ? sentence : sentence.replace(/\b(him|his|himself)\b/gi, (w) => {
+      const to = { him: "you", his: "your", himself: "yourself" }[w.toLowerCase()];
+      return w[0] === w[0].toUpperCase() ? to[0].toUpperCase() + to.slice(1) : to;
+    })))).join("");
+}
+
+const ON_PHONE = /\b(?:phone|screen|reads?|reading|texts?|texting|types?|typing|message|messages)\b/i;
+const GOES_OVER = /\b(?:door|doorframe|knocks?|knocking|landing|hallway|stairs|across the hall|comes over|goes over|walks over|crosses)\b/i;
+
 function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact = false, canSelfie = false, history = [], heard = "", lastResort = false } = {}) {
   const { emoji, rest: unreacted } = takeReaction(scrubModel(raw, { ooc }));
   let { want, rest } = takeSelfie(unreacted);
@@ -3665,7 +3682,7 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
   const as = (kind, body, texts) => Object.assign(out, { kind, texts, stored: body });
   // In person, sent as one message: *actions* in italics, her words in quotes
   const asScene = (body) => {
-    const scened = fresh(markScene(dropCues(body)));
+    const scened = fresh(markScene(toYou(dropCues(body))));
     return scened ? as("scene", scened, [scened]) : out;
   };
 
@@ -3692,7 +3709,7 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
     let body = dropCues(stripAudioTags(bodyOf(rest)));
     if (!body) return out;
     if (!inPerson(body) && ACTION.test(heard)) body = asDialogue(body); // he's right there: she says it
-    body = fresh(markScene(body));
+    body = fresh(markScene(toYou(body)));
     if (!body) return out;
     return inPerson(body) ? as("scene", body, [body]) : as("text", body, splitBubbles(body));
   }
@@ -3733,6 +3750,14 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
     // Only *actions* and "dialogue": she goes over to him and a scene starts. Narration with no
     // words at all is her describing herself on the phone; think() asks again for real words.
     if (!/["“]/.test(body) && !lastResort) return Object.assign(out, { narrationOnly: true });
+    // ...unless the narration has her on her phone and not at his door ("sets the phone face-down and goes
+    // back to the receipt", live 2026-10-05): then her quoted words are the texts
+    const acts = [...body.matchAll(/\*([^*\n]+)\*/g)].map((m) => m[1]).join(" ");
+    if (ON_PHONE.test(acts) && !GOES_OVER.test(acts)) {
+      const said = [...body.replace(/\*[^*\n]*\*/g, "\n").matchAll(/["“]([^"”\n]+)["”]/g)].map((m) => m[1].trim()).filter(Boolean).join("\n\n");
+      const text = said && fresh(texting(said));
+      if (text) { out.repaired = true; return as("text", text, splitBubbles(text)); }
+    }
     return asScene(body);
   }
   const fix = {};
