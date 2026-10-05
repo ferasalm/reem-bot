@@ -1,0 +1,41 @@
+{
+  "note": "2026-10-05: the slimmer body wording (owner: 'a little curvy with full arms, not this fat') and casual clothes under the cardigan in /look scene pictures.",
+  "mode": "body-casual",
+  "reference": "tools/face/reference.jpg",
+  "width": 576,
+  "height": 1024,
+  "square": false,
+  "labels": [
+    "K1 kitchen 1:30 (/look), slimmer body, tank + sweatpants under the cardigan",
+    "K2 same #2",
+    "B1 mirror selfie, everyday, bedroom 14h (body check)",
+    "B2 lingerie on klein: lace bodysuit + stockings, mirror (body check)"
+  ],
+  "prompts": [
+    "Realistic candid photo, seen from the eyes of the man in front of her, caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a slim, softly curvy figure, not plump or heavy: a slim, defined waist; gently rounded hips a little wider than her shoulders; slim legs; a full bust; soft, narrow, gently sloping, rounded shoulders; and soft, full arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. She steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway, catching the steam rising from a battered brass pot on the stove. She gestures at the cluttered table—papers, a calculator, a highlighter—then at the chair across from her spot. She is wearing an old cardigan and wool socks, over a plain black tank top and soft gray sweatpants. It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid photo, seen from the eyes of the man in front of her, caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a slim, softly curvy figure, not plump or heavy: a slim, defined waist; gently rounded hips a little wider than her shoulders; slim legs; a full bust; soft, narrow, gently sloping, rounded shoulders; and soft, full arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. She steps back, holding the door wider, a small, dry smile tugging at her lips. The kitchen light spills into the hallway, catching the steam rising from a battered brass pot on the stove. She gestures at the cluttered table—papers, a calculator, a highlighter—then at the chair across from her spot. She is wearing an old cardigan and wool socks, over a plain black tank top and soft gray sweatpants. It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a slim, softly curvy figure, not plump or heavy: a slim, defined waist; gently rounded hips a little wider than her shoulders; slim legs; a full bust; soft, narrow, gently sloping, rounded shoulders; and soft, full arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in her bedroom, the room behind her, an unimpressed deadpan look, a fitted black t-shirt and jeans in her bedroom, a little flash glare on the glass, soft window light. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp on a small wooden nightstand with books, a tall arched black floor mirror leaning on the wall, sheer white curtains on a wide old wooden sash window, a white radiator, a jute rug on dark worn wood floors. Natural skin texture, slight grain. No nudity.",
+    "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with a slim, softly curvy figure, not plump or heavy: a slim, defined waist; gently rounded hips a little wider than her shoulders; slim legs; a full bust; soft, narrow, gently sloping, rounded shoulders; and soft, full arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead. Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror in the hallway between their doors, the room behind her, heavy-lidded eyes, lips slightly parted, wearing a black lace bodysuit with a plunging neckline and high-cut legs, and black thigh-high stockings with wide lace tops, a little flash glare on the glass, warm lamp light in a dark room. Behind her is the room from image 2, with the same walls and furniture, seen from where her camera is, but lit by this picture's own light as described above; she fills most of the frame. The room: the narrow third-floor landing of an old triple-decker: worn dark wooden floorboards, steep back stairs going down behind a dark wooden banister, two dark green painted apartment doors facing each other a few steps apart, a tall wood-framed mirror on the wall by her door, a doormat, a bare bulb on the slanted ceiling, rough cream plaster walls, a small window at the end. Natural skin texture, slight grain. No nudity."
+  ],
+  "refs": [
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/kitchen_night.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/kitchen_night.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/bedroom.jpg"
+    ],
+    [
+      "tools/face/body.jpg",
+      "tools/face/places/hallway.jpg"
+    ]
+  ],
+  "per_prompt": 1,
+  "describe": false,
+  "day_neurons": 40000
+}
