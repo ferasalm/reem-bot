@@ -36,7 +36,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
     {shot, words, doing}), `selfiePicture` (keeps `asked`, `explicit`) → `composePicture` (`wardrobeList`); lingerie route in `startPicture`: `isSpicy` (LINGERIE.SPICY_PATTERN) → `spicyPicture` (SPICY_PROMPT JSON) → `drawLingerie`, else klein in KLEIN_WARDROBE, then Nano Banana, then klein's filter-safe chain (template + slots + phone rule, `{who}` filled by
     `drawPicture`); 3030 → `aiFiltered`, one tamer try in `startPicture`. Since 2026-10-05: `lingerieSeen` (VISION.MODEL says what klein drew; no
     LINGERIE.WORDS → Nano Banana, klein's picture the fallback), `lingerieArgs` (his lingerie ask beats her non-lingerie words), a refused spicier
-    outfit retried in a two-piece set, in-person lingerie (`LINGERIE.SCENES`) as `nanoScene`; `drawPicture` fills ROOM's `{view}` from `ROOM_VIEWS`
+    outfit retried in a two-piece set, in-person lingerie (`LINGERIE.SCENES`) as `nanoScene`; `drawPicture` sends one of the place's crops
+    (`placePictures`: `<key>~1..3` in places.js, night crops after dark)
   - fixed places (2026-10-03): `PICTURE.LOCATIONS`; `@key` in SHOTS/PLACES → NAME; `locationOf` (her words, a scene);
     `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
     `places.js` as image 1, else ROOM_TEXT); scene pictures (`startPicture` kind "scene"): `scenePicturePrompt` + `sceneWearing`
@@ -93,7 +94,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
 
 - Also: `wrangler.toml` (bindings, cron); `face.js` (her reference face as base64: never open it); `places.js` (her
   fixed places' pictures as base64, built by `tools/face/build-places.mjs` from `tools/face/places/*.jpg`; never open
-  it); `tools/face/place-prompts.md` (the owner's prompts to draw each place day and night himself, 2026-10-05); `tools/face/places.mjs` (job: draw the places; `--night`: each place at night from its day picture), `examples.mjs` (job: example pictures + lingerie filter
+  it); `tools/face/places/views/` + `README.md` (three crops of each place picture, packed into places.js instead of the full ones, 2026-10-05); `tools/face/place-prompts.md` (the owner's prompts to draw each place day and night himself, 2026-10-05); `tools/face/places.mjs` (job: draw the places; `--night`: each place at night from its day picture), `examples.mjs` (job: example pictures + lingerie filter
   probes), `compose.mjs` (a prompt exactly as drawPicture sends it); `.github/workflows/delete-branches.yml` (the
   owner's button: deletes the branches in `tools/retired-branches.txt`, lines marked `# keep` stay);
   `.github/workflows/deploy.yml` (deploy on push to `main`), `test.yml` (sync, mocked, docs, `[live]`);

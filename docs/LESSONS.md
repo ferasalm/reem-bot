@@ -68,6 +68,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Lingerie on klein without trigger words: two-piece "top + bottoms" wordings get covered up (round 1: 3/16 as asked,
   9 tamer); one-pieces and layers do better (round 2: 4/12 as asked, 4 half, 4 refused, 0 tamer: bodysuit + stockings,
   robe or his shirt open over a set, satin one-piece; the corset gets shorts added). Runs 37263536954, 37266040257. (2026-10-05)
+  Run 37339347977: 2 of 3 refused, 1 drawn as "a red silk romper" → LINGERIE.CHECK sends tamer ones to Nano Banana. (2026-10-05)
 - Lingerie on Workers AI's own models (bench 2026-10-04, `docs/QUALITY.md`): flux-2-dev has klein's output filter
   (bra/panties 0, babydoll 2/14, and it dodges by drawing tamer clothes or an empty room); lucid-origin and schnell
   filter the *prompt* (free refusal, 1/14 and 2/9) and draw real lingerie when it passes, but take no face reference.
@@ -100,11 +101,9 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7
   outfits, none refused, $0.007 a picture; Seedream 4.5 passes every time without a face picture (5/9 with one).
   OpenRouter shapes vary by model (Krea has no 3:4: the bench falls back to its tallest shape). (2026-10-04)
-- Free lingerie route (2026-10-04): Cloudflare's beta SD models ($0.00) blank NSFW output to black; SD 1.5 inpainting over a
-  klein picture keeps her face and passed 3/5 (1 good); say the body shape, and mask the collar too.
+- Free lingerie route (2026-10-04): beta SD models blank NSFW to black; SD 1.5 inpainting over klein kept her face, 3/5 (1 good).
 - Right after a deploy the old code may still serve (a 00:01 /health 5006 → wrong "klein rejects seed") → re-test later. (2026-10-03)
-- Cloudflare's prompt filter (3030) is random: the same words pass in one run and fail in another → never conclude
-  from one refusal; the bot draws one tier tamer instead. (2026-10-02)
+- Cloudflare's filter (3030) is random: the same words pass once, fail once → never conclude from one refusal. (2026-10-02)
 - Lingerie pictures came out as robes or tamer outfits → Cloudflare's filter (3030) refuses any prompt with bra,
   panties, briefs, thong or g-string (5/5), and every boudoir back view (4/4), and judges the whole prompt (a
   "two-piece set" passed once, failed once) → `FILTER_WORDS` draws those as a bodysuit or string bikini in her
@@ -116,7 +115,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   daylight at 1:30 even with the night place → `SCENE_NIGHT`: 3/3 night (face runs 37269519565, 37269696933; 2026-10-05).
   Bathroom body-length mirror shots broke 3/3 (its mirror is small and round) → bedroom/hallway only. (2026-10-03)
 - With a place's picture attached she came out small in a wide room shot → klein copies the reference's framing →
-  `ROOM` puts the room "behind her" and says she fills the frame (verified in round 2: she fills it). (2026-10-03)
+  `ROOM` puts the room "behind her" and says she fills the frame (2026-10-03). It also kept the place picture's angle (owner;
+  rewording fixed 1 of 6) → three crops per place (`tools/face/places/views`): 8/8 another part of the room (run 37340198460, 2026-10-05).
 - klein took 9-238 s a picture on 2026-10-03 (one 408 after 241 s); `draw.mjs` then falls back to Pollinations,
   whose pictures carry a watermark → never pick those as references; the bot waits up to `TIMEOUT_MS` 120 s. (2026-10-03)
 - A live check said "nothing broken reached him" while broken replies went out (Incident, docs/CHANGELOG.md) →
