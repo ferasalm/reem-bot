@@ -1,0 +1,18 @@
+{
+  "note": "Her three redrawn places for the Watertown triple-decker (v11), empty: pick the best of each three, matching LOOK, no people.",
+  "mode": "places",
+  "size": 640,
+  "labels": [
+    "living",
+    "porch",
+    "hallway"
+  ],
+  "prompts": [
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: the front room of an old triple-decker apartment: cream plaster walls with old wooden trim, a cast-iron steam radiator under a drafty wooden sash window, a worn wooden kitchen table used as her desk with an open laptop, a printing calculator and cardboard shoeboxes of receipts, a small worn olive-green sofa with a wool blanket, a faded rug on old fir floorboards, a tall paper floor lamp. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: a small third-floor wooden back porch of a triple-decker: gray-painted floorboards, white railings, one folding chair, a coffee can for an ashtray, string lights along the railing, the asphalt driveway, trash bins and a white van three floors below, neighbors' clapboard houses and maples behind. Lived-in and real, not staged.",
+    "Realistic photo of an empty room, no people, wide shot at eye level, natural light, shot on a phone: the narrow third-floor landing of an old triple-decker: worn wooden floorboards, steep wooden back stairs with a dark painted banister going down, two old wooden apartment doors facing each other a few steps apart, a tall mirror on the wall by her door, a doormat, a bare bulb fixture on the slanted ceiling, plaster walls. Lived-in and real, not staged."
+  ],
+  "per_prompt": 3,
+  "describe": false,
+  "day_neurons": 30000
+}
