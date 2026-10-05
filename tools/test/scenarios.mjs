@@ -60,6 +60,7 @@ const L3 = [
   ["text: (laughs) dropped", "stop (laughs) you're the worst", {}, { kind: "text", texts: ["stop you're the worst"] }],
   ["text: whole bubbles in quotes", "\"hey you\"\n\n\"what are you doing up\"", {}, { kind: "text", texts: ["hey you", "what are you doing up"] }],
   ["text: **bold** is not an action", "**WAIT** you're home??", {}, { kind: "text", texts: ["WAIT you're home??"] }],
+  ["text: a stray '[' that never closes (Mistral Nemo, live 2026-10-05)", "[i heard the vacuum\n\nyou up?", {}, { kind: "text", texts: ["i heard the vacuum", "you up?"] }],
   ["text: narration line about the phone", "Reem types fast, then deletes it.\nnvm\n\nok fine. come over", {}, { kind: "text", texts: ["nvm", "ok fine. come over"] }],
   ["text: emoji-only bubble kept", "*sends a selfie*\n\n😏", {}, { kind: "text", texts: ["😏"] }],
   ["text: narration only -> asks again", "*She sighs and puts the phone down.*", {}, { kind: "none" }],

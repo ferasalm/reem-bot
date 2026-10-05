@@ -3,12 +3,12 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-05 (seventh session). **Deployed:** `main` = `dev` (the seventh session's fixes; deploy run
-in `docs/CHANGELOG.md`). Everything on `dev` is live.
+**Last updated:** 2026-10-05 (eighth session). **Deployed:** `main` = `dev` (Mistral Nemo). The version before it (DeepSeek)
+is kept on the branch `backup-before-nemo`: pushing it to `main` reverts.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
-- **Live:** v11 persona (Reem Nabot, Armenian-Lebanese bookkeeper, Watertown triple-decker); DeepSeek V4 Flash text;
+- **Live:** v11 persona (Reem Nabot, Armenian-Lebanese bookkeeper, Watertown triple-decker); Mistral Nemo text (since the eighth session; DeepSeek V4 Flash is its backup and writes memory and /auto);
   Sulafat voice; Gemini 3.8 Flash hearing; BMI ~26 body picture; `/look`; daily AI cap 50,000 neurons.
 - **Live since the seventh session (owner: "Fix everything then deploy"):**
   - **Lingerie when he asks:** more asks count ("show me your lingerie", "can i see you in…", "send me something
@@ -26,6 +26,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
+- **Nemo in Telegram:** `/setup` shows both models answering. Live run 37363619497: 0 broken, but Nemo dodged origin, job
+  and family questions (once "watertown originally": wrong) and sends more voice notes (26 of 56). Revert or keep?
 - **In Telegram now:** `/setup` once, then "show me your lingerie", "send me a two piece pic", "send me something
   spicier", the same in person, a few `/auto` + 🔄 Another, and selfies at home. Tell Claude what slipped.
 - Nano Banana's money cap is $0.50 a day (~12 pictures, `LINGERIE.DAILY_USD`): with klein refusing most lingerie, this

@@ -3705,6 +3705,8 @@ function clean(t) {
     // a whole line in [brackets], however long, is never for him (a narrated paragraph, live 2026-10-05)
     .replace(/^[ \t]*\[[^\]\n]{61,}\][ \t]*$/gm, (m) => (isAudioTag(m) ? m : ""))
     .replace(/^[ \t]*\[[^\]\n]{1,60}\][ \t]*/gm, (m) => (isAudioTag(m) ? m : ""))
+    // a "[" opening a line that never closes is a stray bracket: keep the words (Mistral Nemo, live 2026-10-05)
+    .replace(/^([ \t]*)\[(?![^\]\n]*\])/gm, "$1")
     .replace(/^#{1,6}\s*/gm, "")
     .replace(/\*{2,}/g, "*")
     .replace(/[ \t]+\n/g, "\n")
