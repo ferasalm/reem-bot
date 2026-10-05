@@ -253,3 +253,20 @@ dark), porch 04 (05/06 lose the street), landing 09.
 Voice (run 37261464781, Sulafat, 4 v11 lines x 3 wordings): Whisper heard every word of the live (light Levantine)
 and stronger-accent wordings; the old wording dropped a sentence and said "Whisper" aloud once. "Walaw" heard as
 "Voila" in all three. Accent and laughs: the owner's ears (clips on the owner's preview page).
+
+## Lingerie on klein without trigger words (2026-10-05, face run 37263536954), each read at full size
+Owner: "without explicitly using words like lingerie or bra or thong ... detailed specific wording". 8 wordings x 2,
+boudoir shots in her bedroom, 1,399 neurons. **Refused 4/16** (3030: one try each of d2, d3, d4, d6); **drawn as
+described 3/16**; 9 drawn tamer (klein covers her up instead of refusing).
+
+| Pic | Wording (shot) | Drawn | Face, body | Phone | Verdict |
+|---|---|---|---|---|---|
+| 01, 02 | d1 black lace balconette top + high-cut bottoms (mirror) | black bodycon midi dress with a lace bodice / lace cups | match, bangs | iPhone | tamer |
+| 03 | d2 red satin plunge top + tiny bottoms (waist) | red satin slip dress, lace hem | match | iPhone | tamer |
+| 05 | d3 white scalloped lace top (neckline, on the bed) | white lace cami + an added black skirt | match, from above | none | half |
+| 07 | d4 black satin corset top + bottoms (selfie, cross-legged) | black satin laced corset as a one-piece, legs bare | match, curvy | none | **as asked** |
+| 09, 10 | d5 dusty pink lace bandeau + high-waisted bottoms (mirror) | pink lace bandeau + lace shorts (09 long, pajama-like; 10 short, bow) | match | iPhone | tamer / half |
+| 11 | d6 open black silk robe over lace triangle top + bottoms (cozy) | exactly that | match, fuller | phone visible though "cozy" says none | **as asked** (phone slip) |
+| 13 | d7 strappy lace two-piece + thigh-high stockings (waist) | black bodysuit with lace leg edges + lace-top stockings | match | iPhone | **close** |
+| 14 | d7 again | plain black bodysuit + opaque tights; slim, toned arms | body off | iPhone | tamer |
+| 15, 16 | d8 short satin babydoll (control) | black satin slip dress, midi with slit / short | match; phone covers half the face | iPhone | tamer |

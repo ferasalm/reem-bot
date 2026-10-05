@@ -67,6 +67,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   random like 3030 (same words passed once, failed once); Grok Imagine 2.0 refused 2/2 with her face attached. Cloudflare's third-party models need AI Gateway credits
   (402 "Insufficient balance"); its Seedream 4.0 takes no reference image. OpenRouter image-only models answer on
   `POST /api/v1/images` (`input_references`, `data[0].b64_json`), not chat completions (404). (2026-10-04)
+- Lingerie on klein without trigger words (run 37263536954): the filter let 12/16 through, but klein covered her (dresses,
+  skirts, shorts, tights): 3/16 as described, all one-pieces or layers (corset, robe open over a set, bodysuit +
+  stockings); "top + bottoms" never. Words alone don't buy lingerie on klein. (2026-10-05)
 - Lingerie on Workers AI's own models (bench 2026-10-04, `docs/QUALITY.md`): flux-2-dev has klein's output filter
   (bra/panties 0, babydoll 2/14, and it dodges by drawing tamer clothes or an empty room); lucid-origin and schnell
   filter the *prompt* (free refusal, 1/14 and 2/9) and draw real lingerie when it passes, but take no face reference.
@@ -97,12 +100,9 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7
   outfits, none refused, $0.007 a picture; Seedream 4.5 passes every time without a face picture (5/9 with one).
   OpenRouter shapes vary by model (Krea has no 3:4: the bench falls back to its tallest shape). (2026-10-04)
-- Free lingerie route (2026-10-04): Cloudflare's beta SD models cost $0.00 and skip 3030, but blank NSFW output to a
-  black picture (tiny grayscale file); SD 1.5 inpainting over a klein picture keeps her face (only the masked box is
-  redrawn) and passed 3/5, 1 of them good. A collar left outside the mask stays in the picture; say the body shape.
-- A check right after a deploy can hit the old code still serving (a 00:01 /health 5006 led to the wrong "klein
-  rejects seed") → re-test a few minutes later before concluding. (2026-10-03)
-- Cloudflare's usage analytics lag several minutes → a guard reading them can't see the last minutes. (2026-10-03)
+- Free lingerie route (2026-10-04): Cloudflare's beta SD models ($0.00) blank NSFW output to black; SD 1.5 inpainting over a
+  klein picture keeps her face and passed 3/5 (1 good); say the body shape, and mask the collar too.
+- Right after a deploy the old code may still serve (a 00:01 /health 5006 → wrong "klein rejects seed") → re-test later. (2026-10-03)
 - Cloudflare's prompt filter (3030) is random: the same words pass in one run and fail in another → never conclude
   from one refusal; the bot draws one tier tamer instead. (2026-10-02)
 - Lingerie pictures came out as robes or tamer outfits → Cloudflare's filter (3030) refuses any prompt with bra,

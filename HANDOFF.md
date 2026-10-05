@@ -22,6 +22,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
+- **Lingerie on klein, descriptive words** (face run 37263536954, `docs/QUALITY.md`): 12/16 drawn but only 3 as
+  described (corset, robe over a set, bodysuit + stockings); klein covers her up instead of refusing. Not in the
+  bot. Owner to say: a second round of one-piece/layered wordings, or keep the current route.
 - **Place pictures:** the owner draws them from `tools/face/place-prompts.md` (day first, night by editing the day
   picture) and sends them. Claude then crops to 480x480, checks each at full size against its LOOK, saves
   `tools/face/places/<key>.jpg` / `<key>_night.jpg`, runs `node tools/face/build-places.mjs`, checks with a klein job.
@@ -34,6 +37,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 ## Verified this session (2026-10-05, third session)
 - `node tools/check.mjs` all 6 ok (scenarios: klein first, klein refuses → Nano Banana, both refuse → filter
   words, refused klein picture counted once). Sync report's warning was the shallow clone (unshallowed: none).
+- Lingerie wording test on klein: all 12 pictures read at full size (4 refused): see Waiting on the owner.
 - Not checked: no real picture or voice drawn with the new code (no live run); the accent was the owner's pick by ear.
 
 ## Next steps (in order)
