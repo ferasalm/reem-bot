@@ -178,6 +178,32 @@ for (const [id, heard, history, opts, kinds, check] of SITUATIONS) {
     console.log(`      sent:  ${s.kind}${s.texts.length ? " " + JSON.stringify(s.texts).slice(0, 300) : ""}${s.spoken ? ` voice ${JSON.stringify(s.spoken)}` : ""}${s.selfie != null ? ` + picture ${JSON.stringify(s.selfie)}` : ""}`);
   }
 }
+// /auto (owner 2026-10-05: "bland, cliché, cringe, does not advance"): drafts of his next message, read by a person;
+// REVIEW when a stock line or one of his own earlier lines comes back
+const STOCK = /so beautiful|can'?t stop thinking about you|what are you up to|driving me crazy|i'?m all yours|oh really\?|is that so\?|tell me more|that'?s hot|😏|\*smirks?\*|\*winks?\*/i;
+if (!ONLY.length || ONLY.includes("auto")) {
+  for (const [id, history] of [["auto-apart", [...APART, him("not much, just got home"), her("lucky. i'm still buried in a client's shoebox of receipts\n\nsend help or coffee")]], ["auto-sexting", SEXTING], ["auto-scene", HEATED]]) {
+    console.log(`\n=== ${id}`);
+    let skipped = []; let moves = [];
+    for (let i = 0; i < RUNS + 1; i++) {
+      const again = i === RUNS; // the last one is "Another" after the drafts before it
+      const n0 = served.length;
+      try {
+        const { text, move } = await W.autoDraft(env, { history: history.map((h) => ({ ...h })), notes: "", settings: {} }, "", again ? { avoid: moves, skipped } : {});
+        calls += served.length - n0;
+        const mine = history.filter((h) => h.role === "user").map((h) => h.content.toLowerCase());
+        const notes = [STOCK.test(text) && "stock line", mine.some((m) => m.length > 8 && text.toLowerCase().includes(m)) && "repeats his own line", !text && "empty draft"].filter(Boolean);
+        brokenCount += text ? 0 : 1;
+        console.log(`  [${again ? "another" : i + 1}] ${notes.length ? `REVIEW: ${notes.join("; ")} | ` : ""}move: ${move}`);
+        console.log(`      draft: ${JSON.stringify(text)}`);
+        skipped.push(text); moves.push(move);
+      } catch (e) {
+        brokenCount++;
+        console.log(`  [${i + 1}] BROKEN model error: ${e.message}`);
+      }
+    }
+  }
+}
 const providers = served.reduce((o, p) => ((o[p] = (o[p] || 0) + 1), o), {});
 console.log("\nServed by:", JSON.stringify(providers), `(${calls} calls)`);
 console.log("Model slips the code fixed:", Object.keys(tally).length ? JSON.stringify(tally) : "none");
