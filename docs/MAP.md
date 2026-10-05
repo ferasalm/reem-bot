@@ -38,7 +38,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
   - fixed places (2026-10-03): `PICTURE.LOCATIONS`; `@key` in SHOTS/PLACES → NAME; `locationOf` (her words, a scene);
     `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
     `places.js` as image 1, else ROOM_TEXT); scene pictures (`startPicture` kind "scene"): `scenePicturePrompt` + `sceneWearing`
-    (clothes her narration of this scene named, else `SCENE_WEARING`) + the time's LIGHT or `SCENE_NIGHT`; after dark (`isDark`: night, or evening unless the light is daylight;
+    (clothes her narration of this scene named, `underLayers` adds `SCENE_UNDER` under a cardigan or socks, else
+    `SCENE_WEARING`) + the time's LIGHT or `SCENE_NIGHT`; `/look` = `lookCommand` (a scene picture of her last reply, not stored); after dark (`isDark`: night, or evening unless the light is daylight;
     `timeOfDay`) `composePicture`/scene pictures set `night` and `drawPicture` sends `<key>_night` when it exists
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,
     `photoLine`); ledger `loadLedger`/`saveLedger`/`aiAffordable`/`aiSpent` (KV `pics`); `picturesAllowed`,

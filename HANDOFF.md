@@ -14,14 +14,16 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   - **Hearing:** Gemini 3.8 Flash (OpenRouter) first, laughs and tone in parentheses; Whisper, then Scribe, as backups.
   - **Lingerie:** klein first (`LINGERIE.KLEIN_WARDROBE`, her face); Nano Banana when klein refuses; two pieces,
     "spicier", from behind or explicit words go straight to Nano Banana with `SPICY_PROMPT`.
-- **On `dev` but not on `main` (2026-10-05, fifth session):** in-person pictures wear what the scene said (`sceneWearing`;
-  live, a cardigan-and-socks scene came out in the body reference's black dress) and get night light (`SCENE_NIGHT`):
-  verified in face runs 37269519565 and 37269696933, 3/3 right. /setup now tests Sulafat, Gemini hearing (on her test
-  clip) and lists Nano Banana; ElevenLabs is checked without a clip; old failures show as ℹ️ notes with their age.
+- **On `dev` but not on `main` (2026-10-05, fifth session):** in-person pictures wear what the scene said (`sceneWearing`),
+  casual clothes under a cardigan (`SCENE_UNDER`), night light (`SCENE_NIGHT`), only she in the frame; a little curvy, not
+  heavy, full upper arms (all picture descriptions + persona); `/look` sends what he sees in person. /setup tests Sulafat,
+  Gemini hearing and lists Nano Banana; old failures as ℹ️ notes. Face runs 2026-10-05 (5 rounds) read picture by picture.
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
-- **Say "Deploy"** to put the picture and /setup fixes live. Lunaris (backup) answered via DeepInfra, which DeepSeek's
+- **Say "Deploy"** to put the picture, body, /look and /setup fixes live. After it: `/setup` once (the command menu
+  gets /look). Selfies still copy the body reference's black dress sometimes (2/3 in a test): new body picture in
+  casual clothes? (owner's call; the current one is the owner's pick). Lunaris (backup) answered via DeepInfra, which DeepSeek's
   routing excludes: exclude it for Lunaris too?
 - **After the deploy, in Telegram:** `/setup`, a voice note with a laugh, a lingerie picture, a "spicier" picture
   ("send me a spicier pic"), then `/restart`. Tell Claude what slipped.

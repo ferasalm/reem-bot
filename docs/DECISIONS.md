@@ -5,6 +5,14 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **A little curvy, not fat; casual at home; /look** (owner: "She should be a little curvy with full arms, but she
+  shouldn't be this fat... Also, why is she wearing the cardigan over the dress? She should be wearing casual at home.
+  Furthermore, I want there to be a slash command that can send a picture showing what the user sees at the moment."):
+  every picture description and the persona say "a little curvy but not plump or heavy", a defined waist, softly rounded
+  hips, a full bust and soft, full upper arms (Claude's wording, face runs 2026-10-05); in-person pictures that name only
+  a layer (cardigan, socks) put a black tank top and gray sweatpants under it (`SCENE_UNDER`); `/look` (`/see`, `/view`)
+  draws the moment in person from her last reply. Not deployed yet. *Supersedes the "curvier body" wording of 2026-10-03
+  and the arms wording "soft and fleshy" of 2026-10-04 (arms stay soft, with no muscle).*
 - 2026-10-05 — **Deploy** (owner: "Deploy"): `dev` (cdf631f) fast-forwarded into `main`; deploy run 37267949894 green
   (Worker deployed, /health step passed). Live now: v11 Reem Nabot in Watertown, the stronger accent, the owner's place
   pictures, Gemini 3.8 Flash hearing, klein-first lingerie with Nano Banana for "spicier". *Completes the 2026-10-05 entries.*
