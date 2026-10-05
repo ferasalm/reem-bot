@@ -90,7 +90,7 @@ step("hearing: Whisper on Workers AI first, Scribe when it fails or the day's bu
   await run(msg({ voice: { file_id: "w1", duration: 90 } }));
   const heard = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
   console.log("whisper used:", aiCalls.at(-1)?.model === "@cf/openai/whisper-large-v3-turbo", "| scribe not called:", scribeCalls() === before,
-    "| heard:", heard.includes("come here you (whisper)"), "| hint + vad:", aiCalls.at(-1).input.initial_prompt === "Reem, Basbousa, habibi, yaani." && aiCalls.at(-1).input.vad_filter === true,
+    "| heard:", heard.includes("come here you (whisper)"), "| hint + vad:", aiCalls.at(-1).input.initial_prompt === "Reem, habibi, yaani, khalas." && aiCalls.at(-1).input.vad_filter === true,
     "| 90 s counted:", JSON.parse(store.get("pics")).neurons >= 71);
   whisperFails = true; before = scribeCalls();
   llm = [{ content: "mm ok" }];
@@ -129,7 +129,7 @@ step("v3 audio tags: voice note");
 llm = [{ content: "[voice] [laughs] ya3ni you're ridiculous\n[whispers] come over" }];
 await run(msg({ text: "i miss you, send me a voice note" })); // he asks: her own [voice] right after one would be a text (SELF_CHOICE_GAP)
 const ttsLast = log.filter(l => l.includes("text-to-speech")).at(-1);
-console.log("tags offered:", herPrompts().at(-1).messages.some((m) => m.content.includes("[moans softly]")), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| v3 stability only:", ttsLast.includes('"voice_settings":{"stability":0.5}'));
+console.log("tags offered (aura: only what it performs):", herPrompts().at(-1).messages.some((m) => m.content.includes("only from: [chuckles].")) && !herPrompts().at(-1).messages.some((m) => m.content.includes("[moans softly]")), "| tts keeps tags:", ttsLast.includes('[laughs] Yaani you\'re ridiculous... [whispers] Come over.'), "| v3 stability only:", ttsLast.includes('"voice_settings":{"stability":0.5}'));
 console.log("history has no tags:", JSON.parse(store.get("h:7")).at(-1).content);
 step("aura voice: Workers AI speaks, tags become cues, counted; ElevenLabs when aura fails or the budget is spent");
 {

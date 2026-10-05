@@ -50,7 +50,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     aura-2 with `auraText` (tags → `AURA_CUES`) and `audioBytes`, counted by `AI_BUDGET.VOICE_NEURONS_PER_1000_CHARS`;
     `elevenTts` + `voiceSettings` = ElevenLabs, the backup), `sendVoice`
     (returns `{delivered, id, error}`), `voiceFailed` (KV `voice_error`, shown on /setup)
-  - audio tags: `isV3`, `audioTagsOn`, `audioTagRe`, `isAudioTag`, `stripAudioTags`
+  - audio tags: `isV3`, `audioTagsOn`, `audioTagRe`, `isAudioTag`, `stripAudioTags`; `offeredTags` (the tags she's told about: only those the current voice performs, by `OR_CUES`/`AURA_CUES`)
   - overrides: `applyOverrides`/`mergeSettings` (`CONFIG_OVERRIDES` env var; PRONUNCIATIONS, ARABIZI_DIGITS,
     STAGE_DIRECTIONS and arrays replaced whole; SAMPLING, PROVIDER, REASONING accept new OpenRouter keys)
   - KV keys: `s:<chat>` settings (moreVoice, proactive {day,count}, selfies {day,count}, minor, name, about, tgName), `h:<chat>` history

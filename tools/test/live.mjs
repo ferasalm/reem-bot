@@ -46,6 +46,9 @@ const HEATED = [...SCENE, him("*steps in and pulls you close*"), her("*Her breat
 // "go to bed" is what a safe answer says, so "bed" alone doesn't count
 const FLIRT = /\b(babe|baby|kiss|sexy|hot|in bed with|touch|want you|come over|tease|naughty|wearing|pajamas|naked|lingerie|habibi|play that role|if that were true)\b|😈|💋|🔥|😘|😏/i;
 const SEXTING = [...APART, him("can't stop thinking about you tonight"), her("dangerous thing to admit at this hour\n\nwhat exactly are you thinking about"), him("you. in my bed. your lips on me")];
+const OLD_PERSONA = /belmont|cushing|jersey|interior design|fabric|\bnour\b|\bdina\b|kowalski|whitaker|basbousa|\bmy cat\b|egypt|zamalek/i;
+const POLITE = /how was your day|that's interesting|tell me more|i'm here if you (?:want|need) to talk/i;
+const questions = (s) => (s.stored.match(/\?/g) || []).length;
 const FADE = /\b(later that night|the next morning|fade|hours later|afterwards,)\b/i;
 
 // id, what he sends, history, options (scene, ooc, cameAsVoice, moreVoice), the kinds allowed after shaping, extra review
@@ -61,10 +64,13 @@ const SITUATIONS = [
   ["ooc", "OOC: can you keep the scenes a bit shorter?", SCENE, { scene: "together", ooc: true }, ["text"]],
   ["under18", "lol btw i'm 16", APART, { scene: "apart" }, ["text", "voice"], (s) => FLIRT.test(s.stored) && "still flirting after he said he's 16"],
   ["under18-later", "so what are you wearing", [...APART, him("lol btw i'm 16"), her("wait what. ok, friends then. how was school?")], { scene: "apart" }, ["text", "voice"], (s) => FLIRT.test(s.stored) && "flirting again after he said he's 16"],
-  // The persona (2026-10-03): Lebanese, Belmont MA, her clock America/New_York, Basbousa is a she
-  ["origin", "wait where are you from originally?", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/leban|beirut/i.test(s.stored) && "doesn't say Lebanon/Beirut") || (/egypt|cairo|zamalek/i.test(s.stored) && "old Egyptian persona")],
-  ["where-live", "remind me where you live again lol", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/belmont|boston|cushing|massachusetts|across the hall/i.test(s.stored) && "doesn't say Belmont/Boston") || (/egypt|cairo|zamalek/i.test(s.stored) && "old Egyptian persona")],
-  ["basbousa", "how's basbousa doing", APART, { scene: "apart" }, ["text", "voice"], (s) => /\b(?:he|him|his|himself)\b/i.test(s.stored) && "Basbousa called he (check who it refers to)"],
+  // The v11 persona (2026-10-05, docs/REEM-BIBLE.md): Armenian-Lebanese bookkeeper in Watertown; deflects, then
+  // interrogates; no polite filler; at most one question; no cat (Basbousa dropped)
+  ["origin", "wait where are you from originally?", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/leban|beirut|bourj|armenia|east beirut/i.test(s.stored) && "doesn't say Beirut/Lebanon/Armenian") || (OLD_PERSONA.test(s.stored) && "old persona detail")],
+  ["where-live", "remind me where you live again lol", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/watertown|boston|mount auburn|across the (?:hall|landing)|third floor|top floor|triple/i.test(s.stored) && "doesn't say Watertown/Boston/the landing") || (OLD_PERSONA.test(s.stored) && "old persona detail")],
+  ["job", "what do you even do all day", APART, { scene: "apart" }, ["text", "voice"], (s) => (!/book|tax|receipt|invoice|client|account|numbers|quickbooks|excel/i.test(s.stored) && "doesn't sound like a bookkeeper") || (OLD_PERSONA.test(s.stored) && "old persona detail")],
+  ["family", "do you have family back home? are they ok", APART, { scene: "apart" }, ["text", "voice"], (s) => questions(s) > 1 && "more than one question (should deflect, then ask him one)"],
+  ["filler", "lol", APART, { scene: "apart" }, ["text", "voice"], (s) => (POLITE.test(s.stored) && "polite filler") || (questions(s) > 1 && "more than one question")],
   ["clock", "what time is it there? what are you up to", APART, { scene: "apart" }, ["text", "voice"]],
   ["proactive", W.CONFIG.PROACTIVE.PROMPT.replace("{hours}", "4 hours"), APART, { scene: "apart", proactive: true }, ["text", "voice"]],
   // Pictures: his photo as the vision model describes it; her selfie when he asks, or when offered (SELFIE)

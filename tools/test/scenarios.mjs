@@ -751,9 +751,24 @@ section("fixed places (owner 2026-10-03)");
 }
 
 section("persona facts");
-// live 2026-10-02: Basbousa was "he" in some replies; the persona's own example said "bring him back". Owner: she.
-yes(W.SYSTEM_PROMPT.includes("Basbousa, your cat (she)"), "Basbousa is a she in the persona");
-yes(!/basbousa[^\n]*\b(him|his|he)\b/i.test(W.SYSTEM_PROMPT.replace("escapes to his door", "")), "no he/him for Basbousa in the persona");
+// v11 (2026-10-05, docs/REEM-BIBLE.md): Reem Nabot, Armenian-Lebanese bookkeeper in Watertown; Basbousa dropped (owner)
+const P = W.SYSTEM_PROMPT;
+yes(/Reem Nabot, 29\. Armenian-Lebanese from Bourj Hammoud/.test(P) && /freelance bookkeeper/.test(P) && /Watertown/.test(P), "persona: Reem Nabot, Armenian-Lebanese, bookkeeper, Watertown");
+eq(W.CONFIG.CHARACTER.CITY, "Watertown, near Boston", "her clock's city is Watertown");
+const OLD = /belmont(?! roofer)|cushing|jersey|interior design|fabric samples|\bdina\b|\bnour\b|kowalski|whitaker|saleh|basbousa|\bcat\b|tabby/i;
+const pictureWords = JSON.stringify([W.CONFIG.PICTURE.SHOTS, W.CONFIG.PICTURE.PLACES, W.CONFIG.PICTURE.WARDROBE]);
+eq([P, W.CONFIG.PERSONA.INTRO_MESSAGE, W.CONFIG.PERSONA.TEXTURE.join("\n"), JSON.stringify(W.CONFIG.CHARACTER.SCHEDULE), pictureWords, W.CONFIG.HEARING.PROMPT]
+  .map((t) => (String(t).match(OLD) || [""])[0]), ["", "", "", "", "", ""], "no old persona detail (Belmont, Jersey, Nour, Dina, Basbousa, a cat...) in the prompt, intro, nudges, schedule, picture words or Whisper's hint");
+yes(/No polite filler, ever/.test(P) && /At most one question per reply/.test(P) && /End on a hook/.test(P), "rules: no polite filler, one question a reply, end on a hook");
+yes(/Levantine rhythm/.test(P) && /Levantine/.test(W.CONFIG.VOICE.OR_INSTRUCTIONS), "Levantine accent in the persona and in Sulafat's instructions");
+// live slips (2026-10-02/04): "him" for "you"; "tonight" in the afternoon
+yes(/He is always "you": never "he" or "him" when you talk to him/.test(P), "he is always \"you\" in her words");
+yes(/Say \\?"tonight\\?" only once it's evening/.test(W.CONFIG.NUDGES.TIME), "TIME nudge: \"tonight\" only in the evening");
+// Voice tags: she's offered only what her voice performs (Sulafat: laughs, whispers, sighs)
+{ const V = W.CONFIG.VOICE, keep = V.PROVIDER;
+  V.PROVIDER = "openrouter"; eq(W.offeredTags(), ["laughs", "sighs", "whispers"], "openrouter (Sulafat): offered [laughs] [whispers] [sighs] only");
+  V.PROVIDER = "elevenlabs"; eq(W.offeredTags(), V.ALLOWED_TAGS, "ElevenLabs: every allowed tag");
+  V.PROVIDER = keep; }
 
 section("LIMITS & OOC always sent, word for word");
 yes(W.SYSTEM_PROMPT.endsWith(LIMITS), "SYSTEM_PROMPT ends with the exact LIMITS & OOC text");
