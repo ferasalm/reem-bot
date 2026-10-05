@@ -91,10 +91,10 @@ At most 150 lines (`tools/doc-check.mjs`).
   chat models take Telegram's OGG as `input_audio` format "ogg"; Nova-3 turns Arabic into Devanagari.
 - Vendoring a third-party npm package into the repo (lamejs for Gemini TTS's PCM → MP3) was refused by the session's
   permission check until the owner said "add lamejs": ask first, then add. 5 s of speech encode in ~0.2 s. (2026-10-04)
-- Body on klein: slim (6/15, 5/13) until a faceless Nano Banana body picture became image 1 (8/8 curvy). The words still
-  move it: "large full bust, wide hips, full thighs" drew her heavy, "slim legs" too slim (face runs 2026-10-05). Image 1's
-  black dress leaks: a scene naming no clothes got it (live) → `sceneWearing`; selfies asking a tank top got it 2/3.
-  face.yml refuses a job past `day_neurons` of the day's real usage: trim the job rather than raise the cap. (2026-10-05)
+- Body on klein follows image 1: the black-dress body picture gave square shoulders and its dress leaked (live, and 2/3
+  selfies) → a Nano Banana picture in a gray tank + leggings (bench 37271580261): rounded shoulders 8/8, asked clothes 8/8.
+  Words still move the size: "wide hips, full thighs" heavy, "slim legs" or "not plump" slim; "165 cm, 71 kg, not slim and
+  not obese" got 1/3 selfies at BMI ~25, 2/3 ~23 (face runs 2026-10-05). Trim jobs past `day_neurons`, don't raise it.
 - e2e: a mocked reply that repeats a line she already said in an earlier step is cut by the repeat guard (her note
   shrank to "Come over.") → give each mocked reply in a test its own words. (2026-10-04)
 - Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7

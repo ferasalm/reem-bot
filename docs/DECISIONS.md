@@ -5,6 +5,13 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-05 — **BMI about 26, rounded shoulders, fitted clothes** (owner: "Why are her shoulders sharp like a square and not
+  rounded with klein? Also yes I want her looking not obese and not slim, as if her BMI is 26. Let's see her in clothes that
+  better reflect her body shape and contours."): new body picture for klein's image 1 (`tools/face/body.jpg`, Nano Banana
+  bench 37271580261 #01, gray tank + black leggings, face cropped out; the old black-dress one had square shoulders and its
+  dress leaked); picture words and persona say "average-to-full, about 165 cm and 71 kg, not slim and not obese", rounded
+  sloping shoulders; `WARDROBE.EVERYDAY` is fitted (Claude's picks). Not deployed yet. *Supersedes the body picture of
+  2026-10-04 ("it's perfect") and the "a little curvy but not plump" wording of the same day.*
 - 2026-10-05 — **A little curvy, not fat; casual at home; /look** (owner: "She should be a little curvy with full arms, but she
   shouldn't be this fat... Also, why is she wearing the cardigan over the dress? She should be wearing casual at home.
   Furthermore, I want there to be a slash command that can send a picture showing what the user sees at the moment."):
