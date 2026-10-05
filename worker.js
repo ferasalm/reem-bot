@@ -707,7 +707,31 @@ Changing the story
     // (KLEIN_FIRST) and Nano Banana draws them when klein refuses; klein's own wardrobe is the last resort.
     LINGERIE: {
       ENABLED: true,
-      KLEIN_FIRST: true,               // klein (her face) tries the real lingerie words first; Nano Banana when it refuses (owner 2026-10-05)
+      // klein (her face) tries first in KLEIN_WARDROBE, words that drew 4/12 as asked and none tamer (round 2, run
+      // 37266040257); Nano Banana when klein refuses, and straight away when the picture is spicier (owner 2026-10-05:
+      // "Let klein try first unless it's more explicit or user asks for two pieces or a \"spicier\" picture")
+      KLEIN_FIRST: true,
+      KLEIN_WARDROBE: [
+        "a black lace bodysuit with a plunging neckline and high-cut legs, and black thigh-high stockings with wide lace tops",
+        "a short red satin robe hanging open over a red lace triangle top and tiny matching lace bottoms",
+        "his oversized white button-down shirt worn open over a black lace triangle top and tiny matching lace bottoms, her legs bare",
+        "a dusty pink satin and lace one-piece with thin straps, light boning at the waist and high-cut legs, her legs bare",
+      ],
+      // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
+      SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
+      // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
+      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair skin with warm undertones and a few faint freckles\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped dark brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"curvy pear-shaped hourglass figure\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a narrow, clearly defined waist much smaller than her hips\", \"lower\": \"wide rounded hips and full thighs clearly wider than her shoulders\", \"arms\": \"soft and fleshy arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
+      SPICY_WARDROBE: [
+        "only a deep plum French floral lace string thong with velvet trim", "only a black lace thong",
+        "a black lace balconette bra and a matching high-cut lace thong", "a red lace bra and matching red lace panties",
+        "a white lace bralette and a matching lace thong", "an open oversized white shirt slipping off her shoulders over only a black lace thong",
+      ],
+      SPICY_POSES: [
+        "standing from behind, weight on one leg, hip shifted, glancing back over her shoulder at the mirror",
+        "standing facing the mirror, one hand in her hair, hip turned",
+        "kneeling on the bed facing the mirror, back slightly arched",
+        "standing three-quarter to the mirror, one hand on her hip, looking back at her reflection",
+      ],
       MODEL: "google/gemini-2.5-flash-image", // Nano Banana
       TIERS: ["boudoir"],              // picture tiers that go to it
       ASPECT: "9:16",
@@ -2621,7 +2645,7 @@ function selfieSubject(want, recent = [], said = "") {
 // (`words`) replace wardrobe and place, `doing` comes before the wardrobe. {who} is left for drawPicture.
 // Returns { prompt, shot, tier, angle, what } (what: "type, her words or the wardrobe and place", for history).
 // `lingerie`: for PICTURE.LINGERIE (Nano Banana): her words as she wrote them and its WARDROBE for the clothes
-function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [], lingerie = false } = {}) {
+function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [], lingerie = false, wardrobeList = null } = {}) {
   const P = CONFIG.PICTURE;
   const args = { tier, shot, words, doing, hour, recentShots };
   if (!lingerie) {
@@ -2635,7 +2659,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const time = timeOfDay(hour);
   const hasWhere = template.includes("{where}");
   // "clothes | place" brings its own place, so only for shots with {where}
-  const wardrobe = ((lingerie && (P.LINGERIE || {}).WARDROBE) || (P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
+  const wardrobe = ((wardrobeList && wardrobeList.length && wardrobeList) || (lingerie && (P.LINGERIE || {}).WARDROBE) || (P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
   const [clothes = "", ownPlace = ""] = pickOne(wardrobe).split("|").map((x) => x.trim());
   const place = hasWhere ? ownPlace || pickOne((P.PLACES || {})[T]) : "";
   const wearing = words || [doing, clothes && `wearing ${clothes}`].filter(Boolean).join(", ");
@@ -2713,7 +2737,15 @@ function selfiePicture({ want = null, said = "", plan = null, history = [], aske
   // framing that contradicts it ("lying on her side in bed" drawn as a mirror shot, seen live)
   if (!shot && s.words) shot = plan && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : Object.hasOwn(P.SHOTS, "selfie") ? "selfie" : null;
   if (!shot) shot = plan && plan.tier === tier && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : pickShot(tier, recentShots, hour);
-  return composePicture({ tier, shot, words: s.words, doing: s.doing, hour, recentShots });
+  return { ...composePicture({ tier, shot, words: s.words, doing: s.doing, hour, recentShots }), asked, explicit: !!s.explicit };
+}
+
+// A spicier selfie (PICTURE.LINGERIE.SPICY_PATTERN in his ask or her words, or explicit words): Nano Banana's job
+function isSpicy(pic) {
+  const L = CONFIG.PICTURE.LINGERIE || {};
+  if (!pic || !pic.args) return false;
+  if (pic.explicit) return true;
+  try { return !!L.SPICY_PATTERN && new RegExp(L.SPICY_PATTERN, "i").test(`${pic.asked || ""} ${pic.args.words || ""} ${pic.args.doing || ""}`); } catch { return false; }
 }
 
 // The prompt for a picture of the moment in person, from the scene's narration about her: only sentences
@@ -2833,12 +2865,12 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     let error = null;
     let model = P.MODEL;
     try {
-      // a boudoir selfie (owner 2026-10-05: "Let klein draw lingerie first, then nanobanana if klein refuses"): klein
-      // with the real lingerie words and her face (LINGERIE.KLEIN_FIRST), then Nano Banana (its own money cap) when
-      // klein refuses or fails, then klein in its own filter-safe wardrobe (below) when Nano Banana can't either
+      // a boudoir or spicier selfie (owner 2026-10-05): spicier (isSpicy) → Nano Banana with SPICY_PROMPT; else klein
+      // first in KLEIN_WARDROBE (her face), Nano Banana when klein refuses or fails; klein's filter-safe chain last
       const L = P.LINGERIE || {};
-      if (kind === "selfie" && L.ENABLED && L.KLEIN_FIRST && (L.TIERS || []).includes(pic.tier) && pic.args) {
-        const kp = composePicture({ ...pic.args, lingerie: true });
+      const spicy = kind === "selfie" && L.ENABLED && isSpicy(pic);
+      if (kind === "selfie" && L.ENABLED && L.KLEIN_FIRST && !spicy && (L.TIERS || []).includes(pic.tier) && pic.args) {
+        const kp = { ...composePicture({ ...pic.args, wardrobeList: L.KLEIN_WARDROBE }), asked: pic.asked };
         try {
           const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night });
           model = drawn.model;
@@ -2848,8 +2880,8 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
           await aiFailed(env, `drawing lingerie with ${P.MODEL}: ${aiText_(e)}; ${wantsLingerie(env, ledger, pic) ? `asked ${L.MODEL}` : "drew it in klein's own wardrobe"}`);
         }
       }
-      if (kind === "selfie" && wantsLingerie(env, ledger, pic)) {
-        const lp = composePicture({ ...pic.args, lingerie: true });
+      if (kind === "selfie" && (spicy || (L.TIERS || []).includes(pic.tier)) && wantsLingerie(env, ledger, pic, spicy)) {
+        const lp = spicy ? spicyPicture(pic) : composePicture({ ...pic.args, lingerie: true });
         try {
           const bytes = await drawLingerie(env, lp);
           ledger.usd = (ledger.usd || 0) + (Number(P.LINGERIE.USD_PER_PICTURE) || 0);
@@ -2894,12 +2926,30 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
 }
 
 // May this picture go to PICTURE.LINGERIE (Nano Banana) today?
-function wantsLingerie(env, ledger, pic) {
+function wantsLingerie(env, ledger, pic, spicy = false) {
   const L = CONFIG.PICTURE.LINGERIE || {};
   if (!L.ENABLED || !L.MODEL || !env.OPENROUTER_API_KEY || !pic || !pic.args) return false;
-  if (!(L.TIERS || []).includes(pic.tier)) return false;
+  if (!spicy && !(L.TIERS || []).includes(pic.tier)) return false;
   if (budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) return false;
   return (ledger.usd || 0) + (Number(L.USD_PER_PICTURE) || 0) <= (Number(L.DAILY_USD) || 0);
+}
+
+// A spicier selfie for Nano Banana: SPICY_PROMPT (JSON, her description in words) with her words as the garment (else
+// SPICY_WARDROBE), what she's doing (else a SPICY_POSES pose), a boudoir expression, her bedroom (or the place her words name) and its light.
+// Returns { prompt (ready, no {who}/{room}), shot, tier, what, location, spicy }
+function spicyPicture(pic) {
+  const P = CONFIG.PICTURE;
+  const L = P.LINGERIE;
+  const a = pic.args || {};
+  const words = String(a.words || "").trim();
+  const garment = words || pickOne(L.SPICY_WARDROBE) || pickOne(L.WARDROBE) || "";
+  const location = locationOf(`${words} ${a.doing || ""}`) || "bedroom";
+  const where = (P.LOCATIONS || {})[location];
+  const time = timeOfDay(a.hour ?? herHour());
+  const light = pickOne((P.LIGHT || {})[time.toUpperCase()]) || "warm lamp light";
+  const fill = { garment, pose: String(a.doing || "").trim() || pickOne(L.SPICY_POSES) || "", expression: pickOne((P.EXPRESSIONS || {}).BOUDOIR) || "", setting: where ? `${where.NAME}: ${where.LOOK}` : "her bedroom", light };
+  const prompt = String(L.SPICY_PROMPT || "").replace(/\{(\w+)\}/g, (m, k) => (k in fill ? JSON.stringify(String(fill[k])).slice(1, -1) : m));
+  return { prompt, shot: "mirror", tier: "boudoir", angle: null, what: `mirror, ${garment}`, location, night: isDark(a.hour ?? herHour(), light), spicy: true, args: a };
 }
 
 // Nano Banana on OpenRouter, text only (LINGERIE.WHO instead of her face, the place in words): picture bytes.
@@ -2909,7 +2959,7 @@ async function drawLingerie(env, pic) {
   const L = P.LINGERIE;
   const where = pic.location && (P.LOCATIONS || {})[pic.location];
   const room = where ? (P.ROOM_TEXT || "").replace("{look}", where.LOOK || "") : "";
-  const prompt = pic.prompt.replace("{room}", room).replace("{who}", `Realistic smartphone photo of ${L.WHO}`).replace(/\s{2,}/g, " ").trim();
+  const prompt = pic.spicy ? pic.prompt : pic.prompt.replace("{room}", room).replace("{who}", `Realistic smartphone photo of ${L.WHO}`).replace(/\s{2,}/g, " ").trim();
   budget.used++;
   let res;
   try {
