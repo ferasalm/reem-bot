@@ -80,6 +80,7 @@ const ROUTES = {
   // job.runware_models overrides them (the docs' AIR ids, checked by job.runware_search)
   "rw-klein9b": { usd: 0.0012, family: "ref", run: (p, r, s) => runware(job.runware_models?.["rw-klein9b"] || "runware:400@2", p, r, s) },
   // only her face (image 0): the body picture's tank top and leggings leaked into nude prompts (run 37434273611)
+  "rw-klein9b-b2": { usd: 0.0008, family: "ref", run: (p, r, s) => runware("runware:400@2", p, r, s) },
   "rw-klein9b-face": { usd: 0.0008, family: "ref", run: (p, r, s) => runware("runware:400@2", p, r.slice(0, 1), s) },
   "rw-klein4b": { usd: 0.0008, family: "ref", run: (p, r, s) => runware("runware:400@4", p, r, s) },
   "rw-klein9b-text": { usd: 0.0008, family: "text", run: (p, r, s) => runware("runware:400@2", p, [], s) },
@@ -293,7 +294,8 @@ if (job.want) {
     for (let a = job.start_at?.[route] || 0; a < end && drawn < want; a++) {
       const v = a % set.length;
       const name = `${route}-${String(a + 1).padStart(2, "0")}-v${v + 1}`;
-      const refs = R.family === "ref" ? [job.reference, ...(job.refs || [])] : [];
+      // job.refs_by: a route's own extra reference pictures (e.g. another body picture)
+      const refs = R.family === "ref" ? [job.reference, ...((job.refs_by || {})[route] || job.refs || [])] : [];
       const seed = 5000 + a * 7919;
       const t0 = Date.now();
       lastNeurons = null;
