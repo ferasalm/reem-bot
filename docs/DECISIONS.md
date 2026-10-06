@@ -5,6 +5,9 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Deploy** (owner: "Deploy"): `dev` (f496197) fast-forwarded into `main` (was 122dac8; only the handoff docs
+  differed, the DeepSeek fix was already live). Deploy run 37463278664 green (Deploy Worker, /health), live code read back
+  (DeepSeek model, Nemo backup, the guards).
 - 2026-10-06 — **Chat model back to DeepSeek, Nemo the backup; deploy** (owner: "What is wrong with Reem? Fix her. She's gotten
   so weird", then picked "DeepSeek + deploy"): his Telegram chat replayed on both models, 5 tries a message (runs 37459244094,
   37459455109): Nemo wrote 1-4 word texts, copied the prompt's examples word for word and went to his door 0/5; DeepSeek wrote full
