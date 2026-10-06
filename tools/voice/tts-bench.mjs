@@ -72,6 +72,8 @@ const ref = job.reference ? readFileSync(job.reference).toString("base64") : nul
 const clips = [];
 for (const c of job.candidates) for (const line of job.lines) {
   let text = (c.prefix || "") + line.text.replace(/\{laugh\}\s*/g, c.laugh ? `${c.laugh} ` : "");
+  // MiniMax: [tags] it has become its (interjections), the rest are dropped (c.tags: {"laughs softly": "(laughs)"})
+  if (c.tags) text = text.replace(/\[([^\]]*)\]\s*/g, (_, t) => (c.tags[t.toLowerCase()] ? `${c.tags[t.toLowerCase()]} ` : "")).trim();
   if (c.strip_tags) text = text.replace(/\[[^\]]*\]\s*/g, "").trim(); // models that would read [tags] aloud
   clips.push({ c, line, text });
 }
