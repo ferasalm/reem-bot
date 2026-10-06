@@ -406,3 +406,11 @@ features): the first route that draws Reem herself while nude. Proportions natur
   leggings") nude 4/4. Same seeds, so A and B look alike; B keeps her body picture's shape.
 - Per pose: front from her arm 2/2 no phone; rear mirror selfie 2/2 iPhone in hand, bare back and bottom; bed on her side 2/2
   (a reflected figure in the dark window, #03 both); /look 2/2 bare breasts, eyes closed, duvet over her hips.
+
+## klein 9B, slimmer hourglass body (2026-10-06, image bench 37437301547)
+Owner: "She's too fat. I want her body and proportions to be similar to those in attached pictures" (5 pictures: hourglass,
+full bust, defined waist, nearly flat belly, wide hips, full thighs, soft full upper arms; about BMI 24). Planned: A = face +
+hourglass words (163 cm, 64 kg), B = face + the owner's faceless bodysuit picture as image 1 (`tools/face/body-owner.jpg`).
+Only A #01 was drawn: Runware billed it **$0.0907 and 111 s** (the same route was $0.00078 and 3 s an hour earlier), and the
+$0.02 cap stopped the run. #01: her face, nude, no phone; the waist a little more defined but the belly still soft and round:
+words alone don't reach the owner's pictures. B not drawn. The bench now stops when one picture bills over 5x its list price.

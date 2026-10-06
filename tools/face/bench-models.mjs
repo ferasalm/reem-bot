@@ -317,6 +317,9 @@ if (job.want) {
       console.log(lines.at(-1));
       if (r.error && a === 0 && !/3030|sensitive|safety|moderat|content|policy|flagged|nsfw/i.test(r.error)) { console.log(`  ${route} looks broken: stopped`); break; }
       if (spentUsd > job.max_usd) { console.log("Money cap reached: stopping."); break; }
+      // one picture billed far over its list price (Runware klein 9B: $0.0907 in 111 s instead of $0.00078 in 3 s,
+      // run 37437301547): stop instead of paying it again
+      if (cost > R.usd * (job.max_overcharge || 5)) { console.log(`Billed $${cost.toFixed(4)}, over ${job.max_overcharge || 5}x the list price $${R.usd}: stopping.`); break; }
     }
     table.push(`${route}: ${drawn} drawn, ${refused} refused, ${black} black in ${n} attempts; ${neurons.toFixed(0)} neurons, about $${usd.toFixed(3)}; ${Math.round(ms / Math.max(n, 1) / 1000)} s a call`);
     console.log(`== ${table.at(-1)}\n`);
