@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Deploy the picture versions; /pic** (owner: "That's no top. It's skinfold which is good and realistic. Let's deploy
+  according to everything on dev right now. Also add a slash command in the bot where the user can generate pictures customized with
+  different hairstyles, makeup, poses, clothing, framing, angle, but Reem remains Reem."): `dev` (4354980) fast-forwarded into `main`;
+  deploy run 37441152120 green, the Worker secret RUNWARE_API_KEY created by the deploy, /health drew and saw, live code read back (Runware routes in, /pic not yet). Live default stays
+  `PICTURE.ROUTE` "cloudflare" until the owner switches it on the panel. `/pic` (`/photo`, `/custom`): his words, her face (`PICTURE.CUSTOM`),
+  on the active route; built on `dev`, not deployed yet. Before this deploy `main` was a34bbe7: pushing it back to `main` reverts.
 - 2026-10-06 — **Picture versions with different models, ready to deploy; a slimmer hourglass body; realistic nipples** (owner: "She's
   too fat. I want her body and proportions to be similar to those in attached pictures" / "her nipples look unrealistic. Keep fixing. We want
   to have different versions with different models all ready to deploy. Focus on this for now."): `PICTURE.ROUTE` picks the version on the

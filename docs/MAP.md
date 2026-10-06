@@ -42,7 +42,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `composePicture` returns `location` and a `{room}` slot that `drawPicture` fills (ROOM + the place's picture from
     `places.js` as image 1, else ROOM_TEXT); scene pictures (`startPicture` kind "scene"): `scenePicturePrompt` + `sceneWearing`
     (clothes her narration of this scene named, `underLayers` adds `SCENE_UNDER` under a cardigan or socks, else
-    `SCENE_WEARING`) + the time's LIGHT or `SCENE_NIGHT`; `/look` = `lookCommand` (a scene picture of her last reply, not stored); after dark (`isDark`: night, or evening unless the light is daylight;
+    `SCENE_WEARING`) + the time's LIGHT or `SCENE_NIGHT`; `/look` = `lookCommand` (a scene picture of her last reply, not stored); `/pic` = `picCommand` + `customPicture` (his words, her face: `drawPicture` with `custom` swaps REFERENCE's "same face and hair" for CUSTOM.SAME_PERSON; not stored); after dark (`isDark`: night, or evening unless the light is daylight;
     `timeOfDay`) `composePicture`/scene pictures set `night` and `drawPicture` sends `<key>_night` when it exists
   - picture versions (2026-10-06): `PICTURE.ROUTE` "cloudflare" | "runware-klein" | "runware-twinflow"; `runwareRoute` (her words unfiltered:
     `filterSafe` a no-op, `mayDraw` uses RUNWARE.NOT_DRAWN, `safeLine` drops SAFE), `runwareAffordable` (key + RUNWARE.DAILY_USD, ledger `rwUsd`),

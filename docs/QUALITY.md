@@ -431,5 +431,5 @@ $0.00078 (klein) / $0.0006 (TwinFlow), $0.0043 in all; the owner's place picture
 - runware-klein #01 nude selfie: her face, hourglass, natural nipples, her bedroom; framed to the thighs (asked chest-up).
 - #02 red lace bra + panties, mirror: real lingerie (no FILTER_WORDS); the iPhone covers her face.
 - #03 everyday: black turtleneck + jeans in the hallway, laughing, her face: clothed pictures unchanged.
-- #04 nude from behind, hallway mirror: a skin-colored band across her back (a trace of a top), otherwise as asked.
+- #04 nude from behind, hallway mirror: as asked; the band across her back is a natural skin fold (owner: "good and realistic"), not a top.
 - runware-twinflow #05 nude: slimmer, another face (no face picture); #06 red lace set in the hallway mirror, as asked.
