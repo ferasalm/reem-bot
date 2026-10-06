@@ -383,3 +383,5 @@ My check: shoulder width / head height (real ~1.6; run 37404957788 #04 was ~1.8,
 - P3 measurements + "eye level, two metres, 50 mm lens" (#03 ~1.8, #07 bed on her side): the head smallest of the four standing.
 - P4 all + "a little fuller face" (#04 ~1.7, #08 bed on her back): rounder face, head in scale, arms full.
 - Best: P1 (and P4 close); the lens words did not help. All 8 the same woman (bangs, brows, freckles).
+- Owner's verdict: proportions good in #01, #02, #05, #07, not in #03, #04, #06, #08 → P1 2/2, P2 1/2, P3 1/2, P4 0/2
+  (the fuller-face line shrinks the head again); both bad bed shots are on her back seen from above, both good ones on her side.
