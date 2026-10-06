@@ -211,8 +211,12 @@ async function runware(model, prompt, refs, seed) {
   let res, data;
   for (let tries = 0; ; tries++) {
     res = await fetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${rwKey}`, "Content-Type": "application/json" }, body: JSON.stringify([task]) });
-    data = await res.json().catch(() => ({}));
-    if (tries >= 8 || !data.errors?.some((e) => e.code === "concurrentRequestLimitExceeded")) break;
+    const raw = await res.text();
+    try { data = JSON.parse(raw); } catch { data = { raw: raw.slice(0, 300) }; }
+    // an empty answer (HTTP 200 "{}", seen once after 28 s) is retried like a held balance
+    const empty = !data.data?.length && !data.errors?.length;
+    if (empty) console.log(`  runware: empty answer (HTTP ${res.status} ${raw.slice(0, 120)}), retrying`);
+    if (tries >= 8 || (!empty && !data.errors?.some((e) => e.code === "concurrentRequestLimitExceeded"))) break;
     await new Promise((r) => setTimeout(r, 10000));
   }
   const d = data?.data?.[0];
