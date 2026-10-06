@@ -1,15 +1,13 @@
 {
-  "note": "Probe 2026-10-06: which Runware models run on a $0.05 balance (first run: klein 9B insufficientCredits, Z-Image needs $5). One full-nude picture each.",
-  "want": 1,
-  "max_attempts": 4,
+  "note": "2026-10-06: TwinFlow Z-Image-Turbo on Runware (the only model the $0.05 balance runs): lingerie, see-through, topless (full nude done in run 37396093383).",
+  "want": 3,
+  "max_attempts": 3,
   "max_usd": 0.03,
   "reference": "tools/face/reference.jpg",
   "refs": [
     "tools/face/body.jpg"
   ],
   "routes": [
-    "rw-klein4b-text",
-    "rw-klein9b-text",
     "rw-twinflow"
   ],
   "flux2_steps": 20,
@@ -40,18 +38,14 @@
     ]
   },
   "want_by": {},
-  "start_at": {
-    "rw-klein4b-text": 3,
-    "rw-klein9b-text": 3,
-    "rw-twinflow": 3
-  },
+  "start_at": {},
   "stop_at": {},
   "list_google": false,
   "aspect": "9:16",
   "family_of": {},
   "runware_search": [],
   "runware_size": [
-    512,
-    896
+    576,
+    1024
   ]
 }
