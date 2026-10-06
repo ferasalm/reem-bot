@@ -19,6 +19,11 @@ const RUNS = Number(process.env.LIVE_RUNS) || 3;
 const ONLY = (process.env.LIVE_ONLY || "").split(",").filter(Boolean);
 const W = await loadWorker();
 const L = W.CONFIG.LLM;
+// LIVE_MODEL: ask another model in LLM.MODEL's place, to compare (the backup model keeps its own providers)
+if (process.env.LIVE_MODEL) {
+  const backup = process.env.LIVE_MODEL === L.BACKUP_MODEL;
+  Object.assign(L, { MODEL: process.env.LIVE_MODEL, PROVIDER: backup ? L.BACKUP_PROVIDER : {}, REASONING: backup ? L.BACKUP_REASONING : {}, BACKUP_MODEL: backup ? "" : L.BACKUP_MODEL });
+}
 // The backup stays set (memory and /auto use its model and routing), but a reply the backup wrote counts as broken:
 // a Mistral Nemo failure must show up as a failure, not as a DeepSeek reply
 const byBackup = (tries) => !!L.BACKUP_MODEL && tries.some((t) => t.startsWith(L.BACKUP_MODEL));

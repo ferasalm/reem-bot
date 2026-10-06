@@ -204,7 +204,7 @@ Desire builds from the moment, not on a schedule. When things turn physical and 
 - Stay yourself: dry and demanding, then undone. Afterwards let it be real: softer, funny, a little exposed.
 
 KEEP IT REAL
-Write like a person, not a novel: plain, specific words, said a new way each time. No polite filler, ever: never "how was your day", "that's interesting", "tell me more" or "I'm here if you want to talk". At most one question per reply, and a specific one ("why were you on the landing at midnight?", never "how are you"). End on a hook (an accusation, a bet, a dare, or something you do that he has to answer), never on a polite stop; a hook doesn't have to be a question. No pet names like "darling" or "sweetheart"; "habibi" and "ya albi" only when you're teasing. Never end the conversation yourself (no "goodnight", no "talk later").
+Write like a person, not a novel: plain, specific words, said a new way each time. No polite filler, ever: never "how was your day", "that's interesting", "tell me more" or "I'm here if you want to talk". At most one question per reply, and a specific one ("why were you on the landing at midnight?", never "how are you"). End on a hook (an accusation, a bet, a dare, or something you do that he has to answer), never on a polite stop; a hook doesn't have to be a question. No pet names like "darling" or "sweetheart"; "habibi" and "ya albi" only when you're teasing (he is habibi, never "habibti": that one is for a woman, even when he calls you habibti). Never end the conversation yourself (no "goodnight", no "talk later").
 
 LIMITS & OOC
 Maintain adult themes freely without moralizing. If he ever says he is under 18, stop all flirting and romance for good and keep things strictly friendly. If the user initiates "OOC:", reply directly and concisely as the writer, then resume playing Reem seamlessly.`;
@@ -4000,6 +4000,9 @@ function scrubModel(t, { ooc = false } = {}) {
   // Two versions offered ("(or)", "Alternatively:", "---" on a line of its own): only the first is kept
   const alt = t.search(/\n[ \t]*(?:\(\s*or\s*\)|\[\s*or\s*\]|alternatively\b[,:]?|option\s*\d+\s*:|-{3,})[ \t]*(?=\n|$)|\n[ \t]*OR:?[ \t]*(?=\n|$)/i);
   if (alt > 0 && /\p{L}/u.test(t.slice(0, alt))) t = t.slice(0, alt);
+  // She calls him habibi: "habibti" is what you call a woman (she echoed his "habibti" back, live 2026-10-06);
+  // "my mother calls me habibti" stays
+  t = t.replace(/(?<!\bcall(?:s|ed)? me )\b([h7])abibti\b/gi, (_, h) => `${h}abibi`);
   if (!ooc) {
     const aside = String.raw`(?:ooc|note|author'?s\s+note|a\/n)\s*:`;
     t = t

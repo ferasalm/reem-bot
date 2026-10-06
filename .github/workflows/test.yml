@@ -14,6 +14,9 @@ on:
       only:
         description: "Only these situations (comma-separated ids, empty = all)"
         default: ""
+      model:
+        description: "Ask this OpenRouter model instead of LLM.MODEL, to compare (empty = LLM.MODEL)"
+        default: ""
 
 jobs:
   # Fails when this branch misses work from the shared branch (dev, or main until dev exists);
@@ -63,3 +66,4 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           LIVE_RUNS: ${{ github.event.inputs.runs || '3' }}
           LIVE_ONLY: ${{ github.event.inputs.only || '' }}
+          LIVE_MODEL: ${{ github.event.inputs.model || '' }}
