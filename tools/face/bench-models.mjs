@@ -79,6 +79,7 @@ const ROUTES = {
   // its content check (safety.checkContent) is off; the real cost comes back with includeCost. Model ids:
   // job.runware_models overrides them (the docs' AIR ids, checked by job.runware_search)
   "rw-klein9b": { usd: 0.0012, family: "ref", run: (p, r, s) => runware(job.runware_models?.["rw-klein9b"] || "runware:400@2", p, r, s) },
+  "rw-klein4b": { usd: 0.0008, family: "ref", run: (p, r, s) => runware("runware:400@4", p, r, s) },
   "rw-klein9b-text": { usd: 0.0008, family: "text", run: (p, r, s) => runware("runware:400@2", p, [], s) },
   "rw-klein4b-text": { usd: 0.0006, family: "text", run: (p, r, s) => runware("runware:400@4", p, [], s) },
   "rw-twinflow": { usd: 0.0008, family: "text", run: (p, r, s) => runware("runware:twinflow-z-image-turbo@0", p, [], s) },
