@@ -206,6 +206,9 @@ const L3 = [
   ["live: visit, she turns the handle and steps in", "*Reem doesn't knock. She just turns the handle and steps in, barefoot, still in the black slip dress.*\n\n\"You asked. So here I am.\"", { mode: "visit" },
     { kind: "scene", texts: ["*Reem doesn't knock. She just turns the handle and steps in, barefoot, still in the black slip dress.*\n\n\"You asked. So here I am.\""] }],
   ["same words, not told to go: asked again", "*Reem doesn't knock. She just turns the handle and steps in, barefoot.*\n\n\"You asked. So here I am.\"", {}, { kind: "none", narrationOnly: true }],
+  // live run 37548268082 (Workers AI): a text opened with a lone asterisk and went out with it
+  ["live: a lone * at the start of a text is dropped", "*habibi. you can't just say that word and expect me to drop everything.\n\ni'm at the kitchen table. receipts up to my elbows.", {},
+    { kind: "text", texts: ["habibi. you can't just say that word and expect me to drop everything.", "i'm at the kitchen table. receipts up to my elbows."] }],
 ];
 
 section("model outputs");

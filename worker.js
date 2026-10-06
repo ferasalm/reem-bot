@@ -2555,8 +2555,10 @@ async function workersChat(env, model, messages, sampling, timeoutMs, trimCut, t
   // Cloudflare's DeepSeek sometimes ends at once with nothing (1 token, "stop"): 7 of 25 calls with reasoning "none",
   // 3 of 28 with "low" (live runs 37544942514, 37544945221). An empty answer is back in ~1 s and its prompt is cached,
   // so it's asked again, up to 4 times in all
+  // the last two tries think a little (reasoning "low" never came back empty in cf-probe, 2026-10-06)
   let data, choice, out = "";
   for (let i = 0; i < 4 && !out; i++) {
+    if (i === 2 && input.reasoning_effort === "none") Object.assign(input, { reasoning_effort: "low", max_tokens: (input.max_tokens || 0) + 1500 });
     data = await aiRun(env, model, input, timeoutMs);
     choice = data?.choices?.[0];
     out = String(choice?.message?.content ?? data?.response ?? "").trim();
@@ -4546,7 +4548,11 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
     out.repeated = true;
     return dropRepeats(t, []);
   };
-  const as = (kind, body, texts) => Object.assign(out, { kind, texts, stored: body, copied: copiesAny(body) });
+  // texts never keep a lone * (no pair: not emphasis, not an *action*; live run 37548268082: "*habibi. you can't...")
+  const lone = (t) => String(t).split("\n").map((l) => ((l.match(/\*/g) || []).length === 1 ? l.replace("*", "") : l)).join("\n");
+  const as = (kind, body, texts) => kind === "text"
+    ? Object.assign(out, { kind, texts: texts.map(lone), stored: lone(body), copied: copiesAny(body) })
+    : Object.assign(out, { kind, texts, stored: body, copied: copiesAny(body) });
   // In person, sent as one message: *actions* in italics, her words in quotes
   const asScene = (body) => {
     const scened = fresh(markScene(toYou(dropCues(body))));

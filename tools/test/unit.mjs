@@ -239,6 +239,9 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const env = { AI: { async run() { n++; return { choices: [{ message: { content: n < 3 ? "" : "there you are" }, finish_reason: "stop" }] }; } } };
   const out = await W.askModel(env, [{ role: "user", content: "hi" }], { max_tokens: 20 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1 });
   eq([out, n], ["there you are", 3], "an empty Workers AI answer is asked again");
+  const efforts = []; let k = 0;
+  const env2 = { AI: { async run(model, input) { efforts.push(input.reasoning_effort); k++; return { choices: [{ message: { content: k < 4 ? "" : "finally" } }] }; } } };
+  eq([await W.askModel(env2, [{ role: "user", content: "hi" }], { max_tokens: 20 }, { model: "@cf/x", timeoutMs: 5000, attempts: 1 }), efforts], ["finally", ["none", "none", "low", "low"]], "the last two tries think a little");
 }
 {
   // a task (memory, /auto, the plan, /setup) gets reasoning "low" and room for it; her replies "none"
