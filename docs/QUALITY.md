@@ -371,3 +371,15 @@ camera with the arms away from the body; /look in bed), the stronger body words 
   chubby arms" (#04 standing, #08 bed): the fullest arms in both poses, a soft belly with a pooch, rounder face, still the same
   woman (bangs, brows). Best match for BMI ~26 so far; arms 2/2.
 - Pose slips: in bed she lies on her back seen from above 3/3 (asked: on her side).
+
+## TwinFlow head-to-body proportion (2026-10-06, image bench 37406592599; 37406446356 got one empty answer), each read at full size
+Owner: "the head is too small ... adjust the head size to be coherent with the body considering she is 160-165 cm tall".
+Measurements used (NHANES-based, BMI 26 at 163 cm): 69 kg, head 22.5 cm chin to crown (about 7 heads tall), shoulders 36 cm,
+bust 100 / waist 80 / hips 106 cm, upper arms 31 cm around. W4 arm words kept. 8/8 drawn, $0.0048.
+My check: shoulder width / head height (real ~1.6; run 37404957788 #04 was ~1.8, the small head the owner saw), rough pixels.
+- P1 words "her head is naturally sized for her body, about one seventh of her height, with full soft cheeks and a soft rounded
+  jawline that match her weight" (#01 standing ~1.5, #05 bed): head in scale, arms full, belly soft; in bed on her SIDE as asked.
+- P2 the measurements (#02 ~1.65, #06 bed on her back): head in scale, arms full.
+- P3 measurements + "eye level, two metres, 50 mm lens" (#03 ~1.8, #07 bed on her side): the head smallest of the four standing.
+- P4 all + "a little fuller face" (#04 ~1.7, #08 bed on her back): rounder face, head in scale, arms full.
+- Best: P1 (and P4 close); the lens words did not help. All 8 the same woman (bangs, brows, freckles).
