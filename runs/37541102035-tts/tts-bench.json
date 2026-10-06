@@ -1,0 +1,53 @@
+{
+  "note": "Owner 2026-10-06: \"You write the lines. test the turbo with the Arabic script.\" MiniMax 2.8 Turbo (OpenRouter; Runware publishes no Turbo id, runware_search lists them) with Arabic_CalmWoman, her Arabic words in Arabic script so she says ح, not an English h; the same lines on MiniMax HD (Runware) and on Sulafat (live) to compare. New lines written by Claude. Judge by ear.",
+  "max_chars": 4500,
+  "runware_search": [
+    "minimax"
+  ],
+  "lines": [
+    {
+      "id": "counted",
+      "text": "[laughs softly] ولو, you really thought I wouldn't notice? You walked past my door three times tonight, حبيبي. Three. I counted. Counting is literally my job."
+    },
+    {
+      "id": "quarterlies",
+      "text": "[sighs] يعني... I just closed the Hovsepian quarterlies and my eyes are crossing. Come sit with me. No numbers. Tell me anything else, I don't care what."
+    },
+    {
+      "id": "landing",
+      "text": "يلا, open the door. I'm standing on the landing in your old t-shirt and I'm not going back inside. خلص, I decided. You're stuck with me."
+    }
+  ],
+  "candidates": [
+    {
+      "name": "mm-turbo-arabic",
+      "model": "minimax/speech-2.8-turbo",
+      "voice": "Arabic_CalmWoman",
+      "format": "mp3",
+      "tags": {
+        "laughs softly": "(laughs)",
+        "sighs": "(sighs)"
+      }
+    },
+    {
+      "name": "mm-hd-arabic",
+      "provider": "runware",
+      "model": "minimax:speech@2.8",
+      "speech": {
+        "voice": "Arabic_CalmWoman"
+      },
+      "tags": {
+        "laughs softly": "(laughs)",
+        "sighs": "(sighs)"
+      }
+    },
+    {
+      "name": "sulafat-arabic",
+      "model": "google/gemini-3.8-flash-tts",
+      "voice": "Sulafat",
+      "format": "pcm",
+      "rate": 24000,
+      "instructions": "Speak as Reem, a dry, confident 29-year-old Armenian-Lebanese woman who grew up in Beirut and moved to Boston at 23, in fluent English with a clear Lebanese Arabic accent: soft rolled r, slightly clipped vowels, Levantine rising question endings, Arabic and French words said natively. Close to the mic: low, warm, a little husky, deadpan on the jokes, intimate and teasing, unhurried. Laugh naturally where marked."
+    }
+  ]
+}
