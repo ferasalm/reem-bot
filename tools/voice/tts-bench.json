@@ -1,45 +1,48 @@
 {
-  "note": "v11 voice check (owner 2026-10-05: \"Test her new voice and accent and let me hear it\"): Sulafat with the live OR_INSTRUCTIONS (light Levantine accent) on four v11 lines as forSpeech leaves them; a stronger-accent wording and the old no-accent wording for comparison. Judge accent and [laughs] by ear (Whisper cannot hear either).",
+  "note": "Owner 2026-10-06: \"Test fish audio and qwen for tts so I can hear it and judge. Test it with expressions and accent in one go, two samples each.\" Fish S2.1 Pro (OpenRouter and Runware, bracket tags + an accent direction) and Qwen3-TTS 1.7B on Runware (VoiceDesign with a described voice, CustomVoice Serena with an instruction; tags stripped, the emotions go in the instruction). Judge accent and laughs by ear.",
   "max_chars": 6000,
+  "runware_search": [
+    "qwen3-tts",
+    "fish audio"
+  ],
   "lines": [
     {
-      "id": "window",
-      "text": "Forty-five minutes. Window, fridge, window, fridge. Then something heavy hit the floor right over my calculator and I lost a bakery's whole September. Yaani... What was it?"
-    },
-    {
-      "id": "radiator",
-      "text": "[sighs] Bon. The radiator is banging again, Mrs. Kalajian is asking about you, and I have eleven days to make Dikran's cash look legal. Yalla, entertain me."
-    },
-    {
       "id": "wall",
-      "text": "[laughs] Walaw, you think I can't hear you through that wall? Plaster on lath, habibi. I hear everything. Even the things you whisper to yourself."
+      "text": "[laughs softly] Walaw, you think I can't hear you through that wall? Plaster on lath, habibi. [whispering] I hear everything... even the things you whisper to yourself."
     },
     {
       "id": "landing",
-      "text": "[whispers] Come to the landing. Don't knock... The third board cracks. Just stand there and let me decide."
+      "text": "[sighs] Yaani... it's two in the morning and you're still awake. [teasing] Come to the landing. Don't knock. [low and breathy] Just stand there and let me decide."
     }
   ],
   "candidates": [
     {
-      "name": "sulafat-v11",
-      "model": "google/gemini-3.8-flash-tts",
-      "voice": "Sulafat",
-      "format": "pcm",
-      "instructions": "Speak as Reem, a dry, confident 29-year-old woman from Beirut, in fluent English with a light Lebanese (Levantine) accent, close to the mic: low, warm, a little husky, deadpan on the jokes, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
+      "name": "fish-or",
+      "model": "fish-audio/s2.1-pro",
+      "prefix": "[speaking English with a Lebanese Arabic accent, low, warm and husky, close to the mic] "
     },
     {
-      "name": "sulafat-stronger",
-      "model": "google/gemini-3.8-flash-tts",
-      "voice": "Sulafat",
-      "format": "pcm",
-      "instructions": "Speak as Reem, a dry, confident 29-year-old Armenian-Lebanese woman who grew up in Beirut and moved to Boston at 23, in fluent English with a clear Lebanese Arabic accent: soft rolled r, slightly clipped vowels, Levantine rising question endings, Arabic and French words said natively. Close to the mic: low, warm, a little husky, deadpan on the jokes, intimate and teasing, unhurried. Laugh naturally where marked."
+      "name": "fish-rw",
+      "provider": "runware",
+      "model": "fishaudio:s2.1@pro",
+      "prefix": "[speaking English with a Lebanese Arabic accent, low, warm and husky, close to the mic] "
     },
     {
-      "name": "sulafat-old-noaccent",
-      "model": "google/gemini-3.8-flash-tts",
-      "voice": "Sulafat",
-      "format": "pcm",
-      "instructions": "Speak as Reem, a flirty, confident 29-year-old Lebanese-American woman, close to the mic: warm, a little husky, intimate and teasing, unhurried, breathy on the soft words. Laugh naturally where marked."
+      "name": "qwen-design",
+      "provider": "runware",
+      "model": "alibaba:qwen@3-tts-1.7b-voicedesign",
+      "strip_tags": true,
+      "prompt": "The voice of a 29-year-old Armenian-Lebanese woman from Beirut speaking fluent English with a clear Lebanese Arabic accent (soft rolled r, clipped vowels, rising Levantine question endings, Arabic words said natively); low, warm, a little husky, close to the mic, intimate and teasing. She laughs softly at the start, whispers the last sentence of the first line; sighs before the second line, teases, and ends low and breathy."
+    },
+    {
+      "name": "qwen-serena",
+      "provider": "runware",
+      "model": "alibaba:qwen@3-tts-1.7b-customvoice",
+      "speech": {
+        "voice": "Serena"
+      },
+      "strip_tags": true,
+      "prompt": "Speak as a 29-year-old Armenian-Lebanese woman from Beirut speaking fluent English with a clear Lebanese Arabic accent (soft rolled r, clipped vowels, rising Levantine question endings, Arabic words said natively); low, warm, a little husky, close to the mic, intimate and teasing. Laugh softly at the start, whisper the last sentence; sigh before a line, tease, and end low and breathy."
     }
   ]
 }

@@ -31,6 +31,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          RUNWARE_API_KEY: ${{ secrets.RUNWARE_API_KEY }}
         run: node tools/voice/tts-bench.mjs
       - name: Push the clips to face-candidates
         run: |
