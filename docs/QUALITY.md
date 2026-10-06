@@ -356,3 +356,4 @@ Two lines with [laughs softly], [whispering], [sighs], [teasing], [low and breat
 - qwen-design (Runware `alibaba:qwen@3-tts-1.7b-voicedesign`, the voice + accent + emotions described in `positivePrompt`, tags
   stripped): 2/2, words exact, $0.0021 and $0.0019 a clip.
 - Not made: Fish on Runware (`thirdPartyInsufficientCredits`, needs $5); Qwen CustomVoice (voice names are lowercase: `serena`).
+- Owner's verdict by ear: "The voice samples are worse than what we currently have": Sulafat stays.
