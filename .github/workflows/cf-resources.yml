@@ -1,0 +1,20 @@
+name: Cloudflare resources
+
+# Creates the Cloudflare resources the Worker binds (tools/cf-resources.sh): the Vectorize index for her long
+# memory. deploy.yml runs the same script before every deploy; this one is to check it without deploying.
+on:
+  workflow_dispatch:
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Create what's missing
+        run: tools/cf-resources.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
