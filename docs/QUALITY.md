@@ -322,3 +322,16 @@ curvy; the face varies a little between pictures, as with every text-only Nano B
 | 02 | black balconette bra + high-cut thong, 15h | exactly that, hand on hip, iPhone in the arched mirror | pass |
 | 03 | spicier, no outfit named (SPICY_WARDROBE), 22h | black lace bra + lace thong, hand in her hair; drawn in daylight | pass (light wrong at night) |
 | 04 | red lace bra + panties, kneeling on the bed, 20h | exactly that, kneeling on the bed | pass |
+
+## Runware, safety check off (2026-10-06, image bench 37395930412, 37396093383, 37396284022), each read at full size
+Owner: "test the image models only ... klein 9B with Runware's safety check off, and Z-Image-Turbo ... prompting them for
+nudity and/or something explicit"; $0.05 balance. Spent $0.0018 (3 pictures at $0.0006, Runware's own `cost`).
+- klein 9B (`runware:400@2`, with her face + body), klein 9B and 4B text only: refused every time with `insufficientCredits`
+  (not a content refusal): klein needs a bigger balance. Z-Image-Turbo (`runware:z-image@turbo`): `thirdPartyInsufficientCredits`,
+  "External inference tasks require a paid invoice or at least $5 credit". The 4th TwinFlow call: `concurrentRequestLimitExceeded`
+  (credits reserved by the call before). Nothing about content was tested on these.
+- TwinFlow Z-Image-Turbo (`runware:twinflow-z-image-turbo@0`, text only, 576x1024, 4-35 s): 3 of 3 drawn exactly as asked, no
+  filter at all: black lace bra + panties (real lingerie, not a romper); sheer mesh bodysuit with nipples visible; full frontal
+  nudity, pubic hair included. Photo-real, natural skin, hands fine, adult face, dark wavy hair with bangs 3/3.
+  Misses: the body is slim with a flat stomach 3/3 (asked: 165 cm, 71 kg, softly rounded belly), and the face is another woman
+  each time (no reference picture on this route). Topless not drawn (the balance ran out of headroom, not refused).
