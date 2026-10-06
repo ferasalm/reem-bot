@@ -336,6 +336,11 @@ const CONFIG = {
     MIN_SCORE: 0.6,                    // how close a match must be (cosine, 0-1)
     MAX_CHARS: 400,                    // of each message, saved and shown
     TIMEOUT_MS: 4000,                  // past this she answers without it
+    // Owner 2026-10-06 (Cloudflare idea 5): a reply that means the same as one of her last REPEAT_LOOKBACK replies
+    // (cosine at least REPEAT_SCORE, in other words too) is asked again once, like a word-for-word repeat. 0 = off
+    REPEAT_SCORE: 0.9,
+    REPEAT_LOOKBACK: 10,
+    REPEAT_MIN_CHARS: 30,              // shorter replies ("hey you") aren't checked: they look alike by nature
     NUDGE: "\n\nTHINGS FROM BEFORE (older moments with him that this reminds you of. Bring one up only if it fits naturally; never list them, never quote them back word for word)\n{moments}",
   },
 
@@ -2193,6 +2198,8 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
   const opener = opening(first.stored);
   // He asked her over and she was told to go (mode "visit"), but she stayed on the phone: asked once more
   const stayed = mode === "visit" && first.kind !== "scene";
+  // the same thing in other words (RECALL.REPEAT_SCORE), checked only when nothing else already asks her again
+  if (!ooc && !first.repeated && !first.copied && !empty && !first.repaired && !stayed && !(opener && recent.includes(opener))) first.repeated = await saidBefore(env, first.stored, history);
   if ((!ooc && opener && recent.includes(opener)) || first.repeated || first.copied || empty || first.repaired || stayed) {
     const nudge = ooc && (empty || first.repaired) ? N.RETRY_OOC : empty ? N.RETRY_EMPTY : stayed ? N.RETRY_VISIT : first.repaired ? N.RETRY_FORMAT : N.RETRY;
     try {
@@ -2230,6 +2237,25 @@ function formatNudge(mode) {
     return fill(N.FORMAT_VOICE || "", { tags });
   }
   return fill(N.FORMAT_TEXT || "");
+}
+
+// Her reply means the same as one of her recent ones (RECALL.REPEAT_SCORE, bge-m3 vectors compared here)
+async function saidBefore(env, reply, history) {
+  const R = CONFIG.RECALL;
+  const text = String(reply || "").replace(/\s+/g, " ").trim();
+  if (!R.REPEAT_SCORE || !env.AI || text.length < R.REPEAT_MIN_CHARS || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return false;
+  const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-R.REPEAT_LOOKBACK).map(recallText).filter((t) => t.length >= R.REPEAT_MIN_CHARS);
+  if (!hers.length) return false;
+  try {
+    const [v, ...old] = await withTimeout(embed(env, [text.slice(0, R.MAX_CHARS), ...hers]), R.TIMEOUT_MS, "repeat check");
+    const cos = (a, b) => { let d = 0, x = 0, y = 0; for (let i = 0; i < a.length; i++) { d += a[i] * b[i]; x += a[i] * a[i]; y += b[i] * b[i]; } return d / (Math.sqrt(x * y) || 1); };
+    const best = Math.max(...old.map((o) => (v && o ? cos(v, o) : 0)));
+    if (best >= R.REPEAT_SCORE) console.log(`repeat check: ${best.toFixed(3)} like an earlier reply, asked again`);
+    return best >= R.REPEAT_SCORE;
+  } catch (e) {
+    console.error("repeat check failed:", aiText_(e));
+    return false;
+  }
 }
 
 // Long memory (RECALL): vectors of the messages that fold out of the chat log, in Vectorize (env.MEMORY_INDEX)

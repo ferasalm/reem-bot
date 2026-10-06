@@ -224,6 +224,14 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq(await W.recallFind({ AI: env.AI }, 7, "june"), "", "no index bound: no recall, no error");
   eq([W.longAgo(Date.now() - 3 * 86400000), W.longAgo(Date.now() - 21 * 86400000), W.longAgo(Date.now() - 90 * 86400000)], ["3 days ago", "3 weeks ago", "3 months ago"], "recall: how long ago, in words");
 }
+{
+  // RECALL.REPEAT_SCORE: the same meaning in other words is caught; a new thing isn't; short replies aren't checked
+  const vec = (t) => (/receipt|napkin/.test(t) ? [1, 0.05] : [0.05, 1]);
+  const env = { AI: { async run(model, input) { return { data: input.text.map(vec) }; } } };
+  const history = [{ role: "assistant", content: "a client paid me with a receipt scribbled on a napkin today" }, { role: "user", content: "lol" }];
+  eq([await W.saidBefore(env, "remember that guy who paid me on a napkin receipt? classic", history), await W.saidBefore(env, "the radiator is singing again and i refuse to call the landlord", history), await W.saidBefore(env, "napkin again", history)],
+    [true, false, false], "repeat check by meaning: same story caught, new one passes, short ones skipped");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

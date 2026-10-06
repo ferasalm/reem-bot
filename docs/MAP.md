@@ -78,6 +78,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
   pictures pushed to branch `face-candidates` (pictures only, listed in retired-branches.txt).
   `bench-models.mjs` + `bench.json` + `.github/workflows/image-bench.yml`: image model bench (`family_of` gives a route its own prompt set, `aspect` the Nano Banana shape; same prompts and
   references through Workers AI, Cloudflare's third-party models, OpenRouter, Runware (`rw-*`, safety check off, `RUNWARE_API_KEY`); capped by `max_usd`; never on dev).
+- `tools/test/recall-check.mjs` + `.github/workflows/recall-check.yml`: real bge-m3 scores for pairs of her replies, to set
+  `RECALL.REPEAT_SCORE` (Workers AI only).
 - `tools/cf-resources.sh` + `.github/workflows/cf-resources.yml`: creates the Cloudflare resources wrangler.toml binds (the Vectorize
   index `reem-memory` for `RECALL`); deploy.yml runs it before every deploy.
 - `tools/voice/bench.mjs` + `bench.json` + `.github/workflows/voice-bench.yml`: Workers AI voice bench (aura-2 clips
