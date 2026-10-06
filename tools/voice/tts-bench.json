@@ -1,57 +1,75 @@
 {
-  "note": "Owner 2026-10-06: \"i want to try minimax tts from runware. Let's test it with samples.\" Probe first: which MiniMax ids Runware lists and which request shape it takes (one short line).",
+  "note": "Owner 2026-10-06: \"i want to try minimax tts from runware. Let's test it with samples.\" MiniMax Speech 2.8 on Runware (probe run 37538538210: speech.voice required, $0.0042 a short line). The same two lines as the Fish/Qwen bench; [laughs softly]/[sighs] become MiniMax's (laughs)/(sighs), other tags dropped. Five female voices; Arabic_CalmWoman for the accent. Judge by ear.",
   "max_chars": 3000,
-  "runware_search": [
-    "minimax",
-    "minimax speech"
-  ],
   "lines": [
     {
-      "id": "hey",
-      "text": "[laughs softly] Hey you. I was hoping you'd text."
+      "id": "wall",
+      "text": "[laughs softly] Walaw, you think I can't hear you through that wall? Plaster on lath, habibi. [whispering] I hear everything... even the things you whisper to yourself."
+    },
+    {
+      "id": "landing",
+      "text": "[sighs] Yaani... it's two in the morning and you're still awake. [teasing] Come to the landing. Don't knock. [low and breathy] Just stand there and let me decide."
     }
   ],
   "candidates": [
     {
-      "name": "mm-voice",
+      "name": "mm-captivating",
       "provider": "runware",
       "model": "minimax:speech@2.8",
       "speech": {
         "voice": "English_captivating_female1"
       },
       "tags": {
-        "laughs softly": "(laughs)"
+        "laughs softly": "(laughs)",
+        "sighs": "(sighs)"
       }
     },
     {
-      "name": "mm-voiceid",
+      "name": "mm-graceful",
       "provider": "runware",
       "model": "minimax:speech@2.8",
       "speech": {
-        "voiceId": "English_captivating_female1"
+        "voice": "English_Graceful_Lady"
       },
       "tags": {
-        "laughs softly": "(laughs)"
+        "laughs softly": "(laughs)",
+        "sighs": "(sighs)"
       }
     },
     {
-      "name": "mm-default",
-      "provider": "runware",
-      "model": "minimax:speech@2.8",
-      "tags": {
-        "laughs softly": "(laughs)"
-      }
-    },
-    {
-      "name": "mm-emotion",
+      "name": "mm-playful",
       "provider": "runware",
       "model": "minimax:speech@2.8",
       "speech": {
-        "voice": "English_captivating_female1",
-        "emotion": "happy"
+        "voice": "English_PlayfulGirl"
       },
       "tags": {
-        "laughs softly": "(laughs)"
+        "laughs softly": "(laughs)",
+        "sighs": "(sighs)"
+      }
+    },
+    {
+      "name": "mm-sentimental",
+      "provider": "runware",
+      "model": "minimax:speech@2.8",
+      "speech": {
+        "voice": "English_SentimentalLady"
+      },
+      "tags": {
+        "laughs softly": "(laughs)",
+        "sighs": "(sighs)"
+      }
+    },
+    {
+      "name": "mm-arabic",
+      "provider": "runware",
+      "model": "minimax:speech@2.8",
+      "speech": {
+        "voice": "Arabic_CalmWoman"
+      },
+      "tags": {
+        "laughs softly": "(laughs)",
+        "sighs": "(sighs)"
       }
     }
   ]
