@@ -471,7 +471,10 @@ step("/spend (owner 2026-10-06): today's money from OpenRouter's and Runware's o
   const t = calls.filter((c) => c.m === "sendMessage").at(-1).b.text;
   console.log("spend: OpenRouter:", /OpenRouter.*\$0\.041 today, \$3\.50 this month, \$1\.25 credit left/.test(t), "| Runware:", /Runware.*\$0\.006 today, \$19\.07 left/.test(t), "| Cloudflare:", /12,000 of 50,000 neurons.*\$0\.02 past the free/.test(t));
   await W.drawPicture(env, "test", {}).catch(() => {});
-  console.log("Workers AI calls go through the AI Gateway:", opts.length > 0 && opts.every((o) => o && o.gateway && o.gateway.id === "default"));
+  console.log("pictures go straight to Workers AI (the gateway refuses uploads):", opts.length > 0 && opts.every((o) => !o || !o.gateway));
+  opts.length = 0; env.AI.run = async (model, input, o) => { opts.push(o); return input.messages ? { choices: [{ message: { content: "hi there you" } }] } : { data: [[1]] }; };
+  await W.askModel(env, [{ role: "user", content: "hi" }], { max_tokens: 9 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1 });
+  console.log("text goes through the AI Gateway:", opts.length === 1 && opts[0].gateway.id === "default");
   globalThis.fetch = fetch0; delete env.RUNWARE_API_KEY; delete env.AI; store.delete("pics");
 }
 

@@ -2649,7 +2649,9 @@ async function aiRun(env, model, input, timeoutMs, retry = true, options = undef
   });
   late.catch(() => {});
   try {
-    const gw = CONFIG.AI_BUDGET.GATEWAY;
+    // the AI Gateway only for text and vectors (JSON): it refuses picture uploads ("AI Gateway does not support
+    // ReadableStreams yet", deploy run 37547182886), so pictures, voice and hearing go straight to Workers AI
+    const gw = CONFIG.AI_BUDGET.GATEWAY && input && (Array.isArray(input.messages) || Array.isArray(input.text)) ? CONFIG.AI_BUDGET.GATEWAY : "";
     const opts = gw ? { ...(options || {}), gateway: { id: gw } } : options;
     return await Promise.race([opts ? env.AI.run(model, input, opts) : env.AI.run(model, input), late]);
   } catch (e) {
@@ -4943,7 +4945,7 @@ async function setup(url, env) {
     for (const [model, label] of models) {
       if (/^@cf\//.test(model)) {
         try {
-          await askModel(env, [{ role: "user", content: "Reply with: OK" }], { max_tokens: 5 }, { model, timeoutMs: 20000, attempts: 1 });
+          await askModel(env, [{ role: "user", content: "Say hello in five words." }], { max_tokens: 40 }, { model, timeoutMs: 20000, attempts: 1 });
           add(true, `Workers AI: ${model}${label}`, "Model answered.");
         } catch (e) {
           add(false, `Workers AI: ${model}${label}`, e.message);

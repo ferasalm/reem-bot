@@ -1,0 +1,23 @@
+name: Cloudflare probe
+
+# A quick look at a Workers AI text model's answers (tools/test/cf-probe.mjs). Cloudflare only (no OpenRouter).
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Workers AI model"
+        default: "@cf/deepseek-ai/deepseek-v4-flash-0731"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/test/cf-probe.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROBE_MODEL: ${{ github.event.inputs.model }}
