@@ -295,40 +295,40 @@ const CONFIG = {
 
   /* ---------------- Brain (OpenRouter) ---------------- */
   LLM: {
-    MODEL: "deepseek/deepseek-v4-flash", // owner 2026-10-06: back to DeepSeek (Nemo's replies shrank to a word or two)
+    MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // owner 2026-10-06: DeepSeek on Workers AI first ("it succeeds even with explicit texts"),
+                                       // the same DeepSeek on OpenRouter as the backup (BACKUP_MODEL with BACKUP_PROVIDER)
     // Novita, Baidu and StreamLake ignore min_p; Relace and the backup model use it
     SAMPLING: { temperature: 0.95, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 420 },
-    // OpenRouter routing, sent only with MODEL (memory and /auto too, while they use the same model).
-    // Provider slugs as OpenRouter lists them; allow_fallbacks: false = never any other provider.
-    PROVIDER: {
+    // OpenRouter routing for a model there: PROVIDER/REASONING go with MODEL, BACKUP_* with BACKUP_MODEL (none for a @cf/ model).
+    PROVIDER: {},
+    REASONING: {},
+    BACKUP_MODEL: "deepseek/deepseek-v4-flash", // one try with this model when every try with MODEL failed; "" = off. Owner 2026-10-06:
+                                       // DeepSeek on OpenRouter is the backup now (was the main; Nemo before that)
+    // Provider slugs as OpenRouter lists them; allow_fallbacks: false = never any other provider (the 2026-10-01 bench).
+    BACKUP_PROVIDER: {
       order: ["novita", "baidu", "relace", "streamlake"],
       ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], // filter, cut replies, or rate-limited
       allow_fallbacks: false,
     },
-    REASONING: { enabled: false },     // no thinking step: faster, cheaper, and the bench was run this way
-    BACKUP_MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // one try with this model when every try with MODEL failed; "" = off. Owner 2026-10-06:
-                                       // the same DeepSeek on Workers AI (no OpenRouter credit needed); was Mistral Nemo
-    // OpenRouter routing sent with BACKUP_MODEL. Empty = OpenRouter picks the provider.
-    BACKUP_PROVIDER: {},
-    BACKUP_REASONING: {},              // Mistral Nemo has no thinking step
+    BACKUP_REASONING: { enabled: false }, // no thinking step: faster, cheaper, and the bench was run this way
     // Reply length per kind of reply (max_tokens above is used if one is missing). Shorter = less rambling.
     MAX_TOKENS: { TEXT: 220, VOICE: 120, SCENE: 380 },
     // How much of the chat is sent with each reply, in tokens. The oldest messages are left out so the
     // prompt always fits. DeepSeek V4 Flash reads far more; this keeps replies fast and cheap.
     CONTEXT_TOKENS: 32768,
-    // The same for the backup model (Mistral Nemo): when it answers, older messages
+    // The same for the backup model: when it answers, older messages
     // are left out first, so OpenRouter never cuts the middle (her rules) out silently.
     BACKUP_CONTEXT_TOKENS: 32768,
     CHARS_PER_TOKEN: 3.5,              // rough estimate used for both (lower = safer)
     RETRY_TEMPERATURE: 1.05,           // the second try, when her first reply repeated herself
-    TIMEOUT_MS: 15000,
-    ATTEMPTS: 2,                       // tries per reply when OpenRouter fails
+    TIMEOUT_MS: 20000,                 // one Workers AI call once took over 15 s (live run 37544942514)
+    ATTEMPTS: 2,                       // tries per reply when the model fails
     RETRY_DELAY_MS: 1500,
   },
 
   /* ---------------- Long-term memory ---------------- */
   MEMORY: {
-    MODEL: "deepseek/deepseek-v4-flash", // same as LLM.MODEL, so it gets its providers (LLM.PROVIDER)
+    MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // same as LLM.MODEL (Workers AI); LLM.BACKUP_MODEL when it fails
     PROMPT: MEMORY_PROMPT,             // defined above
     SAMPLING: { temperature: 0.3, max_tokens: 600 },
     TIMEOUT_MS: 25000,
@@ -447,7 +447,8 @@ const CONFIG = {
   HEARING: {
     // Gemini on OpenRouter first (owner 2026-10-05: "Go with Gemini 3.8 flash for voice"): it hears his words, Arabic and
     // Arabizi, and writes laughs, sighs and tone in parentheses (stt bench run 37266123079); Whisper when it fails
-    OR_MODEL: "google/gemini-3.8-flash", // OpenRouter, audio in (Telegram's OGG as is); "" = Whisper first
+    OR_MODEL: "google/gemini-3.8-flash", // OpenRouter, audio in (Telegram's OGG as is); "" = never
+    OR_FIRST: false,                   // owner 2026-10-06: Whisper (Workers AI) first, Gemini when it fails; true = Gemini first
     OR_PROMPT: "This is a voice note a man sent to a woman on Telegram. Transcribe it exactly as spoken: English in English, Arabic in Arabic script, Arabizi or Arabic words mixed into English in Latin letters as he says them (habibti, yalla, khalas). Put non-speech sounds and tone in parentheses where they happen, for example (laughs), (sighs), (whispering), (teasing), (annoyed), only when you clearly hear them. Output only the transcript.",
     OR_TIMEOUT_MS: 25000,              // Gemini's limit before Whisper takes over
     OR_MAX_SECONDS: 300,               // longer voice notes go straight to Whisper (cost: about $0.02 a minute on Gemini)
@@ -624,7 +625,7 @@ Changing the story
    * The draft is tap-to-copy, so he can also edit it and send it himself.
    */
   AUTO: {
-    MODEL: "deepseek/deepseek-v4-flash", // same as LLM.MODEL, so it gets its providers (LLM.PROVIDER)
+    MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // same as LLM.MODEL (Workers AI); LLM.BACKUP_MODEL when it fails
     SAMPLING: { temperature: 1.0, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 160 },
     TIMEOUT_MS: 15000,
     TRANSCRIPT_MAX_CHARS: 6000,        // how much of the recent chat the draft is based on
@@ -3809,16 +3810,23 @@ async function transcribe(env, fileId, mime, seconds) {
   if (!audio?.ok) throw new ApiError("Couldn't download the voice note from Telegram.", true);
   const bytes = await audio.arrayBuffer();
 
-  // Gemini on OpenRouter first (words, Arabic, laughs and tone); Whisper when it fails
-  if (H.OR_MODEL && env.OPENROUTER_API_KEY && (Number(seconds) || 0) <= (Number(H.OR_MAX_SECONDS) || 300) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) {
+  // HEARING.OR_FIRST: Gemini on OpenRouter first (words, Arabic, laughs and tone), else Whisper first and Gemini when it
+  // fails (owner 2026-10-06: OpenRouter only as the main for her voice); ElevenLabs Scribe last
+  const gemini = async () => {
+    if (!(H.OR_MODEL && env.OPENROUTER_API_KEY && (Number(seconds) || 0) <= (Number(H.OR_MAX_SECONDS) || 300) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 3)) return null;
     try {
       return await hearWithGemini(env, bytes);
     } catch (e) {
-      await aiFailed(env, `hearing a voice note with ${H.OR_MODEL}: ${aiText_(e)}; used ${H.MODEL || H.BACKUP_MODEL}`);
+      await aiFailed(env, `hearing a voice note with ${H.OR_MODEL}: ${aiText_(e)}; used ${H.OR_FIRST ? H.MODEL || H.BACKUP_MODEL : H.BACKUP_MODEL}`);
+      return null;
     }
+  };
+  if (H.OR_FIRST) {
+    const heard = await gemini();
+    if (heard != null) return heard;
   }
 
-  // Workers AI (counted in the day's AI budget); ElevenLabs when it fails or the budget is spent
+  // Workers AI (counted in the day's AI budget)
   if (H.MODEL && env.AI && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
     const ledger = await loadLedger(env);
     const neurons = Math.ceil((Math.max(Number(seconds) || 0, 1) / 60) * CONFIG.AI_BUDGET.HEARING_NEURONS_PER_MIN);
@@ -3834,16 +3842,20 @@ async function transcribe(env, fileId, mime, seconds) {
         return text.trim();
       } catch (e) {
         error = e;
-        await aiFailed(env, `hearing a voice note: ${aiText_(e)}${H.BACKUP_MODEL ? `; used ${H.BACKUP_MODEL}` : ""}`);
-        if (!H.BACKUP_MODEL) throw new ApiError(`Workers AI speech-to-text: ${aiText_(e)}`, false);
+        const next = !H.OR_FIRST && H.OR_MODEL && env.OPENROUTER_API_KEY ? H.OR_MODEL : H.BACKUP_MODEL;
+        await aiFailed(env, `hearing a voice note with ${H.MODEL}: ${aiText_(e)}${next ? `; used ${next}` : ""}`);
       } finally {
         aiSpent(ledger, neurons, error);
         await saveLedger(env, ledger);
       }
     }
   }
-  if (!H.BACKUP_MODEL && H.MODEL) throw new ApiError("Speech-to-text: today's Workers AI budget is spent and no backup is set.", false);
-  return scribe(env, H.BACKUP_MODEL || "scribe_v2", bytes, mime, path);
+  if (!H.OR_FIRST) {
+    const heard = await gemini();
+    if (heard != null) return heard;
+  }
+  if (!H.BACKUP_MODEL || !env.ELEVENLABS_API_KEY) throw new ApiError("Speech-to-text: every way of hearing failed (see /setup).", false);
+  return scribe(env, H.BACKUP_MODEL, bytes, mime, path);
 }
 
 // His voice note heard by an audio model on OpenRouter (HEARING.OR_MODEL): the transcript, with (laughs) and the like

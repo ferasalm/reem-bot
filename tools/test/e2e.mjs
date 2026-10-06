@@ -49,6 +49,9 @@ const W = await loadWorker(); const mod = W.default;
 W.CONFIG.VOICE.PROVIDER = "aura"; // the default is OpenRouter (Sulafat); the flows below were written for aura with ElevenLabs behind it, the OpenRouter step switches it itself
 W.CONFIG.PICTURE.ROUTE = "cloudflare"; // the default is Runware klein (owner 2026-10-06); these flows were written for the Cloudflare route
 W.CONFIG.DAY.WEATHER = false; W.CONFIG.DAY.PLAN = false; // her real day (DAY) is tested on its own: these count AI calls
+{ const L = W.CONFIG.LLM; // the defaults are DeepSeek on Workers AI first, OpenRouter's the backup (owner 2026-10-06); these flows mock OpenRouter as the main
+  Object.assign(L, { MODEL: L.BACKUP_MODEL, PROVIDER: L.BACKUP_PROVIDER, REASONING: L.BACKUP_REASONING, BACKUP_MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", BACKUP_PROVIDER: {}, BACKUP_REASONING: {} });
+  W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL; W.CONFIG.HEARING.OR_FIRST = true; }
 const ctx = { waitUntil(){} };
 let uid = 1;
 const msg = (m) => ({ body: { update_id: uid, message: { message_id: 1000 + uid++, chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock/1000, ...m } }, ack(){} });
@@ -470,6 +473,36 @@ step("/spend (owner 2026-10-06): today's money from OpenRouter's and Runware's o
   await W.drawPicture(env, "test", {}).catch(() => {});
   console.log("Workers AI calls go through the AI Gateway:", opts.length > 0 && opts.every((o) => o && o.gateway && o.gateway.id === "default"));
   globalThis.fetch = fetch0; delete env.RUNWARE_API_KEY; delete env.AI; store.delete("pics");
+}
+
+step("owner 2026-10-06: texts and hearing on Cloudflare first, OpenRouter only when it fails (the real defaults)");
+{
+  const L = W.CONFIG.LLM, H = W.CONFIG.HEARING; const savedL = { ...L }, mem = W.CONFIG.MEMORY.MODEL, auto = W.CONFIG.AUTO.MODEL, orFirst = H.OR_FIRST;
+  Object.assign(L, { MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", PROVIDER: {}, REASONING: {}, BACKUP_MODEL: "deepseek/deepseek-v4-flash", BACKUP_PROVIDER: savedL.PROVIDER, BACKUP_REASONING: savedL.REASONING });
+  H.OR_FIRST = false; W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL;
+  const picsOn = W.CONFIG.PICTURE.ENABLED; W.CONFIG.PICTURE.ENABLED = false;
+  let cfDown = false; const ai = [];
+  env.AI = { async run(model, input) { ai.push(model); if (cfDown) throw new Error("3040: capacity"); if (input.messages) return { choices: [{ message: { content: "workers ai here, habibi" }, finish_reason: "stop" }] }; if (input.audio) return { text: "whisper heard: come up" }; throw new Error("x"); } };
+  const orBefore = prompts.length;
+  llm = [{ content: "openrouter here" }];
+  await run(msg({ text: "you there?" }));
+  let sent = calls.filter((c) => c.m === "sendMessage").at(-1).b.text;
+  console.log("text from Workers AI, OpenRouter not asked:", ai.includes(L.MODEL) && /workers ai here/.test(sent) && prompts.length === orBefore);
+  cfDown = true; llm = [{ content: "openrouter here, the backup" }];
+  await run(msg({ text: "hello??" }));
+  sent = calls.filter((c) => c.m === "sendMessage").at(-1).b.text;
+  console.log("Workers AI down -> DeepSeek on OpenRouter, with its providers:", /openrouter here, the backup/.test(sent) && prompts.at(-1).model === "deepseek/deepseek-v4-flash" && prompts.at(-1).provider?.order?.[0] === "novita");
+  cfDown = false; gemini.mode = "hear"; gemini.calls.length = 0;
+  llm = [{ content: "coming" }];
+  await run(msg({ voice: { file_id: "w1", duration: 5 } }));
+  const heard = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
+  console.log("Whisper hears first, Gemini not asked:", /whisper heard: come up/.test(heard) && gemini.calls.length === 0);
+  cfDown = true; llm = [{ content: "ok" }];
+  await run(msg({ voice: { file_id: "w2", duration: 5 } }));
+  const heard2 = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
+  console.log("Whisper down -> Gemini on OpenRouter:", gemini.calls.length === 1 && /come over/.test(heard2));
+  Object.assign(L, savedL); W.CONFIG.MEMORY.MODEL = mem; W.CONFIG.AUTO.MODEL = auto; H.OR_FIRST = orFirst; gemini.mode = "fail";
+  W.CONFIG.PICTURE.ENABLED = picsOn; delete env.AI; store.delete("pics"); store.delete("ai_error");
 }
 
 step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip, failures as notes, money today");

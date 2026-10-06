@@ -10,7 +10,8 @@ import { loadWorker } from "./load-worker.mjs";
 
 // LIVE_MODEL "@cf/..." (owner 2026-10-06: no OpenRouter in tests): the model on Workers AI through its REST API
 // (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID), memory and /auto on it too, and no OpenRouter key at all
-const onCloudflare = /^@cf\//.test(process.env.LIVE_MODEL || "");
+const W = await loadWorker();
+const onCloudflare = /^@cf\//.test(process.env.LIVE_MODEL || W.CONFIG.LLM.MODEL); // LLM.MODEL is on Workers AI since 2026-10-06
 const { CLOUDFLARE_API_TOKEN: cfToken, CLOUDFLARE_ACCOUNT_ID: cfAccount } = process.env;
 if (onCloudflare && !(cfToken && cfAccount)) {
   console.log("LIVE_MODEL is a Workers AI model: set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.");
@@ -25,14 +26,14 @@ if (!key && !onCloudflare) {
 }
 const RUNS = Number(process.env.LIVE_RUNS) || 3;
 const ONLY = (process.env.LIVE_ONLY || "").split(",").filter(Boolean);
-const W = await loadWorker();
 const L = W.CONFIG.LLM;
 // LIVE_MODEL: ask another model in LLM.MODEL's place, to compare (the backup model keeps its own providers)
 if (process.env.LIVE_MODEL) {
   const backup = process.env.LIVE_MODEL === L.BACKUP_MODEL;
   Object.assign(L, { MODEL: process.env.LIVE_MODEL, PROVIDER: backup ? L.BACKUP_PROVIDER : {}, REASONING: backup ? L.BACKUP_REASONING : {}, BACKUP_MODEL: backup ? "" : L.BACKUP_MODEL });
-  if (onCloudflare) { L.BACKUP_MODEL = ""; W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL; }
 }
+// on Workers AI: no OpenRouter backup in a test (no key), memory and /auto on the same model
+if (onCloudflare) { L.BACKUP_MODEL = ""; W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL; }
 // The backup stays set (memory and /auto use its model and routing), but a reply the backup wrote counts as broken:
 // a DeepSeek failure must show up as a failure, not as a Nemo reply
 const byBackup = (tries) => !!L.BACKUP_MODEL && tries.some((t) => t.startsWith(L.BACKUP_MODEL));

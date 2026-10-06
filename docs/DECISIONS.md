@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Cloudflare first for texts and hearing, OpenRouter the backup; deploy** (owner: "Swap between text main and
+  backup, putting cloudflare to the main and openrouter to backup, since it succeeds even with explicit texts. Now openorouter will only
+  handle voice as main. Then deploy."): `LLM.MODEL`, `MEMORY.MODEL`, `AUTO.MODEL` `@cf/deepseek-ai/deepseek-v4-flash-0731`;
+  `LLM.BACKUP_MODEL` `deepseek/deepseek-v4-flash` with the old providers and reasoning off (`BACKUP_PROVIDER`, `BACKUP_REASONING`);
+  `HEARING.OR_FIRST` false: Whisper first, Gemini when it fails, Scribe last. OpenRouter's main job: Sulafat. `LLM.TIMEOUT_MS` 20 s.
+  *Supersedes the main/backup order of the entry below (same day).*
 - 2026-10-06 — **OpenRouter only for DeepSeek, Sulafat and Gemini; backups on Cloudflare; Cloudflare ideas 1-6** (owner: "From
   Openrouter, Remove nanobanana, and Nemo, Keeping only deepseek, sulafat, and Gemini. Let's do cloudflare's ideas from 1 to 6 but Test
   idea 2 first (test cloudflare's deepseek). I am thinking we could make it a backup. So the bot is openrouter (text, voice, listening),

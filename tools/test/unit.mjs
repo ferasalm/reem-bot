@@ -167,18 +167,19 @@ W.applyOverrides({ CONFIG_OVERRIDES: JSON.stringify({ VOICE: { PRONUNCIATIONS: {
 eq(Object.keys(W.CONFIG.VOICE.PRONUNCIATIONS), ["ya3ni"], "pronunciations replaced whole");
 eq(W.forSpeech("ya3ni 7abibi"), "Yani habibi.", "override + fallback");
 // OpenRouter routing: LLM.PROVIDER/REASONING with LLM.MODEL (DeepSeek), LLM.BACKUP_* with the backup (Nemo)
-eq(W.CONFIG.LLM.MODEL, "deepseek/deepseek-v4-flash", "chat model: DeepSeek V4 Flash (owner 2026-10-06)");
-const ds = W.openRouterBody(W.CONFIG.LLM.MODEL, [], { max_tokens: 5 });
-eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "DeepSeek: provider + reasoning");
-eq(W.CONFIG.LLM.BACKUP_MODEL, "@cf/deepseek-ai/deepseek-v4-flash-0731", "backup: DeepSeek on Workers AI (owner 2026-10-06, Nemo removed)");
+eq(W.CONFIG.LLM.MODEL, "@cf/deepseek-ai/deepseek-v4-flash-0731", "chat model: DeepSeek on Workers AI first (owner 2026-10-06)");
+eq(W.CONFIG.LLM.BACKUP_MODEL, "deepseek/deepseek-v4-flash", "backup: DeepSeek on OpenRouter (owner 2026-10-06)");
+const ds = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 });
+eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "OpenRouter backup: DeepSeek's providers + reasoning off");
+eq(W.CONFIG.HEARING.OR_FIRST, false, "hearing: Whisper (Workers AI) first, Gemini when it fails (owner 2026-10-06)");
 eq(W.CONFIG.PICTURE.LINGERIE.ENABLED, false, "Nano Banana removed (owner 2026-10-06)");
 eq(Object.keys(W.openRouterBody("sao10k/l3-lunaris-8b", [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "another model: no routing");
 eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.MODEL), true, "memory and /auto use DeepSeek (the chat model's routing)");
 {
   const saved = structuredClone(W.CONFIG.LLM);
-  W.CONFIG.LLM.PROVIDER.ignore = [];
-  W.CONFIG.LLM.REASONING = {};
-  const b = W.openRouterBody(W.CONFIG.LLM.MODEL, [], {});
+  W.CONFIG.LLM.BACKUP_PROVIDER.ignore = [];
+  W.CONFIG.LLM.BACKUP_REASONING = {};
+  const b = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], {});
   eq({ ignore: "ignore" in b.provider, reasoning: "reasoning" in b }, { ignore: false, reasoning: false }, "empty routing values dropped");
   W.CONFIG.LLM = saved;
 }
