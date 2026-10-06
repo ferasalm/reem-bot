@@ -524,6 +524,7 @@ const CONFIG = {
     { command: "pics", aliases: ["selfie", "selfies"], action: "pics", description: "Ask {name} to send pictures more often (on/off)" },
     { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now, when you're with {name}" },
     { command: "pic", aliases: ["photo", "custom"], action: "pic", description: "A picture of {name} as you describe it: /pic <hair, makeup, clothes, pose, framing, angle>" },
+    { command: "album", aliases: ["gallery"], action: "album", description: "Every picture {name} has sent you, 10 at a time: /album [page]" },
     { command: "face", aliases: [], action: "face", description: "{name}'s face in her pictures: /face draws new ones to pick from" },
     { command: "restart", aliases: ["start"], action: "restart", description: "Start the story over (wipes her memory)" },
   ],
@@ -572,6 +573,9 @@ Changing the story
     LOOK_NONE: "Her last reply doesn't say enough about her to draw. Try again after her next reply.",
     LOOK_OFF: "No pictures right now (turned off, today's picture budget is spent, or Workers AI isn't connected: see /setup).",
     LOOK_FAILED: "The picture couldn't be drawn this time. Try again in a moment.",
+    ALBUM_EMPTY: "No pictures from {name} yet.",
+    ALBUM_PAGE: "Pictures {from}-{to} of {total}, oldest first.{more}", // {from} {to} {total} {more}
+    ALBUM_MORE: " Older ones: {cmd} {next}",  // {cmd} {next}
     // /pic: a picture of her as he describes it (PICTURE.CUSTOM)
     PIC_HELP: "Describe the picture of {name} you want after /pic: her hair, makeup, clothes, pose, framing and camera angle, and where. She keeps her face. For example:\n/pic hair in a high ponytail, red lipstick, black satin slip dress, leaning on the kitchen counter, full body, low angle\n/pic messy bun, no makeup, oversized gray hoodie, curled up on the couch with tea, close-up from above",
     PIC_NOT_DRAWN: "That one can't be drawn. Try other words.",
@@ -757,6 +761,7 @@ Changing the story
     TIMEOUT_MS: 120000,                // klein took 9-238 s on 2026-10-03 (most under 60 s; 2 of 25 over 2 min)
     CHANCE: 0.1,                       // apart, per reply (voice: 0.1). Owner 2026-10-03: more pictures (was 0.05)
     CHANCE_AFTER_PHOTO: 0.45,          // ...when he just sent a photo (voice: 0.6 after his voice note)
+    ALBUM_MAX: 500,                    // pictures /album keeps (Telegram's ids in KV: nothing is stored twice or drawn again)
     CHANCE_MORE: 0.3,                  // ...when /pics is on (voice: 0.5 with /voice)
     SCENE_CHANCE: 0.15,                // in person, per reply (voice clip: 0.25)
     // He asks for a picture (apart) or to see her (in person): a regular expression, any case. Only his own words count.
@@ -1308,7 +1313,7 @@ async function handleBatch(updates, env, ctx, deadline) {
 const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit", "look", "pic"]);
 
 // Commands answered straight from the webhook, never queued: they only show or change his settings
-const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face"]);
+const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face", "album"]);
 
 function isQuickCommand(update) {
   const m = update && update.message;
@@ -1373,6 +1378,7 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
   if (action === "about") return aboutCommand(env, chatId, args);
   if (action === "pics") return picsCommand(env, chatId);
   if (action === "face") return faceCommand(env, chatId, args, msg);
+  if (action === "album") return albumCommand(env, chatId, args);
 
   // Story commands: the command message itself is removed once it's done
   if (CONFIG.TELEGRAM.CLEAN_COMMANDS && msg.message_id) await deleteIds(env, chatId, [msg.message_id]);
@@ -3213,8 +3219,8 @@ function placePictures(key) {
   return crops.length ? crops : pics[key] ? [pics[key]] : [];
 }
 
-// Sends picture bytes. Returns the message id, or null.
-async function sendPhoto(env, chatId, bytes, caption = "") {
+// Sends picture bytes. Returns the message id, or null. `sent` gets Telegram's message (its photo ids).
+async function sendPhoto(env, chatId, bytes, caption = "", sent = null) {
   const form = new FormData();
   form.append("chat_id", String(chatId));
   if (caption) form.append("caption", caption);
@@ -3223,6 +3229,7 @@ async function sendPhoto(env, chatId, bytes, caption = "") {
     const res = await xfetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendPhoto`, { method: "POST", body: form });
     const data = await res.json().catch(() => null);
     if (!data?.ok) console.error("sendPhoto failed", data?.description || res.status);
+    if (sent && data?.ok && data.result) Object.assign(sent, data.result);
     return data?.ok && data.result ? data.result.message_id : null;
   } catch (e) {
     console.error("sendPhoto got no answer", e);
@@ -3458,8 +3465,10 @@ async function deliverPicture(env, chatId, ledger, drawing) {
       return null;
     }
     await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
-    const id = await sendPhoto(env, chatId, pic.bytes);
+    const sent = {};
+    const id = await sendPhoto(env, chatId, pic.bytes, "", sent);
     if (id == null) return null;
+    await albumAdd(env, chatId, sent).catch((e) => console.error("album: couldn't save", e));
     ledger.hashes.push(hash);
     if (pic.kind === "selfie") {
       ledger.recent.push(pic.what);
@@ -3469,6 +3478,35 @@ async function deliverPicture(env, chatId, ledger, drawing) {
   } finally {
     if (drawing) await saveLedger(env, ledger);
   }
+}
+
+/* --- /album: every picture she sent (owner 2026-10-06, Cloudflare idea 6), as Telegram's own photo ids in KV --- */
+
+async function albumAdd(env, chatId, sent) {
+  const sizes = (sent && sent.photo) || [];
+  const fileId = sizes.length ? sizes[sizes.length - 1].file_id : null;
+  if (!fileId || !env.REEM_KV) return;
+  const list = (await env.REEM_KV.get(`al:${chatId}`, "json")) || [];
+  list.push({ f: fileId, at: Date.now() });
+  await env.REEM_KV.put(`al:${chatId}`, JSON.stringify(list.slice(-(Number(CONFIG.PICTURE.ALBUM_MAX) || 500))));
+}
+
+// /album [page]: page 1 = the newest 10, page 2 the 10 before them...
+async function albumCommand(env, chatId, args) {
+  const M = CONFIG.MESSAGES;
+  if (!env.REEM_KV) return notice(env, chatId, M.NEEDS_MEMORY);
+  const list = (await env.REEM_KV.get(`al:${chatId}`, "json")) || [];
+  if (!list.length) return notice(env, chatId, M.ALBUM_EMPTY);
+  const pages = Math.ceil(list.length / 10);
+  const page = Math.min(Math.max(parseInt(args, 10) || 1, 1), pages);
+  const end = list.length - (page - 1) * 10;
+  const shown = list.slice(Math.max(0, end - 10), end);
+  const more = page < pages ? fill(M.ALBUM_MORE, { cmd: commandFor("album"), next: page + 1 }) : "";
+  const caption = M.NOTICE_PREFIX + fill(M.ALBUM_PAGE, { from: end - shown.length + 1, to: end, total: list.length, more });
+  const r = shown.length === 1
+    ? await tg(env, "sendPhoto", { chat_id: chatId, photo: shown[0].f, caption })
+    : await tg(env, "sendMediaGroup", { chat_id: chatId, media: shown.map((p, i) => ({ type: "photo", media: p.f, ...(i ? {} : { caption }) })) });
+  if (!r.ok) console.error("album failed", r.description);
 }
 
 /* --- /look, /pics and /face --- */

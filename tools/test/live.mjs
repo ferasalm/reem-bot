@@ -53,11 +53,15 @@ console.log(`Model: ${L.MODEL} | providers: ${JSON.stringify(L.PROVIDER)} | reas
 
 const env = { OPENROUTER_API_KEY: key };
 // the AI binding, through Cloudflare's REST API (what env.AI.run does inside the Worker)
+// LIVE_CF_REASONING: another reasoning_effort for the @cf model (the Worker sends "none"); empty answers are printed raw
+let rawShown = 0;
 if (onCloudflare) env.AI = { async run(model, input) {
+  if (process.env.LIVE_CF_REASONING && input.messages) input = { ...input, reasoning_effort: process.env.LIVE_CF_REASONING };
   const res = await realFetch(`https://api.cloudflare.com/client/v4/accounts/${cfAccount}/ai/run/${model}`, {
     method: "POST", headers: { Authorization: `Bearer ${cfToken}`, "Content-Type": "application/json" }, body: JSON.stringify(input) });
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.success === false) throw new Error(`${res.status} ${JSON.stringify(data.errors || data).slice(0, 300)}`);
+  if ((data.result?.usage?.completion_tokens ?? 2) <= 1 && rawShown++ < 4) console.log(`      RAW (${input.reasoning_effort}): ${JSON.stringify(data.result).slice(0, 700)}`);
   served.push(`${model} @ workers-ai${data.result?.usage ? ` (${data.result.usage.prompt_tokens} in${data.result.usage.prompt_tokens_details?.cached_tokens ? `, ${data.result.usage.prompt_tokens_details.cached_tokens} cached` : ""}, ${data.result.usage.completion_tokens} out)` : ""}`);
   return data.result;
 } };

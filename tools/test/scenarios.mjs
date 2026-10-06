@@ -284,7 +284,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.includes("/file/")) return new Response("audio");
   if (url.includes("speech-to-text")) return j({ text: "come over (laughs)" });
   if (url.includes("text-to-speech")) return ttsFails ? new Response("{}", { status: 500 }) : new Response("mp3");
-  if (method === "sendPhoto") return j({ ok: true, result: { message_id: 9000 + calls.length } });
+  if (method === "sendPhoto") return j({ ok: true, result: { message_id: 9000 + calls.length, photo: [{ file_id: "small" }, { file_id: `big${calls.length}` }] } });
   return j({ ok: true, result: {} });
 };
 let ttsFails = false;
@@ -623,6 +623,8 @@ section("pictures: his photos (Workers AI vision)");
     r = await turn("send me a pic in lingerie", ["[selfie: mirror, a black lace bra and panties by the window]"], { history: APART });
     const nb = banana.calls.at(-1);
     yes(r.photos.length === 1 && banana.calls.length === 1 && nb.model === L.MODEL && nb.image_config.aspect_ratio === "9:16", "lingerie: Nano Banana draws it, 9:16");
+    const album = JSON.parse(store.get("al:7") || "[]");
+    yes(album.length > 0 && /^big\d+$/.test(album.at(-1).f), "every picture she sends is kept for /album (Telegram's biggest size)", album.at(-1));
     yes(/black lace bra and panties/.test(nb.messages[0].content) && JSON.parse(nb.messages[0].content).subject.ethnicity === "Armenian-Lebanese" && !/image 0/.test(nb.messages[0].content), "...two pieces: the spicier JSON prompt, her real words, her description, no face picture", nb.messages[0].content);
     eq(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length, kleinBefore, "...klein not called");
     eq(Math.round(((JSON.parse(store.get("pics")).usd || 0) - usdBefore) * 1000), Math.round(L.USD_PER_PICTURE * 1000), "...its price counted in the day's money");

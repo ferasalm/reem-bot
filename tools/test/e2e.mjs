@@ -36,6 +36,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (url.includes("speech-to-text")) return j({ text: "hello there (laughs)" });
   if (url.includes("text-to-speech")) return ttsFail ? j({ detail: { message: "invalid_api_key" } }, 401) : new Response("mp3");
   if (url.endsWith("/sendMessage") || url.endsWith("/sendVoice")) return j({ ok: true, result: { message_id: mid++ } });
+  if (url.endsWith("/sendPhoto") && typeof body !== "string") { const id = mid++; return j({ ok: true, result: { message_id: id, photo: [{ file_id: `s${id}` }, { file_id: `p${id}` }] } }); }
   return j({ ok: true, result: true });
 };
 const store = new Map();
@@ -412,6 +413,18 @@ step("long memory (RECALL, owner 2026-10-06): older moments found in Vectorize a
   await run(msg({ text: "remember what i told you about june?" }));
   console.log("after /restart, nothing older:", !sys().includes("THINGS FROM BEFORE"));
   delete env.MEMORY_INDEX; delete env.AI; store.delete("rs:7"); W.CONFIG.PICTURE.ENABLED = picsOn;
+}
+
+step("/album (owner 2026-10-06): her pictures as Telegram ids, 10 a page, oldest first, the newest page first");
+{
+  store.set("al:7", JSON.stringify(Array.from({ length: 12 }, (_, i) => ({ f: `pic${i + 1}`, at: clock }))));
+  await run(msg({ text: "/album" }));
+  let g = calls.filter((c) => c.m === "sendMediaGroup").at(-1);
+  console.log("album page 1:", g && g.b.media.length === 10 && g.b.media[0].media === "pic3" && g.b.media[9].media === "pic12" && /Pictures 3-12 of 12.*\/album 2/.test(g.b.media[0].caption));
+  await run(msg({ text: "/album 2" }));
+  g = calls.filter((c) => c.m === "sendMediaGroup").at(-1);
+  console.log("album page 2:", g && g.b.media.map((x) => x.media).join() === "pic1,pic2" && !/album 3/.test(g.b.media[0].caption));
+  store.delete("al:7");
 }
 
 step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip, failures as notes, money today");

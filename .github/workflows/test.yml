@@ -15,7 +15,10 @@ on:
         description: "Only these situations (comma-separated ids, empty = all)"
         default: ""
       model:
-        description: "Ask this OpenRouter model instead of LLM.MODEL, to compare (empty = LLM.MODEL)"
+        description: "Ask this model instead of LLM.MODEL (OpenRouter id, or @cf/... on Workers AI with no OpenRouter call)"
+        default: ""
+      cf_reasoning:
+        description: "For a @cf/ model: reasoning_effort to send instead of none (low, high)"
         default: ""
 
 jobs:
@@ -69,3 +72,4 @@ jobs:
           LIVE_RUNS: ${{ github.event.inputs.runs || '3' }}
           LIVE_ONLY: ${{ github.event.inputs.only || '' }}
           LIVE_MODEL: ${{ github.event.inputs.model || '' }}
+          LIVE_CF_REASONING: ${{ github.event.inputs.cf_reasoning || '' }}
