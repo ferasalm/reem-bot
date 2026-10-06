@@ -232,6 +232,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq([await W.saidBefore(env, "remember that guy who paid me on a napkin receipt? classic", history), await W.saidBefore(env, "the radiator is singing again and i refuse to call the landlord", history), await W.saidBefore(env, "napkin again", history)],
     [true, false, false], "repeat check by meaning: same story caught, new one passes, short ones skipped");
 }
+{
+  // Cloudflare's DeepSeek sometimes answers nothing: asked again (up to 4 times) before it counts as empty
+  let n = 0;
+  const env = { AI: { async run() { n++; return { choices: [{ message: { content: n < 3 ? "" : "there you are" }, finish_reason: "stop" }] }; } } };
+  const out = await W.askModel(env, [{ role: "user", content: "hi" }], { max_tokens: 20 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1 });
+  eq([out, n], ["there you are", 3], "an empty Workers AI answer is asked again");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

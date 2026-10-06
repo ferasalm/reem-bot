@@ -2549,9 +2549,15 @@ async function workersChat(env, model, messages, sampling, timeoutMs, trimCut) {
   if (!env.AI) throw new ApiError("Workers AI is not connected (the AI binding).", false);
   const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: sampling.max_tokens, reasoning_effort: "none" };
   if (sampling.temperature != null) input.temperature = sampling.temperature;
-  const data = await aiRun(env, model, input, timeoutMs);
-  const choice = data?.choices?.[0];
-  const out = String(choice?.message?.content ?? data?.response ?? "").trim();
+  // Cloudflare's DeepSeek sometimes ends at once with nothing (1 token, "stop"): 7 of 25 calls with reasoning "none",
+  // 3 of 28 with "low" (live runs 37544942514, 37544945221). An empty answer is back in ~1 s and its prompt is cached,
+  // so it's asked again, up to 4 times in all
+  let data, choice, out = "";
+  for (let i = 0; i < 4 && !out; i++) {
+    data = await aiRun(env, model, input, timeoutMs);
+    choice = data?.choices?.[0];
+    out = String(choice?.message?.content ?? data?.response ?? "").trim();
+  }
   return out && trimCut && choice?.finish_reason === "length" ? trimUnfinished(out) : out;
 }
 
