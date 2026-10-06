@@ -231,10 +231,16 @@ eq(W.isOoc("a cooc: hi") || W.isOoc("oocupied") || W.isOoc("so ooc-ish"), false,
 /*  3. Whole conversations (mocked services)                           */
 /* ------------------------------------------------------------------ */
 let llm = []; const prompts = []; const calls = []; const banana = { mode: "refuse", calls: [] };
+const runware = { mode: "draw", calls: [] }; // PICTURE.ROUTE "runware-…": "draw" | "fail" | "failFirst" (klein fails, TwinFlow draws)
 globalThis.fetch = async (url, init = {}) => {
   let body = init.body;
   if (body instanceof FormData) { const o = {}; for (const [k, v] of body) o[k] = typeof v === "string" ? v : "<blob>"; body = JSON.stringify(o); }
   const j = (o, status = 200) => new Response(JSON.stringify(o), { status });
+  if (url.includes("api.runware.ai")) {
+    const t = JSON.parse(init.body)[0]; runware.calls.push(t);
+    if (runware.mode === "fail" || (runware.mode === "failFirst" && t.model === W.CONFIG.PICTURE.RUNWARE.MODEL)) return j({ errors: [{ code: "insufficientCredits" }] }, 400);
+    return j({ data: [{ imageBase64Data: btoa("runware " + runware.calls.length), cost: 0.00078 }] });
+  }
   if (url.includes("openrouter")) {
     const b = JSON.parse(init.body);
     if (b.modalities) { // Nano Banana (PICTURE.LINGERIE): banana = "draw" | "refuse" | "error"
@@ -696,6 +702,46 @@ section("pictures: his photos (Workers AI vision)");
   }
   r = await turn("send me a pic of you", ["here\n\n[selfie: wearing nothing at all]"], { history: APART });
   yes(!/nothing at all/.test(ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields.prompt), "'wearing nothing' is never drawn");
+
+  section("pictures: the Runware routes (PICTURE.ROUTE)");
+  {
+    const P = W.CONFIG.PICTURE, R = P.RUNWARE;
+    P.ROUTE = "runware-klein"; env.RUNWARE_API_KEY = "rw"; store.delete("pics");
+    const a0 = ai.length, b0 = banana.calls.length;
+    r = await turn("send me a nude", ["here\n\n[selfie: naked on the bed, wearing nothing at all]"], { history: APART });
+    let t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && t.model === R.MODEL && t.safety.checkContent === false && t.inputs.referenceImages.length >= 2 && t.inputs.referenceImages.every((x) => x.startsWith("data:image/jpeg;base64,")), "runware-klein: klein 9B draws with her face and body, content check off", t && { model: t.model, refs: t.inputs?.referenceImages?.length });
+    yes(/naked on the bed/.test(t.positivePrompt) && t.positivePrompt.includes(R.NAKED) && !t.positivePrompt.includes(P.SAFE) && t.positivePrompt.startsWith(P.SELFIE_STYLE), "...her words as written, NAKED added, no 'No nudity.'", t.positivePrompt.slice(0, 200));
+    yes(ai.length === a0 && JSON.parse(store.get("pics")).rwUsd > 0, "...Cloudflare isn't called; the spend is in the ledger's rwUsd");
+    r = await turn("send me a pic in lingerie", ["[selfie: mirror, red lace bra and panties by the window]"], { history: APART });
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && /red lace bra and panties/.test(t.positivePrompt) && banana.calls.length === b0, "lingerie: Runware draws the real words (no FILTER_WORDS), no Nano Banana", t.positivePrompt.slice(0, 160));
+    yes(!t.positivePrompt.includes(R.NAKED), "...and NAKED only when she's naked");
+    r = await turn("send me a pic", ["[selfie: her fucking herself]"], { history: APART });
+    yes(!/fucking/.test(runware.calls.at(-1).positivePrompt), "RUNWARE.NOT_DRAWN still holds (sex acts)");
+    runware.mode = "failFirst"; const n0 = runware.calls.length;
+    r = await turn("send me a selfie", ["[selfie: naked in the hallway]"], { history: APART });
+    const two = runware.calls.slice(n0);
+    yes(r.photos.length === 1 && two.length === 2 && two[1].model === R.BACKUP_MODEL && !two[1].inputs && two[1].positivePrompt.startsWith(P.SELFIE_STYLE) && two[1].positivePrompt.includes(R.LOOKS.slice(0, 40)), "klein fails: TwinFlow draws it from words (LOOKS), no reference pictures", two.map((x) => x.model));
+    runware.mode = "draw"; P.ROUTE = "runware-twinflow";
+    r = await turn("send me a selfie", ["[selfie: topless on the couch]"], { history: APART });
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && t.model === R.BACKUP_MODEL && !t.inputs && t.positivePrompt.includes(R.NAKED), "runware-twinflow: TwinFlow only, words only, NAKED added");
+    const led = JSON.parse(store.get("pics")); led.rwUsd = R.DAILY_USD; store.set("pics", JSON.stringify(led));
+    const n1 = runware.calls.length, a1 = ai.length;
+    r = await turn("send me a selfie", ["[selfie: on the couch with tea]"], { history: APART });
+    yes(runware.calls.length === n1 && ai.length > a1, "past RUNWARE.DAILY_USD: Cloudflare draws (Runware not called)");
+    runware.mode = "fail"; store.delete("pics"); P.ROUTE = "runware-klein";
+    const a2 = ai.length;
+    r = await turn("send me a selfie", ["[selfie: on the couch with tea]"], { history: APART });
+    yes(ai.length > a2, "both Runware models fail: Cloudflare draws it");
+    const minorLed = runware.calls.length;
+    await turn("lol btw i'm 16", ["oh. ok then, friends"], { history: APART });
+    r = await turn("send me a selfie", ["[selfie: on the couch]"], { history: APART });
+    yes(r.photos.length === 0 && runware.calls.length === minorLed, "after he says he's under 18: no picture on Runware either");
+    store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), minor: false }));
+    runware.mode = "draw"; P.ROUTE = "cloudflare"; delete env.RUNWARE_API_KEY; store.delete("pics");
+  }
 
   section("pictures: in person");
   r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\" *Her eyes move over you.*"], { history: SCENE });

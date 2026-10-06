@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, BODY_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -708,6 +708,12 @@ Changing the story
    */
   PICTURE: {
     ENABLED: true,
+    // Which model draws her pictures (owner 2026-10-06: "different versions with different models all ready to deploy"):
+    // "cloudflare" = klein 4B on Workers AI (MODEL), lingerie on Nano Banana (LINGERIE), never nude: today's route;
+    // "runware-klein" = FLUX.2 klein 9B on Runware with her face and body (RUNWARE.MODEL), safety check off, nudity
+    // allowed (owner 2026-10-06), TwinFlow when it fails; "runware-twinflow" = TwinFlow Z-Image-Turbo on Runware,
+    // text only (RUNWARE.LOOKS: no face picture). Both Runware routes need the Worker secret RUNWARE_API_KEY.
+    ROUTE: "cloudflare",
     MODEL: "@cf/black-forest-labs/flux-2-klein-4b", // draws from her reference face
     BACKUP_MODEL: "@cf/black-forest-labs/flux-1-schnell", // when MODEL is unavailable: no reference, LOOKS instead
     BACKUP_STEPS: 6,                   // 1 to 8
@@ -748,6 +754,26 @@ Changing the story
     ROOM: "Behind her is the part of her room shown in image {n}, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
     ROOM_TEXT: "The place: {look}.",   // ...without one (or drawn by the backup model)
     SAFE: "No nudity.",
+    // Runware (PICTURE.ROUTE "runware-klein" / "runware-twinflow"): every picture, lingerie and nudity included, with her
+    // real words (no FILTER_WORDS, no NOT_DRAWN, no SAFE). Benched 2026-10-06 (docs/QUALITY.md): klein 9B kept her face and
+    // drew nude 8/8 at $0.00078 in ~3 s, but only with NAKED's "no clothing of any kind" (else the body picture's clothes
+    // leaked); TwinFlow drew 6/6 nude at $0.0006 without a face picture, the same-looking woman each time.
+    RUNWARE: {
+      MODEL: "runware:400@2",          // FLUX.2 klein 9B: her face (image 0), BODY (image 1), the place (image 2)
+      BACKUP_MODEL: "runware:twinflow-z-image-turbo@0", // text only (LOOKS); also the "runware-twinflow" route's model
+      BODY: "owner",                   // image 1: "owner" = the owner's bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
+      DAILY_USD: 0.5,                  // money a day for Runware pictures; then the Cloudflare route draws (never nude)
+      USD_PER_PICTURE: 0.0008,         // klein 9B at 576x1024 (TwinFlow 0.0006)
+      TIMEOUT_MS: 60000,
+      // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
+      REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
+      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
+      // added when the picture's words say she's naked or topless (NUDE_WORDS)
+      // never drawn on Runware either: sex acts (nudity is allowed, owner 2026-10-06)
+      NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick"],
+      NUDE_WORDS: ["nude", "naked", "topless", "bare breasts", "bare chest", "nothing on", "wearing nothing", "undressed", "nipple", "nipples"],
+      NAKED: "She is completely naked: no bodysuit, no tank top, no leggings, no bra, no underwear, no clothing of any kind. Realistic natural breasts with real anatomy: medium-sized soft brown areolas with natural skin texture and small bumps, slightly uneven in shape, natural nipples that are neither flat nor pointed, a natural weight and slight sag, faint skin creases under the breasts; not airbrushed, not plastic, not perfectly round.",
+    },
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
     // Cloudflare's prompt filter (3030) refused every wording with these words (face runs 37151684663, 37152577208,
     // 2026-10-03; "top and bottoms" passed but drew pajamas, "cheeky bottoms" was refused), so her words are drawn
@@ -2408,6 +2434,7 @@ async function loadLedger(env) {
     day,
     neurons: fresh ? saved.neurons || 0 : 0,
     usd: fresh ? saved.usd || 0 : 0, // OpenRouter pictures today (PICTURE.LINGERIE)
+    rwUsd: fresh ? saved.rwUsd || 0 : 0, // Runware pictures today (PICTURE.RUNWARE.DAILY_USD)
     voiceUsd: fresh ? saved.voiceUsd || 0 : 0, // OpenRouter voice notes today (VOICE.OR_DAILY_USD)
     out: fresh && saved.out ? saved.out : false, // the time Cloudflare said out of neurons (true = old format)
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
@@ -2534,7 +2561,8 @@ async function noteMinor(env, chatId, settings, heard) {
 // Pictures are possible at all for this reply (her own [selfie] included): not OOC, not a minor, AI connected,
 // within the day's budget and with enough outside calls left
 function picturesAllowed(env, { ooc, settings, ledger }) {
-  return !!CONFIG.PICTURE.ENABLED && !ooc && !settings.minor && !!env.AI && aiAffordable(ledger, "picture") &&
+  // Runware (PICTURE.ROUTE) has its own money cap; otherwise Workers AI's neurons decide
+  return !!CONFIG.PICTURE.ENABLED && !ooc && !settings.minor && (runwareAffordable(env, ledger) || (!!env.AI && aiAffordable(ledger, "picture"))) &&
     budget.left() >= CONFIG.LIMITS.SUBREQUEST_RESERVE + 4;
 }
 
@@ -2570,7 +2598,8 @@ const hasWord = (text, w) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegex(String
 
 // A description with a PICTURE.NOT_DRAWN word or phrase is never drawn
 function mayDraw(text) {
-  return !(CONFIG.PICTURE.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
+  const list = runwareRoute() ? (CONFIG.PICTURE.RUNWARE || {}).NOT_DRAWN : CONFIG.PICTURE.NOT_DRAWN;
+  return !(list || []).some((w) => String(w).trim() && hasWord(text, w));
 }
 
 const pickOne = (list) => (Array.isArray(list) && list.length ? list[Math.floor(Math.random() * list.length)] : "");
@@ -2760,7 +2789,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const shown = named(words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", "));
   // In history and her recent pictures as "type, what" (just "what" when it already names the type)
   const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
-  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args };
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, safeLine()].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args };
 }
 
 // Her time of day (PICTURE.TIMES) at this hour
@@ -2780,6 +2809,7 @@ function isDark(hour = herHour(), light = "") {
 // Her words, worded so Cloudflare's prompt filter lets them through (PICTURE.FILTER_WORDS, whole words, any case)
 function filterSafe(text) {
   let t = String(text || "");
+  if (runwareRoute()) return t.trim(); // Runware has no prompt filter: her words as they are
   for (const [w, to] of Object.entries(CONFIG.PICTURE.FILTER_WORDS || {})) t = t.replace(new RegExp(`\\b${escapeRegex(w)}\\b`, "gi"), to);
   // a dropped word leaves "... and a matching" behind
   return t.replace(/\s+and\s+(?:an?\s+)?(?:matching\s+)?(?=[,.;]|$)/gi, "").replace(/\s{2,}/g, " ").trim();
@@ -2883,6 +2913,44 @@ function sceneWearing(sceneText, history = []) {
 // picture drawn from her face, so her softly curvy figure and soft narrow shoulders don't depend on words alone
 const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null);
 
+// PICTURE.ROUTE "runware-klein" / "runware-twinflow": her words are drawn as she wrote them (no FILTER_WORDS, only
+// RUNWARE.NOT_DRAWN, no SAFE), nudity included (owner 2026-10-06)
+const runwareRoute = () => /^runware/.test(String(CONFIG.PICTURE.ROUTE || ""));
+const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
+
+// Runware's image 1 (RUNWARE.BODY): the owner's bodysuit picture, a nude hourglass body, or the Cloudflare route's body
+function runwareBody() {
+  const b = (CONFIG.PICTURE.RUNWARE || {}).BODY;
+  const b64 = b === "owner" ? BODY_OWNER_JPEG_BASE64 : b === "hourglass" ? BODY_HOURGLASS_JPEG_BASE64 : BODY_JPEG_BASE64;
+  return b64 ? fromBase64(b64) : null;
+}
+
+// May Runware draw today (its key is set and RUNWARE.DAILY_USD isn't spent)?
+function runwareAffordable(env, ledger) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  if (!runwareRoute() || !env.RUNWARE_API_KEY) return false;
+  return !ledger || (ledger.rwUsd || 0) + (Number(R.USD_PER_PICTURE) || 0) <= (Number(R.DAILY_USD) || 0);
+}
+
+// One picture from Runware (POST api.runware.ai/v1, one imageInference task, its content check off): { bytes, cost }.
+// `refs`: JPEG bytes sent as reference images (klein: face, body, place); none for TwinFlow.
+async function drawRunware(env, model, prompt, refs, width, height) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
+  if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
+  budget.used++;
+  let res;
+  try {
+    res = await xfetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${env.RUNWARE_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify([task]), signal: AbortSignal.timeout(Number(R.TIMEOUT_MS) || 60000) });
+  } catch (e) {
+    throw new Error(`Runware unreachable or too slow (${e.name})`);
+  }
+  const data = await res.json().catch(() => ({}));
+  const d = (data.data || [])[0];
+  if (!res.ok || (data.errors || []).length || !d?.imageBase64Data) throw new Error(`Runware ${res.status}: ${(data.errors || []).map((x) => x.code || x.message).join(", ") || "no picture"}`);
+  return { bytes: fromBase64(d.imageBase64Data), cost: Number(d.cost) || 0 };
+}
+
 async function faceBytes(env) {
   const kv = env.REEM_KV && (await env.REEM_KV.get("face").catch(() => null));
   const b64 = kv || FACE_JPEG_BASE64;
@@ -2904,7 +2972,7 @@ async function imageBytes(out) {
 // with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no reference.
 // FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
 // FLUX.1 schnell draws from LOOKS instead.
-async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false } = {}) {
+async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
@@ -2920,6 +2988,28 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const p = String(prompt).replace("{room}", room(withImage));
     return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
   };
+  // Runware (PICTURE.ROUTE): klein 9B with her face, RUNWARE.BODY and the place, then TwinFlow from words; NAKED added
+  // when the words say she's naked. Its spend goes in ledger.rwUsd; when both fail, Cloudflare draws it.
+  // (no ledger: /face's portrait and /health stay on Cloudflare)
+  if (ledger && runwareAffordable(env, ledger)) {
+    const R = P.RUNWARE;
+    const naked = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w)) ? ` ${R.NAKED}` : "";
+    const rwBody = ref ? runwareBody() : null;
+    const tries = P.ROUTE === "runware-klein" && ref ? [[R.MODEL, true], [R.BACKUP_MODEL, false]] : [[R.BACKUP_MODEL, false]];
+    for (const [model, withFace] of tries) {
+      if (!model) continue;
+      try {
+        // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
+        const refs = withFace ? [ref, rwBody, place].filter(Boolean) : [];
+        const text = (withFace ? who(R.REFERENCE, !!place) : who(R.LOOKS, false)) + naked;
+        const out = await drawRunware(env, model, text, refs, width, height);
+        if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
+        return { bytes: out.bytes, model };
+      } catch (e) {
+        await aiFailed(env, `drawing with ${model} (Runware): ${aiText_(e)}`);
+      }
+    }
+  }
   try {
     const form = new FormData();
     form.append("prompt", who(ref ? P.REFERENCE : P.LOOKS, true));
@@ -2982,7 +3072,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const lightText = night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]);
     const light = night ? lightText : lightText && `Lit by ${lightText}.`;
     const wornSafe = filterSafe(wearing);
-    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, P.SAFE].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
+    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, safeLine()].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
     if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
       pic.lingerie = true;
       pic.spicy = spicyWords(`${asked} ${wearing}`);
@@ -2998,14 +3088,20 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       // a boudoir or spicier picture (owner 2026-10-05): spicier → Nano Banana straight away; else klein first in
       // KLEIN_WARDROBE (her face), its picture checked for lingerie (CHECK); Nano Banana when klein refuses or drew her
       // tamer; then klein's tamer picture; klein's filter-safe chain last
-      const spicy = L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
-      const lingerie = L.ENABLED && (kind === "selfie" ? !!pic.args && (L.TIERS || []).includes(pic.tier) : !!pic.lingerie);
+      // Runware draws lingerie and nudity itself (PICTURE.ROUTE): a lingerie or spicier selfie in the real lingerie
+      // wardrobe, no klein check, no Nano Banana
+      const open = runwareAffordable(env, ledger);
+      if (open && kind === "selfie" && pic.args && L.ENABLED && (isSpicy(pic) || (L.TIERS || []).includes(pic.tier))) {
+        pic = { ...composePicture({ ...lingerieArgs(pic), lingerie: true, wardrobeList: isSpicy(pic) && !lingerieWords(pic.args.words) ? L.SPICY_WARDROBE : null }), asked: pic.asked };
+      }
+      const spicy = !open && L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
+      const lingerie = !open && L.ENABLED && (kind === "selfie" ? !!pic.args && (L.TIERS || []).includes(pic.tier) : !!pic.lingerie);
       let kleinPic = null;
       let kleinRefused = null;
       if (lingerie && L.KLEIN_FIRST && !spicy) {
         const kp = kind === "scene" ? pic : { ...composePicture({ ...lingerieArgs(pic), wardrobeList: L.KLEIN_WARDROBE }), asked: pic.asked };
         try {
-          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night });
+          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger });
           aiSpent(ledger, drawn.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, null);
           const seen = await lingerieSeen(env, ledger, drawn.bytes);
           kleinPic = { ...kp, bytes: drawn.bytes, kind };
@@ -3046,7 +3142,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       }
       let drawn;
       try {
-        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night });
+        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger });
       } catch (e) {
         // Cloudflare's safety filter (3030) refused it (seen on the real API: a lace bralette and briefs in a
         // mirror): a boudoir picture first again in the code's own boudoir wardrobe (it gets through; owner
@@ -3057,7 +3153,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
           pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots });
           try {
-            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night });
+            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger });
             break;
           } catch (again) {
             if (i === tiers.length - 1 || !aiFiltered(again)) throw again;
@@ -3071,7 +3167,8 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       await aiFailed(env, `drawing a picture: ${aiText_(e)}`);
       return null;
     } finally {
-      if (model) aiSpent(ledger, model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, error);
+      // Runware's spend is in ledger.rwUsd (drawPicture), not in Cloudflare's neurons
+      if (model && !String(model).startsWith("runware:")) aiSpent(ledger, model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, error);
     }
   })();
   drawing.catch(() => {});
@@ -4476,7 +4573,12 @@ async function setup(url, env) {
     const L = PIC.LINGERIE || {};
     const usd = (n) => `$${(Number(n) || 0).toFixed(2)}`;
     add(null, "OpenRouter today (UTC)", [CONFIG.VOICE.PROVIDER === "openrouter" && `her voice notes about ${usd(ledger.voiceUsd)} of ${usd(CONFIG.VOICE.OR_DAILY_USD)}`, L.ENABLED && `lingerie pictures ${usd(ledger.usd)} of ${usd(L.DAILY_USD)}`].filter(Boolean).join("; ") + ". Her text replies and hearing aren't counted here (OpenRouter's activity page has them).");
-    if (L.ENABLED && env.OPENROUTER_API_KEY) {
+    // the picture route (PICTURE.ROUTE): Runware needs its key; no test picture here (it would cost on every reload)
+    if (runwareRoute()) {
+      const R = PIC.RUNWARE || {};
+      add(!!env.RUNWARE_API_KEY, `Pictures: Runware (${PIC.ROUTE})`, env.RUNWARE_API_KEY ? `${PIC.ROUTE === "runware-klein" ? `${R.MODEL} with her face, then ${R.BACKUP_MODEL}` : R.BACKUP_MODEL}; nudity allowed. Today about ${usd(ledger.rwUsd)} of ${usd(R.DAILY_USD)}; past it Cloudflare draws.` : "The Worker secret RUNWARE_API_KEY is missing: Cloudflare draws every picture (never nude).");
+    } else add(null, "Pictures: Cloudflare", "klein on Workers AI, lingerie on Nano Banana; never nude. Switch PICTURE.ROUTE to a Runware route on the settings panel.");
+    if (L.ENABLED && env.OPENROUTER_API_KEY && !runwareRoute()) {
       // a real picture would cost USD_PER_PICTURE on every reload: only that the model is there
       try {
         const res = await xfetch(`https://openrouter.ai/api/v1/models/${L.MODEL}/endpoints`, { headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}` } });
