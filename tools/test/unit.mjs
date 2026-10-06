@@ -124,6 +124,15 @@ eq(W.replyMode({ scene: "together", heard: "send me a voice note" }), "scene", "
 eq(W.replyMode({ scene: "apart", heard: "can you send a vn" }), "voice", "asked -> voice");
 W.CONFIG.VOICE.CHANCE = 0; eq(W.replyMode({ scene: "apart", heard: "hey" }), "text", "no roll -> text");
 W.CONFIG.VOICE.CHANCE_AFTER_VOICE = 1; eq(W.replyMode({ scene: "apart", heard: "hey", cameAsVoice: true }), "voice", "after his voice note");
+// He asks her over (owner 2026-10-06, "Mostly go"): TEXTING.VISIT_CHANCE of the time she goes, as a scene
+for (const t of ["Come over habibi", "Waiting for you to knock", "get over here", "come here 😏"]) eq(W.asksHerOver(t), true, `asks her over: ${t}`);
+for (const t of ["can I come over?", "i'm coming over", "i'll come by later", "hey", "want me to come over?"]) eq(W.asksHerOver(t), false, `not asking her over: ${t}`);
+W.CONFIG.TEXTING.VISIT_CHANCE = 1; eq(W.replyMode({ scene: "apart", heard: "Come over habibi" }), "visit", "come over -> visit");
+eq(W.replyMode({ scene: "apart", heard: "come over and send me a voice note" }), "voice", "a voice request wins");
+eq(W.replyMode({ scene: "together", heard: "come here" }), "scene", "together stays scene");
+eq(W.replyMode({ scene: "apart", heard: "come over", proactive: true }), "text", "not when she texts first");
+W.CONFIG.TEXTING.VISIT_CHANCE = 0; eq(W.replyMode({ scene: "apart", heard: "Come over habibi" }), "text", "no visit roll -> text");
+eq(/crossing the landing/.test(W.formatNudge("visit")), true, "visit gets its format nudge");
 W.CONFIG.VOICE.CHANCE = 0.2; W.CONFIG.VOICE.CHANCE_AFTER_VOICE = 0.6;
 eq(W.formatNudge("voice").includes("[laughs]"), true, "voice reminder lists tags");
 // repairs (from real replies)

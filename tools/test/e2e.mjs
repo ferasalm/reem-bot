@@ -226,6 +226,17 @@ await run(msg({ text: "*knocks on your door*" }));
 console.log("scene: no reaction:", reacts().length === nReacts, "| no react nudge:", !sys().includes("[react: X]"));
 W.CONFIG.REACTIONS.CHANCE = 0.25;
 
+step("he asks her over while apart: she goes (TEXTING.VISIT_CHANCE), a text is asked again");
+clock += 3 * 3600e3; W.CONFIG.TEXTING.VISIT_CHANCE = 1;
+llm = [{ content: "door's unlocked\n\ncome" }, { content: '*Reem crosses the landing in her socks and knocks on your door, twice.* "You asked."' }];
+await run(msg({ text: "Come over habibi" }));
+{
+  const visit = herPrompts().slice(-2);
+  console.log("visit format:", visit[0].messages.at(-1).content.includes("crossing the landing"), "| asked again:", visit[1].messages[0].content.includes("Go to him now"),
+    "| scene sent:", tgFetchBody("sendMessage").includes("crosses the landing"));
+}
+W.CONFIG.TEXTING.VISIT_CHANCE = 0; clock += 3 * 3600e3;
+
 step("memory folding: same model and routing");
 const [hMax, hKeep] = [W.CONFIG.MEMORY.HISTORY_MAX, W.CONFIG.MEMORY.HISTORY_KEEP];
 W.CONFIG.MEMORY.HISTORY_MAX = 4; W.CONFIG.MEMORY.HISTORY_KEEP = 2;

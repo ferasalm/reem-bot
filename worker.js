@@ -459,6 +459,12 @@ const CONFIG = {
     OPENING_LOOKBACK: 4,               // she is told how her last N replies started...
     OPENING_WORDS: 3,                  // ...using their first N words, so she opens differently
     SCENE_TIMEOUT_MIN: 120,            // an in-person scene counts as over after this long without messages
+    // He asks her over while they're apart ("come over", "waiting for you to knock"): this often her reply is the scene
+    // of her going to his door (NUDGES.FORMAT_VISIT); otherwise a normal reply, where she may tease or invite him instead.
+    // Owner 2026-10-06: "Mostly go" (live runs before: she went 3/9 to 5/10).
+    VISIT_CHANCE: 0.75,
+    VISIT_PATTERN: "\\b(?:come (?:over|here|to me|see me|through|by|knock)|get (?:over )?here|waiting for you to (?:knock|come)|knock on my door)\\b",
+    VISIT_NOT_PATTERN: "\\b(?:i|i'll|i'm|i will|i am|can i|could i|should i|may i|let me|want me to)\\s+(?:gonna\\s+|going to\\s+)?come\\b", // he's the one coming
     // Texts and voice notes never carry narration (the code removes it, whatever the model wrote):
     // *actions*, these emotes as *sighs* or (sighs), and lines like "Reem records a voice note:".
     EMOTES: [
@@ -653,6 +659,8 @@ Changing the story
     // Sent right before she writes (after the chat), where the model pays most attention. One per kind of reply.
     FORMAT_TEXT: "[Reply with text messages from your phone: first person, casual, mostly lowercase, short bubbles separated by a blank line. Only the words you type: no narration, no *actions*, no describing your voice or the phone, never your own name. If he has just come to your door, write an in-person scene instead.]",
     FORMAT_VOICE: "[This reply is a voice note. Write only the words you say out loud, first person, under 45 words: no narration, no *actions*, no quotes, never your own name.{tags}]", // {tags}: VOICE_TAGS when audio tags are on
+    FORMAT_VISIT: "[He asked you to come over, and you go: write the in-person scene of Reem crossing the landing to his door, in third person, present tense: actions in *asterisks*, spoken words in \"quotes\". Never write his actions or words. Under 150 words.]", // TEXTING.VISIT_CHANCE
+    RETRY_VISIT: " Your last try stayed on the phone. Go to him now: write the scene of Reem at his door, not a text.", // second try when a FORMAT_VISIT reply wasn't a scene
     FORMAT_SCENE: "[You're together in person. Write the moment in third person, present tense: actions in *asterisks*, spoken words in \"quotes\". Never write his actions or words. Under 150 words.]",
   },
 
@@ -1784,7 +1792,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   if (picture && picture.kind === "selfie") picture.plan = planShot({ asked, history, recentShots: ledger.shots });
 
   // She starts thinking now, but only answers at waitUntil
-  const sceneVoice = mode === "scene" && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
+  const sceneVoice = (mode === "scene" || mode === "visit") && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
   const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings, picture, canPicture, recentPictures: ledger ? ledger.recent : [] });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
@@ -1863,8 +1871,20 @@ function replyMode({ scene, heard, proactive = false, ooc = false, cameAsVoice =
   if (scene === "together") return "scene";
   const V = CONFIG.VOICE;
   if (!proactive && asksForVoice(heard)) return "voice";
+  if (!proactive && asksHerOver(heard) && Math.random() < (Number(CONFIG.TEXTING.VISIT_CHANCE) || 0)) return "visit";
   const chance = cameAsVoice ? V.CHANCE_AFTER_VOICE : moreVoice ? V.CHANCE_MORE_VOICE : V.CHANCE;
   return Math.random() < (Number(chance) || 0) ? "voice" : "text";
+}
+
+// Apart: he asks her to come to him (TEXTING.VISIT_PATTERN), not that he's coming (VISIT_NOT_PATTERN)
+function asksHerOver(text) {
+  const T = CONFIG.TEXTING;
+  try {
+    return !!T.VISIT_PATTERN && new RegExp(T.VISIT_PATTERN, "i").test(text) && !(T.VISIT_NOT_PATTERN && new RegExp(T.VISIT_NOT_PATTERN, "i").test(text));
+  } catch (e) {
+    console.error("TEXTING.VISIT_PATTERN or VISIT_NOT_PATTERN is not a valid regular expression", e);
+    return false;
+  }
 }
 
 // In a scene: he asks to hear her (ASK_PATTERN or SCENE_ASK_PATTERN)
@@ -2124,10 +2144,10 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
 
   const system = P.SYSTEM_PROMPT + extra;
   const format = ooc ? "" : formatNudge(mode);
-  const maxTokens = (L.MAX_TOKENS && L.MAX_TOKENS[mode.toUpperCase()]) || L.SAMPLING.max_tokens;
+  const maxTokens = (L.MAX_TOKENS && L.MAX_TOKENS[mode === "visit" ? "SCENE" : mode.toUpperCase()]) || L.SAMPLING.max_tokens;
   const sampling = { ...L.SAMPLING, max_tokens: maxTokens };
   // Only as much of the chat as fits (the longest retry nudge counted)
-  const longestRetry = Math.max(...[N.RETRY, N.RETRY_EMPTY, N.RETRY_OOC, N.RETRY_FORMAT].map((n) => fill(n || "").length));
+  const longestRetry = Math.max(...[N.RETRY, N.RETRY_EMPTY, N.RETRY_OOC, N.RETRY_FORMAT, N.RETRY_VISIT].map((n) => fill(n || "").length));
   const fixed = system.length + longestRetry + format.length + userText.length;
   const kept = fitHistory(history, fixed, maxTokens);
 
@@ -2149,13 +2169,15 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
   const first = shape(out);
   const empty = first.kind === "none" && !first.reaction && first.selfie == null && !(picture && picture.kind === "selfie");
   const opener = opening(first.stored);
-  if ((!ooc && opener && recent.includes(opener)) || first.repeated || first.copied || empty || first.repaired) {
-    const nudge = ooc && (empty || first.repaired) ? N.RETRY_OOC : empty ? N.RETRY_EMPTY : first.repaired ? N.RETRY_FORMAT : N.RETRY;
+  // He asked her over and she was told to go (mode "visit"), but she stayed on the phone: asked once more
+  const stayed = mode === "visit" && first.kind !== "scene";
+  if ((!ooc && opener && recent.includes(opener)) || first.repeated || first.copied || empty || first.repaired || stayed) {
+    const nudge = ooc && (empty || first.repaired) ? N.RETRY_OOC : empty ? N.RETRY_EMPTY : stayed ? N.RETRY_VISIT : first.repaired ? N.RETRY_FORMAT : N.RETRY;
     try {
       const second = await callModel(env, build(system + fill(nudge)), { ...sampling, temperature: L.RETRY_TEMPERATURE }, { attempts: 1, trimCut: true });
       const again = shape(second);
       // Taken if it can be sent and is new and clean; after an empty first try, anything sendable
-      if (again.kind !== "none" && (empty || (!again.repeated && !again.repaired && !again.copied))) out = second;
+      if (stayed ? again.kind === "scene" && !again.copied : again.kind !== "none" && (empty || (!again.repeated && !again.repaired && !again.copied))) out = second;
     } catch {
       // keep the first reply
     }
@@ -2180,6 +2202,7 @@ function fitHistory(history, fixedChars, maxTokens) {
 function formatNudge(mode) {
   const N = CONFIG.NUDGES;
   if (mode === "scene") return fill(N.FORMAT_SCENE || "");
+  if (mode === "visit") return fill(N.FORMAT_VISIT || "");
   if (mode === "voice") {
     const tags = audioTagsOn() ? fill(N.VOICE_TAGS, { tags: offeredTags().map((t) => `[${t}]`).join(", ") }) : "";
     return fill(N.FORMAT_VOICE || "", { tags });
