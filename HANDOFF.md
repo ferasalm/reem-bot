@@ -27,9 +27,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   style). Then try "come over".
 - **Deploy?** `dev` has `PICTURE.ROUTE` "runware-klein" (every picture on klein 9B with her face, nudity allowed, $0.50/day
   cap, then Cloudflare). Not live until he says "Deploy". Check the Runware balance covers it (~$0.0008 a picture).
-- **Voice to judge:** 9 clips sent (TTS bench 37541102035): MiniMax Turbo (OpenRouter, $0.06/1k) and HD (Runware, $0.10/1k),
-  Arabic_CalmWoman, Arabic words in Arabic script, vs Sulafat (~$0.015/1k, live). Does ح come through? Which voice, if any?
-  If MiniMax: the Worker must turn her Arabizi (habibi, yalla) into Arabic script before speaking.
+- **OpenRouter credit is running low** (owner): the live bot's text, voice, hearing and Nano Banana all bill it; top it up
+  or move the text to DeepSeek on Workers AI (next step 2). No tests on OpenRouter (DECISIONS 2026-10-06).
+- **Runware MCP:** connect https://mcp.runware.ai at claude.ai/customize/connectors, then start a new chat.
 - Sex-act switch: to try it, Runware klein as the picture version plus the switch on (tell Claude; no panel), then /pic.
 - Nano Banana's money cap $0.50 a day (`LINGERIE.DAILY_USD`): raise it?
 - Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches);
@@ -47,8 +47,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
 1. **Owner's live test** (list above), then report slips. *Effort: low*
-2. **MiniMax voice (owner's ear):** if he picks a MiniMax voice, add it as a voice provider behind Sulafat or in its place
-   (`VOICE.PROVIDER`, Runware `audioInference`), then a test clip on /setup. *Effort: medium*
+2. **Off OpenRouter for tests (and maybe live text):** let `tools/test/live.mjs` call DeepSeek V4 Flash on Workers AI
+   (`@cf/deepseek-ai/deepseek-v4-flash-0731`, cached input $0.014/M), replay `OWNER_CHAT`, compare with Novita before any switch. *Effort: medium*
 3. **Selfie framing:** the phone shows in plain selfies (1 of 6); framed by someone else (1 of 8). *Effort: medium*
 4. **Text model** (owner's direction): bench cheaper or better models on `OWNER_CHAT` with the `model` input before any
    switch. *Effort: high*

@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Sulafat stays; no OpenRouter for testing** (owner: "Sulafat is way better." / "Don't use openrouter for testing.
+  It's running out of credits. We have cloudflare and runware."): MiniMax is dropped (no voice change). Benches and checks run on
+  Cloudflare Workers AI and Runware only: no `[live]` commits or test.yml runs (they call DeepSeek on OpenRouter), no OpenRouter
+  candidates in tts/stt/image/model benches, until the owner says otherwise. The live bot itself still runs on OpenRouter (DeepSeek,
+  Nemo, Sulafat, Gemini hearing, Nano Banana). The owner also asked Claude to sign in to the Runware MCP (https://mcp.runware.ai):
+  it is not connected to this session; he connects it at claude.ai/customize/connectors, then a new session.
 - 2026-10-06 — **Runware klein for every picture; MiniMax Turbo test with Arabic script** (owner: "You write the lines. test the turbo
   with the Arabic script. Switch on the runware klein for all pictures."): `PICTURE.ROUTE` default `runware-klein` (was `cloudflare`):
   selfies, scenes, lingerie, /pic and /look on klein 9B with her face, TwinFlow when it fails, Cloudflare past `RUNWARE.DAILY_USD`

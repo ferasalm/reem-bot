@@ -30,6 +30,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 - `/plugin marketplace add` / `/plugin install` can't be run by Claude (CLI commands) → put the marketplace in
   `extraKnownMarketplaces` and the plugin in `enabledPlugins` of `.claude/settings.json`; it loads next session.
   Its files can be read now from a clone (`git clone https://github.com/<owner>/<repo>`; github.com is reachable). (2026-10-03)
+- No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only; Runware has no MiniMax Turbo (run 37541102035).
 - /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it.
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
@@ -137,7 +138,6 @@ At most 150 lines (`tools/doc-check.mjs`).
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
 - Leaves the picture marker out ~2/3 of the time when he didn't ask (hence `PICTURE.REMINDER`). (2026-10-02)
 - Picks a picture on her own (`SELF_CHOICE`) almost never: 0/15 in the v3 live runs. (2026-10-02)
-- Fixed places work: with the room's picture as image 1, klein redraws the same room in every shot (16 pictures, 2026-10-03).
 - Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);
   the v11 texting example's "envelope that says CASH" came back in 5 of 9 apart replies (run 37259031783), 0 after
   examples with rhythm but no story detail. Check the examples first when a reply repeats or a fact drifts. (2026-10-05)
