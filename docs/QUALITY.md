@@ -385,3 +385,12 @@ My check: shoulder width / head height (real ~1.6; run 37404957788 #04 was ~1.8,
 - Best: P1 (and P4 close); the lens words did not help. All 8 the same woman (bangs, brows, freckles).
 - Owner's verdict: proportions good in #01, #02, #05, #07, not in #03, #04, #06, #08 → P1 2/2, P2 1/2, P3 1/2, P4 0/2
   (the fuller-face line shrinks the head again); both bad bed shots are on her back seen from above, both good ones on her side.
+
+## TwinFlow P1 wording across the bot's poses (2026-10-06, image bench 37411203576), each read at full size
+P1 head words + W4 arms, nude, 2 each; no on-her-back views; the front shot without the word "selfie". 8/8 drawn, $0.0048.
+- Front from her own arm (#01, #02): no phone 2/2 (fixed: "selfie" was the cause); head in scale 2/2; arms full; #01 hair
+  swept back without bangs.
+- Rear mirror selfie (#03, #04): iPhone in her raised hand, looking over her shoulder, head in scale, full arms, round hips 2/2.
+- In bed (#05, #06): reclining half on her side, head in scale in #05; #06 head a little small (camera a bit above her).
+- /look (#07, #08): on her side, full arms, soft belly; no sheet at her hips 0/2 (asked); #08 seen from above, head borderline.
+- My count: head in scale 6/8 clearly, 2 borderline (#06, #08: both the camera above her); owner to judge.
