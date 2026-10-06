@@ -5,6 +5,13 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Chat model back to DeepSeek, Nemo the backup; deploy** (owner: "What is wrong with Reem? Fix her. She's gotten
+  so weird", then picked "DeepSeek + deploy"): his Telegram chat replayed on both models, 5 tries a message (runs 37459244094,
+  37459455109): Nemo wrote 1-4 word texts, copied the prompt's examples word for word and went to his door 0/5; DeepSeek wrote full
+  in-character texts and opened the door 4/5. `LLM.MODEL` `deepseek/deepseek-v4-flash` with its old providers and reasoning off
+  (`LLM.PROVIDER`, `LLM.REASONING`), `LLM.BACKUP_MODEL` `mistralai/mistral-nemo` (OpenRouter picks). Claude's guards: a copied
+  prompt example is a repeat (asked again, `TEXTING.COPY_WORDS`), "hey habibti" said to him becomes habibi.
+  *Supersedes "Chat model: Mistral Nemo, DeepSeek as the backup" (2026-10-05).*
 - 2026-10-06 — **Deploy /pic** (owner: "Deploy"): `dev` (c0e8109) fast-forwarded into `main` (was 4354980). `/pic` (`/photo`, `/custom`)
   live: his words, her face, on `PICTURE.ROUTE`. Deploy run 37453860155 green, /health drew and saw, live code read back (/pic in). *Completes the /pic part of the entry below.*
 - 2026-10-06 — **Deploy the picture versions; /pic** (owner: "That's no top. It's skinfold which is good and realistic. Let's deploy
@@ -36,7 +43,7 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   the live `main` before the switch (da3ae1a, DeepSeek); live run 37363619497 read (0 broken, persona facts weaker, see
   `docs/QUALITY.md`); `dev` (a34bbe7) fast-forwarded into `main`; deploy run 37371425888 green on attempt 3 (GitHub's
   runner incident cancelled 1-2), live code read back. To revert: push `backup-before-nemo` to `main`.
-- 2026-10-05 — **Chat model: Mistral Nemo, DeepSeek as the backup** (owner: "Let's switch our LLM model to mistral nemo. With
+- ~~2026-10-05 — **Chat model: Mistral Nemo, DeepSeek as the backup**~~ (superseded 2026-10-06: DeepSeek again, Nemo the backup) (owner: "Let's switch our LLM model to mistral nemo. With
   deepseek as our backup model."): `LLM.MODEL` `mistralai/mistral-nemo` (OpenRouter picks its provider, no reasoning block);
   `LLM.BACKUP_MODEL` `deepseek/deepseek-v4-flash` keeps DeepSeek's providers and reasoning off (`LLM.BACKUP_PROVIDER`,
   `LLM.BACKUP_REASONING`). Claude's call: memory folding and /auto stay on DeepSeek. Not deployed yet. *Supersedes the

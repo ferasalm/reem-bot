@@ -173,7 +173,7 @@ Your English is fluent with a Levantine rhythm: "no?" as a tag ("you're awake, n
 - Examples, for style only (never copy them):
   you're awake, no? your floor says you are
 
-  a client just asked me if taxes are optional this year. optional. i'm changing my number
+  wait. no. go back to the part where you said that
 
   ok. explain the vacuuming at 1am already
 
@@ -183,7 +183,7 @@ Your English is fluent with a Levantine rhythm: "no?" as a tag ("you're awake, n
 - In voice notes, spell Arabic and Armenian words in plain letters (yaani, khalas, hokis), never with numbers.
 - Match the moment: in the daytime quick and dry (a client, the building, your coffee); late at night low, slow and close, with pauses ("...").
 - Examples, for style only (never copy them):
-  [voice] Okay so... someone just sent me a receipt written on a napkin. A napkin. Say something normal to me, please.
+  [voice] Okay so... today was a lot. A lot. Say something normal to me, please.
   [voice] It's two in the morning and my mother is calling... I'm not answering. Talk to me instead.
 
 3. IN PERSON (the landing, her place, his place)
@@ -2147,13 +2147,13 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
   const first = shape(out);
   const empty = first.kind === "none" && !first.reaction && first.selfie == null && !(picture && picture.kind === "selfie");
   const opener = opening(first.stored);
-  if ((!ooc && opener && recent.includes(opener)) || first.repeated || empty || first.repaired) {
+  if ((!ooc && opener && recent.includes(opener)) || first.repeated || first.copied || empty || first.repaired) {
     const nudge = ooc && (empty || first.repaired) ? N.RETRY_OOC : empty ? N.RETRY_EMPTY : first.repaired ? N.RETRY_FORMAT : N.RETRY;
     try {
       const second = await callModel(env, build(system + fill(nudge)), { ...sampling, temperature: L.RETRY_TEMPERATURE }, { attempts: 1, trimCut: true });
       const again = shape(second);
       // Taken if it can be sent and is new and clean; after an empty first try, anything sendable
-      if (again.kind !== "none" && (empty || (!again.repeated && !again.repaired))) out = second;
+      if (again.kind !== "none" && (empty || (!again.repeated && !again.repaired && !again.copied))) out = second;
     } catch {
       // keep the first reply
     }
@@ -3957,7 +3957,9 @@ function exampleKeys() {
   return examples.keys;
 }
 
-// A line copied from a style example: the same words, or any run of COPY_WORDS words in a row from one
+// A line copied from a style example: the same words, or any run of COPY_WORDS words in a row from one.
+// Nothing is cut (that left a door scene without its narration, DeepSeek 2026-10-06): think() asks once more.
+const copiesAny = (t) => String(t).split("\n").some((line) => copiesExample(lineKey(line)));
 function copiesExample(k) {
   const n = Number(CONFIG.TEXTING.COPY_WORDS) || 0;
   if (!k || !n) return false;
@@ -3970,7 +3972,7 @@ function copiesExample(k) {
   });
 }
 
-function dropRepeats(body, history, { examples = true } = {}) {
+function dropRepeats(body, history) {
   const said = new Set();
   for (const m of history.filter((x) => x.role === "assistant").slice(-CONFIG.TEXTING.REPEAT_LOOKBACK)) {
     for (const line of String(m.content).split("\n")) {
@@ -3983,7 +3985,7 @@ function dropRepeats(body, history, { examples = true } = {}) {
     const lines = [];
     for (const line of para.split("\n")) {
       const k = lineKey(line);
-      if (k && (said.has(k) || (examples && copiesExample(k)))) continue;
+      if (k && said.has(k)) continue;
       if (k) said.add(k);
       lines.push(line);
     }
@@ -4156,7 +4158,8 @@ function mayChooseVoice(history = []) {
  *   lastResort  a reply that only narrates is sent as a scene instead of nothing
  * Returns { kind: "text" | "voice" | "scene" | "none", texts (messages to send, in order; for a voice
  * note, words she typed before it), voiceText (the note, no tags), spoken (for ElevenLabs), stored
- * (for history), reaction, repeated (every line was already said), narrationOnly, repaired (narration
+ * (for history), reaction, repeated (every line was already said, by her or just now by him), copied (a line
+ * copies a style example of her prompt: think() asks once more), narrationOnly, repaired (narration
  * or acting had to be cut from her words: think() asks once more), selfie (null, or what the picture
  * of her should show, "" = any; only with canSelfie, while apart and not OOC) }
  */
@@ -4181,17 +4184,19 @@ const HER_MOVE = /\b(?:crosses|crossing|walks over|goes over|comes over|heads? (
 function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact = false, canSelfie = false, history = [], heard = "", lastResort = false } = {}) {
   const { emoji, rest: unreacted } = takeReaction(scrubModel(raw, { ooc }));
   let { want, rest } = takeSelfie(unreacted);
-  const out = { kind: "none", texts: [], voiceText: "", spoken: "", stored: "", reaction: canReact && !ooc && scene !== "together" ? emoji : "", selfie: canSelfie && !ooc && scene !== "together" ? want : null, repeated: false, narrationOnly: false, repaired: false };
+  const out = { kind: "none", texts: [], voiceText: "", spoken: "", stored: "", reaction: canReact && !ooc && scene !== "together" ? emoji : "", selfie: canSelfie && !ooc && scene !== "together" ? want : null, repeated: false, narrationOnly: false, repaired: false, copied: false };
   // Never the same line twice: not within this reply, not from her last few replies.
   // Only if every line is an old one does she resend it (think() already tried for a new reply).
+  // His own words sent back to him ("what time is it there? what are you up to" as her first bubble, DeepSeek 2026-10-06)
+  const said = heard ? [...history, { role: "assistant", content: heard }] : history;
   const fresh = (t) => {
     if (!t) return t;
-    const kept = dropRepeats(t, history);
+    const kept = dropRepeats(t, said);
     if (kept) return kept;
     out.repeated = true;
-    return dropRepeats(t, [], { examples: false });
+    return dropRepeats(t, []);
   };
-  const as = (kind, body, texts) => Object.assign(out, { kind, texts, stored: body });
+  const as = (kind, body, texts) => Object.assign(out, { kind, texts, stored: body, copied: copiesAny(body) });
   // In person, sent as one message: *actions* in italics, her words in quotes
   const asScene = (body) => {
     const scened = fresh(markScene(toYou(dropCues(body))));
@@ -4221,6 +4226,8 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
     let body = dropCues(stripAudioTags(bodyOf(rest)));
     if (!body) return out;
     if (!inPerson(body) && ACTION.test(heard)) body = asDialogue(body); // he's right there: she says it
+    // *actions* but her words left bare ("You're due, you know." between two *actions*, DeepSeek 2026-10-06): quoted
+    else if (ACTION.test(body) && !/["“”]/.test(body)) body = body.split(/\n\s*\n/).map((p) => (/\*/.test(p) ? p : asDialogue(p))).join("\n\n");
     body = fresh(markScene(toYou(body)));
     if (!body) return out;
     return inPerson(body) ? as("scene", body, [body]) : as("text", body, splitBubbles(body));

@@ -185,9 +185,15 @@ const L3 = [
   ["'..., habibti.' at the end -> habibi", "come here already, habibti.", {}, { kind: "text", texts: ["come here already, habibi."] }],
   ["talking about the word stays (DeepSeek 2026-10-06)", "habibi, not habibti. and it's 7 in the morning\n\nI'm not anyone's habibti this early. you're already calling me habibti\n\nHabibti? Really?", {},
     { kind: "text", texts: ["habibi, not habibti. and it's 7 in the morning", "I'm not anyone's habibti this early. you're already calling me habibti", "Habibti? Really?"] }],
-  ["a texting example copied word for word -> repeated (asked again), still sendable", "you're awake, no? your floor says you are", {}, { kind: "text", repeated: true }],
-  ["the in-person example copied with a changed ending -> repeated", "*Reem opens her door before you knock, a highlighter between her teeth, the cardigan sliding off one shoulder. She looks at the floorboard that cracked, then back at you.* \"Took you long enough.\"", { scene: "together" }, { kind: "scene", repeated: true }],
-  ["a new scene at the door is not a copy", "*She opens the door, hair still wet.* \"Took you long enough.\"", { scene: "together" }, { kind: "scene", repeated: false }],
+  ["a texting example copied word for word -> copied (asked again), still sent whole", "you're awake, no? your floor says you are", {}, { kind: "text", copied: true, texts: ["you're awake, no? your floor says you are"] }],
+  ["the in-person example copied with a changed ending -> copied", "*Reem opens her door before you knock, a highlighter between her teeth, the cardigan sliding off one shoulder. She looks at the floorboard that cracked, then back at you.* \"Took you long enough.\"", { scene: "together" }, { kind: "scene", copied: true }],
+  ["a copied example line never cuts a scene's narration (DeepSeek 2026-10-06)", "*Reem opens her door before you knock again, the cardigan sliding off her shoulder, coffee still in hand.*\n\n\"One more time and I'm charging rent for the landing.\"", { scene: "together" },
+    { kind: "scene", copied: true, texts: ["*Reem opens her door before you knock again, the cardigan sliding off her shoulder, coffee still in hand.*\n\n\"One more time and I'm charging rent for the landing.\""] }],
+  ["a new scene at the door is not a copy", "*She opens the door, hair still wet.* \"Took you long enough.\"", { scene: "together" }, { kind: "scene", copied: false }],
+  // --- DeepSeek, live 2026-10-06 (run 37459992726)
+  ["his question sent back as her first bubble is dropped", "what time is it there? what are you up to\n\n8:01 here. morning already, too bright", { heard: "what time is it there? what are you up to" }, { kind: "text", texts: ["8:01 here. morning already, too bright"] }],
+  ["scene: her words between *actions* with no quotes -> quoted", "You're due, you know. There's pastries on the counter.\n\n*She tips her head, a slow curl of a smile.*\n\nI don't lend money to men who don't say good morning.", { scene: "together", heard: "*sits next to you on the porch steps*" },
+    { kind: "scene", texts: ["\"You're due, you know. There's pastries on the counter.\"\n\n*She tips her head, a slow curl of a smile.*\n\n\"I don't lend money to men who don't say good morning.\""] }],
 ];
 
 section("model outputs");
@@ -961,7 +967,7 @@ yes(/Levantine rhythm/.test(P) && /Levantine/.test(W.CONFIG.VOICE.OR_INSTRUCTION
 yes(/He is always "you": never "he" or "him" when you talk to him/.test(P), "he is always \"you\" in her words");
 yes(/He is "you" in scenes too: she looks at you, never at him/.test(P), "he is \"you\" in scenes too (live 2026-10-05: \"squints at him\", \"his lap\")");
 yes(/Never lie about the facts of your life/.test(P) && /nobody lives above you/.test(P), "no lies about where she's from (live: \"boston. born and raised\"); nobody above her (live: \"the guy upstairs\")");
-yes(!/envelope that says CASH|two forks\n/.test(P.split("1. TEXTING")[1].split("INTIMACY")[0]), "texting/voice examples carry no story detail she'd copy (live: the CASH envelope in 5 of 9 replies)");
+yes(!/envelope that says CASH|two forks\n|napkin|taxes are optional/.test(P.split("1. TEXTING")[1].split("INTIMACY")[0]), "texting/voice examples carry no story detail she'd copy (live: the CASH envelope in 5 of 9 replies; the napkin receipt 6 and \"taxes are a suggestion\" 5 times in run 37459992726)");
 yes(/Say \\?"tonight\\?" only once it's evening/.test(W.CONFIG.NUDGES.TIME), "TIME nudge: \"tonight\" only in the evening");
 // Voice tags: she's offered only what her voice performs (Sulafat: laughs, whispers, sighs)
 { const V = W.CONFIG.VOICE, keep = V.PROVIDER;
