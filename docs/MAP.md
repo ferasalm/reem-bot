@@ -86,7 +86,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
   made by Gemini TTS in male voices, heard by Whisper, Nova-3 and OpenRouter audio-input models; clips to `face-candidates` runs/<id>-stt).
 - `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`,
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
-- `tools/settings-panel.html`: offline settings UI. Field schema in `SECTIONS`; types: text, textarea, long, list,
+- `tools/settings-panel.html`: offline settings UI, also published for the owner's phone as a private artifact
+  (https://claude.ai/artifact/HdyRFFduCU72iiEq36vLWb: republish after `build-panel.mjs` changes it). Field schema in `SECTIONS`; types: text, textarea, long, list,
   number, ms, range, bool, select, commands, map, groups, schedule. `tools/build-panel.mjs` rewrites its DEFAULTS.
 - Cloudflare tells the real cost of every REST call in the `cf-ai-neurons` response header (klein 104.2 at both
   256 and 640 px). Analytics (GraphQL `aiInferenceAdaptiveGroups.sum.totalNeurons`) lag a few minutes.

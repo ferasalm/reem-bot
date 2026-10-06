@@ -3,7 +3,7 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-06 (ninth session). **Deployed:** `main` = `dev` code (122dac8): DeepSeek V4 Flash writes her replies
+**Last updated:** 2026-10-06 (ninth session). **Deployed:** `main` = `dev` code (90e5c44): DeepSeek V4 Flash writes her replies
 again, Mistral Nemo is only the backup. To go back to the version before today: push c0e8109 to `main`.
 
 ## Where we are
@@ -20,10 +20,12 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - **New test tools:** `OWNER_CHAT` in `tools/test/live.mjs` replays his chat; Actions > Tests > Run workflow takes `model`
   to compare another OpenRouter model on the same situations.
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
+- **Settings panel on his phone** (private artifact, `tools/settings-panel.html`): https://claude.ai/artifact/HdyRFFduCU72iiEq36vLWb.
+  It shows the code's defaults, not live overrides. Republish it (Artifact tool, same file path or this URL) after any CONFIG change.
 
 ## Waiting on the owner
-- **Sex-act switch** (`PICTURE.RUNWARE.SEX_ACTS`, panel "Runware: allow sex acts", default off) is on `dev`, not deployed:
-  say "Deploy" to get it on the panel; it only acts on the Runware picture versions. The owner tests the pictures with /pic.
+- **Sex-act switch** (`PICTURE.RUNWARE.SEX_ACTS`, panel "Runware: allow sex acts", default off) is live: to try it, set
+  "Who draws her pictures" to Runware klein and the switch on (panel → overrides), then /pic. Only the Runware versions.
 - **In Telegram now:** `/setup` once (it shows which models answer: the chat model should read DeepSeek; if the panel's
   overrides still name Nemo, clear `LLM.MODEL` there), then `/rewind` past the short Nemo replies or `/restart` (old short
   replies in her history pull her back to that style). Then the same chat: "come over", "waiting for you to knock".
@@ -35,6 +37,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - `node tools/check.mjs` all 6 ok. Live runs read reply by reply: 37459244094 (Nemo, his chat), 37459455109 (DeepSeek, his
   chat), 37459992726 (DeepSeek, all; 1 broken = Nemo after an OpenRouter timeout), 37460798857 (DeepSeek, all; 0 broken).
 - Deploy run 37461633468 green (Deploy Worker, /health); live code read back: DeepSeek model, Nemo backup, the new guards.
+- Sex-act switch: unit and scenario rows (off by default, Runware only, under-18 still blocks); deploy run 37515274946 green, live
+  code read back. No sex-act picture was drawn by Claude.
 - Not checked: the panel's `CONFIG_OVERRIDES` (Claude can't read it); the live chat after the deploy.
 
 ## Next steps (in order)

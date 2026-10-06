@@ -9,7 +9,8 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   your settings panel (default off)... You'd do any testing of the actual pictures yourself in Telegram with /pic.\""):
   `PICTURE.RUNWARE.SEX_ACTS` (panel: "Runware: allow sex acts"). Off = `RUNWARE.NOT_DRAWN` holds as before. On = it is ignored on
   the Runware versions only (his /pic words, her selfie and scene words); the Cloudflare version keeps its list; the under-18
-  flag and "never OOC" still stop every picture. Claude didn't draw sex-act pictures; the owner tests them in Telegram. Not deployed yet.
+  flag and "never OOC" still stop every picture. Claude didn't draw sex-act pictures; the owner tests them in Telegram. Deployed (owner:
+  "Deploy"): `main` = 90e5c44, deploy run 37515274946 green, live code read back (`SEX_ACTS: false`, the switch in `mayDraw`).
 - 2026-10-06 — **Deploy** (owner: "Deploy"): `dev` (f496197) fast-forwarded into `main` (was 122dac8; only the handoff docs
   differed, the DeepSeek fix was already live). Deploy run 37463278664 green (Deploy Worker, /health), live code read back
   (DeepSeek model, Nemo backup, the guards).
