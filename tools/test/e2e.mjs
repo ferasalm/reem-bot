@@ -478,11 +478,11 @@ step("/spend (owner 2026-10-06): today's money from OpenRouter's and Runware's o
   globalThis.fetch = fetch0; delete env.RUNWARE_API_KEY; delete env.AI; store.delete("pics");
 }
 
-step("owner 2026-10-06: texts and hearing on Cloudflare first, OpenRouter only when it fails (the real defaults)");
+step("owner 2026-10-06, the real defaults: texts on Cloudflare first (OpenRouter when it fails); hearing on Gemini first (Whisper when it fails)");
 {
   const L = W.CONFIG.LLM, H = W.CONFIG.HEARING; const savedL = { ...L }, mem = W.CONFIG.MEMORY.MODEL, auto = W.CONFIG.AUTO.MODEL, orFirst = H.OR_FIRST;
   Object.assign(L, { MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", PROVIDER: {}, REASONING: {}, BACKUP_MODEL: "deepseek/deepseek-v4-flash", BACKUP_PROVIDER: savedL.PROVIDER, BACKUP_REASONING: savedL.REASONING });
-  H.OR_FIRST = false; W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL;
+  H.OR_FIRST = true; W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL;
   const picsOn = W.CONFIG.PICTURE.ENABLED; W.CONFIG.PICTURE.ENABLED = false;
   let cfDown = false; const ai = [];
   env.AI = { async run(model, input) { ai.push(model); if (cfDown) throw new Error("3040: capacity"); if (input.messages) return { choices: [{ message: { content: "workers ai here, habibi" }, finish_reason: "stop" }] }; if (input.audio) return { text: "whisper heard: come up" }; throw new Error("x"); } };
@@ -499,11 +499,11 @@ step("owner 2026-10-06: texts and hearing on Cloudflare first, OpenRouter only w
   llm = [{ content: "coming" }];
   await run(msg({ voice: { file_id: "w1", duration: 5 } }));
   const heard = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
-  console.log("Whisper hears first, Gemini not asked:", /whisper heard: come up/.test(heard) && gemini.calls.length === 0);
-  cfDown = true; llm = [{ content: "ok" }];
+  console.log("Gemini (OpenRouter) hears first, Whisper not asked:", gemini.calls.length === 1 && /come over/.test(heard) && !ai.some((m) => /whisper/.test(m)));
+  gemini.mode = "fail"; llm = [{ content: "ok" }];
   await run(msg({ voice: { file_id: "w2", duration: 5 } }));
   const heard2 = JSON.parse(store.get("h:7")).filter((m) => m.role === "user").at(-1).content;
-  console.log("Whisper down -> Gemini on OpenRouter:", gemini.calls.length === 1 && /come over/.test(heard2));
+  console.log("Gemini down -> Whisper on Workers AI:", /whisper heard: come up/.test(heard2) && ai.some((m) => /whisper/.test(m)));
   Object.assign(L, savedL); W.CONFIG.MEMORY.MODEL = mem; W.CONFIG.AUTO.MODEL = auto; H.OR_FIRST = orFirst; gemini.mode = "fail";
   W.CONFIG.PICTURE.ENABLED = picsOn; delete env.AI; store.delete("pics"); store.delete("ai_error");
 }

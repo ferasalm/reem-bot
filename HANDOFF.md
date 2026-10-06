@@ -10,8 +10,8 @@ Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month). **Live now:**
 - **Texts, memory notes, /auto:** DeepSeek V4 Flash on Workers AI (`@cf/deepseek-ai/deepseek-v4-flash-0731`), the same DeepSeek on
   OpenRouter (Novita...) as the backup. Her replies: reasoning "none" + empty-answer retries (last 2 "low"); tasks: "low".
-- **Voice:** Sulafat (OpenRouter, the only OpenRouter main); backup aura-2 Andromeda (Workers AI), then ElevenLabs.
-- **Hearing:** Whisper (Workers AI) first, Gemini 3.8 Flash (OpenRouter) when it fails, Scribe last (`HEARING.OR_FIRST` false).
+- **Voice:** Sulafat (OpenRouter); backup aura-2 Andromeda (Workers AI), then ElevenLabs. OpenRouter mains: Sulafat and Gemini.
+- **Hearing:** Gemini 3.8 Flash (OpenRouter) first, Whisper (Workers AI) when it fails, Scribe last (`HEARING.OR_FIRST` true).
 - **Pictures:** Runware klein 9B with her face (`PICTURE.ROUTE` "runware-klein", $0.50/day, then Cloudflare klein); Nano Banana
   and Nemo removed. Seeing his photos: Workers AI (Llama 4 Scout). Runware balance $19.07 (2026-10-06).
 - **New:** `RECALL` long memory (Vectorize `reem-memory`) + meaning-based repeat check (0.68); `DAY` real weather + daily plan;

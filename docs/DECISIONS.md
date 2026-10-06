@@ -5,6 +5,10 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Main routes checked; hearing on Gemini first** (owner: "CHECK that the Main route: Her texts, memory, /auto: DeepSeek
+  on cloudflare / Her voice: Sulafat on OpenRouter / Hearing: Gemini on OpenRouter / Seeing your photos: Cloudflare / Her pictures:
+  Runware klein"): `HEARING.OR_FIRST` true (Gemini first, Whisper when it fails, Scribe last); the other four were already live. A
+  unit row pins all five. *Supersedes the hearing order (Whisper first) of the entry below.*
 - 2026-10-06 — **Cloudflare first for texts and hearing, OpenRouter the backup; deploy** (owner: "Swap between text main and
   backup, putting cloudflare to the main and openrouter to backup, since it succeeds even with explicit texts. Now openorouter will only
   handle voice as main. Then deploy."): `LLM.MODEL`, `MEMORY.MODEL`, `AUTO.MODEL` `@cf/deepseek-ai/deepseek-v4-flash-0731`;

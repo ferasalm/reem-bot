@@ -171,7 +171,7 @@ eq(W.CONFIG.LLM.MODEL, "@cf/deepseek-ai/deepseek-v4-flash-0731", "chat model: De
 eq(W.CONFIG.LLM.BACKUP_MODEL, "deepseek/deepseek-v4-flash", "backup: DeepSeek on OpenRouter (owner 2026-10-06)");
 const ds = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 });
 eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "OpenRouter backup: DeepSeek's providers + reasoning off");
-eq(W.CONFIG.HEARING.OR_FIRST, false, "hearing: Whisper (Workers AI) first, Gemini when it fails (owner 2026-10-06)");
+eq(W.CONFIG.HEARING.OR_FIRST, true, "hearing: Gemini (OpenRouter) first, Whisper when it fails (owner 2026-10-06)");
 eq(W.CONFIG.PICTURE.LINGERIE.ENABLED, false, "Nano Banana removed (owner 2026-10-06)");
 eq(Object.keys(W.openRouterBody("sao10k/l3-lunaris-8b", [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "another model: no routing");
 eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.MODEL), true, "memory and /auto use DeepSeek (the chat model's routing)");
@@ -250,6 +250,14 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   await W.askModel(env, [{ role: "user", content: "x" }], { max_tokens: 100 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1, task: true });
   await W.askModel(env, [{ role: "user", content: "x" }], { max_tokens: 100 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1 });
   eq(seen, [["low", 1600], ["none", 100]], "Workers AI: tasks think a little (low), her replies don't (none)");
+}
+{
+  // the owner's main routes (2026-10-06): texts/memory/auto DeepSeek on Cloudflare, voice Sulafat on OpenRouter, hearing Gemini on
+  // OpenRouter, his photos seen on Cloudflare, her pictures on Runware klein
+  const C = W.CONFIG;
+  eq([C.LLM.MODEL, C.MEMORY.MODEL, C.AUTO.MODEL, C.VOICE.PROVIDER, C.VOICE.OR_MODEL, C.VOICE.OR_VOICE, C.HEARING.OR_FIRST, C.HEARING.OR_MODEL, C.VISION.MODEL.startsWith("@cf/"), C.PICTURE.ROUTE, C.PICTURE.RUNWARE.MODEL],
+    ["@cf/deepseek-ai/deepseek-v4-flash-0731", "@cf/deepseek-ai/deepseek-v4-flash-0731", "@cf/deepseek-ai/deepseek-v4-flash-0731", "openrouter", "google/gemini-3.8-flash-tts", "Sulafat", true, "google/gemini-3.8-flash", true, "runware-klein", "runware:400@2"],
+    "the owner's main routes");
 }
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);

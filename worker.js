@@ -448,7 +448,7 @@ const CONFIG = {
     // Gemini on OpenRouter first (owner 2026-10-05: "Go with Gemini 3.8 flash for voice"): it hears his words, Arabic and
     // Arabizi, and writes laughs, sighs and tone in parentheses (stt bench run 37266123079); Whisper when it fails
     OR_MODEL: "google/gemini-3.8-flash", // OpenRouter, audio in (Telegram's OGG as is); "" = never
-    OR_FIRST: false,                   // owner 2026-10-06: Whisper (Workers AI) first, Gemini when it fails; true = Gemini first
+    OR_FIRST: true,                    // owner 2026-10-06: "Hearing: Gemini on OpenRouter" (main); Whisper (Workers AI) when it fails; false = Whisper first
     OR_PROMPT: "This is a voice note a man sent to a woman on Telegram. Transcribe it exactly as spoken: English in English, Arabic in Arabic script, Arabizi or Arabic words mixed into English in Latin letters as he says them (habibti, yalla, khalas). Put non-speech sounds and tone in parentheses where they happen, for example (laughs), (sighs), (whispering), (teasing), (annoyed), only when you clearly hear them. Output only the transcript.",
     OR_TIMEOUT_MS: 25000,              // Gemini's limit before Whisper takes over
     OR_MAX_SECONDS: 300,               // longer voice notes go straight to Whisper (cost: about $0.02 a minute on Gemini)
