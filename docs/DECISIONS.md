@@ -5,6 +5,11 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Any provider, not only Cloudflare or OpenRouter** (owner: "Ignore the \"no other provider\" rule, it was
+  only for that specific deepseek model, which can change; it's not a hard rule, it was only for that specific chat session.
+  I am currently looking for a better model for the same or cheaper price."): Claude may propose and bench models on any
+  provider (Runware included) for text, pictures, voice and hearing; the goal is a better model at the same or a lower
+  price. Switching a live model is still the owner's call. *Supersedes "Cloudflare or OpenRouter only" (2026-10-03).*
 - 2026-10-05 — **Deploy Mistral Nemo; keep a backup branch** (owner: "Attempt the live test again, if everything is fine,
   deploy. If the live test still isn't working, you may skip it and deploy directly so I can test it myself. Also, create a
   backup branch in the case things don't work and we want to revert back to the previous version."): `backup-before-nemo` =
@@ -116,7 +121,7 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   prompting skill in `.claude/settings.json`.
 - 2026-10-03 — **Deploy** (owner: "Deploy"): `dev` merged into `main`: Lebanese Reem in Belmont, Basbousa "she", fixed
   places, bigger and more frequent pictures, the Workers AI cap of 28,000 neurons a day, the branch-delete button.
-- 2026-10-03 — **Image and model providers: Cloudflare or OpenRouter only** (owner: "I already paid for cloudflare,
+- ~~2026-10-03 — **Image and model providers: Cloudflare or OpenRouter only**~~ (superseded 2026-10-06: any provider) (owner: "I already paid for cloudflare,
   we must use it, keep suggesting alternatives that can be used via cloudflare or openrouter. We will not stay for
   cloudflare's limits for lingerie, but we will not use another image service other than cloudflare or
   openrouter. We are looking for high-quality, low-cost, efficient models for text, pictures, and voice."):
