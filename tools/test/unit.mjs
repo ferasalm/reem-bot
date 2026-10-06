@@ -240,6 +240,14 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const out = await W.askModel(env, [{ role: "user", content: "hi" }], { max_tokens: 20 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1 });
   eq([out, n], ["there you are", 3], "an empty Workers AI answer is asked again");
 }
+{
+  // a task (memory, /auto, the plan, /setup) gets reasoning "low" and room for it; her replies "none"
+  const seen = [];
+  const env = { AI: { async run(model, input) { seen.push([input.reasoning_effort, input.max_tokens]); return { choices: [{ message: { content: "ok then" } }] }; } } };
+  await W.askModel(env, [{ role: "user", content: "x" }], { max_tokens: 100 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1, task: true });
+  await W.askModel(env, [{ role: "user", content: "x" }], { max_tokens: 100 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1 });
+  eq(seen, [["low", 1600], ["none", 100]], "Workers AI: tasks think a little (low), her replies don't (none)");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

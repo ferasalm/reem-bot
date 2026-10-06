@@ -331,7 +331,7 @@ const CONFIG = {
     MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // same as LLM.MODEL (Workers AI); LLM.BACKUP_MODEL when it fails
     PROMPT: MEMORY_PROMPT,             // defined above
     SAMPLING: { temperature: 0.3, max_tokens: 600 },
-    TIMEOUT_MS: 25000,
+    TIMEOUT_MS: 45000,                 // a short thinking step on Workers AI (~20 s, cf-probe 2026-10-06); runs after her reply
     ATTEMPTS: 1,
     HISTORY_MAX: 40,                   // once the chat log has this many messages...
     HISTORY_KEEP: 24,                  // ...the newest this many stay and the rest fold into notes
@@ -627,7 +627,7 @@ Changing the story
   AUTO: {
     MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // same as LLM.MODEL (Workers AI); LLM.BACKUP_MODEL when it fails
     SAMPLING: { temperature: 1.0, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 160 },
-    TIMEOUT_MS: 15000,
+    TIMEOUT_MS: 40000,                 // a short thinking step on Workers AI (~20 s, cf-probe 2026-10-06)
     TRANSCRIPT_MAX_CHARS: 6000,        // how much of the recent chat the draft is based on
     // owner 2026-10-05: drafts were "bland, cliché, cringe, does not advance, and doesn't yield variety": a specific man,
     // one story move per draft (MOVES, never the same one twice in a row), no stock lines, nothing he already said
@@ -1696,7 +1696,7 @@ async function autoDraft(env, state, idea, { avoid = [], skipped = [] } = {}) {
     { role: "system", content: system },
     { role: "user", content: fill(A.ASK, { transcript: transcript || fill(CONFIG.INBOX.CONVERSATION_START), user }) + (skipped.length && A.AGAIN ? fill(A.AGAIN, { drafts: skipped.map((d) => `- ${d}`).join("\n") }) : "") },
   ];
-  const out = await callModel(env, messages, A.SAMPLING, { model: A.MODEL, timeoutMs: A.TIMEOUT_MS, trimCut: true, backup: CONFIG.LLM.BACKUP_MODEL });
+  const out = await callModel(env, messages, A.SAMPLING, { model: A.MODEL, timeoutMs: A.TIMEOUT_MS, trimCut: true, backup: CONFIG.LLM.BACKUP_MODEL, task: true });
   return { text: cleanDraft(out, user), move };
 }
 
@@ -2143,7 +2143,7 @@ async function refreshDay(env, cached, today, { plan, weather }) {
     const usual = (CONFIG.CHARACTER.SCHEDULE || []).filter((x) => x.from >= D.PLAN_FROM || x.to > D.PLAN_FROM).map((x) => `${x.from}-${x.to}: ${x.doing}`).join("; ");
     const date = new Date().toLocaleDateString("en-US", { timeZone: CONFIG.CHARACTER.TIMEZONE, weekday: "long", month: "long", day: "numeric" });
     const prompt = fill(D.PLAN_PROMPT, { date, weather: out.weather || "unknown", usual, from: D.PLAN_FROM, to: D.PLAN_TO });
-    const text = await callModel(env, [{ role: "user", content: prompt }], { temperature: 0.9, max_tokens: 500 }, { model: D.PLAN_MODEL, timeoutMs: 25000, attempts: 3 });
+    const text = await callModel(env, [{ role: "user", content: prompt }], { temperature: 0.9, max_tokens: 500 }, { model: D.PLAN_MODEL, timeoutMs: 40000, attempts: 2, task: true });
     const lines = parsePlan(text);
     if (lines.length >= 3) { out.plan = lines; out.day = today; }
   }
@@ -2432,7 +2432,7 @@ async function remember(env, chatId, oldNotes, overflow) {
       { role: "system", content: fill(M.PROMPT) },
       { role: "user", content: `OLD NOTES:\n${oldNotes || "(none yet)"}\n\nNEW CONVERSATION:\n${transcript}` },
     ];
-    const notes = await callModel(env, messages, M.SAMPLING, { model: M.MODEL, timeoutMs: M.TIMEOUT_MS, attempts: M.ATTEMPTS, backup: CONFIG.LLM.BACKUP_MODEL });
+    const notes = await callModel(env, messages, M.SAMPLING, { model: M.MODEL, timeoutMs: M.TIMEOUT_MS, attempts: M.ATTEMPTS, backup: CONFIG.LLM.BACKUP_MODEL, task: true });
     const lines = notes.split("\n").map((l) => l.trim()).filter((l) => l.startsWith("-"));
     if (!lines.length) throw new Error("memory notes came back off-format");
     await kv.put(`m:${chatId}`, lines.join("\n").slice(0, M.MAX_CHARS));
@@ -2469,14 +2469,16 @@ function openRouterBody(model, messages, sampling) {
 
 // trimCut: a reply that hit max_tokens ends at its last full sentence instead of mid-word
 // backup: a model to try once when every attempt with `model` failed
-async function callModel(env, messages, sampling, { model = CONFIG.LLM.MODEL, timeoutMs = CONFIG.LLM.TIMEOUT_MS, attempts = CONFIG.LLM.ATTEMPTS, trimCut = false, backup = "" } = {}) {
+// task: a job, not her reply (memory notes, /auto, the day's plan, /setup's check): Workers AI's DeepSeek gets a short
+// thinking step, without which it answered such prompts with nothing 3-5 times in 5 (cf-probe runs 2026-10-06)
+async function callModel(env, messages, sampling, { model = CONFIG.LLM.MODEL, timeoutMs = CONFIG.LLM.TIMEOUT_MS, attempts = CONFIG.LLM.ATTEMPTS, trimCut = false, backup = "", task = false } = {}) {
   try {
-    return await askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut });
+    return await askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut, task });
   } catch (e) {
     if (!backup || backup === model) throw e;
     console.error(`${model} failed, trying ${backup}:`, e.message);
     const fitted = fitMessages(messages, CONFIG.LLM.BACKUP_CONTEXT_TOKENS, sampling.max_tokens);
-    return askModel(env, fitted, sampling, { model: backup, timeoutMs, attempts: 1, trimCut });
+    return askModel(env, fitted, sampling, { model: backup, timeoutMs, attempts: 1, trimCut, task });
   }
 }
 
@@ -2497,14 +2499,14 @@ function fitMessages(messages, contextTokens, maxTokens = 0) {
   return out;
 }
 
-async function askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut }) {
+async function askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut, task = false }) {
   let lastErr;
   for (let attempt = 0; attempt < attempts; attempt++) {
     if (attempt) await sleep(CONFIG.LLM.RETRY_DELAY_MS);
     // a Workers AI model (@cf/...): the AI binding instead of OpenRouter (owner 2026-10-06: the backup on Cloudflare)
     if (/^@cf\//.test(model)) {
       try {
-        const out = await workersChat(env, model, messages, sampling, timeoutMs, trimCut);
+        const out = await workersChat(env, model, messages, sampling, timeoutMs, trimCut, task);
         if (out) return out;
         lastErr = new ApiError("The model sent an empty reply.", true);
       } catch (e) {
@@ -2546,9 +2548,9 @@ async function askModel(env, messages, sampling, { model, timeoutMs, attempts, t
 
 // A chat model on Workers AI (OpenAI-style messages). Only temperature and max_tokens are sent (min_p and
 // repetition_penalty are OpenRouter's), and no thinking step: Cloudflare's DeepSeek thinks by default
-async function workersChat(env, model, messages, sampling, timeoutMs, trimCut) {
+async function workersChat(env, model, messages, sampling, timeoutMs, trimCut, task = false) {
   if (!env.AI) throw new ApiError("Workers AI is not connected (the AI binding).", false);
-  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: sampling.max_tokens, reasoning_effort: "none" };
+  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: (sampling.max_tokens || 0) + (task ? 1500 : 0), reasoning_effort: task ? "low" : "none" }; // room for the thinking
   if (sampling.temperature != null) input.temperature = sampling.temperature;
   // Cloudflare's DeepSeek sometimes ends at once with nothing (1 token, "stop"): 7 of 25 calls with reasoning "none",
   // 3 of 28 with "low" (live runs 37544942514, 37544945221). An empty answer is back in ~1 s and its prompt is cached,
@@ -4945,7 +4947,7 @@ async function setup(url, env) {
     for (const [model, label] of models) {
       if (/^@cf\//.test(model)) {
         try {
-          await askModel(env, [{ role: "user", content: "Say hello in five words." }], { max_tokens: 40 }, { model, timeoutMs: 20000, attempts: 1 });
+          await askModel(env, [{ role: "user", content: "Say hello in five words." }], { max_tokens: 40 }, { model, timeoutMs: 30000, attempts: 1, task: true });
           add(true, `Workers AI: ${model}${label}`, "Model answered.");
         } catch (e) {
           add(false, `Workers AI: ${model}${label}`, e.message);
