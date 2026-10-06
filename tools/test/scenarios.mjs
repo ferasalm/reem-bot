@@ -178,6 +178,16 @@ const L3 = [
     { history: [{ role: "assistant", content: "hi you", parts: [{ id: 1, text: "hi you" }] }] }, { kind: "voice", spoken: "Okay okay, you win." }],
   ["code decided a voice note -> voice, even right after one", "okay okay, you win.",
     { mode: "voice", history: [{ role: "assistant", content: "[voice] hi", parts: [{ id: 1, text: "[voice] hi" }] }] }, { kind: "voice", spoken: "Okay okay, you win." }],
+  // --- Mistral Nemo live 2026-10-06 (owner: "she's gotten so weird"): his "habibti" echoed back; prompt examples sent word for word
+  ["'habibti' to him -> habibi", "hey habibti", {}, { kind: "text", texts: ["hey habibi"] }],
+  ["'Habibti' in a scene's quoted words -> Habibi", "*She leans on the doorframe.* \"Habibti, it's seven.\"", { scene: "together" }, { kind: "scene", texts: ["*She leans on the doorframe.* \"Habibi, it's seven.\""] }],
+  ["'my mother calls me habibti' stays", "my mother calls me habibti. you don't get to", {}, { kind: "text", texts: ["my mother calls me habibti. you don't get to"] }],
+  ["'..., habibti.' at the end -> habibi", "come here already, habibti.", {}, { kind: "text", texts: ["come here already, habibi."] }],
+  ["talking about the word stays (DeepSeek 2026-10-06)", "habibi, not habibti. and it's 7 in the morning\n\nI'm not anyone's habibti this early. you're already calling me habibti\n\nHabibti? Really?", {},
+    { kind: "text", texts: ["habibi, not habibti. and it's 7 in the morning", "I'm not anyone's habibti this early. you're already calling me habibti", "Habibti? Really?"] }],
+  ["a texting example copied word for word -> repeated (asked again), still sendable", "you're awake, no? your floor says you are", {}, { kind: "text", repeated: true }],
+  ["the in-person example copied with a changed ending -> repeated", "*Reem opens her door before you knock, a highlighter between her teeth, the cardigan sliding off one shoulder. She looks at the floorboard that cracked, then back at you.* \"Took you long enough.\"", { scene: "together" }, { kind: "scene", repeated: true }],
+  ["a new scene at the door is not a copy", "*She opens the door, hair still wet.* \"Took you long enough.\"", { scene: "together" }, { kind: "scene", repeated: false }],
 ];
 
 section("model outputs");

@@ -455,6 +455,7 @@ const CONFIG = {
     MAX_BUBBLES: 4,                    // a text reply is split into at most this many messages
     REPEAT_LOOKBACK: 8,                // her last N replies are checked for repeated lines
     REPEAT_MIN_WORDS: 4,               // shorter lines ("lol", "ok but") may come back in later replies
+    COPY_WORDS: 6,                     // a line with this many words in a row from a prompt example is a copy (0 = off)
     OPENING_LOOKBACK: 4,               // she is told how her last N replies started...
     OPENING_WORDS: 3,                  // ...using their first N words, so she opens differently
     SCENE_TIMEOUT_MIN: 120,            // an in-person scene counts as over after this long without messages
@@ -3939,7 +3940,37 @@ function lineKey(line) {
 
 // Drops every line she already sent, in this reply or in her last few replies.
 // Short lines like "lol" or "ok but" may come back in later replies, just not twice in one.
-function dropRepeats(body, history) {
+// The style examples in her prompt (indented lines after "Example:"/"Examples, ..."): Mistral Nemo sent them word
+// for word ("you're awake, no? your floor says you are", the in-person example scene; live 2026-10-06)
+let examples = null;
+function exampleKeys() {
+  const prompt = CONFIG.PERSONA.SYSTEM_PROMPT;
+  if (examples && examples.prompt === prompt) return examples.keys;
+  const keys = [];
+  let inside = false;
+  for (const line of prompt.split("\n")) {
+    if (/^- Examples?\b.*:\s*$/.test(line)) inside = true;
+    else if (inside && /^ {2}\S/.test(line)) keys.push(lineKey(line));
+    else if (line.trim()) inside = false;
+  }
+  examples = { prompt, keys: keys.filter(Boolean) };
+  return examples.keys;
+}
+
+// A line copied from a style example: the same words, or any run of COPY_WORDS words in a row from one
+function copiesExample(k) {
+  const n = Number(CONFIG.TEXTING.COPY_WORDS) || 0;
+  if (!k || !n) return false;
+  const words = k.split(" ");
+  return exampleKeys().some((e) => {
+    if (e === k) return true;
+    if (words.length < n) return false;
+    for (let i = 0; i + n <= words.length; i++) if (` ${e} `.includes(` ${words.slice(i, i + n).join(" ")} `)) return true;
+    return false;
+  });
+}
+
+function dropRepeats(body, history, { examples = true } = {}) {
   const said = new Set();
   for (const m of history.filter((x) => x.role === "assistant").slice(-CONFIG.TEXTING.REPEAT_LOOKBACK)) {
     for (const line of String(m.content).split("\n")) {
@@ -3952,7 +3983,7 @@ function dropRepeats(body, history) {
     const lines = [];
     for (const line of para.split("\n")) {
       const k = lineKey(line);
-      if (k && said.has(k)) continue;
+      if (k && (said.has(k) || (examples && copiesExample(k)))) continue;
       if (k) said.add(k);
       lines.push(line);
     }
@@ -4000,9 +4031,12 @@ function scrubModel(t, { ooc = false } = {}) {
   // Two versions offered ("(or)", "Alternatively:", "---" on a line of its own): only the first is kept
   const alt = t.search(/\n[ \t]*(?:\(\s*or\s*\)|\[\s*or\s*\]|alternatively\b[,:]?|option\s*\d+\s*:|-{3,})[ \t]*(?=\n|$)|\n[ \t]*OR:?[ \t]*(?=\n|$)/i);
   if (alt > 0 && /\p{L}/u.test(t.slice(0, alt))) t = t.slice(0, alt);
-  // She calls him habibi: "habibti" is what you call a woman (she echoed his "habibti" back, live 2026-10-06);
-  // "my mother calls me habibti" stays
-  t = t.replace(/(?<!\bcall(?:s|ed)? me )\b([h7])abibti\b/gi, (_, h) => `${h}abibi`);
+  // She calls him habibi: "habibti" is what you call a woman (Nemo echoed his "habibti" back: "hey habibti", live
+  // 2026-10-06). Only where she says it to him ("hey habibti", "Habibti, ...", "..., habibti."); talking about the
+  // word stays ("habibi, not habibti", "I'm not anyone's habibti", "calling me habibti": DeepSeek, same day)
+  t = t.replace(/\b((?:hey+|hi|hello|morning|night|goodnight|ok|okay|yalla|bye|ya|aw+|mm+)\b,?\s+)([h7])abibti\b(?!["”'’])/gi, (_, a, h) => `${a}${h}abibi`)
+    .replace(/(^|[.!?…]\s+|["“])([h7])abibti(?=,)/gim, (_, a, h) => `${a}${h}abibi`)
+    .replace(/(,\s*)([h7])abibti(?=[.!?…]*["”]?\s*$)/gim, (_, a, h) => `${a}${h}abibi`);
   if (!ooc) {
     const aside = String.raw`(?:ooc|note|author'?s\s+note|a\/n)\s*:`;
     t = t
@@ -4155,7 +4189,7 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
     const kept = dropRepeats(t, history);
     if (kept) return kept;
     out.repeated = true;
-    return dropRepeats(t, []);
+    return dropRepeats(t, [], { examples: false });
   };
   const as = (kind, body, texts) => Object.assign(out, { kind, texts, stored: body });
   // In person, sent as one message: *actions* in italics, her words in quotes
