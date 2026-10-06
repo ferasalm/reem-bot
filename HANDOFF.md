@@ -3,7 +3,7 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-06 (tenth session). **Deployed:** `main` = `dev` = 59177d8 (run 37520213264): "come over" and the
+**Last updated:** 2026-10-06 (eleventh session). **Deployed:** `main` = `dev` = 59177d8 (run 37520213264): "come over" and the
 habibi fix are live. To go back to the version before: push 90e5c44 to `main`.
 
 ## Where we are
@@ -25,9 +25,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 ## Waiting on the owner
 - **In Telegram now:** `/rewind` past the short Nemo replies, or `/restart` (old short replies pull her back to that
   style). Then try "come over".
-- **MiniMax voices to judge:** 10 clips sent in chat (TTS bench run 37538682473; MiniMax Speech 2.8 on Runware, voices
-  English_captivating_female1, English_Graceful_Lady, English_PlayfulGirl, English_SentimentalLady, Arabic_CalmWoman; the
-  Fish/Qwen lines; about $0.09 per 1,000 characters). Which voice, if any, and as her voice or the backup?
+- **Deploy?** `dev` has `PICTURE.ROUTE` "runware-klein" (every picture on klein 9B with her face, nudity allowed, $0.50/day
+  cap, then Cloudflare). Not live until he says "Deploy". Check the Runware balance covers it (~$0.0008 a picture).
+- **Voice to judge:** 9 clips sent (TTS bench 37541102035): MiniMax Turbo (OpenRouter, $0.06/1k) and HD (Runware, $0.10/1k),
+  Arabic_CalmWoman, Arabic words in Arabic script, vs Sulafat (~$0.015/1k, live). Does ح come through? Which voice, if any?
+  If MiniMax: the Worker must turn her Arabizi (habibi, yalla) into Arabic script before speaking.
 - Sex-act switch: to try it, Runware klein as the picture version plus the switch on (tell Claude; no panel), then /pic.
 - Nano Banana's money cap $0.50 a day (`LINGERIE.DAILY_USD`): raise it?
 - Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches);

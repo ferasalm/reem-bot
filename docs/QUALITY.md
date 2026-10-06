@@ -447,3 +447,11 @@ $0.00078 (klein) / $0.0006 (TwinFlow), $0.0043 in all; the owner's place picture
 - messy bun, no makeup, oversized gray hoodie, couch with tea, her living room: as asked; "close-up from above" drawn as a medium shot.
 - short wavy bob, pink gloss, white linen sundress, beach at sunset, from behind looking back: as asked.
 - two loose braids, smoky eyes, naked, kneeling: nude, braids; kneeling on the rug by her bed (asked: on her bed).
+
+## MiniMax Turbo vs HD vs Sulafat, Arabic words in Arabic script (2026-10-06, tts bench 37541102035)
+Owner: "test the turbo with the Arabic script". 3 new lines (ولو, حبيبي, يعني, يلا, خلص in Arabic script, the rest English); 9/9 clips made.
+MiniMax Turbo (`minimax/speech-2.8-turbo` on OpenRouter, $0.06/1k list) and HD (`minimax:speech@2.8` on Runware, billed $0.0136-0.0153 a
+line, ~$0.10/1k), both Arabic_CalmWoman; Sulafat as live. Runware's model search lists only `minimax:speech@2.8` for speech (no Turbo).
+Whisper heard every English word on all 9 (Sulafat: "Hosepian court release" once); the Arabic words came back as Yaani/Yala/Yalla,
+"Hulus" (Turbo), "Chalas" (HD), "Khalas" (Sulafat), ولو as "Well, oh" / "Walo" / "Well-o". Whisper writes habibi either way: whether
+ح is said is for the owner's ear. Clips sent in chat.

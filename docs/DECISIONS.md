@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Runware klein for every picture; MiniMax Turbo test with Arabic script** (owner: "You write the lines. test the turbo
+  with the Arabic script. Switch on the runware klein for all pictures."): `PICTURE.ROUTE` default `runware-klein` (was `cloudflare`):
+  selfies, scenes, lingerie, /pic and /look on klein 9B with her face, TwinFlow when it fails, Cloudflare past `RUNWARE.DAILY_USD`
+  $0.50; /face and /health stay on Cloudflare. On `dev`, not deployed. TTS bench 37541102035: 3 new lines (Claude's), Arabic words in
+  Arabic script, MiniMax Turbo (OpenRouter; Runware has only one MiniMax speech model, billed at HD price) and HD, Arabic_CalmWoman,
+  vs Sulafat; 9 clips sent. Voice unchanged until the owner picks.
 - 2026-10-06 — **Try MiniMax TTS on Runware** (owner: "Step two is already fixed since we changed the model back to deepseek. Now,
   i want to try minimax tts from runware. Let's test it with samples."): the "him at her door" next step is dropped; TTS bench run
   37538682473 made 10 MiniMax Speech 2.8 clips (5 voices x the Fish/Qwen lines), sent in chat. Nothing changed in the bot.
