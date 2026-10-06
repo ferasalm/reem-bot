@@ -5,6 +5,9 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Try MiniMax TTS on Runware** (owner: "Step two is already fixed since we changed the model back to deepseek. Now,
+  i want to try minimax tts from runware. Let's test it with samples."): the "him at her door" next step is dropped; TTS bench run
+  37538682473 made 10 MiniMax Speech 2.8 clips (5 voices x the Fish/Qwen lines), sent in chat. Nothing changed in the bot.
 - 2026-10-06 — **Deploy** (owner: "Deploy"): `dev` (59177d8) fast-forwarded into `main` (was 90e5c44): "come over" (she mostly
   goes), the habibi fix, the deploy's /setup step. Deploy run 37520213264 green (Deploy Worker, /health drew and saw, /setup all ✅:
   DeepSeek answered, Nemo backup, Sulafat, Gemini hearing); live code read back (`VISIT_CHANCE: 0.75`, `asksHerOver`, the habibi

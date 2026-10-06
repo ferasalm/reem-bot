@@ -25,6 +25,9 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 ## Waiting on the owner
 - **In Telegram now:** `/rewind` past the short Nemo replies, or `/restart` (old short replies pull her back to that
   style). Then try "come over".
+- **MiniMax voices to judge:** 10 clips sent in chat (TTS bench run 37538682473; MiniMax Speech 2.8 on Runware, voices
+  English_captivating_female1, English_Graceful_Lady, English_PlayfulGirl, English_SentimentalLady, Arabic_CalmWoman; the
+  Fish/Qwen lines; about $0.09 per 1,000 characters). Which voice, if any, and as her voice or the backup?
 - Sex-act switch: to try it, Runware klein as the picture version plus the switch on (tell Claude; no panel), then /pic.
 - Nano Banana's money cap $0.50 a day (`LINGERIE.DAILY_USD`): raise it?
 - Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches);
@@ -42,9 +45,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
 1. **Owner's live test** (list above), then report slips. *Effort: low*
-2. **Him at her door while apart:** after his "Kiss kiss" (her last text "Knock."), she writes him arriving at her door; with
-   no HER_MOVE words the code sends her quoted words as texts ("You took the stairs three at a time") 2/5. Decide: accept
-   him arriving as a scene, or keep her on the phone. *Effort: medium*
+2. **MiniMax voice (owner's ear):** if he picks a MiniMax voice, add it as a voice provider behind Sulafat or in its place
+   (`VOICE.PROVIDER`, Runware `audioInference`), then a test clip on /setup. *Effort: medium*
 3. **Selfie framing:** the phone shows in plain selfies (1 of 6); framed by someone else (1 of 8). *Effort: medium*
 4. **Text model** (owner's direction): bench cheaper or better models on `OWNER_CHAT` with the `model` input before any
    switch. *Effort: high*
