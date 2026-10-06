@@ -357,3 +357,17 @@ Two lines with [laughs softly], [whispering], [sighs], [teasing], [low and breat
   stripped): 2/2, words exact, $0.0021 and $0.0019 a clip.
 - Not made: Fish on Runware (`thirdPartyInsufficientCredits`, needs $5); Qwen CustomVoice (voice names are lowercase: `serena`).
 - Owner's verdict by ear: "The voice samples are worse than what we currently have": Sulafat stays.
+
+## TwinFlow fuller arms (2026-10-06, image bench 37404957788), each read at full size
+Owner: "let's try to make her have fuller arms and that's the priority". Nude, 4 arm wordings x 2 poses (standing facing the
+camera with the arms away from the body; /look in bed), the stronger body words of run 37400155674. 7 of 8 drawn ($0.0006 each);
+#07 (bed, W3) did not come back (balance hold, not content).
+- W1 "soft, full, fleshy upper arms with no muscle definition" (#01 standing, #05 bed): slim arms both; no change from before.
+- W2 "plump, chubby, soft upper arms, noticeably full and rounded from shoulder to elbow" (#02, #06): a little fuller standing,
+  slim in bed.
+- W3 "full, heavy, soft upper arms with a little natural arm fat, much wider than her forearms" (#03): clearly fuller upper
+  arms, softer belly.
+- W4 arms named first ("Photo of a woman with full soft chubby arms: ..."), "a 165 cm, 75 kg soft curvy body with full soft
+  chubby arms" (#04 standing, #08 bed): the fullest arms in both poses, a soft belly with a pooch, rounder face, still the same
+  woman (bangs, brows). Best match for BMI ~26 so far; arms 2/2.
+- Pose slips: in bed she lies on her back seen from above 3/3 (asked: on her side).
