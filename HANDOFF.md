@@ -3,63 +3,58 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-06 (eleventh session). **Deployed:** `main` = `dev` = 59177d8 (run 37520213264): "come over" and the
-habibi fix are live. To go back to the version before: push 90e5c44 to `main`.
+**Last updated:** 2026-10-06 (eleventh session). **Deployed:** `main` = 59177d8 (run 37520213264). `dev` is ahead with
+everything below, **not deployed**. To go back after a deploy: push 59177d8 to `main`.
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
-- **Live:** v11 persona (Reem Nabot, Armenian-Lebanese bookkeeper, Watertown triple-decker); DeepSeek V4 Flash text, memory and
-  /auto (Nemo the backup); Sulafat voice; Gemini 3.8 Flash hearing; `/look`; `/pic`; daily AI cap 50,000 neurons; picture
-  versions (`PICTURE.ROUTE`, default "cloudflare"; Runware versions draw nudity; `PICTURE.RUNWARE.SEX_ACTS` default off).
-- **Built and deployed this session** (owner picked "Mostly go", then "Deploy"):
-  - While apart, when he asks her over ("come over", "waiting for you to knock"; not "can I come over"), 3 in 4 replies
-    (`TEXTING.VISIT_CHANCE` 0.75) are the scene of her crossing to his door; if she texts instead she's asked once more.
-    Live: she went to him 8/10 (was 3/9 to 5/10).
-  - The prompt's habibi rule no longer names "habibti": she "corrected" him for calling her habibti 4/5, now 1/5.
-  - The deploy now opens the /setup web page itself and prints it in the deploy log (command menu, which models answer).
-- **Owner, 2026-10-06:** /setup is not a Telegram command (it's a web page; the deploy handles it now); the settings panel is
-  dropped: don't publish it or point him to it. He says changes in chat; Claude makes them in code.
-- **Test tools:** `OWNER_CHAT` in `tools/test/live.mjs` replays his chat; Actions > Tests > Run workflow (`runs`, `only`, `model`).
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month).
+- **Live (main):** v11 persona; DeepSeek V4 Flash (OpenRouter) text, memory, /auto, Nemo backup; Sulafat voice; Gemini 3.8
+  Flash hearing; pictures on Cloudflare klein (`PICTURE.ROUTE` "cloudflare"), Nano Banana for lingerie; /look, /pic.
+- **On `dev`, waiting for "Deploy"** (owner's plan: OpenRouter = DeepSeek, Sulafat, Gemini only; backups on Cloudflare;
+  pictures on Runware):
+  - Every picture on Runware klein 9B with her face (`PICTURE.ROUTE` "runware-klein", $0.50/day cap, then Cloudflare).
+    Runware balance $19.07 (MCP, 2026-10-06).
+  - Nano Banana off (`LINGERIE.ENABLED` false); Nemo removed. Backup text = DeepSeek on Workers AI
+    (`@cf/deepseek-ai/deepseek-v4-flash-0731`) for replies, memory and /auto; voice backup aura-2, then ElevenLabs.
+  - `RECALL`: long memory in Vectorize (`reem-memory`, made by tools/cf-resources.sh, run before every deploy);
+    `RECALL.REPEAT_SCORE` 0.68: the same thing in other words is asked again.
+  - `DAY`: real Watertown weather (Open-Meteo) and a new plan for her day (Workers AI) in her prompt.
+  - `/album` (her pictures, 10 a page), `/spend` (today's money per account), Workers AI through AI Gateway "default".
+- **Owner, 2026-10-06:** no tests on OpenRouter (credit low): replays on Workers AI (test.yml `model` `@cf/...`), benches on
+  Workers AI or Runware. Sulafat stays (MiniMax dropped). /setup is a web page; no settings panel.
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
-- **In Telegram now:** `/rewind` past the short Nemo replies, or `/restart` (old short replies pull her back to that
-  style). Then try "come over".
-- **Deploy?** `dev` has `PICTURE.ROUTE` "runware-klein" (every picture on klein 9B with her face, nudity allowed, $0.50/day
-  cap, then Cloudflare). Not live until he says "Deploy". Check the Runware balance covers it (~$0.0008 a picture).
-- **OpenRouter credit is running low** (owner): the live bot's text, voice, hearing and Nano Banana all bill it; top it up
-  or move the text to DeepSeek on Workers AI (next step 2). No tests on OpenRouter (DECISIONS 2026-10-06).
-- **Runware MCP:** connect https://mcp.runware.ai at claude.ai/customize/connectors, then start a new chat.
-- Sex-act switch: to try it, Runware klein as the picture version plus the switch on (tell Claude; no panel), then /pic.
-- Nano Banana's money cap $0.50 a day (`LINGERIE.DAILY_USD`): raise it?
-- Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches);
-  Lunaris via DeepInfra; cost estimate questions from 2026-10-04.
+- **Deploy?** Everything above goes live together. After it: send /spend, /album, then chat normally (recall starts once
+  ~40 messages have folded; the day's plan and weather appear from the second reply of the day).
+- **OpenRouter credit is low:** her texts, voice and hearing still run on it; when it's out, the Cloudflare backups answer.
+- Sex-act switch (`PICTURE.RUNWARE.SEX_ACTS`, off): tell Claude to turn it on, then try /pic.
+- Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches).
 
-## Verified this session (2026-10-06, tenth session)
-- Sync report: after `git fetch --unshallow`, every listed branch is contained in `dev` (`git cherry`); only the retired
-  squash-merged ones and `face-candidates` have their own commits.
-- `node tools/check.mjs` all 6 ok (unit rows for `asksHerOver`/visit mode, an e2e step for the retry, 2 scenario rows).
-- Live runs read reply by reply: 37517733148 (visit scenes 6/8, habibti 4/5) → fixes → 37518157279 (8/8, went to him 8/10,
-  habibti 1/5, 0 broken). See `docs/QUALITY.md`.
-- Deploy run 37520213264 green: /health drew and saw; the new /setup step printed all ✅ (DeepSeek answered via Novita, no Nemo
-  override); live code read back (`VISIT_CHANCE: 0.75`, `asksHerOver`, the habibi line). Not checked: the live chat.
+## Verified this session (2026-10-06, eleventh session)
+- Sync report: only retired squash-merged branches and `face-candidates` hold their own commits (`git cherry`).
+- `node tools/check.mjs` all 6 ok (new unit rows: @cf text, empty-answer retry, recall save, repeat check; e2e steps:
+  recall in her prompt, /album, /spend + gateway, the day's weather and plan, aura voice backup).
+- Workers AI replays read reply by reply: 37544031689 (21 broken: empty answers) → retry → 37545345952 (57 calls, 0 broken;
+  went to him 2/3, knock 3/3, origin 3/3). See `docs/QUALITY.md`. bge-m3 scores set REPEAT_SCORE (recall-check).
+- cf-resources run 37544392915: Vectorize index `reem-memory` created (1024 dims, metadata indexes chat and who).
+- Not checked: the live Worker with these changes (not deployed); Open-Meteo and AI Gateway from the real Worker.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Owner's live test** (list above), then report slips. *Effort: low*
-2. **Off OpenRouter for tests (and maybe live text):** let `tools/test/live.mjs` call DeepSeek V4 Flash on Workers AI
-   (`@cf/deepseek-ai/deepseek-v4-flash-0731`, cached input $0.014/M), replay `OWNER_CHAT`, compare with Novita before any switch. *Effort: medium*
-3. **Selfie framing:** the phone shows in plain selfies (1 of 6); framed by someone else (1 of 8). *Effort: medium*
-4. **Text model** (owner's direction): bench cheaper or better models on `OWNER_CHAT` with the `model` input before any
-   switch. *Effort: high*
-5. **Context and memory:** stable prompt prefix for caching, then a "story state" in the notes. *Effort: medium*
-6. **Old session branches:** all contained in `dev`; list them in `tools/retired-branches.txt` once the owner agrees. *Effort: low*
+1. **Deploy on the owner's word**, then read /health and /setup in the deploy log (Workers AI backup answered, Runware,
+   gateway), and read back the live code. *Effort: low*
+2. **After a day live:** /spend figures vs the providers' dashboards; the AI Gateway logs; recall lines in a real
+   reply (her prompt shows THINGS FROM BEFORE). *Effort: low*
+3. **Backup "habibti" slip:** on Workers AI she remarks on his "habibti" 3/3; check the prompt line on that model. *Effort: medium*
+4. **Selfie framing:** the phone shows in plain selfies (1 of 6); framed by someone else (1 of 8). *Effort: medium*
+5. **Text model** (owner's direction): bench cheaper or better models on Workers AI with `OWNER_CHAT`. *Effort: high*
+6. **Old session branches:** list them in `tools/retired-branches.txt` once the owner agrees. *Effort: low*
 
 ## Open questions for the owner
-- Raise Nano Banana's daily money cap above $0.50?
-- Time-awareness, a daily plan, explicitness, natural-looking pictures (asked 2026-10-03): which proposal to do.
+- Raise Runware's daily picture cap ($0.50, ~600 pictures) or keep it?
 - OK to retire the old session branches the sync report keeps listing?
 
 ## Prompt for the next chat (paste as-is)
 > Continue reem-bot. Follow CLAUDE.md (the sync report first; if it lists other branches with work, stop and ask
-> me). <Here is what slipped in my live test: ... | next step 2>. Finish with /handoff.
+> me). <Deploy | Here is what slipped live: ...>. Finish with /handoff.

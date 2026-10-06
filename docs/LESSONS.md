@@ -31,6 +31,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   `extraKnownMarketplaces` and the plugin in `enabledPlugins` of `.claude/settings.json`; it loads next session.
   Its files can be read now from a clone (`git clone https://github.com/<owner>/<repo>`; github.com is reachable). (2026-10-03)
 - No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only; Runware has no MiniMax Turbo (run 37541102035).
+  Text replay on Workers AI: test.yml `model` `@cf/...` (no OpenRouter key passed); never two at once (429, 3021). Runware MCP:
+  `account` = balance + today's spend. Hand-run workflows must be on `dev` (404); log blob links are blocked: `get_job_logs`.
 - /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it.
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
@@ -97,7 +99,6 @@ At most 150 lines (`tools/doc-check.mjs`).
   selfies) → a Nano Banana picture in a gray tank + leggings (bench 37271580261): rounded shoulders 8/8, asked clothes 8/8.
   Words still move the size: "wide hips, full thighs" heavy, "slim legs" or "not plump" slim; "165 cm, 71 kg, not slim and
   not obese" got 1/3 selfies at BMI ~25, 2/3 ~23 (face runs 2026-10-05). Trim jobs past `day_neurons`, don't raise it.
-- e2e: a mocked reply repeating an earlier step's line is cut by the repeat guard → give each its own words. (2026-10-04)
 - Cheap lingerie without her face (2026-10-04): Recraft V4.1 Flash (OpenRouter) 7/7 at $0.007; Seedream 4.5 always without a face picture
   (5/9 with one); Krea has no 3:4. Free route: beta SD models blank NSFW to black; SD 1.5 inpainting over klein 3/5 (1 good).
 - Right after a deploy the old code may still serve → re-test later (2026-10-03). Cloudflare's 3030 is random: never conclude from one refusal. (2026-10-02)
@@ -136,14 +137,13 @@ At most 150 lines (`tools/doc-check.mjs`).
   showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); wait with a background `until curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id> | grep -q completed` loop. (2026-10-06)
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
-- Leaves the picture marker out ~2/3 of the time when he didn't ask (hence `PICTURE.REMINDER`). (2026-10-02)
-- Picks a picture on her own (`SELF_CHOICE`) almost never: 0/15 in the v3 live runs. (2026-10-02)
 - Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);
   the v11 texting example's "envelope that says CASH" came back in 5 of 9 apart replies (run 37259031783), 0 after
   examples with rhythm but no story detail. Check the examples first when a reply repeats or a fact drifts. (2026-10-05)
   Again 2026-10-06 (run 37459992726): the napkin receipt 6 times, "taxes are a suggestion" 5 → both examples replaced.
-- Mistral Nemo (live 2026-10-05/06): 1-4 word texts 15/35, prompt examples sent word for word, his door 0/5 (run 37459244094)
-  → the owner went back to DeepSeek. Before any model switch, replay a real chat (`OWNER_CHAT` in live.mjs) with `model`. (2026-10-06)
+- DeepSeek on Workers AI (2026-10-06): about 1 call in 4 ends at once with content "" (1 token, "stop"), with reasoning none or low
+  → `workersChat` asks again (4 tries); it thinks by default unless `reasoning_effort` "none"; caching cuts ~3,600 of ~3,700 tokens.
+- Mistral Nemo (removed 2026-10-06): 1-4 word texts, examples copied → before any model switch, replay `OWNER_CHAT` with `model`.
 - A rule that names the word to avoid makes her talk about it: "(he is habibi, never habibti... even when he calls you
   habibti)" → "habibi, not habibti" corrections 4/5; "(to him it's always habibi)" → 1/5 (runs 37517733148, 37518157279). (2026-10-06)
 - Told to go to him, she walks in with words `HER_MOVE` misses ("turns the handle and steps in") → visit mode trusts the scene. (2026-10-06)

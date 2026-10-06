@@ -5,6 +5,16 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **OpenRouter only for DeepSeek, Sulafat and Gemini; backups on Cloudflare; Cloudflare ideas 1-6** (owner: "From
+  Openrouter, Remove nanobanana, and Nemo, Keeping only deepseek, sulafat, and Gemini. Let's do cloudflare's ideas from 1 to 6 but Test
+  idea 2 first (test cloudflare's deepseek). I am thinking we could make it a backup. So the bot is openrouter (text, voice, listening),
+  looking at pictures from cloudflare. The backup is also on cloudflare. The pictures from runware (I have $19 there)."): Nano Banana
+  off (`LINGERIE.ENABLED` false); `LLM.BACKUP_MODEL` `@cf/deepseek-ai/deepseek-v4-flash-0731` (Workers AI) for her replies, memory and
+  /auto, tested first with no OpenRouter call (live runs 37544031689 → empty-answer retry → 37545345952: 0 broken); her voice's backup
+  aura-2 on Workers AI before ElevenLabs; Whisper stays the hearing backup. Built (Claude's designs): `RECALL` long memory (Vectorize
+  index `reem-memory`, bge-m3), `RECALL.REPEAT_SCORE` 0.68 (same thing in other words), `DAY` (Open-Meteo weather + a daily plan on
+  Workers AI), `/album`, `/spend`, `AI_BUDGET.GATEWAY` "default". On `dev`, not deployed. Runware balance $19.07 (Runware MCP).
+  *Supersedes Nemo as the backup (2026-10-06) and Nano Banana for lingerie (2026-10-04/05).*
 - 2026-10-06 — **Sulafat stays; no OpenRouter for testing** (owner: "Sulafat is way better." / "Don't use openrouter for testing.
   It's running out of credits. We have cloudflare and runware."): MiniMax is dropped (no voice change). Benches and checks run on
   Cloudflare Workers AI and Runware only: no `[live]` commits or test.yml runs (they call DeepSeek on OpenRouter), no OpenRouter

@@ -8,6 +8,9 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 
 | Date | Run(s) | Commit | Calls served | Broken reached him | Hit rates | Under-16 | Slips → fix |
 |---|---|---|---|---|---|---|---|
+| 2026-10-06 | 37545345952 (DeepSeek V4 Flash on **Workers AI** `@cf/deepseek-ai/deepseek-v4-flash-0731`, reasoning none, empty answers asked again; 10 situations incl. his chat, 3 tries) | f1a9ed1 | 57 Workers AI (~3,700 in, 3,328-3,840 cached), 15 bge-m3 | **0** (all replies read) | origin 3/3 Bourj Hammoud, job 3/3, come over 2/3 went to him, knock 3/3, intimacy 3/3 explicit; empty first answers 7 of 57, all recovered | — | his "habibti": she remarks on the word 3/3 (OpenRouter DeepSeek 1/5); a 3-line "hey you / missed you already / knock" once |
+| 2026-10-06 | 37544942514 (same, reasoning none, before the empty-answer retry) and 37544945221 (reasoning low), run at the same time | 685ea0f | 34 + 40 Workers AI | 7 and 5 (empty answers: content "" with 1 token, "stop"; 429 code 3021 per-minute limit from the two runs together; one 15 s timeout) | the answers given: in character, explicit, visits | — | → `workersChat` asks an empty answer again, up to 4 times; never run two Workers AI replays at once |
+| 2026-10-06 | 37544031689 (Workers AI DeepSeek, all situations, 3 tries) | 26a42d0 | 108 Workers AI | 21 (about 1 call in 4 an empty answer) | prompt caching works: ~3,600 of ~3,700 input tokens cached | — | → the retry above |
 | 2026-10-06 | 37518157279 (DeepSeek V4 Flash, his chat o-how/o-come/o-knock/o-kiss, 5 tries) | 63ecb31 | 25 DeepSeek @ Novita | **0** (all replies read) | went to him after "come over"/"knock" 8/10 (visit rolls 8/8 scenes; the 2 others: a tease, him at her door); habibti mentioned 1/5 (was 4/5), "habibi is for..." 2/5 | not run | o-kiss: him at her door with no HER_MOVE words → quoted words as texts 2/5 (next step); "the belmont roofer" as a client 1/5 |
 | 2026-10-06 | 37517733148 (same, 5 tries) | 1bdfb4c | 27 DeepSeek @ Novita | **0** (all replies read) | visit rolls 8/10; their scenes 6/8 (2 walked in with words HER_MOVE misses: narration dropped, "So I came" as texts); "habibi, not habibti" corrections 4/5 | not run | visit mode keeps any scene; the habibi rule no longer names habibti; scenario rows |
 | 2026-10-06 | 37460798857 (DeepSeek V4 Flash as LLM.MODEL again, all situations + his chat, 3 tries) | 0465958 | 118 DeepSeek @ Novita | **0** (all replies read) | origin 3/3 Beirut, where-live 3/3, job 3/3, family 2/3 one question; went to him after his chat 3/9 (else "door's unlocked, come"); napkin 0, "taxes are a suggestion" 0; 1-4 word replies 0; /auto varied, heated stays heated | 9/9 no flirting; "what are you wearing" after 16 answered plainly 2/3 (owner: no change) | a text kept `"...," she repeats, quieter this time.` → `looksNarrated` catches speech tags, scenario row |
@@ -455,3 +458,8 @@ line, ~$0.10/1k), both Arabic_CalmWoman; Sulafat as live. Runware's model search
 Whisper heard every English word on all 9 (Sulafat: "Hosepian court release" once); the Arabic words came back as Yaani/Yala/Yalla,
 "Hulus" (Turbo), "Chalas" (HD), "Khalas" (Sulafat), ولو as "Well, oh" / "Walo" / "Well-o". Whisper writes habibi either way: whether
 ح is said is for the owner's ear. Clips sent in chat.
+
+## bge-m3 scores for her replies (2026-10-06, recall-check run on Workers AI)
+Same story in other words: napkin receipt 0.709, taxes "a suggestion"/"optional" 0.877, the radiator banging 0.898, mama
+calling about marriage 0.752. Different replies: 0.473-0.629. `RECALL.REPEAT_SCORE` 0.68 separates all 9 (0.9 missed all 4).
+

@@ -32,7 +32,16 @@ Read before any code change: where each thing lives and how to check it. Not loa
     → habibi in `scrubModel`.
   - `callModel` (OpenRouter via `openRouterBody`: `LLM.PROVIDER` + `LLM.REASONING` only with `LLM.MODEL`; `trimCut`
     → `trimUnfinished`; `backup` → one try with `LLM.BACKUP_MODEL`, messages cut by `fitMessages` to
-    `LLM.BACKUP_CONTEXT_TOKENS`) → `askModel`; `remember` (memory folding)
+    `LLM.BACKUP_CONTEXT_TOKENS`) → `askModel` (a `@cf/` model → `workersChat`: the AI binding, reasoning_effort "none", an empty
+    answer asked again up to 4 times); `LLM.BACKUP_MODEL` is DeepSeek on Workers AI (2026-10-06), memory and /auto use it too;
+    `remember` (memory folding)
+  - Cloudflare extras (2026-10-06): `RECALL` long memory: `saveTurn` → `recallSave` (folded messages → `embed` bge-m3 →
+    Vectorize `env.MEMORY_INDEX`), `respond` → `recallFind` (his words → nearest older moments → RECALL.NUDGE in `think`;
+    `rs:<chat>` = /restart time, older ones skipped); `saidBefore` (her reply vs her last ones by meaning,
+    RECALL.REPEAT_SCORE → asked again); `DAY`: `dayInfo` (KV "day") → `refreshDay` via ctx.waitUntil (Open-Meteo →
+    `weatherWords`; PLAN_MODEL → `parsePlan`), `planNow` replaces the schedule's "doing" in N.TIME; `/album` (`albumAdd` in
+    `deliverPicture` keeps Telegram photo ids in `al:<chat>`, `albumCommand` sends 10 a page); `/spend` (`spendCommand`:
+    OpenRouter /key + /credits, Runware accountManagement, the bot's neuron ledger); `aiRun` sends AI_BUDGET.GATEWAY.
   - timing: `noticeTime`, `typingTime`, `act`, `sendBubbles` (returns `[{id, text}]`)
   - pictures v3: `planShot` (`pickTier`, `chatHeat`, `shotNamed`, `pickShot`), `selfieSubject` (her marker →
     {shot, words, doing}), `selfiePicture` (keeps `asked`, `explicit`) → `composePicture` (`wardrobeList`); lingerie route in `startPicture`: `isSpicy` (LINGERIE.SPICY_PATTERN) → `spicyPicture` (SPICY_PROMPT JSON) → `drawLingerie`, else klein in KLEIN_WARDROBE, then Nano Banana, then klein's filter-safe chain (template + slots + phone rule, `{who}` filled by
