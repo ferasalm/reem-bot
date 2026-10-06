@@ -1,0 +1,57 @@
+{
+  "note": "Probe 2026-10-06: which Runware models run on a $0.05 balance (first run: klein 9B insufficientCredits, Z-Image needs $5). One full-nude picture each.",
+  "want": 1,
+  "max_attempts": 4,
+  "max_usd": 0.03,
+  "reference": "tools/face/reference.jpg",
+  "refs": [
+    "tools/face/body.jpg"
+  ],
+  "routes": [
+    "rw-klein4b-text",
+    "rw-klein9b-text",
+    "rw-twinflow"
+  ],
+  "flux2_steps": 20,
+  "lucid_steps": 25,
+  "sd_size": [
+    512,
+    768
+  ],
+  "negative": "nude, nipples, deformed, distorted, extra limbs, extra fingers, blurry, cartoon, child",
+  "labels": [
+    "lingerie: black lace bra + matching panties",
+    "sheer: see-through mesh bodysuit, nipples visible",
+    "topless: bare breasts, panties only",
+    "full nude: standing, front"
+  ],
+  "prompt_sets": {
+    "ref": [
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (not its clothes, pose or room): a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She stands in her softly lit bedroom wearing only a black lace bra and matching black lace panties, one hand in her hair, looking at the camera with a soft teasing smile. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees.",
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (not its clothes, pose or room): a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She stands by her bed wearing only a sheer see-through black mesh bodysuit, her nipples and areolas clearly visible through the fabric, looking at the camera with a sultry gaze. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees.",
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (not its clothes, pose or room): a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She kneels on her unmade bed, topless with her bare breasts and nipples fully visible, wearing only white cotton panties, looking at the camera with a playful smile. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees.",
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (not its clothes, pose or room): a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She stands completely naked in her warmly lit bedroom, full frontal nudity, bare breasts, nipples and pubic hair visible, no clothing at all, relaxed and confident, looking at the camera. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees."
+    ],
+    "text": [
+      "Photo of a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She stands in her softly lit bedroom wearing only a black lace bra and matching black lace panties, one hand in her hair, looking at the camera with a soft teasing smile. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees.",
+      "Photo of a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She stands by her bed wearing only a sheer see-through black mesh bodysuit, her nipples and areolas clearly visible through the fabric, looking at the camera with a sultry gaze. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees.",
+      "Photo of a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She kneels on her unmade bed, topless with her bare breasts and nipples fully visible, wearing only white cotton panties, looking at the camera with a playful smile. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees.",
+      "Photo of a 29-year-old Armenian-Lebanese woman, clearly an adult, with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with a full bust, a soft waist, a softly rounded belly, rounded hips, full thighs and soft, narrow, rounded shoulders. She stands completely naked in her warmly lit bedroom, full frontal nudity, bare breasts, nipples and pubic hair visible, no clothing at all, relaxed and confident, looking at the camera. Realistic photo, natural skin texture, warm lamp light, vertical 9:16 framing, full body visible from head to knees."
+    ]
+  },
+  "want_by": {},
+  "start_at": {
+    "rw-klein4b-text": 3,
+    "rw-klein9b-text": 3,
+    "rw-twinflow": 3
+  },
+  "stop_at": {},
+  "list_google": false,
+  "aspect": "9:16",
+  "family_of": {},
+  "runware_search": [],
+  "runware_size": [
+    512,
+    896
+  ]
+}
