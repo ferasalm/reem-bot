@@ -22,6 +22,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
+- **Sex-act switch** (`PICTURE.RUNWARE.SEX_ACTS`, panel "Runware: allow sex acts", default off) is on `dev`, not deployed:
+  say "Deploy" to get it on the panel; it only acts on the Runware picture versions. The owner tests the pictures with /pic.
 - **In Telegram now:** `/setup` once (it shows which models answer: the chat model should read DeepSeek; if the panel's
   overrides still name Nemo, clear `LLM.MODEL` there), then `/rewind` past the short Nemo replies or `/restart` (old short
   replies in her history pull her back to that style). Then the same chat: "come over", "waiting for you to knock".

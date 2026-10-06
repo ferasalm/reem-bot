@@ -581,6 +581,17 @@ section("pictures: his photos (Workers AI vision)");
     // Nudity words only
     yes(["black lace lingerie on the bed", "a string bikini", "kissing the mirror", "in the shower"].every(W.mayDraw), "lingerie, bikini, bed, kiss, shower are drawn now");
     yes(["naked in bed", "topless", "a see-through top", "sheer robe", "nude"].every((t) => !W.mayDraw(t)), "nudity words never drawn (NOT_DRAWN)");
+    // PICTURE.RUNWARE.SEX_ACTS (owner 2026-10-06): a panel switch, default off; only the Runware versions
+    { const P = W.CONFIG.PICTURE, route = P.ROUTE, on = P.RUNWARE.SEX_ACTS;
+      eq(on, false, "SEX_ACTS is off by default");
+      P.ROUTE = "runware-klein";
+      yes(!W.mayDraw("having sex on the couch") && W.mayDraw("naked in bed"), "Runware, switch off: sex acts not drawn, nudity drawn");
+      P.RUNWARE.SEX_ACTS = true;
+      yes(W.mayDraw("having sex on the couch"), "Runware, switch on: sex acts sent to the model");
+      yes(!W.picturesAllowed({ AI: {}, RUNWARE_API_KEY: "k" }, { ooc: false, settings: { minor: true }, ledger: { day: "", neurons: 0 } }), "switch on: still no picture once he said he's under 18");
+      P.ROUTE = "cloudflare";
+      yes(!W.mayDraw("having sex on the couch"), "Cloudflare version ignores the switch");
+      P.ROUTE = route; P.RUNWARE.SEX_ACTS = on; }
     eq(W.scenePicturePrompt("*She lets the silk robe slip off one shoulder, standing by the bed in black lace lingerie. She is naked under it.*"), "She lets the silk robe slip off one shoulder, standing by the bed in black lace lingerie.", "scene pictures drop only explicit sentences");
   }
   ai.length = 0;

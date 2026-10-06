@@ -781,8 +781,10 @@ Changing the story
       REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
       LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
       // added when the picture's words say she's naked or topless (NUDE_WORDS)
-      // never drawn on Runware either: sex acts (nudity is allowed, owner 2026-10-06)
+      // never drawn on Runware either: sex acts (nudity is allowed, owner 2026-10-06), unless SEX_ACTS is on
       NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick"],
+      SEX_ACTS: false,                 // owner 2026-10-06: a switch, default off. On = NOT_DRAWN is ignored on Runware (sex acts
+                                       // sent as he wrote them). The under-18 flag and "never OOC" still stop every picture.
       NUDE_WORDS: ["nude", "naked", "topless", "bare breasts", "bare chest", "nothing on", "wearing nothing", "undressed", "nipple", "nipples"],
       NAKED: "She is completely naked: no bodysuit, no tank top, no leggings, no bra, no underwear, no clothing of any kind. Realistic natural breasts with real anatomy: medium-sized soft brown areolas with natural skin texture and small bumps, slightly uneven in shape, natural nipples that are neither flat nor pointed, a natural weight and slight sag, faint skin creases under the breasts; not airbrushed, not plastic, not perfectly round.",
     },
@@ -2611,7 +2613,9 @@ const hasWord = (text, w) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegex(String
 
 // A description with a PICTURE.NOT_DRAWN word or phrase is never drawn
 function mayDraw(text) {
-  const list = runwareRoute() ? (CONFIG.PICTURE.RUNWARE || {}).NOT_DRAWN : CONFIG.PICTURE.NOT_DRAWN;
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  if (runwareRoute() && R.SEX_ACTS === true) return true;
+  const list = runwareRoute() ? R.NOT_DRAWN : CONFIG.PICTURE.NOT_DRAWN;
   return !(list || []).some((w) => String(w).trim() && hasWord(text, w));
 }
 

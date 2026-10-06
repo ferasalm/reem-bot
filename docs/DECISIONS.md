@@ -5,6 +5,11 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **A panel switch for sex-act pictures on Runware, default off** (owner: "Yes do that \"make dropping it a switch on
+  your settings panel (default off)... You'd do any testing of the actual pictures yourself in Telegram with /pic.\""):
+  `PICTURE.RUNWARE.SEX_ACTS` (panel: "Runware: allow sex acts"). Off = `RUNWARE.NOT_DRAWN` holds as before. On = it is ignored on
+  the Runware versions only (his /pic words, her selfie and scene words); the Cloudflare version keeps its list; the under-18
+  flag and "never OOC" still stop every picture. Claude didn't draw sex-act pictures; the owner tests them in Telegram. Not deployed yet.
 - 2026-10-06 — **Deploy** (owner: "Deploy"): `dev` (f496197) fast-forwarded into `main` (was 122dac8; only the handoff docs
   differed, the DeepSeek fix was already live). Deploy run 37463278664 green (Deploy Worker, /health), live code read back
   (DeepSeek model, Nemo backup, the guards).
