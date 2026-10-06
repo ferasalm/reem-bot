@@ -424,3 +424,12 @@ Owner: body like the 5 attached pictures (hourglass, ~BMI 24) and "her nipples l
 - 37439133800, klein 9B: the bodysuit picture with the beige clothes named → leaked 3/4 (worse); a faceless nude hourglass body cropped
   from TwinFlow #02 (`tools/face/body-hourglass.jpg`) → nude 3/3 (1 not returned), her face, hourglass, nipples natural (darker
   textured areolas, uneven: b2-01, b2-04). Picked as `RUNWARE.BODY` "hourglass".
+
+## The bot's own code on Runware (2026-10-06, image bench 37439717378, `worker_draw`), each read at full size
+worker.js `composePicture` + `drawPicture` on the real API (PICTURE.ROUTE set, a ledger): 6/6 drawn by the intended model at
+$0.00078 (klein) / $0.0006 (TwinFlow), $0.0043 in all; the owner's place pictures came through as image 2 (her bedroom, the hallway).
+- runware-klein #01 nude selfie: her face, hourglass, natural nipples, her bedroom; framed to the thighs (asked chest-up).
+- #02 red lace bra + panties, mirror: real lingerie (no FILTER_WORDS); the iPhone covers her face.
+- #03 everyday: black turtleneck + jeans in the hallway, laughing, her face: clothed pictures unchanged.
+- #04 nude from behind, hallway mirror: a skin-colored band across her back (a trace of a top), otherwise as asked.
+- runware-twinflow #05 nude: slimmer, another face (no face picture); #06 red lace set in the hallway mirror, as asked.
