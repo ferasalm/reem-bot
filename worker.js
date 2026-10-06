@@ -338,7 +338,7 @@ const CONFIG = {
     TIMEOUT_MS: 4000,                  // past this she answers without it
     // Owner 2026-10-06 (Cloudflare idea 5): a reply that means the same as one of her last REPEAT_LOOKBACK replies
     // (cosine at least REPEAT_SCORE, in other words too) is asked again once, like a word-for-word repeat. 0 = off
-    REPEAT_SCORE: 0.9,
+    REPEAT_SCORE: 0.68,                // recall-check 2026-10-06 (bge-m3): same story 0.71-0.90, other replies 0.47-0.63
     REPEAT_LOOKBACK: 10,
     REPEAT_MIN_CHARS: 30,              // shorter replies ("hey you") aren't checked: they look alike by nature
     NUDGE: "\n\nTHINGS FROM BEFORE (older moments with him that this reminds you of. Bring one up only if it fits naturally; never list them, never quote them back word for word)\n{moments}",
