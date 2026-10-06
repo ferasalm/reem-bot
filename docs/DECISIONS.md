@@ -5,6 +5,11 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Explicit nudity allowed in pictures** (owner: "Drop the \"2026-10-02 rule of no explicit nudity\""): her
+  pictures may be nude. Not in the code yet: `PICTURE.SAFE` ("No nudity.") and `PICTURE.NOT_DRAWN` (nude words drop a
+  picture) still hold, and klein on Cloudflare and Nano Banana refuse nudity anyway; they change together with a route
+  that draws it (TwinFlow Z-Image-Turbo on Runware is being tested). Kept: none after he says he's under 18, never OOC.
+  *Supersedes "never explicitly naked" in Pictures v3 rules (2026-10-02).*
 - 2026-10-06 — **Any provider, not only Cloudflare or OpenRouter** (owner: "Ignore the \"no other provider\" rule, it was
   only for that specific deepseek model, which can change; it's not a hard rule, it was only for that specific chat session.
   I am currently looking for a better model for the same or cheaper price."): Claude may propose and bench models on any
@@ -170,7 +175,7 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   The prompt and `LIMITS & OOC` stay as they are; the code still blocks pictures in a minor-flagged chat. Don't
   raise it again as an open item.
 - 2026-10-02 — **Pictures v3 rules** (owner, while planning the shot catalog): pictures **may be sexualized by
-  pose or wardrobe, never explicitly naked** (nothing that would certainly trip a safety filter); the SAFE
+  pose or wardrobe, never explicitly naked** (~~never explicitly naked~~: superseded 2026-10-06, nudity allowed) (nothing that would certainly trip a safety filter); the SAFE
   "fully clothed, non-sexual" rule is **removed**. **Selfies**: the phone and the hand holding it are **not
   visible**; **mirror selfies**: hand and phone **visible**, the phone **always an iPhone**. Reem may send
   sexualized pictures **on her own** by context and mood, not only when asked. Kept: none after he says he's

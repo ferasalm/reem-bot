@@ -207,8 +207,14 @@ async function runware(model, prompt, refs, seed) {
     numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
   if (job.runware_steps?.[model]) task.steps = job.runware_steps[model];
   if (refs.length) task.inputs = { referenceImages: refs.map(dataUri) };
-  const res = await fetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${rwKey}`, "Content-Type": "application/json" }, body: JSON.stringify([task]) });
-  const data = await res.json().catch(() => ({}));
+  // a small balance stays reserved for a moment after each call (concurrentRequestLimitExceeded): wait and retry
+  let res, data;
+  for (let tries = 0; ; tries++) {
+    res = await fetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${rwKey}`, "Content-Type": "application/json" }, body: JSON.stringify([task]) });
+    data = await res.json().catch(() => ({}));
+    if (tries >= 4 || !data.errors?.some((e) => e.code === "concurrentRequestLimitExceeded")) break;
+    await new Promise((r) => setTimeout(r, 10000));
+  }
   const d = data?.data?.[0];
   if (!res.ok || data.errors?.length || !d?.imageBase64Data) return { error: `HTTP ${res.status} ${JSON.stringify(data.errors || data).slice(0, 400)}` };
   return { bytes: Buffer.from(d.imageBase64Data, "base64"), usage: { cost: d.cost, nsfw: d.NSFWContent } };
