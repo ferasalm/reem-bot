@@ -4322,6 +4322,8 @@ function looksNarrated(t) {
   if (names && names.test(t)) return true;
   const re = narrationRe();
   if (re && re.test(t)) return true;
+  // a speech tag after her quoted words: "Four in the morning," she repeats (DeepSeek, live 2026-10-06)
+  if (/["”],?\s+(?:she|reem)\s+[a-z]+s\b/i.test(t)) return true;
   return (t.match(/(?:^|[.!?…]\s+)(?:She|Her)\b(?!['’])/gm) || []).length >= 2;
 }
 

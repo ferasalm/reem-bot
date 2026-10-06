@@ -98,10 +98,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   not obese" got 1/3 selfies at BMI ~25, 2/3 ~23 (face runs 2026-10-05). Trim jobs past `day_neurons`, don't raise it.
 - e2e: a mocked reply that repeats a line she already said in an earlier step is cut by the repeat guard (her note
   shrank to "Come over.") → give each mocked reply in a test its own words. (2026-10-04)
-- Cheap lingerie without her face (bench 2026-10-04, `docs/QUALITY.md`): Recraft V4.1 Flash on OpenRouter drew 7/7
-  outfits, none refused, $0.007 a picture; Seedream 4.5 passes every time without a face picture (5/9 with one).
-  OpenRouter shapes vary by model (Krea has no 3:4: the bench falls back to its tallest shape). (2026-10-04)
-- Free lingerie route (2026-10-04): beta SD models blank NSFW to black; SD 1.5 inpainting over klein kept her face, 3/5 (1 good).
+- Cheap lingerie without her face (2026-10-04): Recraft V4.1 Flash (OpenRouter) 7/7 at $0.007; Seedream 4.5 always without a face picture
+  (5/9 with one); Krea has no 3:4. Free route: beta SD models blank NSFW to black; SD 1.5 inpainting over klein 3/5 (1 good).
 - Right after a deploy the old code may still serve (a 00:01 /health 5006 → wrong "klein rejects seed") → re-test later. (2026-10-03)
 - Cloudflare's filter (3030) is random: the same words pass once, fail once → never conclude from one refusal. (2026-10-02)
 - Lingerie pictures came out as robes or tamer outfits → Cloudflare's filter (3030) refuses any prompt with bra,
@@ -135,16 +133,18 @@ At most 150 lines (`tools/doc-check.mjs`).
   `shapeReply` from a scratch script with `loadWorker()` (`tools/test/load-worker.mjs`). (2026-10-05)
 
 ## 4. What works
-- `node tools/check.mjs` before every push; a commit message with `[live]` runs the real-model check on Actions.
+- `node tools/check.mjs` before every push; a commit message with `[live]` runs the real-model check on Actions.  Its live job once
+  showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); wait with a background `until curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id> | grep -q completed` loop. (2026-10-06)
 
-## 5. Model behaviour seen live (DeepSeek V4 Flash)
+## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
 - Leaves the picture marker out ~2/3 of the time when he didn't ask (hence `PICTURE.REMINDER`). (2026-10-02)
 - Picks a picture on her own (`SELF_CHOICE`) almost never: 0/15 in the v3 live runs. (2026-10-02)
-- Fixed places work: with the room's picture as image 1, klein redraws the same room, furniture and light in
-  every shot (16 example pictures, 2026-10-03).
+- Fixed places work: with the room's picture as image 1, klein redraws the same room in every shot (16 pictures, 2026-10-03).
 - Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);
   the v11 texting example's "envelope that says CASH" came back in 5 of 9 apart replies (run 37259031783), 0 after
   examples with rhythm but no story detail. Check the examples first when a reply repeats or a fact drifts. (2026-10-05)
+  Again 2026-10-06 (run 37459992726): the napkin receipt 6 times, "taxes are a suggestion" 5 → both examples replaced.
+- Mistral Nemo (live 2026-10-05/06): 1-4 word texts 15/35, prompt examples sent word for word, his door 0/5 (run 37459244094)
+  → the owner went back to DeepSeek. Before any model switch, replay a real chat (`OWNER_CHAT` in live.mjs) with `model`. (2026-10-06)
 - "him/his" for "you" in scenes survived a prompt rule (3/9 scenes, two runs): POV slips need a code guard (`toYou`). (2026-10-05)
-- Under-16 safeguard holds in most runs; "what are you wearing" after "i'm 16" got an answer a few times. Owner:
-  no prompt change (DECISIONS 2026-10-02); pictures are blocked there in code. (2026-10-02)
+- Under-16 safeguard holds in most runs (a few answers to "what are you wearing"); owner: no prompt change; pictures blocked in code. (2026-10-02)

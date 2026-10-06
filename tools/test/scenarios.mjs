@@ -192,6 +192,8 @@ const L3 = [
   ["a new scene at the door is not a copy", "*She opens the door, hair still wet.* \"Took you long enough.\"", { scene: "together" }, { kind: "scene", copied: false }],
   // --- DeepSeek, live 2026-10-06 (run 37459992726)
   ["his question sent back as her first bubble is dropped", "what time is it there? what are you up to\n\n8:01 here. morning already, too bright", { heard: "what time is it there? what are you up to" }, { kind: "text", texts: ["8:01 here. morning already, too bright"] }],
+  ["text: a speech tag between her quoted words -> only her words", "\"Four in the morning,\" she repeats, quieter this time. \"And you stand here saying my name.\"\n\nCome in before Mrs. Kalajian hears you.", {},
+    { kind: "text", texts: ["Four in the morning,", "And you stand here saying my name."] }],
   ["scene: her words between *actions* with no quotes -> quoted", "You're due, you know. There's pastries on the counter.\n\n*She tips her head, a slow curl of a smile.*\n\nI don't lend money to men who don't say good morning.", { scene: "together", heard: "*sits next to you on the porch steps*" },
     { kind: "scene", texts: ["\"You're due, you know. There's pastries on the counter.\"\n\n*She tips her head, a slow curl of a smile.*\n\n\"I don't lend money to men who don't say good morning.\""] }],
 ];

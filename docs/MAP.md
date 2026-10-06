@@ -27,7 +27,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
     narration before it dropped, typed words → texts first, `emotesToTags`, `stageToTags`) / apart text
     (`texting`: `isNarration` lines, `dropActions`, `dropCues`, `unnarrate` when `looksNarrated`; narration-only →
     asked again, last resort a scene). Returns `{kind, texts, voiceText, spoken, stored, reaction, repeated,
-    narrationOnly, repaired}`.
+    narrationOnly, repaired, copied}`. `copied` (`copiesAny`/`copiesExample`, TEXTING.COPY_WORDS): a line copies a style example
+    of SYSTEM_PROMPT (`exampleKeys`) → think() asks once more; his own words sent back are dropped like repeats; "hey habibti" to him
+    → habibi in `scrubModel`.
   - `callModel` (OpenRouter via `openRouterBody`: `LLM.PROVIDER` + `LLM.REASONING` only with `LLM.MODEL`; `trimCut`
     → `trimUnfinished`; `backup` → one try with `LLM.BACKUP_MODEL`, messages cut by `fitMessages` to
     `LLM.BACKUP_CONTEXT_TOKENS`) → `askModel`; `remember` (memory folding)
@@ -115,6 +117,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
   that served every call, and fails if anything broken reaches him: wrong kind, digit spoken, [brackets], "(or)",
   non-Latin script, *actions* or her name in a text, "Voice" labels. "REVIEW" lines (safeguard, fade-outs, first
   person in a scene) need a human read of every reply.
+  `OWNER_CHAT` replays the owner's Telegram chat of 2026-10-06 (REVIEW: a word or two, "habibti" to him, a copied example,
+  not going to him). By hand (Actions > Tests > Run workflow): `runs`, `only` (ids) and `model` (another OpenRouter model
+  in LLM.MODEL's place, to compare; the backup model keeps its own providers).
 - Locally: `node tools/build-panel.mjs && node --check worker.js && node tools/test/unit.mjs &&
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 - All local checks in one command: `node tools/check.mjs` (the chain above plus `tools/doc-check.mjs`; ok/FAIL per
