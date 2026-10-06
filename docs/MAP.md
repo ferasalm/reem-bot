@@ -13,7 +13,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     the skipped drafts, KV `a:` `moves`/`skipped`)/`cleanDraft`/`draftHtml`, `retry`, `rewind`, `editHers`; helpers `findPart`, `cutAfter`, `deleteIds`, `clearReactions`,
     `answerAgain`, `failed`
   - `reply` (builds `heard` + his `parts`, `noticeTime`) → **`respond`**: `isOoc`, `sceneOf`, `replyMode`
-    (text/voice/scene; OOC always text; in a scene `asksToHear`/SCENE_CHANCE adds a `sayScene` clip), `think`, wait, **`shapeReply`**, reaction, texts then voice note,
+    (text/voice/scene/visit; OOC always text; apart, `asksHerOver` + `TEXTING.VISIT_CHANCE` → "visit": FORMAT_VISIT, RETRY_VISIT if she stays on the phone, shapeReply keeps it a scene; in a scene `asksToHear`/SCENE_CHANCE adds a `sayScene` clip), `think`, wait, **`shapeReply`**, reaction, texts then voice note,
     `saveTurn` after delivery with message ids. `textFirst` (`proactiveHeard`) also uses `respond`.
   - `think`: system prompt + nudges (memory, ABOUT_HIM/HIS_NAME, TIME, TOGETHER/APART, OOC, VOICE_TAGS for texts
     while apart, SEVERAL_MESSAGES, REACT, TEXTURE + TEXTURE_APART, VARY_OPENING); `fitHistory`
@@ -86,8 +86,8 @@ Read before any code change: where each thing lives and how to check it. Not loa
   made by Gemini TTS in male voices, heard by Whisper, Nova-3 and OpenRouter audio-input models; clips to `face-candidates` runs/<id>-stt).
 - `wrangler.toml`: KV `REEM_KV`, queue `reem-inbox` (consumer: max concurrency 1, retries 0), cron `*/15 * * * *`,
   Workers AI binding `AI` (free: 10,000 neurons a day; FLUX.1 schnell at 6 steps ≈ 80 neurons a picture, so ~100 a day if nothing else used it).
-- `tools/settings-panel.html`: offline settings UI, also published for the owner's phone as a private artifact
-  (https://claude.ai/artifact/HdyRFFduCU72iiEq36vLWb: republish after `build-panel.mjs` changes it). Field schema in `SECTIONS`; types: text, textarea, long, list,
+- `tools/settings-panel.html`: offline settings UI; a unit test needs a field for every CONFIG key (add rows by hand to its
+  `SECTIONS`). The owner found the published copy useless (2026-10-06): don't republish it or point him to it. Field schema in `SECTIONS`; types: text, textarea, long, list,
   number, ms, range, bool, select, commands, map, groups, schedule. `tools/build-panel.mjs` rewrites its DEFAULTS.
 - Cloudflare tells the real cost of every REST call in the `cf-ai-neurons` response header (klein 104.2 at both
   256 and 640 px). Analytics (GraphQL `aiInferenceAdaptiveGroups.sum.totalNeurons`) lag a few minutes.
@@ -105,7 +105,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
   it); `tools/face/places/views/` + `README.md` (three crops of each place picture, packed into places.js instead of the full ones, 2026-10-05); `tools/face/place-prompts.md` (the owner's prompts to draw each place day and night himself, 2026-10-05); `tools/face/places.mjs` (job: draw the places; `--night`: each place at night from its day picture), `examples.mjs` (job: example pictures + lingerie filter
   probes), `compose.mjs` (a prompt exactly as drawPicture sends it); `.github/workflows/delete-branches.yml` (the
   owner's button: deletes the branches in `tools/retired-branches.txt`, lines marked `# keep` stay);
-  `.github/workflows/deploy.yml` (deploy on push to `main`), `test.yml` (sync, mocked, docs, `[live]`);
+  `.github/workflows/deploy.yml` (deploy on push to `main`, then /health and /setup printed to the log), `test.yml` (sync, mocked, docs, `[live]`);
   `.claude/settings.json` + `.claude/hooks/session-start.sh` (sync report at session start);
   `.claude/skills/handoff/SKILL.md` (end of session); `tools/check.mjs` (all local checks), `tools/doc-check.mjs`
   (docs rules); `tools/model-bench/bench.mjs` + `checks.mjs` (the bench); `.gitignore` files.

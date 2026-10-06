@@ -5,6 +5,14 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **No settings panel** (owner: "the setting panel from last chat was useless", then picked "Drop it"): Claude stops
+  republishing `tools/settings-panel.html` and stops pointing the owner to it; he says changes in chat and Claude makes them in
+  code. The file stays for the unit test that every CONFIG key has a field. Also (owner): "there is no such thing as /setup inside
+  the telegram bot": /setup is a web page; the deploy now opens it and prints it in the log.
+- 2026-10-06 — **"Come over": she mostly goes** (owner picked "Mostly go: about 3 in 4 times she comes; sometimes she teases or
+  invites you over instead"): while apart, when he asks her over (`TEXTING.VISIT_PATTERN`, not "can I come over"), 3 in 4
+  replies (`TEXTING.VISIT_CHANCE` 0.75) are the scene of her going to his door (`NUDGES.FORMAT_VISIT`; a text is asked again,
+  `RETRY_VISIT`); the rest are a normal reply. Not deployed.
 - 2026-10-06 — **A panel switch for sex-act pictures on Runware, default off** (owner: "Yes do that \"make dropping it a switch on
   your settings panel (default off)... You'd do any testing of the actual pictures yourself in Telegram with /pic.\""):
   `PICTURE.RUNWARE.SEX_ACTS` (panel: "Runware: allow sex acts"). Off = `RUNWARE.NOT_DRAWN` holds as before. On = it is ignored on

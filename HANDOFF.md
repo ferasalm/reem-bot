@@ -3,49 +3,49 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-06 (ninth session). **Deployed:** `main` = `dev` code (90e5c44): DeepSeek V4 Flash writes her replies
-again, Mistral Nemo is only the backup. To go back to the version before today: push c0e8109 to `main`.
+**Last updated:** 2026-10-06 (tenth session). **Deployed:** `main` = 90e5c44 (DeepSeek V4 Flash, Nemo the backup, the
+sex-act switch). **On `dev`, not deployed:** "come over" and the habibi fix (below).
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
 - **Live:** v11 persona (Reem Nabot, Armenian-Lebanese bookkeeper, Watertown triple-decker); DeepSeek V4 Flash text, memory and
-  /auto (Nemo the backup); Sulafat voice; Gemini 3.8 Flash hearing; `/look`; `/pic` (his words, her face); daily AI cap 50,000
-  neurons; picture versions on the panel (`PICTURE.ROUTE`, default "cloudflare"; "runware-klein"/"runware-twinflow" draw nudity).
-- **Fixed this session (owner: "What is wrong with Reem? Fix her. She's gotten so weird"):** the cause was Mistral Nemo. His
-  chat replayed 5 times a message: Nemo wrote 1-4 word texts, copied the prompt's examples word for word and went to his door
-  0/5; DeepSeek wrote full in-character texts and opened the door 4/5. Owner picked "DeepSeek + deploy". Guards added for any
-  model: a copied prompt example is asked again (`TEXTING.COPY_WORDS`); "hey habibti" to him becomes habibi (talking about
-  the word stays); his own words echoed back are dropped; a scene's bare words are quoted; "she repeats" in a text is
-  narration. The two example jokes DeepSeek reused (napkin receipt 6x, "taxes are a suggestion" 5x) are replaced.
-- **New test tools:** `OWNER_CHAT` in `tools/test/live.mjs` replays his chat; Actions > Tests > Run workflow takes `model`
-  to compare another OpenRouter model on the same situations.
+  /auto (Nemo the backup); Sulafat voice; Gemini 3.8 Flash hearing; `/look`; `/pic`; daily AI cap 50,000 neurons; picture
+  versions (`PICTURE.ROUTE`, default "cloudflare"; Runware versions draw nudity; `PICTURE.RUNWARE.SEX_ACTS` default off).
+- **Built this session, on `dev`, not deployed** (owner picked "Mostly go"):
+  - While apart, when he asks her over ("come over", "waiting for you to knock"; not "can I come over"), 3 in 4 replies
+    (`TEXTING.VISIT_CHANCE` 0.75) are the scene of her crossing to his door; if she texts instead she's asked once more.
+    Live: she went to him 8/10 (was 3/9 to 5/10).
+  - The prompt's habibi rule no longer names "habibti": she "corrected" him for calling her habibti 4/5, now 1/5.
+  - The deploy now opens the /setup web page itself and prints it in the deploy log (command menu, which models answer).
+- **Owner, 2026-10-06:** /setup is not a Telegram command (it's a web page; the deploy handles it now); the settings panel is
+  dropped: don't publish it or point him to it. He says changes in chat; Claude makes them in code.
+- **Test tools:** `OWNER_CHAT` in `tools/test/live.mjs` replays his chat; Actions > Tests > Run workflow (`runs`, `only`, `model`).
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
-- **Settings panel on his phone** (private artifact, `tools/settings-panel.html`): https://claude.ai/artifact/HdyRFFduCU72iiEq36vLWb.
-  It shows the code's defaults, not live overrides. Republish it (Artifact tool, same file path or this URL) after any CONFIG change.
 
 ## Waiting on the owner
-- **Sex-act switch** (`PICTURE.RUNWARE.SEX_ACTS`, panel "Runware: allow sex acts", default off) is live: to try it, set
-  "Who draws her pictures" to Runware klein and the switch on (panel → overrides), then /pic. Only the Runware versions.
-- **In Telegram now:** `/setup` once (it shows which models answer: the chat model should read DeepSeek; if the panel's
-  overrides still name Nemo, clear `LLM.MODEL` there), then `/rewind` past the short Nemo replies or `/restart` (old short
-  replies in her history pull her back to that style). Then the same chat: "come over", "waiting for you to knock".
+- **Deploy?** Say "Deploy" to put "come over" and the habibi fix live (`dev` → `main`).
+- **In Telegram after a deploy:** `/rewind` past the short Nemo replies, or `/restart` (old short replies pull her back to that
+  style). Then try "come over".
+- Sex-act switch: to try it, Runware klein as the picture version plus the switch on (tell Claude; no panel), then /pic.
 - Nano Banana's money cap $0.50 a day (`LINGERIE.DAILY_USD`): raise it?
 - Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches);
   Lunaris via DeepInfra; cost estimate questions from 2026-10-04.
 
-## Verified this session (2026-10-06, ninth session)
-- `node tools/check.mjs` all 6 ok. Live runs read reply by reply: 37459244094 (Nemo, his chat), 37459455109 (DeepSeek, his
-  chat), 37459992726 (DeepSeek, all; 1 broken = Nemo after an OpenRouter timeout), 37460798857 (DeepSeek, all; 0 broken).
-- Deploy run 37461633468 green (Deploy Worker, /health); live code read back: DeepSeek model, Nemo backup, the new guards.
-- Sex-act switch: unit and scenario rows (off by default, Runware only, under-18 still blocks); deploy run 37515274946 green, live
-  code read back. No sex-act picture was drawn by Claude.
-- Not checked: the panel's `CONFIG_OVERRIDES` (Claude can't read it); the live chat after the deploy.
+## Verified this session (2026-10-06, tenth session)
+- Sync report: after `git fetch --unshallow`, every listed branch is contained in `dev` (`git cherry`); only the retired
+  squash-merged ones and `face-candidates` have their own commits.
+- `node tools/check.mjs` all 6 ok (unit rows for `asksHerOver`/visit mode, an e2e step for the retry, 2 scenario rows).
+- Live runs read reply by reply: 37517733148 (visit scenes 6/8, habibti 4/5) → fixes → 37518157279 (8/8, went to him 8/10,
+  habibti 1/5, 0 broken). See `docs/QUALITY.md`.
+- Not checked: the deploy's new /setup step (it runs on the next deploy; if the Worker has a SETUP_KEY that GitHub lacks, it
+  prints "not found"); the live chat.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Owner's live test** (list above), then report slips. *Effort: low*
-2. **Going over to him:** after "come over" she mostly invites him instead (3/9 went to him in run 37460798857); decide with
-   the owner if she should go more often. *Effort: medium*
+1. **Owner: deploy and live test** (list above), then report slips. *Effort: low*
+2. **Him at her door while apart:** after his "Kiss kiss" (her last text "Knock."), she writes him arriving at her door; with
+   no HER_MOVE words the code sends her quoted words as texts ("You took the stairs three at a time") 2/5. Decide: accept
+   him arriving as a scene, or keep her on the phone. *Effort: medium*
 3. **Selfie framing:** the phone shows in plain selfies (1 of 6); framed by someone else (1 of 8). *Effort: medium*
 4. **Text model** (owner's direction): bench cheaper or better models on `OWNER_CHAT` with the `model` input before any
    switch. *Effort: high*

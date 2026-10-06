@@ -4,6 +4,11 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-06 (tenth session): "come over" (owner: "Mostly go")
+- `replyMode` "visit" (`asksHerOver`, `TEXTING.VISIT_CHANCE` 0.75, `NUDGES.FORMAT_VISIT`/`RETRY_VISIT`); shapeReply keeps a
+  visit's scene. Live 37517733148 (visit scenes 6/8) → 37518157279 (8/8; went to him 8/10). The habibi rule no longer names
+  habibti (corrections 4/5 → 1/5). deploy.yml opens /setup after /health. Panel no longer published (owner).
+
 ## 2026-10-06: back to DeepSeek (owner: "What is wrong with Reem? Fix her")
 - The owner's Telegram chat (one-word texts "good", "come", "Knock."; "hey habibti" to him; a style example sent word for word;
   a coffee detail picture after "Kiss kiss") replayed in live.mjs (`OWNER_CHAT`): Nemo 37459244094, DeepSeek 37459455109
