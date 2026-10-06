@@ -6,7 +6,7 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
 - 2026-10-06 — **Deploy /pic** (owner: "Deploy"): `dev` (c0e8109) fast-forwarded into `main` (was 4354980). `/pic` (`/photo`, `/custom`)
-  live: his words, her face, on `PICTURE.ROUTE`. *Completes the /pic part of the entry below.*
+  live: his words, her face, on `PICTURE.ROUTE`. Deploy run 37453860155 green, /health drew and saw, live code read back (/pic in). *Completes the /pic part of the entry below.*
 - 2026-10-06 — **Deploy the picture versions; /pic** (owner: "That's no top. It's skinfold which is good and realistic. Let's deploy
   according to everything on dev right now. Also add a slash command in the bot where the user can generate pictures customized with
   different hairstyles, makeup, poses, clothing, framing, angle, but Reem remains Reem."): `dev` (4354980) fast-forwarded into `main`;
