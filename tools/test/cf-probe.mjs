@@ -9,12 +9,16 @@ const ask = async (messages, max_tokens, gateway) => {
   const d = await res.json().catch(() => ({}));
   return d.success === false ? `ERROR ${JSON.stringify(d.errors).slice(0, 120)}` : String(d.result?.choices?.[0]?.message?.content ?? "");
 };
+const PLAN = "Write Reem Nabot's plan for today, Wednesday, October 7. She is 29, a freelance bookkeeper in Watertown. Weather today: 52°F and raining. Write 6 to 8 lines from 8:00 to 24:00, each exactly like \"14-16: what she's doing\". Never him. No intro, only the lines.";
 const CASES = [
+  ["tiny with a system line", [{ role: "system", content: "You are a helpful assistant." }, { role: "user", content: "Say hello in five words." }], 40],
+  ["plan as one user message", [{ role: "user", content: PLAN }], 500],
+  ["plan as system + user", [{ role: "system", content: PLAN }, { role: "user", content: "Today's plan." }], 500],
   ["tiny, 5 tokens", [{ role: "user", content: "Reply with: OK" }], 5],
   ["tiny, 40 tokens", [{ role: "user", content: "Say hello in five words." }], 40],
   ["chat, 220 tokens", [{ role: "system", content: "You are Reem, 29, a dry, warm Armenian-Lebanese bookkeeper in Watertown texting the man across the landing. Short lowercase texts." }, { role: "user", content: "hey habibti how are you" }], 220],
 ];
-for (const gateway of [false, true]) for (const [name, messages, max] of CASES) {
+for (const gateway of [false]) for (const [name, messages, max] of CASES) {
   const outs = [];
   for (let i = 0; i < 5; i++) { outs.push(await ask(messages, max, gateway)); await new Promise((r) => setTimeout(r, 1500)); }
   console.log(`${gateway ? "gateway" : "direct "} | ${name}: ${outs.filter((o) => !o.trim()).length}/5 empty | ${outs.map((o) => JSON.stringify(o.slice(0, 40))).join(" ")}`);
