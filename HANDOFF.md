@@ -3,15 +3,15 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-06 (tenth session). **Deployed:** `main` = 90e5c44 (DeepSeek V4 Flash, Nemo the backup, the
-sex-act switch). **On `dev`, not deployed:** "come over" and the habibi fix (below).
+**Last updated:** 2026-10-06 (tenth session). **Deployed:** `main` = `dev` = 59177d8 (run 37520213264): "come over" and the
+habibi fix are live. To go back to the version before: push 90e5c44 to `main`.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid since 2026-10-03, $5/month).
 - **Live:** v11 persona (Reem Nabot, Armenian-Lebanese bookkeeper, Watertown triple-decker); DeepSeek V4 Flash text, memory and
   /auto (Nemo the backup); Sulafat voice; Gemini 3.8 Flash hearing; `/look`; `/pic`; daily AI cap 50,000 neurons; picture
   versions (`PICTURE.ROUTE`, default "cloudflare"; Runware versions draw nudity; `PICTURE.RUNWARE.SEX_ACTS` default off).
-- **Built this session, on `dev`, not deployed** (owner picked "Mostly go"):
+- **Built and deployed this session** (owner picked "Mostly go", then "Deploy"):
   - While apart, when he asks her over ("come over", "waiting for you to knock"; not "can I come over"), 3 in 4 replies
     (`TEXTING.VISIT_CHANCE` 0.75) are the scene of her crossing to his door; if she texts instead she's asked once more.
     Live: she went to him 8/10 (was 3/9 to 5/10).
@@ -23,8 +23,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
-- **Deploy?** Say "Deploy" to put "come over" and the habibi fix live (`dev` → `main`).
-- **In Telegram after a deploy:** `/rewind` past the short Nemo replies, or `/restart` (old short replies pull her back to that
+- **In Telegram now:** `/rewind` past the short Nemo replies, or `/restart` (old short replies pull her back to that
   style). Then try "come over".
 - Sex-act switch: to try it, Runware klein as the picture version plus the switch on (tell Claude; no panel), then /pic.
 - Nano Banana's money cap $0.50 a day (`LINGERIE.DAILY_USD`): raise it?
@@ -37,12 +36,12 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - `node tools/check.mjs` all 6 ok (unit rows for `asksHerOver`/visit mode, an e2e step for the retry, 2 scenario rows).
 - Live runs read reply by reply: 37517733148 (visit scenes 6/8, habibti 4/5) → fixes → 37518157279 (8/8, went to him 8/10,
   habibti 1/5, 0 broken). See `docs/QUALITY.md`.
-- Not checked: the deploy's new /setup step (it runs on the next deploy; if the Worker has a SETUP_KEY that GitHub lacks, it
-  prints "not found"); the live chat.
+- Deploy run 37520213264 green: /health drew and saw; the new /setup step printed all ✅ (DeepSeek answered via Novita, no Nemo
+  override); live code read back (`VISIT_CHANCE: 0.75`, `asksHerOver`, the habibi line). Not checked: the live chat.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Owner: deploy and live test** (list above), then report slips. *Effort: low*
+1. **Owner's live test** (list above), then report slips. *Effort: low*
 2. **Him at her door while apart:** after his "Kiss kiss" (her last text "Knock."), she writes him arriving at her door; with
    no HER_MOVE words the code sends her quoted words as texts ("You took the stairs three at a time") 2/5. Decide: accept
    him arriving as a scene, or keep her on the phone. *Effort: medium*

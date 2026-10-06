@@ -5,6 +5,10 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Deploy** (owner: "Deploy"): `dev` (59177d8) fast-forwarded into `main` (was 90e5c44): "come over" (she mostly
+  goes), the habibi fix, the deploy's /setup step. Deploy run 37520213264 green (Deploy Worker, /health drew and saw, /setup all ✅:
+  DeepSeek answered, Nemo backup, Sulafat, Gemini hearing); live code read back (`VISIT_CHANCE: 0.75`, `asksHerOver`, the habibi
+  line). *Completes "Come over: she mostly goes" (same day).* To go back: push 90e5c44 to `main`.
 - 2026-10-06 — **No settings panel** (owner: "the setting panel from last chat was useless", then picked "Drop it"): Claude stops
   republishing `tools/settings-panel.html` and stops pointing the owner to it; he says changes in chat and Claude makes them in
   code. The file stays for the unit test that every CONFIG key has a field. Also (owner): "there is no such thing as /setup inside
