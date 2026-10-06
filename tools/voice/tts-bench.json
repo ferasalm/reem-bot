@@ -1,67 +1,36 @@
 {
-  "note": "Owner 2026-10-06: \"i want to try minimax tts from runware. Let's test it with samples.\" MiniMax Speech 2.8 on Runware (probe run 37538538210: speech.voice required, $0.0042 a short line). The same two lines as the Fish/Qwen bench; [laughs softly]/[sighs] become MiniMax's (laughs)/(sighs), other tags dropped. Five female voices; Arabic_CalmWoman for the accent. Judge by ear.",
-  "max_chars": 3000,
+  "note": "Owner 2026-10-06: \"You write the lines. test the turbo with the Arabic script.\" MiniMax 2.8 Turbo (OpenRouter; Runware publishes no Turbo id, runware_search lists them) with Arabic_CalmWoman, her Arabic words in Arabic script so she says ح, not an English h; the same lines on MiniMax HD (Runware) and on Sulafat (live) to compare. New lines written by Claude. Judge by ear.",
+  "max_chars": 4500,
+  "runware_search": [
+    "minimax"
+  ],
   "lines": [
     {
-      "id": "wall",
-      "text": "[laughs softly] Walaw, you think I can't hear you through that wall? Plaster on lath, habibi. [whispering] I hear everything... even the things you whisper to yourself."
+      "id": "counted",
+      "text": "[laughs softly] ولو, you really thought I wouldn't notice? You walked past my door three times tonight, حبيبي. Three. I counted. Counting is literally my job."
+    },
+    {
+      "id": "quarterlies",
+      "text": "[sighs] يعني... I just closed the Hovsepian quarterlies and my eyes are crossing. Come sit with me. No numbers. Tell me anything else, I don't care what."
     },
     {
       "id": "landing",
-      "text": "[sighs] Yaani... it's two in the morning and you're still awake. [teasing] Come to the landing. Don't knock. [low and breathy] Just stand there and let me decide."
+      "text": "يلا, open the door. I'm standing on the landing in your old t-shirt and I'm not going back inside. خلص, I decided. You're stuck with me."
     }
   ],
   "candidates": [
     {
-      "name": "mm-captivating",
-      "provider": "runware",
-      "model": "minimax:speech@2.8",
-      "speech": {
-        "voice": "English_captivating_female1"
-      },
+      "name": "mm-turbo-arabic",
+      "model": "minimax/speech-2.8-turbo",
+      "voice": "Arabic_CalmWoman",
+      "format": "mp3",
       "tags": {
         "laughs softly": "(laughs)",
         "sighs": "(sighs)"
       }
     },
     {
-      "name": "mm-graceful",
-      "provider": "runware",
-      "model": "minimax:speech@2.8",
-      "speech": {
-        "voice": "English_Graceful_Lady"
-      },
-      "tags": {
-        "laughs softly": "(laughs)",
-        "sighs": "(sighs)"
-      }
-    },
-    {
-      "name": "mm-playful",
-      "provider": "runware",
-      "model": "minimax:speech@2.8",
-      "speech": {
-        "voice": "English_PlayfulGirl"
-      },
-      "tags": {
-        "laughs softly": "(laughs)",
-        "sighs": "(sighs)"
-      }
-    },
-    {
-      "name": "mm-sentimental",
-      "provider": "runware",
-      "model": "minimax:speech@2.8",
-      "speech": {
-        "voice": "English_SentimentalLady"
-      },
-      "tags": {
-        "laughs softly": "(laughs)",
-        "sighs": "(sighs)"
-      }
-    },
-    {
-      "name": "mm-arabic",
+      "name": "mm-hd-arabic",
       "provider": "runware",
       "model": "minimax:speech@2.8",
       "speech": {
@@ -71,6 +40,14 @@
         "laughs softly": "(laughs)",
         "sighs": "(sighs)"
       }
+    },
+    {
+      "name": "sulafat-arabic",
+      "model": "google/gemini-3.8-flash-tts",
+      "voice": "Sulafat",
+      "format": "pcm",
+      "rate": 24000,
+      "instructions": "Speak as Reem, a dry, confident 29-year-old Armenian-Lebanese woman who grew up in Beirut and moved to Boston at 23, in fluent English with a clear Lebanese Arabic accent: soft rolled r, slightly clipped vowels, Levantine rising question endings, Arabic and French words said natively. Close to the mic: low, warm, a little husky, deadpan on the jokes, intimate and teasing, unhurried. Laugh naturally where marked."
     }
   ]
 }
