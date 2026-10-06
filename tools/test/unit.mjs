@@ -207,6 +207,7 @@ eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.
   walk(W.CONFIG, "");
   eq(missing, [], "every CONFIG key has a settings panel field");
 }
+eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (owner 2026-10-06)");
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

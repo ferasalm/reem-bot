@@ -726,7 +726,7 @@ Changing the story
     // "runware-klein" = FLUX.2 klein 9B on Runware with her face and body (RUNWARE.MODEL), safety check off, nudity
     // allowed (owner 2026-10-06), TwinFlow when it fails; "runware-twinflow" = TwinFlow Z-Image-Turbo on Runware,
     // text only (RUNWARE.LOOKS: no face picture). Both Runware routes need the Worker secret RUNWARE_API_KEY.
-    ROUTE: "cloudflare",
+    ROUTE: "runware-klein",            // owner 2026-10-06: "Switch on the runware klein for all pictures" (was "cloudflare")
     MODEL: "@cf/black-forest-labs/flux-2-klein-4b", // draws from her reference face
     BACKUP_MODEL: "@cf/black-forest-labs/flux-1-schnell", // when MODEL is unavailable: no reference, LOOKS instead
     BACKUP_STEPS: 6,                   // 1 to 8

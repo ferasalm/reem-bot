@@ -46,6 +46,7 @@ const env = { TELEGRAM_BOT_TOKEN: "t", OPENROUTER_API_KEY: "o", ELEVENLABS_API_K
 import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker(); const mod = W.default;
 W.CONFIG.VOICE.PROVIDER = "aura"; // the default is OpenRouter (Sulafat); the flows below were written for aura with ElevenLabs behind it, the OpenRouter step switches it itself
+W.CONFIG.PICTURE.ROUTE = "cloudflare"; // the default is Runware klein (owner 2026-10-06); these flows were written for the Cloudflare route
 const ctx = { waitUntil(){} };
 let uid = 1;
 const msg = (m) => ({ body: { update_id: uid, message: { message_id: 1000 + uid++, chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock/1000, ...m } }, ack(){} });
