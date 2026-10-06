@@ -196,6 +196,11 @@ const L3 = [
     { kind: "text", texts: ["Four in the morning,", "And you stand here saying my name."] }],
   ["scene: her words between *actions* with no quotes -> quoted", "You're due, you know. There's pastries on the counter.\n\n*She tips her head, a slow curl of a smile.*\n\nI don't lend money to men who don't say good morning.", { scene: "together", heard: "*sits next to you on the porch steps*" },
     { kind: "scene", texts: ["\"You're due, you know. There's pastries on the counter.\"\n\n*She tips her head, a slow curl of a smile.*\n\n\"I don't lend money to men who don't say good morning.\""] }],
+  // Live 2026-10-06 (run 37517733148): told to go to him (mode "visit"), she walked in with words HER_MOVE doesn't know;
+  // the narration was dropped and he got "So I came" as a text
+  ["live: visit, she turns the handle and steps in", "*Reem doesn't knock. She just turns the handle and steps in, barefoot, still in the black slip dress.*\n\n\"You asked. So here I am.\"", { mode: "visit" },
+    { kind: "scene", texts: ["*Reem doesn't knock. She just turns the handle and steps in, barefoot, still in the black slip dress.*\n\n\"You asked. So here I am.\""] }],
+  ["same words, not told to go: asked again", "*Reem doesn't knock. She just turns the handle and steps in, barefoot.*\n\n\"You asked. So here I am.\"", {}, { kind: "none", narrationOnly: true }],
 ];
 
 section("model outputs");

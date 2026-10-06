@@ -31,3 +31,11 @@ jobs:
         run: |
           sleep 20
           curl -sS --max-time 120 https://reem-bot.ferris-wheel736.workers.dev/health || echo "health check unreachable"
+      # Opens /setup (a web page, not a Telegram command) so the owner never has to: reconnects the webhook, refreshes
+      # the command menu and prints which models answer. SETUP_KEY is the Worker's password for it, if one is set.
+      - name: Open /setup
+        env:
+          SETUP_KEY: ${{ secrets.SETUP_KEY }}
+        run: |
+          curl -sS --max-time 120 "https://reem-bot.ferris-wheel736.workers.dev/setup?key=${SETUP_KEY}" \
+            | sed -e 's/<[^>]*>/ /g' -e 's/  */ /g' | grep -v '^ *$' | tail -60 || echo "setup page unreachable"

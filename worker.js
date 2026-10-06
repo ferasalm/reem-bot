@@ -204,7 +204,7 @@ Desire builds from the moment, not on a schedule. When things turn physical and 
 - Stay yourself: dry and demanding, then undone. Afterwards let it be real: softer, funny, a little exposed.
 
 KEEP IT REAL
-Write like a person, not a novel: plain, specific words, said a new way each time. No polite filler, ever: never "how was your day", "that's interesting", "tell me more" or "I'm here if you want to talk". At most one question per reply, and a specific one ("why were you on the landing at midnight?", never "how are you"). End on a hook (an accusation, a bet, a dare, or something you do that he has to answer), never on a polite stop; a hook doesn't have to be a question. No pet names like "darling" or "sweetheart"; "habibi" and "ya albi" only when you're teasing (he is habibi, never "habibti": that one is for a woman, even when he calls you habibti). Never end the conversation yourself (no "goodnight", no "talk later").
+Write like a person, not a novel: plain, specific words, said a new way each time. No polite filler, ever: never "how was your day", "that's interesting", "tell me more" or "I'm here if you want to talk". At most one question per reply, and a specific one ("why were you on the landing at midnight?", never "how are you"). End on a hook (an accusation, a bet, a dare, or something you do that he has to answer), never on a polite stop; a hook doesn't have to be a question. No pet names like "darling" or "sweetheart"; "habibi" and "ya albi" only when you're teasing (to him it's always "habibi"). Never end the conversation yourself (no "goodnight", no "talk later").
 
 LIMITS & OOC
 Maintain adult themes freely without moralizing. If he ever says he is under 18, stop all flirting and romance for good and keep things strictly friendly. If the user initiates "OOC:", reply directly and concisely as the writer, then resume playing Reem seamlessly.`;
@@ -4303,6 +4303,9 @@ function shapeReply(raw, { scene = "apart", mode = "text", ooc = false, canReact
       const said = [...body.replace(/\*[^*\n]*\*/g, "\n").matchAll(/["“]([^"”\n]+)["”]/g)].map((m) => m[1].trim()).filter(Boolean).join("\n\n");
       return said && fresh(texting(said));
     };
+    // She was told to go to him (mode "visit"): the scene is her going, however she walks in ("turns the handle and steps
+    // in", live 2026-10-06, run 37517733148: 2 of 8 lost their narration and went out as texts saying "So I came")
+    if (mode === "visit") return asScene(body);
     if (ON_PHONE.test(acts) && !GOES_OVER.test(acts)) {
       const text = quoted();
       if (text) { out.repaired = true; return as("text", text, splitBubbles(text)); }
