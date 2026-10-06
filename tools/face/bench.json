@@ -1,5 +1,5 @@
 {
-  "note": "Owner 2026-10-06 hourglass + realistic nipples, round 2: klein 9B with the owner's bodysuit picture (beige leaked 1/4 in run 37438811067, now named) vs a faceless nude hourglass body cropped from TwinFlow #02 of that run (tools/face/body-hourglass.jpg): nothing to leak.",
+  "note": "2026-10-06: the bot's own code (worker.js composePicture + drawPicture) on the real Runware API, both Runware versions, the bot's real prompts: nude, lingerie, everyday, mirror-back.",
   "want": 4,
   "max_attempts": 4,
   "max_usd": 0.03,
@@ -65,5 +65,49 @@
     "rw-klein9b-b2": [
       "tools/face/body-hourglass.jpg"
     ]
-  }
+  },
+  "worker_draw": [
+    [
+      "runware-klein",
+      "selfie",
+      "boudoir",
+      "naked on her bed, the sheet pushed off",
+      23
+    ],
+    [
+      "runware-klein",
+      "mirror",
+      "boudoir",
+      "a red lace bra and matching panties",
+      22
+    ],
+    [
+      "runware-klein",
+      "selfie",
+      "everyday",
+      "",
+      15
+    ],
+    [
+      "runware-klein",
+      "mirror-back",
+      "boudoir",
+      "naked, looking over her shoulder",
+      23
+    ],
+    [
+      "runware-twinflow",
+      "selfie",
+      "boudoir",
+      "naked on her bed, the sheet pushed off",
+      23
+    ],
+    [
+      "runware-twinflow",
+      "mirror",
+      "boudoir",
+      "a red lace bra and matching panties",
+      22
+    ]
+  ]
 }

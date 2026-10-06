@@ -276,6 +276,32 @@ if (job.list_google) {
   for (const m of (or.data || []).filter((m) => m.id.startsWith("google/"))) console.log(`  ${m.id} | pricing ${JSON.stringify(m.pricing)}`);
 }
 
+// job.worker_draw (2026-10-06): the bot's own code draws, exactly as live: worker.js's composePicture builds each prompt
+// from [route, shot, tier, words, hour] and drawPicture sends it on PICTURE.ROUTE = route (with a ledger, so Runware is tried)
+if (job.worker_draw) {
+  const { loadWorker } = await import("../test/load-worker.mjs");
+  const W = await loadWorker();
+  const env = { RUNWARE_API_KEY: rwKey, AI: null };
+  let n = 0;
+  for (const [route, shot, tier, words, hour] of job.worker_draw) {
+    W.CONFIG.PICTURE.ROUTE = route;
+    const pic = W.composePicture({ tier, shot, words, hour, lingerie: /lace|satin|bra|lingerie/.test(words) });
+    const ledger = { rwUsd: 0 };
+    const name = `worker-${String(++n).padStart(2, "0")}-${route}-${shot}`;
+    try {
+      const drawn = await W.drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger });
+      const s = save(name, drawn.bytes);
+      spentUsd += ledger.rwUsd;
+      console.log(`${name}: drawn by ${drawn.model} ${s.size}, $${ledger.rwUsd.toFixed(5)} | ${words} | prompt: ${pic.prompt.slice(0, 300)}`);
+    } catch (e) {
+      console.log(`${name}: FAILED ${e.message} | ${words}`);
+    }
+    if (spentUsd > job.max_usd) { console.log("Money cap reached: stopping."); break; }
+  }
+  console.log(`Spent about $${spentUsd.toFixed(4)}.`);
+  process.exit(0);
+}
+
 if (job.want) {
   // refusals cost nothing on either provider (2026-10-04), so the expected spend is want pictures a route; the
   // real cost is added up as it goes and stops the run past job.max_usd
