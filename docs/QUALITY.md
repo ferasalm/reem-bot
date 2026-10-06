@@ -335,3 +335,24 @@ nudity and/or something explicit"; $0.05 balance. Spent $0.0018 (3 pictures at $
   nudity, pubic hair included. Photo-real, natural skin, hands fine, adult face, dark wavy hair with bangs 3/3.
   Misses: the body is slim with a flat stomach 3/3 (asked: 165 cm, 71 kg, softly rounded belly), and the face is another woman
   each time (no reference picture on this route). Topless not drawn (the balance ran out of headroom, not refused).
+
+## TwinFlow Z-Image-Turbo nude pose stress test (2026-10-06, image bench 37400155674), each read at full size
+Owner: "different poses and settings ... while maintaining nudity"; 8 asked (4 poses x A = the bible's body words, B = stronger
+body words), 6 drawn at $0.0006, 2 not drawn (#03 rear A, #06 bed B: `concurrentRequestLimitExceeded`, the small balance stays
+reserved ~40 s; not content). Nudity 6/6 as asked, 0 refused for content. Face: the same-looking woman 6/6 by the owner's eye
+and mine (bangs, thick arched brows, freckles, dark wavy hair) with no reference picture; not pixel-identical.
+- #01 selfie A, #02 selfie B: nude, but an iPhone in her hand in both (asked: phone out of frame) → the word "selfie" brings the
+  phone; reword without it ("taken from her outstretched arm") before using it for plain selfies.
+- #04 rear mirror selfie B: nude from behind, looking over her shoulder, iPhone in her raised hand, full-length mirror: as asked.
+- #05 in bed A: nude, but on her back seen from above (asked: on her side); warm light.
+- #07 /look A: his POV from the pillow, sheet at her hips, bare breasts, sleepy smile, morning light: as asked.
+- #08 /look B: on her back from above, no sheet (asked: on her side, sheet to the waist); otherwise right.
+- Body: A softer than run 37396284022 but still a narrow waist; B fuller bust and hips, belly still nearly flat. Neither reaches
+  "a soft belly with a small pooch": B's words are the better start.
+
+## Fish Audio S2.1 Pro and Qwen3-TTS (2026-10-06, TTS bench 37400423366), heard back by Whisper; judged by ear by the owner
+Two lines with [laughs softly], [whispering], [sighs], [teasing], [low and breathy], Arabic words and a Lebanese accent asked.
+- fish-or (OpenRouter `fish-audio/s2.1-pro`, default voice, an accent direction in brackets): 2/2, words exact, no [tag] read aloud.
+- qwen-design (Runware `alibaba:qwen@3-tts-1.7b-voicedesign`, the voice + accent + emotions described in `positivePrompt`, tags
+  stripped): 2/2, words exact, $0.0021 and $0.0019 a clip.
+- Not made: Fish on Runware (`thirdPartyInsufficientCredits`, needs $5); Qwen CustomVoice (voice names are lowercase: `serena`).
