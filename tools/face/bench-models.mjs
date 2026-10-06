@@ -79,6 +79,9 @@ const ROUTES = {
   // its content check (safety.checkContent) is off; the real cost comes back with includeCost. Model ids:
   // job.runware_models overrides them (the docs' AIR ids, checked by job.runware_search)
   "rw-klein9b": { usd: 0.0012, family: "ref", run: (p, r, s) => runware(job.runware_models?.["rw-klein9b"] || "runware:400@2", p, r, s) },
+  "rw-klein9b-text": { usd: 0.0008, family: "text", run: (p, r, s) => runware("runware:400@2", p, [], s) },
+  "rw-klein4b-text": { usd: 0.0006, family: "text", run: (p, r, s) => runware("runware:400@4", p, [], s) },
+  "rw-twinflow": { usd: 0.0008, family: "text", run: (p, r, s) => runware("runware:twinflow-z-image-turbo@0", p, [], s) },
   "rw-zimage": { usd: 0.0008, family: "text", run: (p, r, s) => runware(job.runware_models?.["rw-zimage"] || "runware:z-image@turbo", p, [], s) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };

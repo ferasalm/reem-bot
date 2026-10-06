@@ -1,6 +1,6 @@
 {
-  "note": "Owner 2026-10-06: test Runware klein 9B (safety check off, her face + body) and Z-Image-Turbo (text only) for lingerie, see-through, topless and full nudity. $0.05 in the account.",
-  "want": 4,
+  "note": "Probe 2026-10-06: which Runware models run on a $0.05 balance (first run: klein 9B insufficientCredits, Z-Image needs $5). One full-nude picture each.",
+  "want": 1,
   "max_attempts": 4,
   "max_usd": 0.03,
   "reference": "tools/face/reference.jpg",
@@ -8,8 +8,9 @@
     "tools/face/body.jpg"
   ],
   "routes": [
-    "rw-klein9b",
-    "rw-zimage"
+    "rw-klein4b-text",
+    "rw-klein9b-text",
+    "rw-twinflow"
   ],
   "flux2_steps": 20,
   "lucid_steps": 25,
@@ -39,17 +40,18 @@
     ]
   },
   "want_by": {},
-  "start_at": {},
+  "start_at": {
+    "rw-klein4b-text": 3,
+    "rw-klein9b-text": 3,
+    "rw-twinflow": 3
+  },
   "stop_at": {},
   "list_google": false,
   "aspect": "9:16",
   "family_of": {},
-  "runware_search": [
-    "klein",
-    "z-image"
-  ],
+  "runware_search": [],
   "runware_size": [
-    576,
-    1024
+    512,
+    896
   ]
 }
