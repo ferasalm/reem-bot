@@ -541,6 +541,7 @@ const CONFIG = {
     { command: "pics", aliases: ["selfie", "selfies"], action: "pics", description: "Ask {name} to send pictures more often (on/off)" },
     { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now, when you're with {name}" },
     { command: "pic", aliases: ["photo", "custom"], action: "pic", description: "A picture of {name} as you describe it: /pic <hair, makeup, clothes, pose, framing, angle>" },
+    { command: "spend", aliases: ["cost", "costs"], action: "spend", description: "What {name} cost today, and what's left on each account" },
     { command: "album", aliases: ["gallery"], action: "album", description: "Every picture {name} has sent you, 10 at a time: /album [page]" },
     { command: "face", aliases: [], action: "face", description: "{name}'s face in her pictures: /face draws new ones to pick from" },
     { command: "restart", aliases: ["start"], action: "restart", description: "Start the story over (wipes her memory)" },
@@ -591,6 +592,7 @@ Changing the story
     LOOK_OFF: "No pictures right now (turned off, today's picture budget is spent, or Workers AI isn't connected: see /setup).",
     LOOK_FAILED: "The picture couldn't be drawn this time. Try again in a moment.",
     ALBUM_EMPTY: "No pictures from {name} yet.",
+    SPEND: "Spent today ({day}, UTC):\n{lines}\nPer model, with tokens: Cloudflare dashboard > AI > AI Gateway.", // {day} {lines}
     ALBUM_PAGE: "Pictures {from}-{to} of {total}, oldest first.{more}", // {from} {to} {total} {more}
     ALBUM_MORE: " Older ones: {cmd} {next}",  // {cmd} {next}
     // /pic: a picture of her as he describes it (PICTURE.CUSTOM)
@@ -1023,6 +1025,9 @@ Changing the story
     HEALTH_NEURONS: 40,                // one /health check
     HEARING_NEURONS_PER_MIN: 47,
     VOICE_NEURONS_PER_1000_CHARS: 2728, // aura-2: $0.03 per 1,000 characters at $0.011 per 1,000 neurons       // Whisper large v3 turbo: 46.63 neurons per audio minute (Cloudflare's price list)
+    // Owner 2026-10-06 (Cloudflare idea 3): every Workers AI call goes through this AI Gateway, which logs its cost,
+    // tokens and errors per model (Cloudflare dashboard > AI > AI Gateway). "default" is created on first use; "" = off
+    GATEWAY: "default",
     OUT_RETRY_MS: 3600000,             // after "allocation used up", try again this much later (seen 2026-10-03: the block outlived the 00:00 UTC reset)
   },
 
@@ -1330,7 +1335,7 @@ async function handleBatch(updates, env, ctx, deadline) {
 const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit", "look", "pic"]);
 
 // Commands answered straight from the webhook, never queued: they only show or change his settings
-const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face", "album"]);
+const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face", "album", "spend"]);
 
 function isQuickCommand(update) {
   const m = update && update.message;
@@ -1396,6 +1401,7 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
   if (action === "pics") return picsCommand(env, chatId);
   if (action === "face") return faceCommand(env, chatId, args, msg);
   if (action === "album") return albumCommand(env, chatId, args);
+  if (action === "spend") return spendCommand(env, chatId);
 
   // Story commands: the command message itself is removed once it's done
   if (CONFIG.TELEGRAM.CLEAN_COMMANDS && msg.message_id) await deleteIds(env, chatId, [msg.message_id]);
@@ -2636,7 +2642,9 @@ async function aiRun(env, model, input, timeoutMs, retry = true, options = undef
   });
   late.catch(() => {});
   try {
-    return await Promise.race([options ? env.AI.run(model, input, options) : env.AI.run(model, input), late]);
+    const gw = CONFIG.AI_BUDGET.GATEWAY;
+    const opts = gw ? { ...(options || {}), gateway: { id: gw } } : options;
+    return await Promise.race([opts ? env.AI.run(model, input, opts) : env.AI.run(model, input), late]);
   } catch (e) {
     if (retry && aiBusy(e) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE) return aiRun(env, model, input, timeoutMs, false, options);
     throw e;
@@ -3562,6 +3570,37 @@ async function deliverPicture(env, chatId, ledger, drawing) {
   } finally {
     if (drawing) await saveLedger(env, ledger);
   }
+}
+
+/* --- /spend (owner 2026-10-06, Cloudflare idea 3): today's money per account, from each provider's own figures --- */
+
+async function spendCommand(env, chatId) {
+  const M = CONFIG.MESSAGES;
+  const usd = (n, d = 2) => `$${(Number(n) || 0).toFixed(d)}`;
+  const line = async (what, f) => { try { return `• ${what}: ${await f()}`; } catch (e) { return `• ${what}: couldn't ask (${String(e.message || e).slice(0, 80)})`; } };
+  const [or, rw, cf] = await Promise.all([
+    env.OPENROUTER_API_KEY ? line("OpenRouter (texts, voice, hearing)", async () => {
+      const auth = { headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}` }, signal: AbortSignal.timeout(8000) };
+      const [k, c] = await Promise.all([xfetch("https://openrouter.ai/api/v1/key", auth).then((r) => r.json()), xfetch("https://openrouter.ai/api/v1/credits", auth).then((r) => r.json()).catch(() => ({}))]);
+      const d = (k && k.data) || {};
+      const left = c && c.data && c.data.total_credits != null ? `, ${usd(c.data.total_credits - c.data.total_usage)} credit left` : "";
+      return `${usd(d.usage_daily, 3)} today, ${usd(d.usage_monthly)} this month${left}`;
+    }) : null,
+    env.RUNWARE_API_KEY ? line("Runware (pictures)", async () => {
+      const r = await xfetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${env.RUNWARE_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify([{ taskType: "accountManagement", taskUUID: crypto.randomUUID(), operation: "getDetails" }]), signal: AbortSignal.timeout(8000) }).then((x) => x.json());
+      const d = (r && r.data && r.data[0]) || {};
+      if (d.balance == null) throw new Error(JSON.stringify(r.errors || r).slice(0, 80));
+      return `${usd(d.usage && d.usage.today && d.usage.today.credits, 3)} today, ${usd(d.balance)} left`;
+    }) : null,
+    env.AI && env.REEM_KV ? line("Cloudflare Workers AI", async () => {
+      const B = CONFIG.AI_BUDGET;
+      const l = await loadLedger(env);
+      const paid = Math.max(0, l.neurons - 10000) * 0.011 / 1000;
+      return `about ${Math.round(l.neurons).toLocaleString("en-US")} of ${B.DAILY_NEURONS.toLocaleString("en-US")} neurons counted by the bot (${usd(paid)} past the free 10,000; pictures, photos, voice and hearing; the backup texts, plan and memory are in the gateway's figures)`;
+    }) : null,
+  ]);
+  const lines = [or, rw, cf].filter(Boolean).join("\n") || "• no accounts connected";
+  return notice(env, chatId, M.SPEND, { day: new Date().toISOString().slice(0, 10), lines });
 }
 
 /* --- /album: every picture she sent (owner 2026-10-06, Cloudflare idea 6), as Telegram's own photo ids in KV --- */

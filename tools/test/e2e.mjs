@@ -452,6 +452,26 @@ step("her real day (DAY, owner 2026-10-06): Watertown's weather and today's plan
   globalThis.fetch = fetch0; ctx.waitUntil = () => {}; clock = before; D.WEATHER = false; D.PLAN = false; delete env.AI; store.delete("day");
 }
 
+step("/spend (owner 2026-10-06): today's money from OpenRouter's and Runware's own figures, Cloudflare from the bot's count; Workers AI through the AI Gateway");
+{
+  const fetch0 = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    if (String(url).endsWith("/api/v1/key")) return new Response(JSON.stringify({ data: { usage_daily: 0.0412, usage_monthly: 3.5 } }));
+    if (String(url).endsWith("/api/v1/credits")) return new Response(JSON.stringify({ data: { total_credits: 10, total_usage: 8.75 } }));
+    if (String(url).includes("api.runware.ai")) return new Response(JSON.stringify({ data: [{ balance: 19.0666, usage: { today: { credits: 0.0062 } } }] }));
+    return fetch0(url, init);
+  };
+  env.RUNWARE_API_KEY = "rw"; const opts = [];
+  env.AI = { async run(model, input, o) { opts.push(o); return { description: "x" }; } };
+  store.set("pics", JSON.stringify({ day: new RealDate(clock).toISOString().slice(0, 10), neurons: 12000 }));
+  await run(msg({ text: "/spend" }));
+  const t = calls.filter((c) => c.m === "sendMessage").at(-1).b.text;
+  console.log("spend: OpenRouter:", /OpenRouter.*\$0\.041 today, \$3\.50 this month, \$1\.25 credit left/.test(t), "| Runware:", /Runware.*\$0\.006 today, \$19\.07 left/.test(t), "| Cloudflare:", /12,000 of 50,000 neurons.*\$0\.02 past the free/.test(t));
+  await W.drawPicture(env, "test", {}).catch(() => {});
+  console.log("Workers AI calls go through the AI Gateway:", opts.length > 0 && opts.every((o) => o && o.gateway && o.gateway.id === "default"));
+  globalThis.fetch = fetch0; delete env.RUNWARE_API_KEY; delete env.AI; store.delete("pics");
+}
+
 step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip, failures as notes, money today");
 {
   const V = W.CONFIG.VOICE; const prov = V.PROVIDER; V.PROVIDER = "openrouter"; gemini.mode = "hear";
