@@ -10,7 +10,7 @@ globalThis.Date = class extends RealDate { constructor(...a) { super(...(a.lengt
 
 import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker();
-W.CONFIG.PICTURE.ROUTE = "cloudflare"; // the default is Runware klein (owner 2026-10-06); these were written for the Cloudflare route, the Runware section switches it itself
+W.CONFIG.PICTURE.ROUTE = "cloudflare"; W.CONFIG.PICTURE.LINGERIE.ENABLED = true; // Nano Banana is off since 2026-10-06; its code is still tested // the default is Runware klein (owner 2026-10-06); these were written for the Cloudflare route, the Runware section switches it itself
 W.CONFIG.VOICE.PROVIDER = "aura"; // the default is OpenRouter (Gemini Sulafat); these scenarios were written for aura with ElevenLabs behind it
 
 let fails = 0;

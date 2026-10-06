@@ -2,7 +2,7 @@
  * Reem (@reem_nabot): roleplay companion on Cloudflare Workers (free plan)
  *
  *   Brain:  DeepSeek V4 Flash via OpenRouter (writes every text and every voice note, folds memory, drafts /auto;
- *           CONFIG.LLM). Mistral Nemo answers when DeepSeek is down (LLM.BACKUP_MODEL).
+ *           CONFIG.LLM). DeepSeek on Workers AI answers when OpenRouter fails (LLM.BACKUP_MODEL).
  *   Ears:   Workers AI Whisper large v3 turbo (speech-to-text), ElevenLabs Scribe v2 as the backup
  *   Voice:  ElevenLabs text-to-speech (eleven_v3), voice "Reem" designed for her (works on the free plan)
  *
@@ -289,7 +289,8 @@ const CONFIG = {
       allow_fallbacks: false,
     },
     REASONING: { enabled: false },     // no thinking step: faster, cheaper, and the bench was run this way
-    BACKUP_MODEL: "mistralai/mistral-nemo", // one try with this model when every try with MODEL failed; "" = off
+    BACKUP_MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // one try with this model when every try with MODEL failed; "" = off. Owner 2026-10-06:
+                                       // the same DeepSeek on Workers AI (no OpenRouter credit needed); was Mistral Nemo
     // OpenRouter routing sent with BACKUP_MODEL. Empty = OpenRouter picks the provider.
     BACKUP_PROVIDER: {},
     BACKUP_REASONING: {},              // Mistral Nemo has no thinking step
@@ -805,7 +806,8 @@ Changing the story
     // face is now her reference). Real lingerie words, no FILTER_WORDS. Since 2026-10-05 klein tries them first
     // (KLEIN_FIRST) and Nano Banana draws them when klein refuses; klein's own wardrobe is the last resort.
     LINGERIE: {
-      ENABLED: true,
+      ENABLED: false,                  // owner 2026-10-06: Nano Banana removed (Runware draws lingerie); the Cloudflare route, past
+                                       // Runware's cap, draws her boudoir pictures with klein's filter-safe words
       // klein (her face) tries first in KLEIN_WARDROBE, words that drew 4/12 as asked and none tamer (round 2, run
       // 37266040257); Nano Banana when klein refuses, and straight away when the picture is spicier (owner 2026-10-05:
       // "Let klein try first unless it's more explicit or user asks for two pieces or a \"spicier\" picture")
@@ -1643,7 +1645,7 @@ async function autoDraft(env, state, idea, { avoid = [], skipped = [] } = {}) {
     { role: "system", content: system },
     { role: "user", content: fill(A.ASK, { transcript: transcript || fill(CONFIG.INBOX.CONVERSATION_START), user }) + (skipped.length && A.AGAIN ? fill(A.AGAIN, { drafts: skipped.map((d) => `- ${d}`).join("\n") }) : "") },
   ];
-  const out = await callModel(env, messages, A.SAMPLING, { model: A.MODEL, timeoutMs: A.TIMEOUT_MS, trimCut: true });
+  const out = await callModel(env, messages, A.SAMPLING, { model: A.MODEL, timeoutMs: A.TIMEOUT_MS, trimCut: true, backup: CONFIG.LLM.BACKUP_MODEL });
   return { text: cleanDraft(out, user), move };
 }
 
@@ -2226,7 +2228,7 @@ async function remember(env, chatId, oldNotes, overflow) {
       { role: "system", content: fill(M.PROMPT) },
       { role: "user", content: `OLD NOTES:\n${oldNotes || "(none yet)"}\n\nNEW CONVERSATION:\n${transcript}` },
     ];
-    const notes = await callModel(env, messages, M.SAMPLING, { model: M.MODEL, timeoutMs: M.TIMEOUT_MS, attempts: M.ATTEMPTS });
+    const notes = await callModel(env, messages, M.SAMPLING, { model: M.MODEL, timeoutMs: M.TIMEOUT_MS, attempts: M.ATTEMPTS, backup: CONFIG.LLM.BACKUP_MODEL });
     const lines = notes.split("\n").map((l) => l.trim()).filter((l) => l.startsWith("-"));
     if (!lines.length) throw new Error("memory notes came back off-format");
     await kv.put(`m:${chatId}`, lines.join("\n").slice(0, M.MAX_CHARS));
@@ -3625,6 +3627,13 @@ async function tts(env, text, ledger = null) {
   const V = CONFIG.VOICE;
   if (V.PROVIDER === "openrouter") return openRouterTts(env, text, ledger);
   if (V.PROVIDER !== "aura") return elevenTts(env, text);
+  return auraTts(env, text, ledger);
+}
+
+// aura-2 on Workers AI: VOICE.PROVIDER "aura", and the backup of the OpenRouter voice (owner 2026-10-06: backups on
+// Cloudflare); ElevenLabs after it (ELEVENLABS_BACKUP)
+async function auraTts(env, text, ledger = null) {
+  const V = CONFIG.VOICE;
   const said = auraText(text);
   if (!said) throw new Error("Nothing to say aloud.");
   const backup = !!V.ELEVENLABS_BACKUP && !!env.ELEVENLABS_API_KEY;
@@ -3666,11 +3675,11 @@ async function openRouterTts(env, text, ledger = null) {
       await saveLedger(env, ledger);
       return bytes;
     } catch (e) {
-      await voiceFailed(env, `OpenRouter voice: ${e.message || e}${backup ? "; ElevenLabs spoke it" : ""}`);
-      if (!backup) throw e;
+      await voiceFailed(env, `OpenRouter voice: ${e.message || e}${env.AI ? "; Workers AI aura spoke it" : backup ? "; ElevenLabs spoke it" : ""}`);
+      if (!backup && !env.AI) throw e;
     }
-  } else if (!backup) throw new Error("OpenRouter voice: today's money for voice notes is spent (VOICE.OR_DAILY_USD) and the ElevenLabs backup is off.");
-  return elevenTts(env, text);
+  } else if (!backup && !env.AI) throw new Error("OpenRouter voice: today's money for voice notes is spent (VOICE.OR_DAILY_USD) and no backup is set.");
+  return env.AI ? auraTts(env, text, ledger) : elevenTts(env, text);
 }
 
 // `said` spoken by VOICE.OR_MODEL on OpenRouter: MP3 bytes (Gemini's raw PCM encoded here), or an error
@@ -4646,6 +4655,15 @@ async function setup(url, env) {
     // The same routing as her replies (LLM.PROVIDER, LLM.REASONING), then the backup model (LLM.BACKUP_*)
     const models = [[CONFIG.LLM.MODEL, ""], ...(CONFIG.LLM.BACKUP_MODEL && CONFIG.LLM.BACKUP_MODEL !== CONFIG.LLM.MODEL ? [[CONFIG.LLM.BACKUP_MODEL, " (backup)"]] : [])];
     for (const [model, label] of models) {
+      if (/^@cf\//.test(model)) {
+        try {
+          await askModel(env, [{ role: "user", content: "Reply with: OK" }], { max_tokens: 5 }, { model, timeoutMs: 20000, attempts: 1 });
+          add(true, `Workers AI: ${model}${label}`, "Model answered.");
+        } catch (e) {
+          add(false, `Workers AI: ${model}${label}`, e.message);
+        }
+        continue;
+      }
       try {
         const res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",

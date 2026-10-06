@@ -170,8 +170,8 @@ eq(W.forSpeech("ya3ni 7abibi"), "Yani habibi.", "override + fallback");
 eq(W.CONFIG.LLM.MODEL, "deepseek/deepseek-v4-flash", "chat model: DeepSeek V4 Flash (owner 2026-10-06)");
 const ds = W.openRouterBody(W.CONFIG.LLM.MODEL, [], { max_tokens: 5 });
 eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "DeepSeek: provider + reasoning");
-eq(W.CONFIG.LLM.BACKUP_MODEL, "mistralai/mistral-nemo", "backup: Mistral Nemo");
-eq(Object.keys(W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "Nemo backup: no routing (OpenRouter picks)");
+eq(W.CONFIG.LLM.BACKUP_MODEL, "@cf/deepseek-ai/deepseek-v4-flash-0731", "backup: DeepSeek on Workers AI (owner 2026-10-06, Nemo removed)");
+eq(W.CONFIG.PICTURE.LINGERIE.ENABLED, false, "Nano Banana removed (owner 2026-10-06)");
 eq(Object.keys(W.openRouterBody("sao10k/l3-lunaris-8b", [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "another model: no routing");
 eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.MODEL), true, "memory and /auto use DeepSeek (the chat model's routing)");
 {

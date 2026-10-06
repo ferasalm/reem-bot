@@ -191,6 +191,16 @@ step("OpenRouter voice: VOICE.PROVIDER openrouter, its own tags, its money cap; 
   llm = [{ content: "[voice] i made too much tabbouleh" }];
   await run(msg({ text: "send me a voice note" }));
   console.log("money spent -> ElevenLabs, OpenRouter not called:", orSpeech.length === n && eleven() === before + 1);
+  // owner 2026-10-06: the backups on Cloudflare: with the AI binding, aura speaks it when OpenRouter fails; ElevenLabs only after aura
+  {
+    const auraCalls = []; env.AI = { async run(model, input, options) { auraCalls.push(model); return new Response(new Uint8Array(400), { headers: { "content-type": "audio/ogg" } }); } };
+    store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics")), voiceUsd: 0 }));
+    orSpeechFail = true; before = eleven(); const sentA = calls.filter((c) => c.m === "sendVoice").length;
+    llm = [{ content: "[voice] the radiator is singing again" }];
+    await run(msg({ text: "send me a voice note" }));
+    console.log("OpenRouter fails -> aura (Workers AI):", auraCalls.includes(V.AURA_MODEL) && eleven() === before && calls.filter((c) => c.m === "sendVoice").length === sentA + 1, "| kept for /setup:", JSON.parse(store.get("voice_error")).error.includes("aura spoke it"));
+    orSpeechFail = false; delete env.AI;
+  }
   // Gemini (the default): raw PCM asked for, MP3 made in the Worker, its own tags
   Object.assign(V, { OR_MODEL: gemini.m, OR_VOICE: gemini.v, OR_FORMAT: gemini.f, OR_CUES: gemini.c, OR_INSTRUCTIONS: gemini.i });
   store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics")), voiceUsd: 0 }));
@@ -392,7 +402,7 @@ step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip,
   const eleven = () => log.filter((l) => l.includes("text-to-speech")).length; const before = eleven(); const spoke = orSpeech.length;
   store.set("ai_error", JSON.stringify({ at: clock - 2 * 86400000, error: "drawing a boudoir mirror: 3030" }));
   store.set("voice_error", JSON.stringify({ at: clock - 3600000, error: "OpenRouter voice: x 500; ElevenLabs spoke it" }));
-  env.AI = { async run() { throw new Error("not called by /setup"); } };
+  env.AI = { async run(model, input) { if (/deepseek/.test(model) && input.messages) return { choices: [{ message: { content: "OK" } }] }; throw new Error("not called by /setup"); } }; // only the backup text model (LLM.BACKUP_MODEL) is asked
   const html = await (await mod.fetch(new Request("https://reem.example/setup"), env, ctx)).text();
   const row = (label) => (html.match(new RegExp(`<div class="row"><div>([^<]*)</div><div><b>${label}[^<]*</b><span>([^<]*)</span>`)) || []).slice(1);
   console.log("setup: her voice tested:", orSpeech.length === spoke + 1 && row("Her voice")[0] === "✅", "| Gemini heard it:", row("Hearing")[0] === "✅" && /come over/.test(row("Hearing")[1]) && gemini.calls.at(-1).messages[0].content[1].input_audio.format === "mp3",
