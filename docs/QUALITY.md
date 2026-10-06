@@ -394,3 +394,15 @@ P1 head words + W4 arms, nude, 2 each; no on-her-back views; the front shot with
 - In bed (#05, #06): reclining half on her side, head in scale in #05; #06 head a little small (camera a bit above her).
 - /look (#07, #08): on her side, full arms, soft belly; no sheet at her hips 0/2 (asked); #08 seen from above, head borderline.
 - My count: head in scale 6/8 clearly, 2 borderline (#06, #08: both the camera above her); owner to judge.
+
+## FLUX.2 klein on Runware with her face (2026-10-06, image bench 37434273611 and 37434510898), each read at full size
+Owner: "Test Flux now". Safety check off, nude, P1 head words, the 4 poses at her eye level. klein 9B $0.00078, 4B $0.0006
+a picture, ~3 s each, 0 refused in 16. Her face from `tools/face/reference.jpg` 16/16 (bangs, freckles, the reference's
+features): the first route that draws Reem herself while nude. Proportions natural, arms full, real phone-photo look.
+- Round 1, face + body picture (`tools/face/body.jpg`), "naked": the body picture's gray tank + black leggings leaked in.
+  4B: dressed 4/4. 9B: dressed 1, tank + bare bottom 1, tank + bare hips 1, nude under a sheet showing nothing 1.
+- Round 2, 9B, "completely naked: no tank top, no leggings, no bra, no underwear, no clothing of any kind; bare breasts with
+  visible nipples": A (face only) nude 4/4; B (face + body, "only the body shape of image 1, ignore her gray tank top and black
+  leggings") nude 4/4. Same seeds, so A and B look alike; B keeps her body picture's shape.
+- Per pose: front from her arm 2/2 no phone; rear mirror selfie 2/2 iPhone in hand, bare back and bottom; bed on her side 2/2
+  (a reflected figure in the dark window, #03 both); /look 2/2 bare breasts, eyes closed, duvet over her hips.
