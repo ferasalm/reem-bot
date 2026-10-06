@@ -494,6 +494,7 @@ const CONFIG = {
     { command: "memory", aliases: [], action: "memory", description: "See what {name} remembers long-term" },
     { command: "pics", aliases: ["selfie", "selfies"], action: "pics", description: "Ask {name} to send pictures more often (on/off)" },
     { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now, when you're with {name}" },
+    { command: "pic", aliases: ["photo", "custom"], action: "pic", description: "A picture of {name} as you describe it: /pic <hair, makeup, clothes, pose, framing, angle>" },
     { command: "face", aliases: [], action: "face", description: "{name}'s face in her pictures: /face draws new ones to pick from" },
     { command: "restart", aliases: ["start"], action: "restart", description: "Start the story over (wipes her memory)" },
   ],
@@ -542,6 +543,9 @@ Changing the story
     LOOK_NONE: "Her last reply doesn't say enough about her to draw. Try again after her next reply.",
     LOOK_OFF: "No pictures right now (turned off, today's picture budget is spent, or Workers AI isn't connected: see /setup).",
     LOOK_FAILED: "The picture couldn't be drawn this time. Try again in a moment.",
+    // /pic: a picture of her as he describes it (PICTURE.CUSTOM)
+    PIC_HELP: "Describe the picture of {name} you want after /pic: her hair, makeup, clothes, pose, framing and camera angle, and where. She keeps her face. For example:\n/pic hair in a high ponytail, red lipstick, black satin slip dress, leaning on the kitchen counter, full body, low angle\n/pic messy bun, no makeup, oversized gray hoodie, curled up on the couch with tea, close-up from above",
+    PIC_NOT_DRAWN: "That one can't be drawn. Try other words.",
     // /face: the reference portrait every picture of her is drawn from (PICTURE)
     FACE_NOW: "{name}'s face in her pictures ({source}). {cmd} draws {count} new ones to pick from.", // {source} {cmd} {count}
     FACE_NONE: "{name} has no reference face yet, so her pictures don't all look like the same woman. {cmd} draws {count} to pick from.", // {cmd} {count}
@@ -754,6 +758,13 @@ Changing the story
     ROOM: "Behind her is the part of her room shown in image {n}, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: {look}.", // a fixed place with its reference picture ({n}: its image number). "the same light" copied the reference's daylight into every picture: 0 of 12 lamp or night prompts came out dark (face runs 37151684663-37154159749, 2026-10-03)
     ROOM_TEXT: "The place: {look}.",   // ...without one (or drawn by the backup model)
     SAFE: "No nudity.",
+    // /pic (owner 2026-10-06: "generate pictures customized with different hairstyles, makeup, poses, clothing, framing,
+    // angle, but Reem remains Reem"): STYLE + who she is + his words + the light of her hour + CRAFT; her face stays the
+    // reference, but REFERENCE's "same face and hair" becomes SAME_PERSON, so the hair he asks for is drawn
+    CUSTOM: {
+      STYLE: "Realistic candid photo of",
+      SAME_PERSON: "with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0)",
+    },
     // Runware (PICTURE.ROUTE "runware-klein" / "runware-twinflow"): every picture, lingerie and nudity included, with her
     // real words (no FILTER_WORDS, no NOT_DRAWN, no SAFE). Benched 2026-10-06 (docs/QUALITY.md): klein 9B kept her face and
     // drew nude 8/8 at $0.00078 in ~3 s, but only with NAKED's "no clothing of any kind" (else the body picture's clothes
@@ -1260,7 +1271,7 @@ async function handleBatch(updates, env, ctx, deadline) {
 }
 
 // Commands that change the chat history (her answer to earlier messages comes first)
-const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit", "look"]);
+const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit", "look", "pic"]);
 
 // Commands answered straight from the webhook, never queued: they only show or change his settings
 const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face"]);
@@ -1337,6 +1348,7 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
     if (action === "rewind") return await rewind(env, ctx, chatId, msg, deadline);
     if (action === "edit") return await editHers(env, chatId, msg, args);
     if (action === "look") return await lookCommand(env, chatId);
+    if (action === "pic") return await picCommand(env, chatId, args);
   } catch (e) {
     await failed(env, chatId, e, deadline);
   }
@@ -2972,7 +2984,7 @@ async function imageBytes(out) {
 // with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no reference.
 // FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
 // FLUX.1 schnell draws from LOOKS instead.
-async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null } = {}) {
+async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
@@ -2985,6 +2997,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
   const place = shown ? fromBase64(shown) : null;
   const room = (withImage) => (!L ? "" : (withImage && place ? P.ROOM : P.ROOM_TEXT) || "").replaceAll("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
   const who = (w, withImage) => {
+    // /pic: her face, but the hair (and the rest) he describes
+    if (custom) w = String(w).replace("with exactly the same face and hair", (P.CUSTOM || {}).SAME_PERSON || "with exactly the same face");
     const p = String(prompt).replace("{room}", room(withImage));
     return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
   };
@@ -3312,6 +3326,48 @@ async function lookCommand(env, chatId) {
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history }));
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
+}
+
+// /pic <words>: a picture of her as he describes it (hair, makeup, clothes, pose, framing, angle, place); her face from
+// the reference, drawn on PICTURE.ROUTE like her other pictures; never stored in the history
+async function picCommand(env, chatId, args) {
+  const P = CONFIG.PICTURE;
+  const M = CONFIG.MESSAGES;
+  const words = aboutHer(args).replace(/[.\s]+$/, "");
+  if (!words) return notice(env, chatId, M.PIC_HELP);
+  const [settings, ledger] = await Promise.all([getSettings(env.REEM_KV, chatId), loadLedger(env)]);
+  if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
+  if (!mayDraw(words)) return notice(env, chatId, M.PIC_NOT_DRAWN);
+  const { prompt, location, night } = customPicture(words);
+  await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
+  const drawing = (async () => {
+    let model = null;
+    let error = null;
+    try {
+      const drawn = await drawPicture(env, prompt, { location, night, ledger, custom: true });
+      model = drawn.model;
+      return { bytes: drawn.bytes, kind: "custom" };
+    } catch (e) {
+      error = e;
+      model = P.MODEL;
+      await aiFailed(env, `drawing /pic: ${aiText_(e)}`);
+      return null;
+    } finally {
+      if (model && !String(model).startsWith("runware:")) aiSpent(ledger, model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, error);
+    }
+  })();
+  const sent = await deliverPicture(env, chatId, ledger, drawing);
+  if (!sent) return notice(env, chatId, M.LOOK_FAILED);
+}
+
+// /pic's prompt from his words (already about her): CUSTOM.STYLE, {who}, his words, the place ({room}) they name, the
+// light of her hour, CRAFT and (on Cloudflare) SAFE. { prompt, location, night }
+function customPicture(words, hour = herHour()) {
+  const P = CONFIG.PICTURE;
+  const light = pickOne((P.LIGHT || {})[timeOfDay(hour).toUpperCase()]);
+  const location = locationOf(words);
+  const prompt = [(P.CUSTOM || {}).STYLE, "{who}", `${filterSafe(words)}.`, location && "{room}", light && `Lit by ${light}.`, P.CRAFT, safeLine()].filter(Boolean).join(" ");
+  return { prompt, location, night: isDark(hour, light || "") };
 }
 
 async function picsCommand(env, chatId) {

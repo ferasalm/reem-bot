@@ -285,11 +285,12 @@ if (job.worker_draw) {
   let n = 0;
   for (const [route, shot, tier, words, hour] of job.worker_draw) {
     W.CONFIG.PICTURE.ROUTE = route;
-    const pic = W.composePicture({ tier, shot, words, hour, lingerie: /lace|satin|bra|lingerie/.test(words) });
+    // shot "custom": /pic's prompt (customPicture), drawn with custom: true
+    const pic = shot === "custom" ? W.customPicture(words, hour) : W.composePicture({ tier, shot, words, hour, lingerie: /lace|satin|bra|lingerie/.test(words) });
     const ledger = { rwUsd: 0 };
     const name = `worker-${String(++n).padStart(2, "0")}-${route}-${shot}`;
     try {
-      const drawn = await W.drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger });
+      const drawn = await W.drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, custom: shot === "custom" });
       const s = save(name, drawn.bytes);
       spentUsd += ledger.rwUsd;
       console.log(`${name}: drawn by ${drawn.model} ${s.size}, $${ledger.rwUsd.toFixed(5)} | ${words} | prompt: ${pic.prompt.slice(0, 300)}`);

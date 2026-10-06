@@ -743,6 +743,37 @@ section("pictures: his photos (Workers AI vision)");
     runware.mode = "draw"; P.ROUTE = "cloudflare"; delete env.RUNWARE_API_KEY; store.delete("pics");
   }
 
+  section("/pic: a picture of her as he describes it");
+  {
+    const P = W.CONFIG.PICTURE, M = W.CONFIG.MESSAGES;
+    store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), minor: false }));
+    const before = store.get("h:7");
+    r = await turn("/pic", [], { history: APART });
+    yes((r.texts.at(-1) || "").includes(M.PIC_HELP.replaceAll("{name}", W.CONFIG.CHARACTER.NAME)) && r.photos.length === 0, "/pic alone: how to use it", r.texts.at(-1));
+    P.ROUTE = "runware-klein"; env.RUNWARE_API_KEY = "rw";
+    const h0 = store.get("h:7");
+    r = await turn("/pic your hair in a high ponytail, red lipstick, black satin slip dress, leaning on the kitchen counter, full body, low angle", [], {});
+    let t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && t.model === P.RUNWARE.MODEL && t.inputs.referenceImages.length >= 2, "runware-klein: drawn with her face and body", t && t.model);
+    yes(/her hair in a high ponytail, red lipstick, black satin slip dress/.test(t.positivePrompt) && t.positivePrompt.includes(P.CUSTOM.SAME_PERSON) && !t.positivePrompt.includes("same face and hair"), "...his words (you → her), and 'same face' without 'and hair' so the ponytail is drawn", t.positivePrompt.slice(0, 260));
+    eq(store.get("h:7"), h0, "...never stored in the story");
+    r = await turn("/photo naked, hair down, lying on her side in bed", [], {});
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && t.positivePrompt.includes(P.RUNWARE.NAKED), "on Runware: nude allowed, NAKED added");
+    P.ROUTE = "cloudflare"; delete env.RUNWARE_API_KEY;
+    r = await turn("/pic topless on the couch", [], {});
+    yes(r.photos.length === 0 && (r.texts.at(-1) || "").includes(M.PIC_NOT_DRAWN), "on Cloudflare: nude words aren't drawn", r.texts.at(-1));
+    const a0 = ai.length;
+    r = await turn("/pic messy bun, no makeup, oversized gray hoodie, curled up on the couch, close-up from above", [], {});
+    const k = ai.at(-1);
+    yes(r.photos.length === 1 && ai.length > a0 && k.fields.prompt.includes("messy bun") && k.fields.prompt.includes(P.CUSTOM.SAME_PERSON) && k.fields.prompt.includes(P.SAFE), "on Cloudflare: klein draws it with her face, SAFE kept", k.fields && k.fields.prompt.slice(0, 200));
+    store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), minor: true }));
+    r = await turn("/pic red dress", [], {});
+    yes(r.photos.length === 0, "after he says he's under 18: no /pic either");
+    store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), minor: false }));
+    store.set("h:7", before); store.delete("pics");
+  }
+
   section("pictures: in person");
   r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\" *Her eyes move over you.*"], { history: SCENE });
   eq(r.order, ["sendMessage", "sendPhoto"], "he asks to see her (SCENE_ASK_PATTERN): the scene, then a picture of the moment");

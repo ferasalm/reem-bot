@@ -1,5 +1,5 @@
 {
-  "note": "2026-10-06: the bot's own code (worker.js composePicture + drawPicture) on the real Runware API, both Runware versions, the bot's real prompts: nude, lingerie, everyday, mirror-back.",
+  "note": "2026-10-06: /pic (owner: \"customized with different hairstyles, makeup, poses, clothing, framing, angle, but Reem remains Reem\") through the bot's own customPicture + drawPicture on runware-klein.",
   "want": 4,
   "max_attempts": 4,
   "max_usd": 0.03,
@@ -69,45 +69,31 @@
   "worker_draw": [
     [
       "runware-klein",
-      "selfie",
-      "boudoir",
-      "naked on her bed, the sheet pushed off",
-      23
-    ],
-    [
-      "runware-klein",
-      "mirror",
-      "boudoir",
-      "a red lace bra and matching panties",
-      22
-    ],
-    [
-      "runware-klein",
-      "selfie",
-      "everyday",
+      "custom",
       "",
-      15
+      "hair in a high sleek ponytail, bold red lipstick and winged eyeliner, a black satin slip dress, leaning on the kitchen counter, full body, low angle",
+      20
     ],
     [
       "runware-klein",
-      "mirror-back",
-      "boudoir",
-      "naked, looking over her shoulder",
-      23
+      "custom",
+      "",
+      "messy bun, no makeup, an oversized gray hoodie, curled up on the couch with a mug of tea, close-up from above",
+      9
     ],
     [
-      "runware-twinflow",
-      "selfie",
-      "boudoir",
-      "naked on her bed, the sheet pushed off",
-      23
+      "runware-klein",
+      "custom",
+      "",
+      "short wavy bob, soft pink lip gloss, a white linen sundress, walking on Crane Beach, wide shot from behind, looking back over her shoulder",
+      17
     ],
     [
-      "runware-twinflow",
-      "mirror",
-      "boudoir",
-      "a red lace bra and matching panties",
-      22
+      "runware-klein",
+      "custom",
+      "",
+      "long hair in two loose braids, smoky eye makeup, naked, kneeling on her bed, medium shot, eye level",
+      23
     ]
   ]
 }
