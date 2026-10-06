@@ -8,8 +8,16 @@
 // broken would still reach him. Replies are printed so you can judge tone; "REVIEW" lines need your eyes.
 import { loadWorker } from "./load-worker.mjs";
 
-const key = process.env.OPENROUTER_API_KEY;
-if (!key) {
+// LIVE_MODEL "@cf/..." (owner 2026-10-06: no OpenRouter in tests): the model on Workers AI through its REST API
+// (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID), memory and /auto on it too, and no OpenRouter key at all
+const onCloudflare = /^@cf\//.test(process.env.LIVE_MODEL || "");
+const { CLOUDFLARE_API_TOKEN: cfToken, CLOUDFLARE_ACCOUNT_ID: cfAccount } = process.env;
+if (onCloudflare && !(cfToken && cfAccount)) {
+  console.log("LIVE_MODEL is a Workers AI model: set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.");
+  process.exit(process.env.CI ? 1 : 0);
+}
+const key = onCloudflare ? "" : process.env.OPENROUTER_API_KEY;
+if (!key && !onCloudflare) {
   console.log(process.env.CI
     ? "No OPENROUTER_API_KEY: add it in GitHub > Settings > Secrets and variables > Actions > New repository secret."
     : "Set OPENROUTER_API_KEY to run the live check (the mocked tests are scenarios.mjs).");
@@ -23,6 +31,7 @@ const L = W.CONFIG.LLM;
 if (process.env.LIVE_MODEL) {
   const backup = process.env.LIVE_MODEL === L.BACKUP_MODEL;
   Object.assign(L, { MODEL: process.env.LIVE_MODEL, PROVIDER: backup ? L.BACKUP_PROVIDER : {}, REASONING: backup ? L.BACKUP_REASONING : {}, BACKUP_MODEL: backup ? "" : L.BACKUP_MODEL });
+  if (onCloudflare) { L.BACKUP_MODEL = ""; W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL; }
 }
 // The backup stays set (memory and /auto use its model and routing), but a reply the backup wrote counts as broken:
 // a DeepSeek failure must show up as a failure, not as a Nemo reply
@@ -43,6 +52,15 @@ console.log(`Her clock now: ${new Date().toLocaleString("en-US", { timeZone: W.C
 console.log(`Model: ${L.MODEL} | providers: ${JSON.stringify(L.PROVIDER)} | reasoning: ${JSON.stringify(L.REASONING)}`);
 
 const env = { OPENROUTER_API_KEY: key };
+// the AI binding, through Cloudflare's REST API (what env.AI.run does inside the Worker)
+if (onCloudflare) env.AI = { async run(model, input) {
+  const res = await realFetch(`https://api.cloudflare.com/client/v4/accounts/${cfAccount}/ai/run/${model}`, {
+    method: "POST", headers: { Authorization: `Bearer ${cfToken}`, "Content-Type": "application/json" }, body: JSON.stringify(input) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.success === false) throw new Error(`${res.status} ${JSON.stringify(data.errors || data).slice(0, 300)}`);
+  served.push(`${model} @ workers-ai${data.result?.usage ? ` (${data.result.usage.prompt_tokens} in${data.result.usage.prompt_tokens_details?.cached_tokens ? `, ${data.result.usage.prompt_tokens_details.cached_tokens} cached` : ""}, ${data.result.usage.completion_tokens} out)` : ""}`);
+  return data.result;
+} };
 const at = Date.now() - 60000;
 const her = (content) => ({ role: "assistant", content, at });
 const him = (content) => ({ role: "user", content, at });

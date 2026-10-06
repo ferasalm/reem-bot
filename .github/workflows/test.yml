@@ -64,6 +64,8 @@ jobs:
         run: node tools/test/live.mjs
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           LIVE_RUNS: ${{ github.event.inputs.runs || '3' }}
           LIVE_ONLY: ${{ github.event.inputs.only || '' }}
           LIVE_MODEL: ${{ github.event.inputs.model || '' }}

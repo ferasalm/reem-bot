@@ -208,6 +208,13 @@ eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.
   eq(missing, [], "every CONFIG key has a settings panel field");
 }
 eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (owner 2026-10-06)");
+{
+  // a Workers AI text model (@cf/...): the AI binding, no thinking step, OpenAI-style answer read; no OpenRouter call
+  const seen = [];
+  const env = { AI: { async run(model, input) { seen.push([model, input.reasoning_effort, input.max_tokens, "min_p" in input]); return { choices: [{ message: { content: "hey you." }, finish_reason: "stop" }] }; } } };
+  const out = await W.askModel(env, [{ role: "system", content: "s" }, { role: "user", content: "hi" }], { temperature: 0.9, max_tokens: 50, min_p: 0.1 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1, trimCut: true });
+  eq([out, seen], ["hey you.", [["@cf/deepseek-ai/deepseek-v4-flash-0731", "none", 50, false]]], "a @cf/ text model goes through the AI binding with no thinking step");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

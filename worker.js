@@ -2295,6 +2295,18 @@ async function askModel(env, messages, sampling, { model, timeoutMs, attempts, t
   let lastErr;
   for (let attempt = 0; attempt < attempts; attempt++) {
     if (attempt) await sleep(CONFIG.LLM.RETRY_DELAY_MS);
+    // a Workers AI model (@cf/...): the AI binding instead of OpenRouter (owner 2026-10-06: the backup on Cloudflare)
+    if (/^@cf\//.test(model)) {
+      try {
+        const out = await workersChat(env, model, messages, sampling, timeoutMs, trimCut);
+        if (out) return out;
+        lastErr = new ApiError("The model sent an empty reply.", true);
+      } catch (e) {
+        lastErr = e instanceof ApiError ? e : new ApiError(`Workers AI ${model}: ${aiText_(e)}`, aiBusy(e) || /longer than/.test(aiText_(e)));
+        if (!lastErr.retryable) throw lastErr;
+      }
+      continue;
+    }
     let res;
     try {
       res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -2324,6 +2336,18 @@ async function askModel(env, messages, sampling, { model, timeoutMs, attempts, t
     lastErr = new ApiError("The model sent an empty reply.", true);
   }
   throw lastErr;
+}
+
+// A chat model on Workers AI (OpenAI-style messages). Only temperature and max_tokens are sent (min_p and
+// repetition_penalty are OpenRouter's), and no thinking step: Cloudflare's DeepSeek thinks by default
+async function workersChat(env, model, messages, sampling, timeoutMs, trimCut) {
+  if (!env.AI) throw new ApiError("Workers AI is not connected (the AI binding).", false);
+  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: sampling.max_tokens, reasoning_effort: "none" };
+  if (sampling.temperature != null) input.temperature = sampling.temperature;
+  const data = await aiRun(env, model, input, timeoutMs);
+  const choice = data?.choices?.[0];
+  const out = String(choice?.message?.content ?? data?.response ?? "").trim();
+  return out && trimCut && choice?.finish_reason === "length" ? trimUnfinished(out) : out;
 }
 
 // Cuts back to the last full sentence, closing an *action* or "quote" left open
