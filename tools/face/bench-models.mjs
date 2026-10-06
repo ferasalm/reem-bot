@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
 const job = JSON.parse(readFileSync("tools/face/bench.json", "utf8"));
-const { CLOUDFLARE_API_TOKEN: cfToken, CLOUDFLARE_ACCOUNT_ID: account, OPENROUTER_API_KEY: orKey } = process.env;
+const { CLOUDFLARE_API_TOKEN: cfToken, CLOUDFLARE_ACCOUNT_ID: account, OPENROUTER_API_KEY: orKey, RUNWARE_API_KEY: rwKey } = process.env;
 const out = "tools/face/out/bench";
 mkdirSync(out, { recursive: true });
 const dataUri = (f) => `data:image/jpeg;base64,${readFileSync(f).toString("base64")}`;
@@ -75,6 +75,11 @@ const ROUTES = {
   "or-nanobananalite": { usd: 0.039, family: "ref", run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-lite-image", p, r, s) },
   "or-nanobananalite-text": { usd: 0.039, family: "text", run: (p, r, s) => openRouterChat("google/gemini-3.1-flash-lite-image", p, [], s) },
   "cf-nanobanana": { usd: 0.039, family: "ref", run: (p, r) => cfThirdParty("google/nano-banana", p, r) },
+  // Runware (owner, 2026-10-06: any provider; "klein 9B with Runware's safety check off, and Z-Image-Turbo"):
+  // its content check (safety.checkContent) is off; the real cost comes back with includeCost. Model ids:
+  // job.runware_models overrides them (the docs' AIR ids, checked by job.runware_search)
+  "rw-klein9b": { usd: 0.0012, family: "ref", run: (p, r, s) => runware(job.runware_models?.["rw-klein9b"] || "runware:400@2", p, r, s) },
+  "rw-zimage": { usd: 0.0008, family: "text", run: (p, r, s) => runware(job.runware_models?.["rw-zimage"] || "runware:z-image@turbo", p, [], s) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
 
@@ -188,6 +193,33 @@ async function openRouterChat(model, prompt, refs, seed) {
     return { error: `no picture (content) ${why}: ${String(choice.message?.content || "").replace(/\s+/g, " ").slice(0, 300)}`, usage: data.usage };
   }
   return { bytes: await fetchImage(url), usage: data.usage };
+}
+
+// Runware's REST API: one imageInference task, safety check off, picture back as base64 with its cost. The
+// reference pictures go in inputs.referenceImages (FLUX.2's shape); job.runware_steps / runware_size tune it.
+async function runware(model, prompt, refs, seed) {
+  if (!rwKey) return { error: "no RUNWARE_API_KEY secret" };
+  const [width, height] = job.runware_size || [576, 1024];
+  const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, seed,
+    numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
+  if (job.runware_steps?.[model]) task.steps = job.runware_steps[model];
+  if (refs.length) task.inputs = { referenceImages: refs.map(dataUri) };
+  const res = await fetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${rwKey}`, "Content-Type": "application/json" }, body: JSON.stringify([task]) });
+  const data = await res.json().catch(() => ({}));
+  const d = data?.data?.[0];
+  if (!res.ok || data.errors?.length || !d?.imageBase64Data) return { error: `HTTP ${res.status} ${JSON.stringify(data.errors || data).slice(0, 400)}` };
+  return { bytes: Buffer.from(d.imageBase64Data, "base64"), usage: { cost: d.cost, nsfw: d.NSFWContent } };
+}
+
+// job.runware_search: print the models Runware finds for each term (free), to check the ids above
+if (job.runware_search) {
+  for (const search of job.runware_search) {
+    const res = await fetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${rwKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify([{ taskType: "modelSearch", taskUUID: crypto.randomUUID(), search, limit: 10 }]) }).then((r) => r.json()).catch((e) => ({ error: e.message }));
+    console.log(`Runware models for "${search}":`);
+    for (const m of res.data?.[0]?.results || []) console.log(`  ${m.air} | ${m.name} ${m.version || ""} | ${m.category || ""} ${m.architecture || ""}`);
+    if (!res.data?.[0]?.results) console.log(`  ${JSON.stringify(res).slice(0, 400)}`);
+  }
 }
 
 async function fetchImage(url) {
