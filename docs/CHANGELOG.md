@@ -4,12 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
-## 2026-10-06 (eleventh session): backups on Cloudflare, Cloudflare ideas 1-6 (on dev, not deployed)
+## 2026-10-06 (eleventh session): Cloudflare first, Cloudflare ideas 1-6 (deployed: 7de9e5b and the /setup wording)
 - MiniMax TTS benches 37538682473 / 37541102035 (Arabic script; Turbo via OpenRouter, HD via Runware): owner kept Sulafat.
 - `PICTURE.ROUTE` "runware-klein" default. Nano Banana off, Nemo removed; `LLM.BACKUP_MODEL` = DeepSeek on Workers AI
   (`workersChat`, empty answers asked again) for replies, memory, /auto; aura before ElevenLabs as the voice backup.
 - `RECALL` (Vectorize `reem-memory`, bge-m3; tools/cf-resources.sh, run before each deploy), `saidBefore` (REPEAT_SCORE 0.68),
   `DAY` (Open-Meteo + daily plan), `/album`, `/spend`, `AI_BUDGET.GATEWAY`. Live 37545345952 on Workers AI: 0 broken.
+- Then (owner): Workers AI DeepSeek the main text model, OpenRouter DeepSeek the backup; Whisper hears first. Fixes from the deploys:
+  AI Gateway only for text/vectors; tasks reasoning "low"; last empty-answer tries "low"; a lone * dropped from texts.
 
 ## 2026-10-06 (tenth session): "come over" (owner: "Mostly go")
 - `replyMode` "visit" (`asksHerOver`, `TEXTING.VISIT_CHANCE` 0.75, `NUDGES.FORMAT_VISIT`/`RETRY_VISIT`); shapeReply keeps a

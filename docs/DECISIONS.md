@@ -10,7 +10,11 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   handle voice as main. Then deploy."): `LLM.MODEL`, `MEMORY.MODEL`, `AUTO.MODEL` `@cf/deepseek-ai/deepseek-v4-flash-0731`;
   `LLM.BACKUP_MODEL` `deepseek/deepseek-v4-flash` with the old providers and reasoning off (`BACKUP_PROVIDER`, `BACKUP_REASONING`);
   `HEARING.OR_FIRST` false: Whisper first, Gemini when it fails, Scribe last. OpenRouter's main job: Sulafat. `LLM.TIMEOUT_MS` 20 s.
-  *Supersedes the main/backup order of the entry below (same day).*
+  *Supersedes the main/backup order of the entry below (same day).* Deployed: `main` = 7de9e5b (was 59177d8), deploy runs
+  37547182886 (AI Gateway refused picture uploads → gateway only for text and vectors; Workers AI's DeepSeek answers bare one-line
+  prompts with nothing → tasks get reasoning "low") and 37548651259 green: /health drew and saw, /setup all ✅ (Workers AI DeepSeek
+  answered, OpenRouter backup via Novita, Sulafat, hearing, Runware klein). Also on `main`: everything of the entry below. To go back:
+  push 59177d8 to `main`.
 - 2026-10-06 — **OpenRouter only for DeepSeek, Sulafat and Gemini; backups on Cloudflare; Cloudflare ideas 1-6** (owner: "From
   Openrouter, Remove nanobanana, and Nemo, Keeping only deepseek, sulafat, and Gemini. Let's do cloudflare's ideas from 1 to 6 but Test
   idea 2 first (test cloudflare's deepseek). I am thinking we could make it a backup. So the bot is openrouter (text, voice, listening),

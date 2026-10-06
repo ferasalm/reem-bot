@@ -137,13 +137,13 @@ At most 150 lines (`tools/doc-check.mjs`).
   showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); wait with a background `until curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id> | grep -q completed` loop. (2026-10-06)
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
-- Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);
+- Before any model switch, replay `OWNER_CHAT` with `model` (Nemo, removed 2026-10-06, wrote 1-4 word texts). Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);
   the v11 texting example's "envelope that says CASH" came back in 5 of 9 apart replies (run 37259031783), 0 after
   examples with rhythm but no story detail. Check the examples first when a reply repeats or a fact drifts. (2026-10-05)
   Again 2026-10-06 (run 37459992726): the napkin receipt 6 times, "taxes are a suggestion" 5 → both examples replaced.
-- DeepSeek on Workers AI (2026-10-06): about 1 call in 4 ends at once with content "" (1 token, "stop"), with reasoning none or low
-  → `workersChat` asks again (4 tries); it thinks by default unless `reasoning_effort` "none"; caching cuts ~3,600 of ~3,700 tokens.
-- Mistral Nemo (removed 2026-10-06): 1-4 word texts, examples copied → before any model switch, replay `OWNER_CHAT` with `model`.
+- DeepSeek on Workers AI (2026-10-06): with reasoning "none" a chat reply is empty ~1 in 4 (retried; the last 2 tries "low") and a
+  bare task prompt nearly always ("Reply with: OK" 5/5) → tasks use "low" (+1500 tokens, ~20 s). Caching cuts ~3,600 of ~3,700 tokens.
+  AI Gateway refuses picture uploads ("does not support ReadableStreams") → `aiRun` routes only text and vectors through it.
 - A rule that names the word to avoid makes her talk about it: "(he is habibi, never habibti... even when he calls you
   habibti)" → "habibi, not habibti" corrections 4/5; "(to him it's always habibi)" → 1/5 (runs 37517733148, 37518157279). (2026-10-06)
 - Told to go to him, she walks in with words `HER_MOVE` misses ("turns the handle and steps in") → visit mode trusts the scene. (2026-10-06)

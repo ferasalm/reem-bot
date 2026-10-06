@@ -4980,15 +4980,16 @@ async function setup(url, env) {
     const label = `Her voice: ${V.OR_VOICE || V.OR_MODEL}`;
     try {
       clip = await orSpeech(env, auraText(fill(V.TEST_PHRASE), V.OR_CUES));
-      add(true, label, `Test clip made (${V.OR_MODEL}, ${Math.round(clip.byteLength / 1024)} KB MP3).${V.ELEVENLABS_BACKUP && env.ELEVENLABS_API_KEY ? " ElevenLabs is the backup." : ""}`);
+      add(true, label, `Test clip made (${V.OR_MODEL}, ${Math.round(clip.byteLength / 1024)} KB MP3).${env.AI ? ` Backup: ${V.AURA_SPEAKER} (Workers AI aura-2)${V.ELEVENLABS_BACKUP && env.ELEVENLABS_API_KEY ? ", then ElevenLabs" : ""}.` : V.ELEVENLABS_BACKUP && env.ELEVENLABS_API_KEY ? " ElevenLabs is the backup." : ""}`);
     } catch (e) {
       add(false, label, `${e.message}${V.ELEVENLABS_BACKUP && env.ELEVENLABS_API_KEY ? ". ElevenLabs speaks her notes until this works." : ". Her voice notes go as text until this works."}`);
     }
   }
   const H = CONFIG.HEARING;
   if (H.OR_MODEL && env.OPENROUTER_API_KEY) {
-    const backups = [H.MODEL && "Whisper", H.BACKUP_MODEL && env.ELEVENLABS_API_KEY && "Scribe"].filter(Boolean).join(", then ");
-    const after = backups ? ` ${backups} ${backups.includes(",") ? "are" : "is"} the backup (not tested here).` : "";
+    const backups = [H.OR_FIRST && H.MODEL && "Whisper", H.BACKUP_MODEL && env.ELEVENLABS_API_KEY && "Scribe"].filter(Boolean).join(", then ");
+    const after = (H.OR_FIRST ? "" : ` Whisper (Workers AI) hears first; this model is its backup${H.BACKUP_MODEL && env.ELEVENLABS_API_KEY ? ", then Scribe" : ""}.`) +
+      (H.OR_FIRST && backups ? ` ${backups} ${backups.includes(",") ? "are" : "is"} the backup (not tested here).` : "");
     if (!clip) add(null, `Hearing: ${H.OR_MODEL}`, `Not tested: it listens to her test clip, and there was none.${after}`);
     else {
       try {
