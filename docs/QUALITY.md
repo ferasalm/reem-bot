@@ -433,3 +433,11 @@ $0.00078 (klein) / $0.0006 (TwinFlow), $0.0043 in all; the owner's place picture
 - #03 everyday: black turtleneck + jeans in the hallway, laughing, her face: clothed pictures unchanged.
 - #04 nude from behind, hallway mirror: as asked; the band across her back is a natural skin fold (owner: "good and realistic"), not a top.
 - runware-twinflow #05 nude: slimmer, another face (no face picture); #06 red lace set in the hallway mirror, as asked.
+
+## /pic through the bot's own code (2026-10-06, image bench 37441418759, `worker_draw` shot "custom"), each read at full size
+`customPicture` + `drawPicture(custom: true)` on runware-klein, 4/4 drawn ($0.0031). Her face 4/4 while the hair changed as asked 4/4.
+- high sleek ponytail, red lipstick, winged eyeliner, black satin slip dress, at the counter in her kitchen (her place picture): as asked;
+  "low angle" came out near eye level.
+- messy bun, no makeup, oversized gray hoodie, couch with tea, her living room: as asked; "close-up from above" drawn as a medium shot.
+- short wavy bob, pink gloss, white linen sundress, beach at sunset, from behind looking back: as asked.
+- two loose braids, smoky eyes, naked, kneeling: nude, braids; kneeling on the rug by her bed (asked: on her bed).
