@@ -215,6 +215,15 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const out = await W.askModel(env, [{ role: "system", content: "s" }, { role: "user", content: "hi" }], { temperature: 0.9, max_tokens: 50, min_p: 0.1 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1, trimCut: true });
   eq([out, seen], ["hey you.", [["@cf/deepseek-ai/deepseek-v4-flash-0731", "none", 50, false]]], "a @cf/ text model goes through the AI binding with no thinking step");
 }
+{
+  // long memory (RECALL): folded messages saved with who/when/chat, OOC and tiny lines left out; nothing without the index
+  const up = [];
+  const env = { AI: { async run(model, input) { return { data: input.text.map(() => [0.1, 0.2]) }; } }, MEMORY_INDEX: { async upsert(r) { up.push(...r); } } };
+  await W.recallSave(env, 7, [{ role: "user", content: "my sister gets married in june", at: 1000 }, { role: "assistant", content: "ok", at: 1001 }, { role: "user", content: "(ooc) quick question for the writer", ooc: true, at: 1002 }, { role: "assistant", content: "then you're wearing a suit, habibi", at: 1003 }]);
+  eq(up.map((r) => [r.metadata.chat, r.metadata.who, r.metadata.at, r.values.length]), [["7", "him", 1000, 2], ["7", "her", 1003, 2]], "recall saves folded messages (not OOC, not one-word lines)");
+  eq(await W.recallFind({ AI: env.AI }, 7, "june"), "", "no index bound: no recall, no error");
+  eq([W.longAgo(Date.now() - 3 * 86400000), W.longAgo(Date.now() - 21 * 86400000), W.longAgo(Date.now() - 90 * 86400000)], ["3 days ago", "3 weeks ago", "3 months ago"], "recall: how long ago, in words");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

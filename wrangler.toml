@@ -29,3 +29,9 @@ crons = ["*/15 * * * *"]
 # Workers AI (Workers Paid: 10,000 neurons a day free, then $0.011 per 1,000; capped in CONFIG.AI_BUDGET): she sees his photos and draws pictures (CONFIG.VISION, CONFIG.PICTURE)
 [ai]
 binding = "AI"
+
+# Long memory (CONFIG.RECALL): older messages as vectors, searched before she replies. tools/cf-resources.sh creates
+# the index (1024 dimensions, cosine, metadata indexes "chat" and "who"); deploy.yml runs it first.
+[[vectorize]]
+binding = "MEMORY_INDEX"
+index_name = "reem-memory"

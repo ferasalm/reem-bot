@@ -323,6 +323,22 @@ const CONFIG = {
     TRANSCRIPT_MAX_CHARS: 12000,       // how much of the old chat the memory model reads
   },
 
+  /* ---------------- Long memory: recall (Cloudflare Vectorize) ---------------- */
+  // Owner 2026-10-06 (Cloudflare idea 1): messages that fold out of the chat log are saved as vectors (RECALL.MODEL on
+  // Workers AI) in the Vectorize index "reem-memory" (wrangler.toml MEMORY_INDEX; tools/cf-resources.sh makes it);
+  // before she replies, his message finds the closest older moments and she's reminded of them (NUDGE).
+  // About $0.012 per million tokens for the vectors; Vectorize is included in Workers Paid up to ~10,000 messages.
+  RECALL: {
+    ENABLED: true,
+    MODEL: "@cf/baai/bge-m3",          // multilingual (Arabic, Arabizi), 1024 numbers a message: the index's size
+    TOP_K: 6,                          // closest matches asked for (after /restart, older ones are left out)
+    KEEP: 3,                           // at most this many go into her prompt
+    MIN_SCORE: 0.6,                    // how close a match must be (cosine, 0-1)
+    MAX_CHARS: 400,                    // of each message, saved and shown
+    TIMEOUT_MS: 4000,                  // past this she answers without it
+    NUDGE: "\n\nTHINGS FROM BEFORE (older moments with him that this reminds you of. Bring one up only if it fits naturally; never list them, never quote them back word for word)\n{moments}",
+  },
+
   /* ---------------- Voice (ElevenLabs text-to-speech) ---------------- */
   VOICE: {
     // Who speaks her voice notes: "aura" = Workers AI Deepgram aura-2 (counted in the day's AI budget, ElevenLabs
@@ -1795,7 +1811,8 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
 
   // She starts thinking now, but only answers at waitUntil
   const sceneVoice = (mode === "scene" || mode === "visit") && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
-  const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings, picture, canPicture, recentPictures: ledger ? ledger.recent : [] });
+  const recall = ooc || proactive ? "" : await recallFind(env, chatId, said);
+  const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings, picture, canPicture, recentPictures: ledger ? ledger.recent : [], recall });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
 
@@ -2073,6 +2090,7 @@ async function openStory(env, chatId) {
       kv.delete(`m:${chatId}`),
       kv.delete(`b:${chatId}`),
       kv.delete(`a:${chatId}`),
+      kv.put(`rs:${chatId}`, String(Date.now())), // recall leaves out what was saved before this (RECALL)
     ]);
   }
   await sleep(CONFIG.TIMING.INTRO_DELAY_MS);
@@ -2093,12 +2111,13 @@ async function saveTurn(env, chatId, history, notes, userEntry, herEntry) {
   }
   const cut = history.length - CONFIG.MEMORY.HISTORY_KEEP;
   await kv.put(`h:${chatId}`, JSON.stringify(history.slice(cut)));
+  await recallSave(env, chatId, history.slice(0, cut)).catch((e) => console.error("recall: couldn't save", aiText_(e)));
   await remember(env, chatId, notes, history.slice(0, cut));
 }
 
 // mode: "text", "voice" or "scene" (from replyMode). The format reminder for that mode goes after
 // the chat, right before she writes, where the model pays the most attention.
-async function think(env, history, notes, userText, { mode = "text", scene, offerReaction = false, canReact = false, ooc = false, settings = {}, picture = null, canPicture = false, recentPictures = [] }) {
+async function think(env, history, notes, userText, { mode = "text", scene, offerReaction = false, canReact = false, ooc = false, settings = {}, picture = null, canPicture = false, recentPictures = [], recall = "" }) {
   const C = CONFIG.CHARACTER;
   const N = CONFIG.NUDGES;
   const P = CONFIG.PERSONA;
@@ -2109,6 +2128,7 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
   const apart = scene !== "together";
   let extra = "";
   if (notes) extra += fill(N.MEMORY_NOTES, { notes });
+  if (recall && !ooc) extra += recall;
   if (about) extra += fill(N.ABOUT_HIM, { about });
   extra += fill(N.TIME, { time: now, city: C.CITY, doing: (slot && slot.doing) || "going about your day" });
   if (scene) extra += fill(apart ? N.APART : N.TOGETHER);
@@ -2210,6 +2230,67 @@ function formatNudge(mode) {
     return fill(N.FORMAT_VOICE || "", { tags });
   }
   return fill(N.FORMAT_TEXT || "");
+}
+
+// Long memory (RECALL): vectors of the messages that fold out of the chat log, in Vectorize (env.MEMORY_INDEX)
+const recallOn = (env) => !!(CONFIG.RECALL.ENABLED && env.AI && env.MEMORY_INDEX);
+const recallText = (m) => String(m.content || "").replace(/\s+/g, " ").trim().slice(0, CONFIG.RECALL.MAX_CHARS);
+const withTimeout = (p, ms, what) => {
+  const signal = AbortSignal.timeout(ms);
+  const late = new Promise((_, no) => signal.addEventListener("abort", () => no(new Error(`${what} took longer than ${ms} ms`))));
+  late.catch(() => {});
+  return Promise.race([p, late]);
+};
+
+async function embed(env, texts) {
+  const out = await aiRun(env, CONFIG.RECALL.MODEL, { text: texts }, CONFIG.RECALL.TIMEOUT_MS);
+  return (out && out.data) || [];
+}
+
+async function recallSave(env, chatId, entries) {
+  if (!recallOn(env) || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE) return;
+  const items = entries.filter((m) => !m.ooc && recallText(m).length >= 12);
+  if (!items.length) return;
+  const vecs = await embed(env, items.map(recallText));
+  const rows = items.map((m, i) => ({ id: `${chatId}:${m.at || 0}:${m.role === "user" ? "u" : "a"}${i}`, values: vecs[i],
+    metadata: { chat: String(chatId), who: m.role === "user" ? "him" : "her", at: m.at || 0, text: recallText(m) } })).filter((r) => r.values);
+  budget.used++;
+  if (rows.length) await env.MEMORY_INDEX.upsert(rows);
+}
+
+// "- 3 weeks ago, he said: ..." lines for her prompt, or "" (never slows her down past RECALL.TIMEOUT_MS)
+async function recallFind(env, chatId, query) {
+  const R = CONFIG.RECALL;
+  if (!recallOn(env) || !String(query || "").trim() || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 4) return "";
+  try {
+    return await withTimeout((async () => {
+      const [vec] = await embed(env, [String(query).slice(0, R.MAX_CHARS)]);
+      if (!vec) return "";
+      budget.used++;
+      const [res, since] = await Promise.all([
+        env.MEMORY_INDEX.query(vec, { topK: R.TOP_K, filter: { chat: String(chatId) }, returnMetadata: "all" }),
+        env.REEM_KV ? env.REEM_KV.get(`rs:${chatId}`) : null,
+      ]);
+      const lines = ((res && res.matches) || [])
+        .filter((m) => m.score >= R.MIN_SCORE && m.metadata && m.metadata.text && (m.metadata.at || 0) >= Number(since || 0))
+        .slice(0, R.KEEP)
+        .sort((a, b) => (a.metadata.at || 0) - (b.metadata.at || 0))
+        .map((m) => `- ${longAgo(m.metadata.at)}, ${m.metadata.who === "him" ? "he said" : "you said"}: "${m.metadata.text}"`);
+      return lines.length ? fill(R.NUDGE, { moments: lines.join("\n") }) : "";
+    })(), R.TIMEOUT_MS + 1000, "recall");
+  } catch (e) {
+    console.error("recall failed:", aiText_(e));
+    return "";
+  }
+}
+
+function longAgo(at) {
+  const days = Math.floor((Date.now() - (at || 0)) / 86400000);
+  if (!at || days < 1) return "earlier today";
+  if (days < 2) return "yesterday";
+  if (days < 14) return `${days} days ago`;
+  if (days < 60) return `${Math.round(days / 7)} weeks ago`;
+  return `${Math.round(days / 30)} months ago`;
 }
 
 async function remember(env, chatId, oldNotes, overflow) {

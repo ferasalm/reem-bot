@@ -396,6 +396,24 @@ step("hearing: Gemini (HEARING.OR_MODEL) first, Whisper when it fails or the not
   W.CONFIG.PICTURE.ENABLED = picsOn; store.delete("pics"); delete env.AI;
 }
 
+step("long memory (RECALL, owner 2026-10-06): older moments found in Vectorize are put in her prompt; none after /restart");
+{
+  const rows = [{ id: "7:1", metadata: { chat: "7", who: "him", at: clock - 20 * 86400000, text: "my sister's wedding is in june and i'm the best man" } },
+    { id: "9:1", metadata: { chat: "9", who: "him", at: clock - 20 * 86400000, text: "another chat's secret" } }];
+  const queries = [];
+  env.MEMORY_INDEX = { async upsert() {}, async query(vec, o) { queries.push(o); return { matches: rows.map((r) => ({ score: 0.8, ...r })).filter((m) => m.metadata.chat === o.filter.chat) }; } };
+  env.AI = { async run(model, input) { if (input.text) return { data: input.text.map(() => new Array(1024).fill(0.01)) }; throw new Error("3040: capacity"); } };
+  const picsOn = W.CONFIG.PICTURE.ENABLED; W.CONFIG.PICTURE.ENABLED = false; store.delete("rs:7");
+  llm = [{ content: "the wedding. you nervous yet" }];
+  await run(msg({ text: "remember what i told you about june?" }));
+  console.log("recall in her prompt:", /THINGS FROM BEFORE[\s\S]*3 weeks ago, he said: "my sister's wedding/.test(sys()), "| only this chat:", !sys().includes("another chat") && queries.at(-1).filter.chat === "7");
+  store.set("rs:7", String(clock)); // /restart (openStory) sets this: older moments are left out
+  llm = [{ content: "june? tell me again" }];
+  await run(msg({ text: "remember what i told you about june?" }));
+  console.log("after /restart, nothing older:", !sys().includes("THINGS FROM BEFORE"));
+  delete env.MEMORY_INDEX; delete env.AI; store.delete("rs:7"); W.CONFIG.PICTURE.ENABLED = picsOn;
+}
+
 step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip, failures as notes, money today");
 {
   const V = W.CONFIG.VOICE; const prov = V.PROVIDER; V.PROVIDER = "openrouter"; gemini.mode = "hear";
