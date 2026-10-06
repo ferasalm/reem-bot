@@ -1,0 +1,58 @@
+{
+  "note": "Owner 2026-10-06: \"i want to try minimax tts from runware. Let's test it with samples.\" Probe first: which MiniMax ids Runware lists and which request shape it takes (one short line).",
+  "max_chars": 3000,
+  "runware_search": [
+    "minimax",
+    "minimax speech"
+  ],
+  "lines": [
+    {
+      "id": "hey",
+      "text": "[laughs softly] Hey you. I was hoping you'd text."
+    }
+  ],
+  "candidates": [
+    {
+      "name": "mm-voice",
+      "provider": "runware",
+      "model": "minimax:speech@2.8",
+      "speech": {
+        "voice": "English_captivating_female1"
+      },
+      "tags": {
+        "laughs softly": "(laughs)"
+      }
+    },
+    {
+      "name": "mm-voiceid",
+      "provider": "runware",
+      "model": "minimax:speech@2.8",
+      "speech": {
+        "voiceId": "English_captivating_female1"
+      },
+      "tags": {
+        "laughs softly": "(laughs)"
+      }
+    },
+    {
+      "name": "mm-default",
+      "provider": "runware",
+      "model": "minimax:speech@2.8",
+      "tags": {
+        "laughs softly": "(laughs)"
+      }
+    },
+    {
+      "name": "mm-emotion",
+      "provider": "runware",
+      "model": "minimax:speech@2.8",
+      "speech": {
+        "voice": "English_captivating_female1",
+        "emotion": "happy"
+      },
+      "tags": {
+        "laughs softly": "(laughs)"
+      }
+    }
+  ]
+}
