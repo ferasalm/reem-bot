@@ -25,7 +25,7 @@ if (process.env.LIVE_MODEL) {
   Object.assign(L, { MODEL: process.env.LIVE_MODEL, PROVIDER: backup ? L.BACKUP_PROVIDER : {}, REASONING: backup ? L.BACKUP_REASONING : {}, BACKUP_MODEL: backup ? "" : L.BACKUP_MODEL });
 }
 // The backup stays set (memory and /auto use its model and routing), but a reply the backup wrote counts as broken:
-// a Mistral Nemo failure must show up as a failure, not as a DeepSeek reply
+// a DeepSeek failure must show up as a failure, not as a Nemo reply
 const byBackup = (tries) => !!L.BACKUP_MODEL && tries.some((t) => t.startsWith(L.BACKUP_MODEL));
 
 // Which model and provider answered each call (OpenRouter says so in every response)

@@ -157,18 +157,19 @@ Maintain adult themes freely without moralizing. If he ever says he is under 18,
 W.applyOverrides({ CONFIG_OVERRIDES: JSON.stringify({ VOICE: { PRONUNCIATIONS: { ya3ni: "yani" } } }) });
 eq(Object.keys(W.CONFIG.VOICE.PRONUNCIATIONS), ["ya3ni"], "pronunciations replaced whole");
 eq(W.forSpeech("ya3ni 7abibi"), "Yani habibi.", "override + fallback");
-// OpenRouter routing: LLM.PROVIDER/REASONING with LLM.MODEL, LLM.BACKUP_* with the backup (DeepSeek)
-eq(W.CONFIG.LLM.MODEL, "mistralai/mistral-nemo", "chat model: Mistral Nemo");
-eq(Object.keys(W.openRouterBody(W.CONFIG.LLM.MODEL, [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "Nemo: no routing (OpenRouter picks)");
-const ds = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 });
-eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "DeepSeek backup: provider + reasoning");
+// OpenRouter routing: LLM.PROVIDER/REASONING with LLM.MODEL (DeepSeek), LLM.BACKUP_* with the backup (Nemo)
+eq(W.CONFIG.LLM.MODEL, "deepseek/deepseek-v4-flash", "chat model: DeepSeek V4 Flash (owner 2026-10-06)");
+const ds = W.openRouterBody(W.CONFIG.LLM.MODEL, [], { max_tokens: 5 });
+eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "DeepSeek: provider + reasoning");
+eq(W.CONFIG.LLM.BACKUP_MODEL, "mistralai/mistral-nemo", "backup: Mistral Nemo");
+eq(Object.keys(W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "Nemo backup: no routing (OpenRouter picks)");
 eq(Object.keys(W.openRouterBody("sao10k/l3-lunaris-8b", [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "another model: no routing");
-eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.BACKUP_MODEL), true, "memory and /auto use DeepSeek (the backup's routing)");
+eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.MODEL), true, "memory and /auto use DeepSeek (the chat model's routing)");
 {
   const saved = structuredClone(W.CONFIG.LLM);
-  W.CONFIG.LLM.BACKUP_PROVIDER.ignore = [];
-  W.CONFIG.LLM.BACKUP_REASONING = {};
-  const b = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], {});
+  W.CONFIG.LLM.PROVIDER.ignore = [];
+  W.CONFIG.LLM.REASONING = {};
+  const b = W.openRouterBody(W.CONFIG.LLM.MODEL, [], {});
   eq({ ignore: "ignore" in b.provider, reasoning: "reasoning" in b }, { ignore: false, reasoning: false }, "empty routing values dropped");
   W.CONFIG.LLM = saved;
 }
