@@ -5,6 +5,13 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-06 — **Picture versions with different models, ready to deploy; a slimmer hourglass body; realistic nipples** (owner: "She's
+  too fat. I want her body and proportions to be similar to those in attached pictures" / "her nipples look unrealistic. Keep fixing. We want
+  to have different versions with different models all ready to deploy. Focus on this for now."): `PICTURE.ROUTE` picks the version on the
+  settings panel: "cloudflare" (today's), "runware-klein" (klein 9B with her face and a faceless nude hourglass body, nudity allowed), "runware-
+  twinflow" (words only). Runware's body: about 163 cm and 64 kg, hourglass (`RUNWARE.REFERENCE`, `tools/face/body-hourglass.jpg`, Claude's
+  pick over the owner's bodysuit picture, whose beige clothes leaked 3 of 4); `RUNWARE.NAKED` describes real anatomy. Not deployed; default
+  stays "cloudflare". *Supersedes the BMI ~26 body (2026-10-05) for the Runware versions; the Cloudflare version keeps it until the owner says.*
 - 2026-10-06 — **Explicit nudity allowed in pictures** (owner: "Drop the \"2026-10-02 rule of no explicit nudity\""): her
   pictures may be nude. Not in the code yet: `PICTURE.SAFE` ("No nudity.") and `PICTURE.NOT_DRAWN` (nude words drop a
   picture) still hold, and klein on Cloudflare and Nano Banana refuse nudity anyway; they change together with a route

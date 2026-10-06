@@ -761,7 +761,7 @@ Changing the story
     RUNWARE: {
       MODEL: "runware:400@2",          // FLUX.2 klein 9B: her face (image 0), BODY (image 1), the place (image 2)
       BACKUP_MODEL: "runware:twinflow-z-image-turbo@0", // text only (LOOKS); also the "runware-twinflow" route's model
-      BODY: "owner",                   // image 1: "owner" = the owner's bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
+      BODY: "hourglass",               // image 1: "owner" = the owner's bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
       DAILY_USD: 0.5,                  // money a day for Runware pictures; then the Cloudflare route draws (never nude)
       USD_PER_PICTURE: 0.0008,         // klein 9B at 576x1024 (TwinFlow 0.0006)
       TIMEOUT_MS: 60000,

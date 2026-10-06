@@ -414,3 +414,13 @@ hourglass words (163 cm, 64 kg), B = face + the owner's faceless bodysuit pictur
 Only A #01 was drawn: Runware billed it **$0.0907 and 111 s** (the same route was $0.00078 and 3 s an hour earlier), and the
 $0.02 cap stopped the run. #01: her face, nude, no phone; the waist a little more defined but the belly still soft and round:
 words alone don't reach the owner's pictures. B not drawn. The bench now stops when one picture bills over 5x its list price.
+
+## Hourglass body + realistic anatomy (2026-10-06, image bench 37438811067 and 37439133800), each read at full size
+Owner: body like the 5 attached pictures (hourglass, ~BMI 24) and "her nipples look unrealistic". NAKED now describes real anatomy
+(soft brown areolas with texture, uneven, natural sag, creases under the breasts).
+- 37438811067, klein 9B + the owner's bodysuit picture (image 1): nude 3/4, beige bra + panties leaked 1/4; hourglass much closer,
+  belly a little soft; nipples natural in #04. TwinFlow with the same words: 4/4 nude, the hourglass closest to the owner's pictures,
+  nipples smoother; not her face.
+- 37439133800, klein 9B: the bodysuit picture with the beige clothes named → leaked 3/4 (worse); a faceless nude hourglass body cropped
+  from TwinFlow #02 (`tools/face/body-hourglass.jpg`) → nude 3/3 (1 not returned), her face, hourglass, nipples natural (darker
+  textured areolas, uneven: b2-01, b2-04). Picked as `RUNWARE.BODY` "hourglass".
