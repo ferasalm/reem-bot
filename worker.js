@@ -245,6 +245,23 @@ const CONFIG = {
     ],
   },
 
+  /* ---------------- Her real day: Watertown's weather and today's plan ---------------- */
+  // Owner 2026-10-06 (Cloudflare idea 4): the real weather where she lives (Open-Meteo, free, no key; cached in KV)
+  // and a plan for her day written once a day by PLAN_MODEL (Workers AI), so "what she's doing" changes day to day.
+  // CHARACTER.SCHEDULE still sets her reply speed, and the plan never covers her sleep (PLAN_FROM to PLAN_TO).
+  DAY: {
+    WEATHER: true,
+    LAT: 42.3709,                      // Watertown, MA
+    LON: -71.1828,
+    WEATHER_TTL_MIN: 30,               // weather asked again after this many minutes (at most; only when she replies)
+    WEATHER_NUDGE: " Outside right now: {weather}.", // {weather}, added to the time line
+    PLAN: true,
+    PLAN_MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (no OpenRouter credit)
+    PLAN_FROM: 8,                      // the plan covers these hours of her day (her sleep stays CHARACTER.SCHEDULE's)
+    PLAN_TO: 24,
+    PLAN_PROMPT: "Write Reem Nabot's plan for today, {date}. She is 29, Armenian-Lebanese from Bourj Hammoud, a freelance bookkeeper working from the kitchen table of her third-floor apartment in a Watertown triple-decker, across the landing from the man she's seeing; her mother calls from Beirut; Mrs. Kalajian lives downstairs. Weather today: {weather}. Her usual day: {usual}.\nWrite 6 to 8 lines from {from}:00 to {to}:00, each exactly like \"14-16: what she's doing\" (hours only, 24-hour clock, no gaps), ordinary and specific to today: which client's books, an errand, what she cooks, a call, something small that went wrong. Never him. No intro, only the lines.",
+  },
+
   PERSONA: {
     SYSTEM_PROMPT,                     // defined above
     INTRO_MESSAGE,                     // what /restart sends, as one message
@@ -1822,8 +1839,8 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
 
   // She starts thinking now, but only answers at waitUntil
   const sceneVoice = (mode === "scene" || mode === "visit") && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
-  const recall = ooc || proactive ? "" : await recallFind(env, chatId, said);
-  const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings, picture, canPicture, recentPictures: ledger ? ledger.recent : [], recall });
+  const [recall, day] = await Promise.all([ooc || proactive ? "" : recallFind(env, chatId, said), dayInfo(env, ctx)]);
+  const replyPromise = think(env, history, notes, heard, { mode, scene, offerReaction, canReact, ooc, settings, picture, canPicture, recentPictures: ledger ? ledger.recent : [], recall, day });
   replyPromise.catch(() => {});
   await sleep(Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS) - Date.now());
 
@@ -2085,6 +2102,72 @@ const herDay = () =>
 // from <= hour < to; also works across midnight (from 22 to 2)
 const inHours = (h, from, to) => (from <= to ? h >= from && h < to : h >= from || h < to);
 
+/* --- Her real day (CONFIG.DAY): Watertown's weather and today's plan, cached in KV "day" --- */
+
+// What's cached for today ({ day, plan, weather, wxAt }); a stale part is refreshed after this reply (ctx.waitUntil)
+async function dayInfo(env, ctx) {
+  const D = CONFIG.DAY;
+  const kv = env.REEM_KV;
+  if (!kv || (!D.WEATHER && !D.PLAN)) return {};
+  const cached = (await kv.get("day", "json").catch(() => null)) || {};
+  const today = herDay();
+  const planStale = D.PLAN && cached.day !== today && !!env.AI;
+  const wxStale = D.WEATHER && Date.now() - (cached.wxAt || 0) > (Number(D.WEATHER_TTL_MIN) || 30) * 60000;
+  if ((planStale || wxStale) && Date.now() - (cached.tried || 0) > 120000 && ctx && ctx.waitUntil) {
+    cached.tried = Date.now();
+    await kv.put("day", JSON.stringify(cached)).catch(() => {});
+    ctx.waitUntil(refreshDay(env, cached, today, { plan: planStale, weather: wxStale }).catch((e) => console.error("her day: couldn't refresh", e.message || e)));
+  }
+  return { plan: cached.day === today ? cached.plan : null, weather: Date.now() - (cached.wxAt || 0) < 3 * 3600000 ? cached.weather : "" };
+}
+
+async function refreshDay(env, cached, today, { plan, weather }) {
+  const D = CONFIG.DAY;
+  const out = { ...cached };
+  if (weather) {
+    const res = await xfetch(`https://api.open-meteo.com/v1/forecast?latitude=${D.LAT}&longitude=${D.LON}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=${encodeURIComponent(CONFIG.CHARACTER.TIMEZONE)}&forecast_days=1`, { signal: AbortSignal.timeout(8000) });
+    const w = await res.json();
+    if (w && w.current) {
+      out.weather = weatherWords(w);
+      out.wxAt = Date.now();
+    }
+  }
+  if (plan) {
+    const usual = (CONFIG.CHARACTER.SCHEDULE || []).filter((x) => x.from >= D.PLAN_FROM || x.to > D.PLAN_FROM).map((x) => `${x.from}-${x.to}: ${x.doing}`).join("; ");
+    const date = new Date().toLocaleDateString("en-US", { timeZone: CONFIG.CHARACTER.TIMEZONE, weekday: "long", month: "long", day: "numeric" });
+    const prompt = fill(D.PLAN_PROMPT, { date, weather: out.weather || "unknown", usual, from: D.PLAN_FROM, to: D.PLAN_TO });
+    const text = await callModel(env, [{ role: "user", content: prompt }], { temperature: 0.9, max_tokens: 500 }, { model: D.PLAN_MODEL, timeoutMs: 25000, attempts: 3 });
+    const lines = parsePlan(text);
+    if (lines.length >= 3) { out.plan = lines; out.day = today; }
+  }
+  delete out.tried;
+  await env.REEM_KV.put("day", JSON.stringify(out));
+}
+
+// "14-16: client books" lines → [{ from, to, doing }]
+function parsePlan(text) {
+  return String(text || "").split("\n").map((l) => l.trim().replace(/^[-*•]\s*/, "").match(/^(\d{1,2})(?::\d{2})?\s*[-–]\s*(\d{1,2})(?::\d{2})?\s*[:.)-]?\s*(.{4,200})$/))
+    .filter(Boolean).map((m) => ({ from: Number(m[1]) % 25, to: Number(m[2]) % 25, doing: m[3].trim() })).filter((x) => x.from < x.to || x.to === 0);
+}
+
+// Today's plan for her hour, inside DAY.PLAN_FROM-PLAN_TO only
+function planNow(plan) {
+  const D = CONFIG.DAY;
+  const h = herHour();
+  if (!Array.isArray(plan) || !inHours(h, D.PLAN_FROM, D.PLAN_TO % 24 || 24)) return "";
+  const hit = plan.find((x) => inHours(h, x.from, x.to || 24));
+  return hit ? hit.doing : "";
+}
+
+const WEATHER_CODES = [[0, "clear"], [1, "mostly clear"], [2, "partly cloudy"], [3, "overcast"], [48, "foggy"], [57, "drizzling"], [67, "raining"], [77, "snowing"], [82, "rain showers"], [86, "snow showers"], [99, "a thunderstorm"]];
+function weatherWords(w) {
+  const c = w.current;
+  const sky = (WEATHER_CODES.find(([max]) => c.weather_code <= max) || [0, "unsettled"])[1];
+  const d = w.daily || {};
+  const range = d.temperature_2m_max ? `, today ${Math.round(d.temperature_2m_min[0])}-${Math.round(d.temperature_2m_max[0])}°F` : "";
+  return `${Math.round(c.temperature_2m)}°F and ${sky}${c.wind_speed_10m >= 18 ? ", windy" : ""}${range}`;
+}
+
 // Her SCHEDULE slot right now
 function scheduleNow() {
   const h = herHour();
@@ -2128,7 +2211,7 @@ async function saveTurn(env, chatId, history, notes, userEntry, herEntry) {
 
 // mode: "text", "voice" or "scene" (from replyMode). The format reminder for that mode goes after
 // the chat, right before she writes, where the model pays the most attention.
-async function think(env, history, notes, userText, { mode = "text", scene, offerReaction = false, canReact = false, ooc = false, settings = {}, picture = null, canPicture = false, recentPictures = [], recall = "" }) {
+async function think(env, history, notes, userText, { mode = "text", scene, offerReaction = false, canReact = false, ooc = false, settings = {}, picture = null, canPicture = false, recentPictures = [], recall = "", day = {} }) {
   const C = CONFIG.CHARACTER;
   const N = CONFIG.NUDGES;
   const P = CONFIG.PERSONA;
@@ -2141,7 +2224,8 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
   if (notes) extra += fill(N.MEMORY_NOTES, { notes });
   if (recall && !ooc) extra += recall;
   if (about) extra += fill(N.ABOUT_HIM, { about });
-  extra += fill(N.TIME, { time: now, city: C.CITY, doing: (slot && slot.doing) || "going about your day" });
+  extra += fill(N.TIME, { time: now, city: C.CITY, doing: planNow(day.plan) || (slot && slot.doing) || "going about your day" });
+  if (day.weather) extra += fill(CONFIG.DAY.WEATHER_NUDGE, { weather: day.weather });
   if (scene) extra += fill(apart ? N.APART : N.TOGETHER);
 
   const recent = history

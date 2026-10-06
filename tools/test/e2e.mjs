@@ -48,6 +48,7 @@ import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker(); const mod = W.default;
 W.CONFIG.VOICE.PROVIDER = "aura"; // the default is OpenRouter (Sulafat); the flows below were written for aura with ElevenLabs behind it, the OpenRouter step switches it itself
 W.CONFIG.PICTURE.ROUTE = "cloudflare"; // the default is Runware klein (owner 2026-10-06); these flows were written for the Cloudflare route
+W.CONFIG.DAY.WEATHER = false; W.CONFIG.DAY.PLAN = false; // her real day (DAY) is tested on its own: these count AI calls
 const ctx = { waitUntil(){} };
 let uid = 1;
 const msg = (m) => ({ body: { update_id: uid, message: { message_id: 1000 + uid++, chat: { id: 7, type: "private" }, from: { id: 7 }, date: clock/1000, ...m } }, ack(){} });
@@ -425,6 +426,30 @@ step("/album (owner 2026-10-06): her pictures as Telegram ids, 10 a page, oldest
   g = calls.filter((c) => c.m === "sendMediaGroup").at(-1);
   console.log("album page 2:", g && g.b.media.map((x) => x.media).join() === "pic1,pic2" && !/album 3/.test(g.b.media[0].caption));
   store.delete("al:7");
+}
+
+step("her real day (DAY, owner 2026-10-06): Watertown's weather and today's plan, fetched after a reply, in her prompt from the next one");
+{
+  const D = W.CONFIG.DAY; D.WEATHER = true; D.PLAN = true; store.delete("day");
+  const before = clock; clock = RealDate.UTC(2026, 9, 1, 18, 30); // 14:30 in Watertown
+  const pending = []; ctx.waitUntil = (p) => pending.push(p);
+  const fetch0 = globalThis.fetch; let meteo = 0;
+  globalThis.fetch = async (url, init) => String(url).includes("open-meteo") ? (meteo++, new Response(JSON.stringify({ current: { temperature_2m: 51.6, weather_code: 63, wind_speed_10m: 21 }, daily: { temperature_2m_min: [44.2], temperature_2m_max: [55.9] } }))) : fetch0(url, init);
+  const planAsked = [];
+  env.AI = { async run(model, input) { if (input.messages) { planAsked.push(input.messages[0].content); return { choices: [{ message: { content: "8-11: coffee on the porch, the Hovsepian invoices\n11-14: the Der Sarkissian bakery's books\n14-16: re-sorting a shoebox of receipts from the florist\n16-18: walk to the Armenian market for lahmajun dough\n18-21: cooking for Mrs. Kalajian\n21-24: mama on the phone, then receipts" } }] }; } throw new Error("3040: capacity"); } };
+  llm = [{ content: "rain again" }];
+  await run(msg({ text: "what are you up to" }));
+  await Promise.all(pending);
+  const saved = JSON.parse(store.get("day") || "{}");
+  console.log("day fetched after the reply:", meteo === 1 && saved.weather === "52°F and raining, windy, today 44-56°F" && saved.plan.length === 6 && /raining/.test(planAsked[0] || ""), saved.weather);
+  llm = [{ content: "receipts. a whole shoebox" }];
+  await run(msg({ text: "and now?" }));
+  console.log("in her prompt: the plan's hour and the weather:", sys().includes("usually re-sorting a shoebox of receipts from the florist") && sys().includes("Outside right now: 52°F and raining"), "| not fetched again:", meteo === 1);
+  clock = RealDate.UTC(2026, 9, 1, 8, 0); // 04:00 there: asleep, the plan doesn't cover it
+  llm = [{ content: "mm" }];
+  await run(msg({ text: "you up?" }));
+  console.log("asleep: the usual schedule, not the plan:", sys().includes("usually asleep"));
+  globalThis.fetch = fetch0; ctx.waitUntil = () => {}; clock = before; D.WEATHER = false; D.PLAN = false; delete env.AI; store.delete("day");
 }
 
 step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip, failures as notes, money today");
