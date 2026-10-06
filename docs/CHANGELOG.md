@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-06: back to DeepSeek (owner: "What is wrong with Reem? Fix her")
+- The owner's Telegram chat (one-word texts "good", "come", "Knock."; "hey habibti" to him; a style example sent word for word;
+  a coffee detail picture after "Kiss kiss") replayed in live.mjs (`OWNER_CHAT`): Nemo 37459244094, DeepSeek 37459455109
+  (`LIVE_MODEL`, the workflow's `model` input). Full [live] on DeepSeek: 37459992726 (1 broken = backup after a timeout),
+  37460798857 (0 broken). Guards: `copiesExample` (asked again), habibti → habibi (address only), his words echoed back
+  dropped, a scene's bare words quoted, speech tags in texts. Deploy run 37461633468, `main` = 122dac8.
+
 ## 2026-10-05 (eighth session): Mistral Nemo deployed
 - fe1ea79: `LLM.MODEL` mistralai/mistral-nemo, DeepSeek V4 Flash as `LLM.BACKUP_MODEL` with its own routing (`BACKUP_PROVIDER`,
   `BACKUP_REASONING`); memory and /auto stay on DeepSeek. [live] 37363619497: attempts 1-2 cancelled by GitHub's runner incident,

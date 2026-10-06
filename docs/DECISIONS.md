@@ -10,7 +10,8 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   37459455109): Nemo wrote 1-4 word texts, copied the prompt's examples word for word and went to his door 0/5; DeepSeek wrote full
   in-character texts and opened the door 4/5. `LLM.MODEL` `deepseek/deepseek-v4-flash` with its old providers and reasoning off
   (`LLM.PROVIDER`, `LLM.REASONING`), `LLM.BACKUP_MODEL` `mistralai/mistral-nemo` (OpenRouter picks). Claude's guards: a copied
-  prompt example is a repeat (asked again, `TEXTING.COPY_WORDS`), "hey habibti" said to him becomes habibi.
+  prompt example is asked again (`TEXTING.COPY_WORDS`), "hey habibti" said to him becomes habibi, his words echoed back are
+  dropped, two example jokes replaced. Deployed: `main` = 122dac8 (was c0e8109), deploy run 37461633468 green, live code read back.
   *Supersedes "Chat model: Mistral Nemo, DeepSeek as the backup" (2026-10-05).*
 - 2026-10-06 — **Deploy /pic** (owner: "Deploy"): `dev` (c0e8109) fast-forwarded into `main` (was 4354980). `/pic` (`/photo`, `/custom`)
   live: his words, her face, on `PICTURE.ROUTE`. Deploy run 37453860155 green, /health drew and saw, live code read back (/pic in). *Completes the /pic part of the entry below.*
