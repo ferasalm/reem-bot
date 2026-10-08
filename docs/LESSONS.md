@@ -27,21 +27,21 @@ At most 150 lines (`tools/doc-check.mjs`).
   merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03) `git cherry origin/dev origin/<b>` counts what's really missing. Deploy = `git push origin origin/dev:main` (fast-forward). (2026-10-05)
 - face.yml refused a job at 6,618 neurons used: draw.mjs's day cap 7,000 dates from the free plan → set
   `day_neurons` in job.json (Workers Paid; the owner's cap is AI_BUDGET.DAILY_NEURONS 28,000). (2026-10-03)
-- `/plugin marketplace add` / `/plugin install` can't be run by Claude (CLI commands) → put the marketplace in
-  `extraKnownMarketplaces` and the plugin in `enabledPlugins` of `.claude/settings.json`; it loads next session.
-  Its files can be read now from a clone (`git clone https://github.com/<owner>/<repo>`; github.com is reachable). (2026-10-03)
+- `/plugin install` can't be run by Claude → `extraKnownMarketplaces` + `enabledPlugins` in `.claude/settings.json` (next session). (2026-10-03)
 - No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only; Runware has no MiniMax Turbo (run 37541102035).
   Text replay on Workers AI: test.yml `model` `@cf/...` (no OpenRouter key passed); never two at once (429, 3021). Runware MCP:
   `account` = balance + today's spend. Hand-run workflows must be on `dev` (404); log blob links are blocked: `get_job_logs`.
+- Civitai → Runware LoRAs (2026-10-08): the proxy allows `api.civitai.com` (not civitai.com); `/api/download/models/<v>` answers a
+  307 to a signed b2 link valid 1 h that Runware fetches itself (`model_upload`, air `ferasalm:<name>@1`; the same file again needs
+  `uniqueIdentifier` = REST). A diffusers-named DoRA "failed to load" → `tools/lora/dora-to-lora.py --rank 32`. No host is reachable
+  from the container; from Actions litterbox/0x0/catbox refused, temp.sh links are pages, filebin worked (`lora-upload.yml`).
 - /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it.
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
 ## 2. Known traps
 - History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either.
   Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.
-- After deploying v10: open `/setup` once (Telegram must start sending `edited_message` and `callback_query`; the
-  command menu updates), then `/restart` or `/rewind` to a clean point, since old narrated replies in history pull
-  the model back to that style. A `VOICE_ID` Worker secret, if set, overrides `VOICE.ID`: remove it.
+- A `VOICE_ID` Worker secret, if set, overrides `VOICE.ID`: remove it.
 - Cron runs (every 15 min) must finish within 30 s, so `scheduled` only queues a task.
 - `clean()` strips `[...]` at line starts except allowed audio tags; `dropCues()` strips them anywhere (keeping
   allowed tags in voice notes); `tidySpoken()` strips every other `[...]` before TTS.

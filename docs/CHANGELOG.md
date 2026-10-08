@@ -4,6 +4,15 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (twelfth session): Civitai LoRAs on Runware klein 9B (on dev, not deployed)
+- Uploads: `ferasalm:phone2025@1`, `ferasalm:ultrareal5@1` (Civitai's signed links), `ferasalm:realhd2kc@1` (Real HD 2k: a diffusers
+  DoRA; `ferasalm:realhd2k@1` and the lycoris try `ferasalm:realhd2kdora@1` don't load) via `lora-upload.yml` run 37722581660
+  (converted, rank 32 = 96.6% of the change kept, filebin). Hosting failed in runs 37721538771, 37721728086, 37722158897, 37722412788.
+- Benches (her face + hourglass body, 4 shots, same seeds): 37720473185 (none / phone 0.8 / ultrareal 0.8 / both 0.6) and
+  37722968583 (Real HD 0.8 / all three): 24/24 drawn, face kept in all; LoRA pictures $0.00169 vs $0.00078. The effect is small:
+  phone = less airbrushed skin, more freckles; ultrareal = a little smoother and warmer; Real HD = crisper, neutral colour.
+- `PICTURE.RUNWARE.LORAS` + `LORA_PREFIX` (`runwareLoras`, `drawRunware`, `drawPicture`); default phone2025 + ultrareal5 0.6.
+
 ## 2026-10-06 (eleventh session): Cloudflare first, Cloudflare ideas 1-6 (deployed: 7de9e5b and the /setup wording)
 - MiniMax TTS benches 37538682473 / 37541102035 (Arabic script; Turbo via OpenRouter, HD via Runware): owner kept Sulafat.
 - `PICTURE.ROUTE` "runware-klein" default. Nano Banana off, Nemo removed; `LLM.BACKUP_MODEL` = DeepSeek on Workers AI

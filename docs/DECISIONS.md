@@ -8,9 +8,9 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
 - 2026-10-08 — **Civitai LoRAs on Runware klein 9B** (owner: "download the LoRAs from Civitai at your machine, upload them to runware,
   and do what you have to do in order to have the LoRAs working on our Flux.2 Klein 9B for Reem", then "yes put it on the public host"
   / "we want to try both"): uploaded as `ferasalm:phone2025@1`, `ferasalm:ultrareal5@1` (both load) and `ferasalm:realhd2k@1` (a
-  diffusers DoRA Runware can't load: converted by `tools/lora/dora-to-lora.py` and hosted on litterbox.catbox.moe for Runware,
-  owner's OK). `PICTURE.RUNWARE.LORAS` phone2025 + ultrareal5 at 0.6 each with phone2025's trigger words (`LORA_PREFIX`). On `dev`,
-  not deployed.
+  diffusers DoRA Runware can't load: converted by `tools/lora/dora-to-lora.py` to rank 32 and put on a public host, filebin, owner's
+  OK: `ferasalm:realhd2kc@1` loads). `PICTURE.RUNWARE.LORAS` phone2025 + ultrareal5 at 0.6 each with phone2025's trigger words
+  (`LORA_PREFIX`); Real HD benched, not on. On `dev`, not deployed.
 - 2026-10-06 — **Main routes checked; hearing on Gemini first** (owner: "CHECK that the Main route: Her texts, memory, /auto: DeepSeek
   on cloudflare / Her voice: Sulafat on OpenRouter / Hearing: Gemini on OpenRouter / Seeing your photos: Cloudflare / Her pictures:
   Runware klein"): `HEARING.OR_FIRST` true (Gemini first, Whisper when it fails, Scribe last); the other four were already live. A

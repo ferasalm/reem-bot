@@ -830,7 +830,7 @@ Changing the story
       BACKUP_MODEL: "runware:twinflow-z-image-turbo@0", // text only (LOOKS); also the "runware-twinflow" route's model
       BODY: "hourglass",               // image 1: "owner" = the owner's bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
       DAILY_USD: 0.5,                  // money a day for Runware pictures; then the Cloudflare route draws (never nude)
-      USD_PER_PICTURE: 0.0008,         // klein 9B at 576x1024 (TwinFlow 0.0006)
+      USD_PER_PICTURE: 0.0017,         // klein 9B at 576x1024 with LoRAs ($0.00169, run 37720473185; $0.00078 without, TwinFlow 0.0006)
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
       // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16)
