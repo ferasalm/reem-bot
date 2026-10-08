@@ -594,10 +594,10 @@ section("pictures: his photos (Workers AI vision)");
     // Nudity words only
     yes(["black lace lingerie on the bed", "a string bikini", "kissing the mirror", "in the shower"].every(W.mayDraw), "lingerie, bikini, bed, kiss, shower are drawn now");
     yes(["naked in bed", "topless", "a see-through top", "sheer robe", "nude"].every((t) => !W.mayDraw(t)), "nudity words never drawn (NOT_DRAWN)");
-    // PICTURE.RUNWARE.SEX_ACTS (owner 2026-10-06): a panel switch, default off; only the Runware versions
+    // PICTURE.RUNWARE.SEX_ACTS (owner 2026-10-06): a panel switch; on since 2026-10-08 ("lift all restrictions"); only the Runware versions
     { const P = W.CONFIG.PICTURE, route = P.ROUTE, on = P.RUNWARE.SEX_ACTS;
-      eq(on, false, "SEX_ACTS is off by default");
-      P.ROUTE = "runware-klein";
+      eq(on, true, "SEX_ACTS is on (owner 2026-10-08)");
+      P.ROUTE = "runware-klein"; P.RUNWARE.SEX_ACTS = false;
       yes(!W.mayDraw("having sex on the couch") && W.mayDraw("naked in bed"), "Runware, switch off: sex acts not drawn, nudity drawn");
       P.RUNWARE.SEX_ACTS = true;
       yes(W.mayDraw("having sex on the couch"), "Runware, switch on: sex acts sent to the model");
@@ -761,8 +761,13 @@ section("pictures: his photos (Workers AI vision)");
     t = runware.calls.at(-1);
     yes(r.photos.length === 1 && /red lace bra and panties/.test(t.positivePrompt) && banana.calls.length === b0, "lingerie: Runware draws the real words (no FILTER_WORDS), no Nano Banana", t.positivePrompt.slice(0, 160));
     yes(!t.positivePrompt.includes(R.NAKED), "...and NAKED only when she's naked");
+    R.SEX_ACTS = false;
     r = await turn("send me a pic", ["[selfie: her fucking herself]"], { history: APART });
-    yes(!/fucking/.test(runware.calls.at(-1).positivePrompt), "RUNWARE.NOT_DRAWN still holds (sex acts)");
+    yes(!/fucking/.test(runware.calls.at(-1).positivePrompt), "SEX_ACTS off: RUNWARE.NOT_DRAWN holds (sex acts)");
+    R.SEX_ACTS = true;
+    r = await turn("send me a pic", ["[selfie: her fucking herself on the bed]"], { history: APART });
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && /fucking herself/.test(t.positivePrompt) && t.positivePrompt.includes(R.POV_MAN) && Object.keys(R.NUDE_LORAS).every((k) => (t.lora || []).some((l) => l.model === k)), "SEX_ACTS on: the sex act drawn as written, POV_MAN and SNOFS added", t.positivePrompt.slice(0, 200));
     runware.mode = "failFirst"; const n0 = runware.calls.length;
     r = await turn("send me a selfie", ["[selfie: in the hallway in a gray sweater]"], { history: APART });
     const two = runware.calls.slice(n0);

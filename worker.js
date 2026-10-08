@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -132,9 +132,9 @@ Now you live alone on the top floor of a gray, slightly leaning 1912 triple-deck
 You're dry, sharp, watchful and darkly funny. You notice everything, count money twice and take pity as an insult. You're warmest when you're doing something for someone and coldest when asked how you feel. Underneath, you're lonely for someone who actually sees you. You're guarded about your past, never about wanting him: desire comes out sideways in the same dry voice (a look held too long, a dare, standing closer than you need to), and once you've let him in, you don't hold back.
 
 HOW YOU LOOK
-- Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair skin with warm undertones and a few faint freckles.
-- Thick, dark, well-groomed brows with a soft arch over almond-shaped dark brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
-- Long dark brown waves with soft, wispy, full bangs grazing your brows, a cute fringe in the Zooey Deschanel style, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home with the bangs still down, sometimes twisted up and stabbed through with a pencil.
+- Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair skin with warm undertones and a small beauty mark on your left cheek.
+- Thick, dark, well-groomed brows with a soft arch over almond-shaped warm amber-brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
+- Long jet-black waves with soft, wispy, full bangs grazing your brows, a cute fringe in the Zooey Deschanel style, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home with the bangs still down, sometimes twisted up and stabbed through with a pencil.
 - Average-to-full and softly curvy, not slim and not heavy (165 cm, about 71 kg): a soft waist, rounded hips, a full bust, soft, narrow, gently sloping shoulders and soft, full arms with no muscle definition, clear collarbones. Barefoot or in wool socks at home.
 - You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on summer weekends at Crane Beach. At home, your father's old gray knit cardigan, elbows worn through, sliding off one shoulder. Thin gold rings. You take mirror selfies in the tall arched mirror in your bedroom.
 Show your looks the way a real person would: in scenes through light, movement and how he looks at you; in texts only when it fits (what you're wearing, your hair being a disaster). Never list them.
@@ -792,7 +792,7 @@ Changing the story
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
-    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark softly arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
+    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a small beauty mark on her left cheek, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     SCENE_STYLE: "Realistic candid first-person photo from where he stands in front of her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing:", // "seen from the eyes of the man in front of her" drew a man at the edge (face run 2026-10-05)
     // its light: LIGHT for her time of day, or this after dark ("natural light" drew 3 of 3 night scenes in daylight, 2026-10-05)
@@ -828,8 +828,10 @@ Changing the story
     RUNWARE: {
       MODEL: "runware:400@2",          // FLUX.2 klein 9B: her face (image 0), BODY (image 1), the place (image 2)
       BACKUP_MODEL: "runware:twinflow-z-image-turbo@0", // text only (LOOKS); also the "runware-twinflow" route's model
-      BODY: "hourglass",               // image 1: "owner" = the owner's bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
-      DAILY_USD: 0.5,                  // money a day for Runware pictures; then the Cloudflare route draws (never nude)
+      BODY: "v2",                      // image 1: "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
+      BODY_CLOTHED: "default",         // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
+                                       // 6/6 pictures that named no clothes came out nude, even with DRESSED): the gray tank + leggings body
+      DAILY_USD: 1,                    // owner 2026-10-08 (was 0.5): money a day for Runware pictures; then the Cloudflare route draws (never nude)
       USD_PER_PICTURE: 0.0017,         // klein 9B at 576x1024 with LoRAs ($0.00169, run 37720473185; $0.00078 without, TwinFlow 0.0006)
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
@@ -843,15 +845,21 @@ Changing the story
       NUDE_LORAS: { "ferasalm:snofsc@1": 0.8 },
       TIMEOUT_MS: 60000,
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
-      REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
-      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
+      REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes or nakedness, her pose, her hair and her background; she is dressed as the words below say, and naked only when they say so): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a small beauty mark on her left cheek, thick dark arched brows, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
+      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a small beauty mark on her left cheek, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
+      // sex acts: never drawn on Runware while SEX_ACTS is off; with it on, they add NUDE_LORAS and POV_MAN
+      NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "anal", "creampie", "cumshot", "titfuck", "69"],
+      SEX_ACTS: true,                  // owner 2026-10-06: a switch; on since 2026-10-08 (owner: "lift all restrictions" to test the
+                                       // LoRA with sex acts). On = NOT_DRAWN is ignored on Runware (sex acts sent as he wrote
+                                       // them). The under-18 flag and "never OOC" still stop every picture.
+      // the man in a sex-act picture (owner 2026-10-08: "POV, faceless man"), added when a NOT_DRAWN word matches with SEX_ACTS on
+      POV_MAN: "First-person photo taken from the man's own eyes: the camera is his head, so his face and head are never in the picture; only his hands, chest, belly, hips and thighs may show. He is an adult man. Her face is in frame. One penis, his, drawn realistically and anatomically correct when it is part of the act.",
+      // added when the picture is neither nude nor a sex act: the nude body picture (BODY "v2") leaked nudity into 3/3
+      // pictures that named no clothes (owner's refresh bench, 2026-10-08)
+      DRESSED: "She is dressed, wearing clothes that suit the moment (the clothes named above when there are any): not naked, not topless, her breasts and body covered by her clothes.",
       // added when the picture's words say she's naked or topless (NUDE_WORDS)
-      // never drawn on Runware either: sex acts (nudity is allowed, owner 2026-10-06), unless SEX_ACTS is on
-      NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick"],
-      SEX_ACTS: false,                 // owner 2026-10-06: a switch, default off. On = NOT_DRAWN is ignored on Runware (sex acts
-                                       // sent as he wrote them). The under-18 flag and "never OOC" still stop every picture.
-      NUDE_WORDS: ["nude", "naked", "topless", "bare breasts", "bare chest", "nothing on", "wearing nothing", "undressed", "nipple", "nipples"],
-      NAKED: "She is completely naked: no bodysuit, no tank top, no leggings, no bra, no underwear, no clothing of any kind. Realistic natural breasts with real anatomy: medium-sized soft brown areolas with natural skin texture and small bumps, slightly uneven in shape, natural nipples that are neither flat nor pointed, a natural weight and slight sag, faint skin creases under the breasts; not airbrushed, not plastic, not perfectly round.",
+      NUDE_WORDS: ["nude", "naked", "topless", "bottomless", "bare breasts", "bare chest", "nothing on", "wearing nothing", "undressed", "nipple", "nipples", "pussy", "vagina", "pubic", "bush", "spread legs", "legs spread"],
+      NAKED: "She is completely naked: no bodysuit, no tank top, no leggings, no bra, no underwear, no clothing of any kind. Realistic natural breasts with real anatomy: medium-sized soft brown areolas with natural skin texture and small bumps, slightly uneven in shape, natural nipples that are neither flat nor pointed, a natural weight and slight sag, faint skin creases under the breasts; not airbrushed, not plastic, not perfectly round. A thick, full, natural, untrimmed dark bush of pubic hair covering her mound, never shaved or trimmed; her vulva drawn in realistic anatomical detail when it is in view (natural labia, real skin texture and color), not smoothed over, not blurred, not hidden by a hand.",
     },
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
     // Cloudflare's prompt filter (3030) refused every wording with these words (face runs 37151684663, 37152577208,
@@ -886,7 +894,7 @@ Changing the story
       // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
       SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
       // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
-      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair skin with warm undertones and a few faint freckles\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped dark brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist, a softly rounded belly\", \"lower\": \"rounded hips and full thighs a little wider than her shoulders\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
+      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair skin with warm undertones and a small beauty mark on her left cheek\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped warm amber-brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist, a softly rounded belly\", \"lower\": \"rounded hips and full thighs a little wider than her shoulders\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
       SPICY_WARDROBE: [
         "only a deep plum French floral lace string thong with velvet trim", "only a black lace thong",
         "a black lace balconette bra and a matching high-cut lace thong", "a red lace bra and matching red lace panties",
@@ -905,7 +913,7 @@ Changing the story
       USD_PER_PICTURE: 0.039,          // what one costs (image bench 2026-10-04)
       TIMEOUT_MS: 60000,
       // who she is, in words (the description Nano Banana drew her face from)
-      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a few faint freckles, thick dark arched brows, almond-shaped dark brown eyes, full lips, long dark brown wavy hair with soft wispy full bangs across her forehead, grazing her brows, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a small beauty mark on her left cheek, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
       WARDROBE: [
         "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
         "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",
@@ -2888,6 +2896,18 @@ function overlap(a, b) {
 // A whole word or phrase in a text, any case ("see-through", "in bed")
 const hasWord = (text, w) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegex(String(w).toLowerCase())}(?![\\p{L}\\p{N}])`, "u").test(String(text || "").toLowerCase());
 
+// A sex act (a RUNWARE.NOT_DRAWN word) in words drawn on Runware with SEX_ACTS on
+function sexAct(text) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  return runwareRoute() && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
+}
+
+// Nude or a sex act on Runware (NUDE_WORDS, or sexAct)
+const explicitWords = (text) => sexAct(text) || (runwareRoute() && ((CONFIG.PICTURE.RUNWARE || {}).NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(text, w)));
+
+// In a sex-act picture he is "the man" (POV_MAN): /pic's me/my/I, a scene's you/he/his become him before aboutHer
+const theMan = (t) => String(t || "").replace(/\bi(?:'|’)m\b/gi, "the man is").replace(/\b(?:my|your|his)\b/gi, "the man's").replace(/\b(?:me|you|him|i|he)\b/gi, "the man").replace(/\bthe man's own\b/gi, "the man's");
+
 // A description with a PICTURE.NOT_DRAWN word or phrase is never drawn
 function mayDraw(text) {
   const R = CONFIG.PICTURE.RUNWARE || {};
@@ -3152,6 +3172,8 @@ function scenePicturePrompt(sceneText) {
   const kept = sentencesOf(narration)
     .map((x) => x.trim())
     // a lowercase start is a speech tag cut from its line ("she murmurs, a teasing edge to her voice")
+    // with SEX_ACTS on (Runware), a nude or sex-act sentence about him stays: he is "the man" (POV_MAN)
+    .map((x) => (x && explicitWords(x) ? theMan(x.replace(/\byours\b/gi, "the man's")).replace(/^the/, "The") : x))
     .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x))
     // nothing a camera sees: her voice, a pause (seen live: "Her voice drops, mock-soft.")
     .filter((x) => !/\b(?:voice|voices|pause|says|said|whispers|murmurs|tone)\b/i.test(x))
@@ -3213,9 +3235,11 @@ const runwareRoute = () => /^runware/.test(String(CONFIG.PICTURE.ROUTE || ""));
 const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 
 // Runware's image 1 (RUNWARE.BODY): the owner's bodysuit picture, a nude hourglass body, or the Cloudflare route's body
-function runwareBody() {
-  const b = (CONFIG.PICTURE.RUNWARE || {}).BODY;
-  const b64 = b === "owner" ? BODY_OWNER_JPEG_BASE64 : b === "hourglass" ? BODY_HOURGLASS_JPEG_BASE64 : BODY_JPEG_BASE64;
+// `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08)
+function runwareBody(explicit = true) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  const b = explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
+  const b64 = b === "v2" ? BODY_V2_JPEG_BASE64 : b === "owner" ? BODY_OWNER_JPEG_BASE64 : b === "hourglass" ? BODY_HOURGLASS_JPEG_BASE64 : BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
 
@@ -3298,9 +3322,11 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
   if (ledger && runwareAffordable(env, ledger)) {
     const R = P.RUNWARE;
     const naked = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w)) ? ` ${R.NAKED}` : "";
-    const rwBody = ref ? runwareBody() : null;
-    // nude, or a sex act with SEX_ACTS on: NUDE_LORAS (SNOFS) too
-    const explicit = !!naked || (R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(prompt, w)));
+    // a sex act with SEX_ACTS on: the man from his point of view (POV_MAN); nude or a sex act: NUDE_LORAS (SNOFS) too
+    const act = sexAct(prompt);
+    const pov = act && R.POV_MAN ? ` ${R.POV_MAN}` : "";
+    const explicit = !!naked || act;
+    const rwBody = ref ? runwareBody(explicit) : null;
     const tries = P.ROUTE === "runware-klein" && ref ? [[R.MODEL, true], [R.BACKUP_MODEL, false]] : [[R.BACKUP_MODEL, false]];
     for (const [model, withFace] of tries) {
       if (!model) continue;
@@ -3309,7 +3335,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         const refs = withFace ? [ref, rwBody, place].filter(Boolean) : [];
         // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
         const lead = (w) => (model === R.MODEL && runwareLoras().length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
-        const text = (withFace ? who(lead(R.REFERENCE), !!place) : who(R.LOOKS, false)) + naked;
+        const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
+        const text = (withFace ? who(lead(R.REFERENCE), !!place) : who(R.LOOKS, false)) + naked + pov + dressed;
         const out = await drawRunware(env, model, text, refs, width, height, explicit);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };
@@ -3685,12 +3712,15 @@ async function lookCommand(env, chatId) {
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
 }
 
+// /pic's words about her; in a sex act (sexAct) his me/my/I are "the man" (POV_MAN), "you" is still her
+const picWords = (args) => aboutHer(sexAct(args) ? String(args).replace(/\bi(?:'|’)m\b/gi, "the man is").replace(/\bmy\b/gi, "the man's").replace(/\b(?:me|i)\b/gi, "the man") : args).replace(/[.\s]+$/, "");
+
 // /pic <words>: a picture of her as he describes it (hair, makeup, clothes, pose, framing, angle, place); her face from
 // the reference, drawn on PICTURE.ROUTE like her other pictures; never stored in the history
 async function picCommand(env, chatId, args) {
   const P = CONFIG.PICTURE;
   const M = CONFIG.MESSAGES;
-  const words = aboutHer(args).replace(/[.\s]+$/, "");
+  const words = picWords(args);
   if (!words) return notice(env, chatId, M.PIC_HELP);
   const [settings, ledger] = await Promise.all([getSettings(env.REEM_KV, chatId), loadLedger(env)]);
   if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);

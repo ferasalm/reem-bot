@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (fourteenth session): sex acts on, new face and body (deployed from dev, see DECISIONS)
+- Owner: "lift all restrictions" for pictures to test SNOFS with sex acts; the refresh's face (his picture 1) and body (his picture 5).
+- Bench from the container (the bot's own `drawPicture`, Runware klein 9B + LoRAs, $0.00169 each, ~30 pictures), every picture opened:
+  face (black hair, bangs, beauty mark) kept on all; nudes 5/5 with detailed genitals, the bush lighter than asked until "thick, full,
+  untrimmed"; sex acts: riding 2/2 (first showed the man's face → POV_MAN "the camera is his head": gone), doggy 2/2, missionary 2/2
+  (first cut her face → "her face is in frame"), blowjob 0/4 (a penis held to her mouth, or none: model limit).
+  Clothed with the nude body as image 1: 6/6 nude when no clothes were named (even with DRESSED) → `BODY_CLOTHED` "default": 5/5 dressed.
+
 ## 2026-10-08 (thirteenth session): SNOFS on nude pictures (deployed: main afbd4fd, run 37793652334)
 - SNOFS klein 9B v1.4 (Civitai 2960556) is a LoKR (w1 4x4, full w2, alpha 1e10 = full): `ferasalm:snofs14@1` "failed to load" (the same
   file is on Runware as `aisudo:klein9b-lora@snofs`, also failing). Merged checkpoints (Civitai 2985440) uploaded as `ferasalm:snofs9b@14`

@@ -295,6 +295,35 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
   eq(Object.keys(R.NUDE_LORAS), ["ferasalm:snofsc@1"], "SNOFS is the nude LoRA");
 }
+{
+  const yes = (v, label, got) => eq(!!v || got, true, label);
+  // owner 2026-10-08: sex acts on (SEX_ACTS), the man from his point of view (POV_MAN), the new body (BODY "v2")
+  const P = W.CONFIG.PICTURE, R = P.RUNWARE, keep = [P.ROUTE, R.SEX_ACTS], realFetch = globalThis.fetch;
+  let sent = [];
+  globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
+  const prompt = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0].positivePrompt; };
+  try {
+    P.ROUTE = "runware-klein"; R.SEX_ACTS = true;
+    eq(R.BODY, "v2", "Runware's body picture is the owner's new body");
+    yes(W.runwareBody() && W.runwareBody().length > 10000, "the v2 body picture is built into face.js");
+    eq(R.BODY_CLOTHED, "default", "clothed pictures: the clothed body picture (the nude one made unnamed outfits nude)");
+    yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
+    const clothed = await prompt("on the couch reading a book");
+    yes(clothed.includes(R.DRESSED) && !clothed.includes(R.NAKED), "clothed: DRESSED, no NAKED");
+    eq(W.picWords("you riding me on my bed"), "her riding the man on the man's bed", "/pic sex act: me/my are the man, you is her");
+    eq(W.picWords("you in my shirt"), "her in her shirt", "/pic without a sex act: unchanged");
+    yes(W.mayDraw("her giving a blowjob") && W.sexAct("her giving a blowjob"), "a sex act is drawn with the switch on");
+    const act = await prompt("riding the man on the bed");
+    yes(act.includes(R.POV_MAN) && act.includes(R.NAKED) === false, "a sex act: POV_MAN added", act.slice(-200));
+    const nude = await prompt("naked on the bed, her pussy in view");
+    yes(nude.includes(R.NAKED) && !nude.includes(R.POV_MAN), "nude, no act: NAKED, no POV_MAN");
+    eq(W.scenePicturePrompt("*She straddles you on the couch, riding you slowly, her hands on your chest.*"), "She straddles the man on the couch, riding the man slowly, her hands on the man's chest.", "scene: a sex-act sentence about him stays, he is the man");
+    eq(W.scenePicturePrompt("*She sits beside you on the couch with a mug of tea. She tucks her feet under her, the gray cardigan sliding off one shoulder.*"), "She tucks her feet under her, the gray cardigan sliding off one shoulder.", "scene: a clothed sentence about him is still left out");
+    R.SEX_ACTS = false;
+    yes(!W.mayDraw("her giving a blowjob") && !W.sexAct("her giving a blowjob"), "switch off: not drawn");
+    eq(W.picWords("you riding me"), "her riding her", "switch off: /pic unchanged");
+  } finally { globalThis.fetch = realFetch; [P.ROUTE, R.SEX_ACTS] = keep; }
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

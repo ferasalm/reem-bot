@@ -5,6 +5,22 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Sex-act pictures on, POV man, detailed genitalia, $1/day; deploy once verified** (owner: "We're at the development
+  stage, we need to lift all restrictions, especially on generating pictures ... I must verify the LoRA is working even with sex acts",
+  then picked "POV, faceless man", "Raise to $1", "Deploy when verified", and on the plan: "Allow detailed genitalia"):
+  `PICTURE.RUNWARE.SEX_ACTS` true (*supersedes its default off of 2026-10-06*); `NOT_DRAWN` (the sex-act list) widened (blowjob,
+  riding, doggystyle, missionary, ...); `NUDE_WORDS` adds pussy, vagina, pubic, bush, spread legs; new `POV_MAN` on sex-act pictures
+  (his eyes are the camera, never his face; his penis anatomically correct); /pic's me/my/I are "the man" in a sex act; /look and her
+  scene pictures keep a nude or sex-act sentence about him as "the man"; `NAKED` asks for a detailed, unblurred vulva;
+  `RUNWARE.DAILY_USD` 1 (was 0.5). Kept (Claude): no picture after he says he's under 18, none in an OOC reply.
+- 2026-10-08 — **New face and body (the picture refresh)** (owner: "find attached pictures for Reem. We want to keep the fuller arms",
+  "All AI-made. Use 1-2 for face, and the rest for exact body shape and contours (notice the breasts type, areolas, nipples, bushy
+  groin)", "They're AI-made, use them", and picked "Natural pubic hair" over the piercings): her face is cropped from his picture 1
+  (`tools/face/reference.jpg`, jet-black wavy hair with full bangs, amber-brown eyes, a beauty mark on her left cheek); her words
+  (persona, every picture description) say so (*supersedes dark brown hair, dark brown eyes and freckles*). Runware's body is his
+  picture 5 (`RUNWARE.BODY` "v2", `tools/face/body-v2.jpg`) on nude and sex-act pictures; clothed pictures keep the gray tank +
+  leggings body (`BODY_CLOTHED` "default", Claude's fix: the nude body made 6/6 pictures with no clothes named nude). Bush: "thick,
+  full, untrimmed"; arms: "fuller and softer than in image 1". Expressions, poses and wardrobe variety: not done yet.
 - 2026-10-08 — **SNOFS on nude pictures only; deploy once verified** (owner: "download the LoRA from Civitai at your machine, upload
   it to runware, and do what you have to do in order to have the LoRA working on our Flux.2 Klein 9B for Reem ... SNOFS", then picked
   "Nude/explicit only" and "Deploy when verified"): `PICTURE.RUNWARE.NUDE_LORAS` `ferasalm:snofsc@1` at 0.8 (Claude's value) is added
