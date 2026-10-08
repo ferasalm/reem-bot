@@ -3,53 +3,59 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-08 (eighteenth session: picture rounds 7 + 8, on `dev`). **Deployed:** `main` = 088c9be (round 5, unchanged).
-`dev` = rounds 6, 7 + 8 (not deployed). To deploy: the owner says "deploy" (`git push origin origin/dev:main`).
+**Last updated:** 2026-10-08 (nineteenth session: deployed picture rounds 6-8 to `main`). **Deployed:** `main` = 9803e28 (rounds 6, 7 + 8).
+Round 5 is `088c9be`: to go back, push it to `main`. New `dev` work goes live when the owner says "deploy" (`git push origin origin/dev:main`).
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month). **Live (`main`):** texts, memory,
-/auto on DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat; hearing Gemini 3.8 Flash; pictures Runware klein 9B
-(round 5; `DAILY_USD` $1, then Cloudflare klein, never nude).
-**On `dev`, not deployed:** round 6 (anatomy fix, flash on request, hairstyles, light, poses, outfits: `docs/CHANGELOG.md`), rounds 7 and 8:
-- **Cheaper sizes:** 9:16 768x1344 (was 1008x1792). Blowjobs/deepthroats 1:1 (80%) or 16:9; other sex acts 9:16 / 1:1 / 16:9 (40/40/20);
-  everything else 9:16. Measured $0.0025-0.0034 a picture (was $0.0034-0.0042).
-- **Three kinds of picture:** clothed, nude, sex act, each with its own body picture from one consistent set (round 8, "v3": your
-  body redrawn with pale warm ivory skin, fuller arms and detailed skin by klein + the realism LoRAs; from behind and clothed drawn from
-  it). Short prompts that name the body picture's shape ("not slimmer"): clothed and nude match 4/4, head in proportion; mole gone.
-- **From behind** (doggy, anal, reverse cowgirl): the v3 back body, "seen from behind", no breasts named (doggy 2/2).
-- **Partly naked:** clothes named in a nude or sex picture stay on (t-shirt 2/2, black bra 3/3, white bra 1/3).
-- **Penis on penetration (round 8):** PussyDiffusion melted his penis into her labia (missionary 0/2), also with General Penis added →
-  General Penis on missionary and doggy, riding with neither: right on zoom 6/6 on fresh seeds. PussyDiffusion only on nude pictures.
-- **/look rebuilt:** DeepSeek (Workers AI) reads the last 8 messages + your words after /look and writes the picture: with her (her face)
-  or without her (where you are, first-person 2/2). "/look nude, missionary sex" now draws that (1/1 nude; penetration not shown).
-- **Not adopted:** deepthroat LoRA alone at 1.0 (her face older 3/3, in her mouth 1/3); it stays with the others at 0.8.
-- **`docs/OPTIONS.md`:** every command, picture word, pose, act, outfit, hairstyle, light, place and LoRA (when, weight, trigger, cost).
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month). **Live (`main`):** texts, memory and
+/auto on DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat (aura-2, then ElevenLabs); hearing Gemini 3.8 Flash (Whisper,
+then Scribe); pictures Runware klein 9B with her face (`runware:400@2`, TwinFlow when it fails; `DAILY_USD` $1, then Cloudflare klein;
+nudity and sex acts on).
+**Pictures, rounds 6-8, now live** (detail: `docs/CHANGELOG.md`, the 2026-10-08 entries):
+- **Cheaper sizes:** 9:16 768x1344; blowjobs 1:1 or 16:9; other sex acts 9:16 / 1:1 / 16:9. About $0.0025-0.0034 a picture.
+- **Three picture kinds:** clothed, nude, sex act, each with its own body picture from one set ("v3": pale warm ivory skin, fuller arms);
+  from behind for doggy, anal and reverse cowgirl.
+- **Penis:** General Penis on missionary and doggy; PussyDiffusion on nude pictures only; riding with neither.
+- **Partial nudity:** clothes named in a nude or sex picture stay on.
+- **/look:** DeepSeek (Workers AI) writes the picture from the last 8 messages and his words, with her or without her.
+- **Variety:** flash on request; hairstyles, light, poses, outfits. `docs/OPTIONS.md` lists every command, word, act and LoRA
+  (when, weight, trigger, cost).
 
 ## Waiting on the owner
-- **Deploy rounds 6 + 7?**
+- **Your Telegram test** (next step 1). The Runware pictures of rounds 6-8 are not yet checked live.
 - **Her tongue out** on riding/doggy (Flux 4 Play draws it): keep, lower its weight, or another LoRA.
-- Still open: InstaPic everywhere, ElevenLabs "North Jersey", old branches.
+- Still open: InstaPic everywhere, ElevenLabs "North Jersey", old session branches (see Open questions).
 
-## Verified this session (2026-10-08, eighteenth session)
-- `node tools/check.mjs` all 6 ok (new rows: v3 bodies, General Penis on missionary/doggy, none on riding, PARTIAL, NAKED_BACK, aspect shapes, WITH_LORAS, deepthroat with the
-  others, /look words/with her/alone/model down). ~80 pictures on Runware (~$0.23 both rounds), each read, genitals zoomed.
-- Not checked live: /look's DeepSeek call (the container can't reach Workers AI; mocked in scenarios), Telegram, a deploy.
+## Verified this session (2026-10-08, nineteenth session)
+- Deploy run 37860789952 (Deploy to Cloudflare, push to `main` at 9803e28): job `deploy` success, every step success. Read in the job
+  log: Deploy Worker uploaded `reem-bot`, version a8330967-fdd5-40db-b84e-bacb68b15187.
+- `/health`: ok. Cloudflare klein drew 52,713 bytes in 27.5 s; the vision model described it. This checks Cloudflare, not the Runware route.
+- `/setup`: all ✅ (Telegram connected; DeepSeek on Workers AI and the OpenRouter backup answered; Sulafat test clip made; Gemini heard it
+  as "Hey you. I was hoping you'd text."; ElevenLabs key works; face built in; memory and queue connected). Runware about $0.17 of $1.00 today.
+- One failure before this deploy: Runware "200: no picture" at 13:26 UTC today (round 5 code). Not seen since; watch for repeats.
+- Not checked live: Runware pictures of rounds 6-8, /look's DeepSeek call, Telegram replies. The full code read-back was skipped: the
+  Cloudflare tool returns the whole ~5 MB bundle.
+- `node tools/check.mjs`: all 6 ok on 9803e28, before the deploy; again after the docs (see the commit).
+- Sync report: OK after `git fetch --unshallow origin`. The warning at session start came from the shallow clone.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Deploy** if you want rounds 6-8 live. *Effort: low*
-2. **Your Telegram test** with `docs/OPTIONS.md`: /look with and without words (with her, apart, in a sex scene), /pic clothed full body,
+1. **Your Telegram test** with `docs/OPTIONS.md`: /look with and without words (with her, apart, in a sex scene), /pic clothed full body,
    doggy, a bra kept on during sex; report misses. *Effort: low*
-3. **/look's DeepSeek answers:** after the deploy, read a few in the Worker log (or a workflow call) and tune `PICTURE.LOOK.PROMPT`. *Effort: medium*
-4. **Missionary/riding penetration** shown more often (wording or LoRA weight bench, zoom crops). *Effort: medium*
-5. **Flux 4 Play tongue:** bench its weight 0.5-0.8. *Effort: medium*
-6. **After a day live:** /spend vs the dashboards. *Effort: low*
-7. **Text model** (owner's direction): bench cheaper or better Workers AI models with `OWNER_CHAT`. *Effort: high*
-8. **Old session branches:** list them in `tools/retired-branches.txt` once the owner agrees. *Effort: low*
+2. **/look's DeepSeek answers:** read a few in the Worker log after real /look calls and tune `PICTURE.LOOK.PROMPT`. *Effort: medium*
+3. **Missionary/riding penetration** shown more often (wording or LoRA weight bench, zoom crops). *Effort: medium*
+4. **Flux 4 Play tongue:** bench its weight 0.5-0.8. *Effort: medium*
+5. **After a day live:** /spend vs the dashboards (Runware, Workers AI, OpenRouter). *Effort: low*
+6. **Text model** (owner's direction): bench cheaper or better Workers AI models with `OWNER_CHAT`. *Effort: high*
+7. **Old session branches:** `tools/retired-branches.txt` lists them; the owner presses Actions > Delete retired branches when he agrees.
+   *Effort: low*
 
 ## Open questions for the owner
-- OK to retire the old session branches the sync report keeps listing?
+- Her tongue on riding/doggy: keep it, lower the Flux 4 Play weight, or use another LoRA?
+- OK to press Actions > Delete retired branches for the list in `tools/retired-branches.txt`? The sync check says no work is missing from `dev`.
+- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? Today it printed 25 false "commits not here"
+  warnings from the shallow clone (`.claude/settings.json`).
 
 ## Prompt for the next chat (paste as-is)
 > Continue reem-bot. Follow CLAUDE.md (the sync report first; if it lists other branches with work, stop and ask
-> me). Deploy rounds 6-8: <yes/no>. My Telegram test: <...>. Flux 4 Play tongue <...>. Then HANDOFF next step 3.
+> me). My Telegram test: <...>. Tongue on riding/doggy: <keep / lower / other LoRA>. Then HANDOFF next step 2.

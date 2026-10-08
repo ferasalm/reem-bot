@@ -4,6 +4,17 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (nineteenth session): deploy of picture rounds 6-8 to main
+- `main` = 9803e28 (was 088c9be). Deploy run 37860789952, job 113595746221: Cloudflare resources, Deploy Worker (`reem-bot`, upload 5054 KiB,
+  gzip 3217 KiB, version a8330967-fdd5-40db-b84e-bacb68b15187, RUNWARE_API_KEY secret written), `/health` (Cloudflare klein 52,713 bytes in
+  27.5 s; the vision model read it), `/setup` all ✅ (Telegram, DeepSeek on Workers AI, OpenRouter backup via Novita, Sulafat test clip 25 KB
+  MP3, Gemini heard "Hey you. I was hoping you'd text.", ElevenLabs key, memory KV, queue). Every step success.
+- Expected noise: `tools/cf-resources.sh` prints Vectorize `duplicate_name` (3002) and "metadata index already exists" (40004) once
+  `reem-memory` exists; the step still passes (index 1024 dims, 101 vectors).
+- `/setup` also listed one Runware failure earlier today: 13:26 UTC (09:26 Boston), "Runware 200: no picture", on round 5 code. Not seen since.
+- Not done: the full code read-back (`workers_get_worker_code` returns the whole ~5 MB bundle). `/setup`'s last line suggests `/restart`,
+  which wipes her memory (`docs/OPTIONS.md`); nobody sent it. Loading `/setup` reconnects Telegram and drops messages still waiting.
+
 ## 2026-10-08 (eighteenth session, part 2): picture round 8 (on dev)
 - Body set v3 on Runware klein 9B + phone2025/ultrareal5 0.6 at 768x1344: front from body-v2 (seeds 41-43 thin arms, a face edge, elbow
   marks; 51-54 with "noticeably thicker" arms → 52), back from front 52 (61-63 → 62), clothed (61-63 cropped tank → leaked crop tops;

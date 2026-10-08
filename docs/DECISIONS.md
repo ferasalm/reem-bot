@@ -5,6 +5,7 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Deploy the picture rounds 6-8 to `main`** (owner: "Continuing from last session's handoff. Deploy to main"): `dev` (9803e28) fast-forwarded into `main` (was 088c9be; `git push origin origin/dev:main`, no force). Deploy run 37860789952 green: every step success, Version ID a8330967-fdd5-40db-b84e-bacb68b15187; `/health` ok (Cloudflare klein drew 52,713 bytes, the vision model described it); `/setup` all ✅. The Runware route is not exercised by those checks: the owner's Telegram test is the first live check. To go back: push 088c9be to `main`. *Completes the round 6, 7 and 8 entries marked "Not deployed".*
 - 2026-10-08 — **Picture round 8: General Penis on missionary and doggy, one consistent v3 body set; dev only** (owner: "When applying
   pussy diffusion in sex scenes, his penis becomes as if it were part of the pussy. Try running general penis with it to see how it works.
   Also, update her body reference to reflect the skin tone and fuller arms. Make sure all her body shots (back, front, clothed, and nude)

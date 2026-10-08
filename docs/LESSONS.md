@@ -12,7 +12,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   GitHub Actions; read their logs with the GitHub MCP (`actions_list` / `get_job_logs`).
 - The ElevenLabs MCP needs any voice description and sample line to come from the owner. Transcribing a TTS node
   in a flow only echoes its prompt: upload the MP3 as an asset to really transcribe it.
-- Read back the live Worker's code with the Cloudflare MCP after a deploy (done for every deploy on 2026-10-02/03).
+- Read the live Worker after a deploy: the deploy log's Version ID, `/health` and `/setup` (run 37860789952). `workers_get_worker_code` returns the whole bundle (~5 MB on 2026-10-08), so no full code read-back; `cf-resources.sh`'s Vectorize "already exists" errors (3002, 40004) are normal.
 - Prices and limits: the Cloudflare MCP's `search_cloudflare_documentation` answers from the current docs (klein
   4B: 26.05 neurons per 512x512 output tile, rounded up, so 768x1024 costs the same as 640x640). Other providers'
   sites (runware.ai, fal.ai) are blocked from the container: WebSearch still finds their prices. (2026-10-03)
@@ -49,7 +49,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   more than the LoRA; give `env` an `AI` stub (both Runware models 502 → the Cloudflare fallback crashed the run); `startPicture`'s result
   has no `model`; `montage -geometry x700` pads every tile to the widest picture → `convert ... -resize x700 +append` for mixed sizes.
   Dropping 2 of 6 LoRAs cut a sex act from $0.0042 to $0.0034 (fewer LoRA loads = less GPU time).
-- /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it.
+- /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it. Its last line says "send /restart", and /restart wipes her memory (`docs/OPTIONS.md`): don't repeat it (2026-10-08).
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
 ## 2. Known traps
