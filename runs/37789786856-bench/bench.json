@@ -1,0 +1,93 @@
+{
+  "note": "2026-10-08: SNOFS as a LoRA (ferasalm:snofsc@1, rank-128 copy of the LoKR) on nude pictures: klein 9B + 3 LoRAs (live) vs + SNOFS 0.8 / 0.6, SNOFS alone, and the 4-set minus one each; 3 nude prompts + 1 clothed. Same body and references as run 37722968583.",
+  "want": 4,
+  "max_attempts": 4,
+  "max_usd": 0.08,
+  "reference": "tools/face/reference.jpg",
+  "refs": [
+    "tools/face/body-hourglass.jpg"
+  ],
+  "routes": [
+    "k-all3",
+    "k-all4",
+    "k-all4-s06",
+    "k-snofs",
+    "k-no-realhd",
+    "k-no-ultra",
+    "k-no-phone"
+  ],
+  "labels": [
+    "mirror selfie, night, nude",
+    "bed, morning, nude",
+    "couch, by someone, topless",
+    "couch, own arm (clothed)"
+  ],
+  "prompt_sets": {
+    "ref": [
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. A mirror selfie in her bedroom at night, lamp on: she holds an iPhone at chest height, the phone and her hand visible in the mirror, naked, a playful look. Realistic amateur photo, natural skin texture, vertical 9:16. She is completely naked: no bodysuit, no tank top, no leggings, no bra, no underwear, no clothing of any kind. Realistic natural breasts with real anatomy: medium-sized soft brown areolas with natural skin texture and small bumps, slightly uneven in shape, natural nipples that are neither flat nor pointed, a natural weight and slight sag, faint skin creases under the breasts; not airbrushed, not plastic, not perfectly round.",
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. A selfie she took herself in bed in the morning, lying on her side on white sheets, naked, a sleepy smile. Realistic amateur photo, natural skin texture, vertical 9:16. She is completely naked: no bodysuit, no tank top, no leggings, no bra, no underwear, no clothing of any kind. Realistic natural breasts with real anatomy: medium-sized soft brown areolas with natural skin texture and small bumps, slightly uneven in shape, natural nipples that are neither flat nor pointed, a natural weight and slight sag, faint skin creases under the breasts; not airbrushed, not plastic, not perfectly round.",
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. A photo of her taken by someone else, topless on the couch in her living room, legs tucked under her, laughing. Realistic amateur photo, natural skin texture, vertical 9:16. She is completely naked: no bodysuit, no tank top, no leggings, no bra, no underwear, no clothing of any kind. Realistic natural breasts with real anatomy: medium-sized soft brown areolas with natural skin texture and small bumps, slightly uneven in shape, natural nipples that are neither flat nor pointed, a natural weight and slight sag, faint skin creases under the breasts; not airbrushed, not plastic, not perfectly round.",
+      "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. She is in a fitted black tank top and gray sweatpants, sitting cross-legged on her couch in her living room at evening, warm lamp light, a soft teasing smile; a close photo taken from her own outstretched arm at her eye level; no phone and no hand holding a camera anywhere in the picture. Framed from her head to her hips. Realistic amateur photo, natural skin texture, vertical 9:16."
+    ]
+  },
+  "lora_routes": {
+    "k-all3": {
+      "lora": {
+        "ferasalm:phone2025@1": 0.6,
+        "ferasalm:ultrareal5@1": 0.6,
+        "ferasalm:realhd2kc@1": 0.5
+      },
+      "prefix": "This is a candid photograph taken with a smartphone of"
+    },
+    "k-all4": {
+      "lora": {
+        "ferasalm:phone2025@1": 0.6,
+        "ferasalm:ultrareal5@1": 0.6,
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.8
+      },
+      "prefix": "This is a candid photograph taken with a smartphone of"
+    },
+    "k-all4-s06": {
+      "lora": {
+        "ferasalm:phone2025@1": 0.6,
+        "ferasalm:ultrareal5@1": 0.6,
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.6
+      },
+      "prefix": "This is a candid photograph taken with a smartphone of"
+    },
+    "k-snofs": {
+      "lora": {
+        "ferasalm:snofsc@1": 0.8
+      }
+    },
+    "k-no-realhd": {
+      "lora": {
+        "ferasalm:phone2025@1": 0.6,
+        "ferasalm:ultrareal5@1": 0.6,
+        "ferasalm:snofsc@1": 0.8
+      },
+      "prefix": "This is a candid photograph taken with a smartphone of"
+    },
+    "k-no-ultra": {
+      "lora": {
+        "ferasalm:phone2025@1": 0.6,
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.8
+      },
+      "prefix": "This is a candid photograph taken with a smartphone of"
+    },
+    "k-no-phone": {
+      "lora": {
+        "ferasalm:ultrareal5@1": 0.6,
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.8
+      }
+    }
+  },
+  "runware_size": [
+    576,
+    1024
+  ]
+}
