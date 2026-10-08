@@ -17,7 +17,7 @@ on:
         description: "Display name on Runware"
         required: true
       convert:
-        description: "Convert a diffusers DoRA to a BFL-named LoRA first"
+        description: "Convert first: a diffusers DoRA to a BFL-named LoRA, or a LoKR (found by its lokr_ keys) to a LoRA"
         type: boolean
         default: false
       rank:
@@ -42,7 +42,12 @@ jobs:
           RANK: ${{ github.event.inputs.rank }}
         run: |
           pip install --quiet numpy
-          python3 tools/lora/dora-to-lora.py in.safetensors out.safetensors ${RANK:+--rank "$RANK"}
+          # a LoKR (SNOFS, 2026-10-08) goes through lokr-to-lora.py (rank 128 when none is given), a DoRA through dora-to-lora.py
+          if head -c 200000 in.safetensors | grep -q -a "lokr_w"; then
+            python3 tools/lora/lokr-to-lora.py in.safetensors out.safetensors --rank "${RANK:-128}"
+          else
+            python3 tools/lora/dora-to-lora.py in.safetensors out.safetensors ${RANK:+--rank "$RANK"}
+          fi
           mv out.safetensors in.safetensors
       - name: Host, upload to Runware, test
         env:
