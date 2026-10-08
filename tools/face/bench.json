@@ -1,5 +1,5 @@
 {
- "note": "2026-10-08: Civitai LoRAs on Runware klein 9B (owner). Same seeds per attempt across routes; baseline = no LoRA.",
+ "note": "2026-10-08: Real HD 2k (converted DoRA, ferasalm:realhd2kc@1) alone and with phone2025 + ultrareal5; same seeds and prompts as run 37720473185.",
  "want": 4,
  "max_attempts": 4,
  "max_usd": 0.03,
@@ -8,10 +8,8 @@
   "tools/face/body-hourglass.jpg"
  ],
  "routes": [
-  "rw-klein9b-b2",
-  "lora-phone",
-  "lora-ultrareal",
-  "lora-both"
+  "lora-realhd",
+  "lora-all3"
  ],
  "labels": [
   "couch, own arm",
@@ -28,21 +26,16 @@
   ]
  },
  "lora_routes": {
-  "lora-phone": {
+  "lora-realhd": {
    "lora": {
-    "ferasalm:phone2025@1": 0.8
-   },
-   "prefix": "This is a candid photograph taken with a smartphone of"
-  },
-  "lora-ultrareal": {
-   "lora": {
-    "ferasalm:ultrareal5@1": 0.8
+    "ferasalm:realhd2kc@1": 0.8
    }
   },
-  "lora-both": {
+  "lora-all3": {
    "lora": {
     "ferasalm:phone2025@1": 0.6,
-    "ferasalm:ultrareal5@1": 0.6
+    "ferasalm:ultrareal5@1": 0.6,
+    "ferasalm:realhd2kc@1": 0.5
    },
    "prefix": "This is a candid photograph taken with a smartphone of"
   }
