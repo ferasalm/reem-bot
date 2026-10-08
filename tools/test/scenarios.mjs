@@ -399,7 +399,7 @@ W.CONFIG.REACTIONS.CHANCE = 0.25;
 
 section("pictures: his photos (Workers AI vision)");
 {
-  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false; let filterNext = false; let seenOutfit = "a black lace bodysuit and thigh-high stockings";
+  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false; let filterNext = false; let seenOutfit = "a black lace bodysuit and thigh-high stockings"; let lookAnswer = null;
   const formOf = async (input) => Object.fromEntries([...(await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData())].map(([k, v]) => [k, typeof v === "string" ? v : `<${v.size} bytes>`]));
   env.AI = { async run(model, input) {
     if (model.includes("flux")) {
@@ -411,6 +411,10 @@ section("pictures: his photos (Workers AI vision)");
     }
     ai.push({ model, input });
     if (input.messages && input.messages[0].content[0].text === W.CONFIG.PICTURE.LINGERIE.CHECK_PROMPT) return { response: seenOutfit }; // klein's lingerie, checked
+    if (input.messages && String(input.messages[0].content).startsWith("You describe one photo")) { // /look's description (PICTURE.LOOK)
+      if (lookAnswer == null) throw new Error("7000: look model down");
+      return { response: lookAnswer };
+    }
     if (visionError && (model === W.CONFIG.VISION.MODEL || !/5035/.test(visionError.message))) throw visionError;
     return { response: "A man in a gray hoodie smiling in a car [selfie]" };
   } };
@@ -862,7 +866,21 @@ section("pictures: his photos (Workers AI vision)");
   yes(look && look.fields.prompt.includes("holding the door wider") && look.fields.prompt.includes("old cardigan and wool socks, over") && /kitchen/i.test(look.fields.prompt), "...of her last reply, in the clothes the scene named, in her kitchen", look && look.fields.prompt);
   eq(JSON.parse(store.get("h:7")).length, LOOK_SCENE.length, "...and nothing added to the history");
   r = await turn("/look", [], { history: APART });
-  yes(r.photos.length === 0 && r.texts.length === 1 && r.texts[0].includes("not with"), "/look apart: a notice, no picture", r.texts);
+  yes(r.photos.length === 0 && r.texts.length === 1 && r.texts[0].includes("not with"), "/look apart, its model down: a notice, no picture", r.texts);
+  // round 7 (owner: "/look doesn't always have to involve Reem ... deepseek can help with it, as well as the user by typing after /look")
+  lookAnswer = "WITH_HER\nReem lies on her back on the bed, naked, legs spread, the man on top of her in missionary, his hands on her hips.";
+  let n1 = ai.length;
+  r = await turn("/look nude, missionary sex", [], { history: LOOK_SCENE });
+  const ask = ai.slice(n1).find((a) => a.input && a.input.messages && String(a.input.messages[0].content).startsWith("You describe one photo"));
+  const drawnWith = ai.slice(n1).find((a) => a.model === W.CONFIG.PICTURE.MODEL);
+  yes(ask && String(ask.input.messages[0].content).includes("nude, missionary sex") && String(ask.input.messages[0].content).includes("holding the door wider"), "/look words: the model reads his words and the chat");
+  yes(r.photos.length === 1 && drawnWith && drawnWith.fields.prompt.includes("missionary") && !/\bReem\b/.test(drawnWith.fields.prompt) && "input_image_0" in drawnWith.fields, "/look with her: the model's words, her face, no names", drawnWith && drawnWith.fields.prompt);
+  lookAnswer = "ALONE\nThe dashboard of a parked car at night, rain on the windshield, a coffee cup in the holder.";
+  n1 = ai.length;
+  r = await turn("/look", [], { history: APART });
+  const alone = ai.slice(n1).find((a) => a.model.includes("flux"));
+  yes(r.photos.length === 1 && alone && alone.fields.prompt.includes("dashboard") && !alone.fields.prompt.includes("29-year-old") && !("input_image_0" in alone.fields), "/look apart: what he sees, without her and without her face", alone && alone.fields);
+  lookAnswer = null;
 
   section("pictures: never");
   r = await turn("OOC: can she send a selfie?", ["Sure, just ask her. [selfie: mirror selfie]"], { history: APART });

@@ -5,6 +5,23 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Picture round 7: lower resolution, aspect ratios by kind, three picture kinds, /look rebuilt; dev only** (owner: "Use lower
+  resolution for lower cost", "Keep it at 1:1 (with occasional 16:9s) for blowjobs and deepthroat. For other sex scenes, randomize between
+  9:16, 1:1, with occasional 16:9. Keep other pictures, like clothed, nude, selfies, and mirror selfies at 9:16 vertical", "When it's a doggy
+  scene, don't prompt her breasts ... use the body reference of her behind ... always describe that it's from behind", "The tear streak is
+  fine during deepthroat", "include the pussy diffusion LoRA for vaginal sex scenes", "/look doesn't always have to involve Reem if the user
+  is not with her ... deepseek can help with it, as well as the user by typing after /look", "use concise prompts, relying more on reference
+  images", "her body is accurate when she's nude, but it's not accurate when she's clothed, making her too overweight ... keep the fuller
+  arms", "a switch for normal vs nudity only vs sex scenes", "I can't seem to make her partially nude", "her skin tone to be pale warm
+  ivory. And for the mole ... How about removing it from the prompt?", and a list of every option and LoRA): Runware 9:16 768x1344
+  (`WIDTH`/`HEIGHT`, was 1008x1792), `SIZES` + `ASPECTS` (oral 1:1 80% / 16:9 20%; other acts 9:16 40% / 1:1 40% / 16:9 20%; `WIDE` "one
+  woman"); clothed body `v2-clothed` (the owner's body dressed by klein, was the heavier "default"), `BODY_BACK` `v2-back` + `REFERENCE_BACK` +
+  `NAKED_BACK` on `BACK_WORDS` acts; short `REFERENCE` (image 1's body, soft full upper arms, pale warm ivory skin, no mole; also the persona
+  and the other picture words); sex acts always get NAKED, or `PARTIAL` + `BODY_PARTIAL` when clothes are named; `WITH_LORAS` PussyDiffusion
+  with Flux 4 Play and Missionary; /look = `PICTURE.LOOK` (DeepSeek on Workers AI writes the picture from the chat and his words; WITH_HER =
+  her face, ALONE = no one); `docs/OPTIONS.md` (`tools/options.mjs`). Claude's call: deepthroat alone at 1.0 benched again and not adopted
+  (her face drifted 3/3, in her mouth 1/3; with the others her face held); `ALONE_WORDS` kept empty. *Supersedes the 1008x1792 size and the
+  1:1-only oral size of rounds 4-5 and the 9:16-only rule (2026-10-04) for sex acts.* Not deployed.
 - 2026-10-08 — **Picture round 6: tests, anatomy, flash, variety; dev only** (owner: "(Test; do not commit): Let's try POV doggy anal alone
   without the other LoRAs while raising it's weight to 1", "(Test; do not commit): Randomize pictures between 9:16 and 16:19. Blowjobs and
   deepthroats at 16:9 ... Only /look pictures stay at 1:1", "Does reducing resolution reduce cost?", "(Test; do not commit): When there is a

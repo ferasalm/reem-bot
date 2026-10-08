@@ -3,61 +3,52 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-08 (seventeenth session: picture round 6, on `dev`). **Deployed:** `main` = 088c9be (round 5, unchanged).
-`dev` = round 6 (not deployed). To deploy: the owner says "deploy" (`git push origin origin/dev:main`).
+**Last updated:** 2026-10-08 (eighteenth session: picture round 7, on `dev`). **Deployed:** `main` = 088c9be (round 5, unchanged).
+`dev` = rounds 6 + 7 (not deployed). To deploy: the owner says "deploy" (`git push origin origin/dev:main`).
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month). **Live (`main`):** texts, memory,
 /auto on DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat; hearing Gemini 3.8 Flash; pictures Runware klein 9B
-(LoRA table of round 5 in `docs/CHANGELOG.md`; `DAILY_USD` $1, then Cloudflare klein, never nude). Runware balance ≈ $16.5.
-**On `dev`, not deployed (round 6):**
-- **Anatomy** (owner: "don't confuse which is anal and which is normal vaginal"): Unchained XXX off riding, missionary and anal
-  (`NUDE_LORAS_OFF_WITH`: with it the penis went in below an open, empty vulva 0/8); vaginal acts say "inside her vagina"; anal is
-  drawn from behind with POV Doggy Anal **alone at 1.0** (`ALONE_LORAS`, your test 1: right 6/6 on zoom; with the other LoRAs a vulva
-  was drawn where her anus is 4/5). Nude pictures and blowjobs keep Unchained.
-- **Flash on request** ("with flash", "camera flash", ...): Tushy Raw Filter (`ferasalm:tushyraw@1`) alone at 1.0 in place of the realism
-  LoRAs, its trigger words, flash light, no room picture (the room's lamp light beat the flash).
-- **Variety:** 12 hairstyles (half of Runware pictures; color and bangs stay), golden hour / blue hour / candlelight / overcast light,
-  7 new poses (belly-down, overhead in bed, floor-sit, counter-sit, window-lean, stretch-mirror, kneel-mirror), 23 new outfits.
-
-## Your tests (reported, not committed)
-| Test | Result |
-|---|---|
-| Lower resolution cheaper? | Yes: 576x1024 $0.0017, 768x1344 $0.0025, 1008x1792 / 1792x1008 $0.0034 (more LoRAs or a cold load +$0.0008) |
-| 16:9 blowjob/deepthroat | 3/3 in her mouth, natural length, her face kept. As good as 1:1 (round 5) |
-| 16:9 other pictures | Clothed sofa: two of her side by side (1/1). Riding/missionary wrong, but that was Unchained, not the size |
-| Holding Deepthroat alone at 1.0 | In her mouth 2/2, but her face drifted (older, a tear streak); mixed with the others her face holds |
-| InstaPic out on nude/sex, the other two 0.6 → 0.9 | No visible change on the same seeds (nude 1/1, riding 1/1) |
-| POV Doggy Anal alone at 1.0 | From behind 6/6 right → built in (see Anatomy). On her back: a fused, impossible pose 2/2 |
-"16:19" read as 16:9. /look stays 1:1 for oral pictures as now; the random 9:16 / 16:9 mix isn't built (it drew her twice).
+(round 5; `DAILY_USD` $1, then Cloudflare klein, never nude).
+**On `dev`, not deployed:** round 6 (anatomy fix, flash on request, hairstyles, light, poses, outfits: `docs/CHANGELOG.md`) and round 7:
+- **Cheaper sizes:** 9:16 768x1344 (was 1008x1792). Blowjobs/deepthroats 1:1 (80%) or 16:9; other sex acts 9:16 / 1:1 / 16:9 (40/40/20);
+  everything else 9:16. Measured $0.0025-0.0034 a picture (was $0.0034-0.0042).
+- **Three kinds of picture:** clothed (her body dressed: `body-v2-clothed.jpg`, drawn from the nude body, so the build matches and the
+  head is in proportion: 3/3), nude, sex act. Short prompts: the body comes from image 1, the words only add the fuller arms and pale
+  warm ivory skin; the mole is gone (persona too).
+- **From behind** (doggy, anal, reverse cowgirl): her body from behind (`body-v2-back.jpg`), "seen from behind", no breasts named (doggy 2/2).
+- **Partly naked:** clothes named in a nude or sex picture stay on (t-shirt 2/2, black bra 3/3, white bra 1/3).
+- **PussyDiffusion** on vaginal acts (riding, cowgirl, doggy, missionary): vulva and entry right on zoom 3/3.
+- **/look rebuilt:** DeepSeek (Workers AI) reads the last 8 messages + your words after /look and writes the picture: with her (her face)
+  or without her (where you are, first-person 2/2). "/look nude, missionary sex" now draws that (1/1 nude; penetration not shown).
+- **Not adopted:** deepthroat LoRA alone at 1.0 (her face older 3/3, in her mouth 1/3); it stays with the others at 0.8.
+- **`docs/OPTIONS.md`:** every command, picture word, pose, act, outfit, hairstyle, light, place and LoRA (when, weight, trigger, cost).
 
 ## Waiting on the owner
-- **Deploy round 6?** Anatomy fix, flash, variety (all on `dev`).
-- **16:9 for blowjobs/deepthroats** instead of 1:1, and the 9:16/16:9 mix for the rest (Claude: blowjobs fine either way; the mix
-  needs a "one woman" guard first).
-- **Her tongue out** on riding/doggy/reverse cowgirl: Flux 4 Play draws it whatever the words. Keep, lower its weight, or look for another.
-- Still open: InstaPic everywhere (no visible change now either), ElevenLabs "North Jersey", old branches.
+- **Deploy rounds 6 + 7?**
+- **Her tongue out** on riding/doggy (Flux 4 Play draws it): keep, lower its weight, or another LoRA.
+- Still open: InstaPic everywhere, ElevenLabs "North Jersey", old branches.
 
-## Verified this session (2026-10-08, seventeenth session)
-- `node tools/check.mjs` all 6 ok (new rows: flash LoRAs/trigger/photo, /pic flash light, light words, hairstyle, NUDE_LORAS_OFF_WITH,
-  ALONE_LORAS anal from behind, new mirror shots). 56 pictures on Runware ($0.19), every one read, genitals cropped at full size.
-- Not checked: Telegram, a deploy.
+## Verified this session (2026-10-08, eighteenth session)
+- `node tools/check.mjs` all 6 ok (new rows: v2-clothed / back body, PARTIAL, NAKED_BACK, aspect shapes, WITH_LORAS, deepthroat with the
+  others, /look words/with her/alone/model down). ~40 pictures on Runware through the bot's own code (~$0.12), each read, genitals zoomed.
+- Not checked live: /look's DeepSeek call (the container can't reach Workers AI; mocked in scenarios), Telegram, a deploy.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Your picks above**, then deploy if you want round 6 live. *Effort: low*
-2. **Your Telegram test:** /pic with "with flash", a few hairstyles and lights, riding/missionary/anal/doggy; report misses. *Effort: low*
-3. **Missionary 4/5:** one more wording or LoRA weight bench (zoom crops). *Effort: medium*
-4. **Flux 4 Play tongue:** bench its weight 0.5-0.8 vs the tongue and the pose. *Effort: medium*
-5. **SEX_CUES from real chats:** a scenario row for every /look miss he reports. *Effort: medium*
-6. **After a day live:** /spend vs the dashboards, recall in a real prompt. *Effort: low*
+1. **Deploy** if you want rounds 6 + 7 live. *Effort: low*
+2. **Your Telegram test** with `docs/OPTIONS.md`: /look with and without words (with her, apart, in a sex scene), /pic clothed full body,
+   doggy, a bra kept on during sex; report misses. *Effort: low*
+3. **/look's DeepSeek answers:** after the deploy, read a few in the Worker log (or a workflow call) and tune `PICTURE.LOOK.PROMPT`. *Effort: medium*
+4. **Missionary/riding penetration** shown more often (wording or LoRA weight bench, zoom crops). *Effort: medium*
+5. **Flux 4 Play tongue:** bench its weight 0.5-0.8. *Effort: medium*
+6. **After a day live:** /spend vs the dashboards. *Effort: low*
 7. **Text model** (owner's direction): bench cheaper or better Workers AI models with `OWNER_CHAT`. *Effort: high*
 8. **Old session branches:** list them in `tools/retired-branches.txt` once the owner agrees. *Effort: low*
 
 ## Open questions for the owner
-- Keep the gray tank + leggings body for clothed pictures, or a new clothed body picture?
 - OK to retire the old session branches the sync report keeps listing?
 
 ## Prompt for the next chat (paste as-is)
 > Continue reem-bot. Follow CLAUDE.md (the sync report first; if it lists other branches with work, stop and ask
-> me). Deploy round 6: <yes/no>. Blowjobs 16:9 or 1:1 <...>. Flux 4 Play tongue <...>. My Telegram test: <...>. Then HANDOFF next step 3.
+> me). Deploy rounds 6+7: <yes/no>. My Telegram test: <...>. Flux 4 Play tongue <...>. Then HANDOFF next step 3.

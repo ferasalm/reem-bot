@@ -320,7 +320,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
       const got = (await loras(words))[0][1];
       eq([got.includes(act), Object.keys(R.NUDE_LORAS).some((n) => got.includes(n))], [true, false], `${words}: ${act}, no NUDE_LORAS (NUDE_LORAS_OFF_WITH)`);
     }
-    eq(await loras("the man fucking her ass, anal"), [[R.MODEL, Object.keys(R.ALONE_LORAS)]], "anal: POV Doggy Anal alone (ALONE_LORAS), owner's test 2026-10-08");
+    eq(await loras("the man fucking her ass, anal"), [[R.MODEL, ["ferasalm:povanal@1"]]], "anal: POV Doggy Anal alone (ALONE_LORAS), owner's test 2026-10-08");
     eq((await loras("sucking the man's cock, blowjob"))[0][1].includes(Object.keys(R.NUDE_LORAS)[0]), true, "a blowjob keeps NUDE_LORAS");
     // round 4: Runware's own size and sampler
     sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, "{who} on the couch", { ledger: {} });
@@ -343,7 +343,8 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     P.ROUTE = "runware-klein"; R.SEX_ACTS = true;
     eq(R.BODY, "v2", "Runware's body picture is the owner's new body");
     yes(W.runwareBody() && W.runwareBody().length > 10000, "the v2 body picture is built into face.js");
-    eq(R.BODY_CLOTHED, "default", "clothed pictures: the clothed body picture (the nude one made unnamed outfits nude)");
+    eq(R.BODY_CLOTHED, "v2-clothed", "clothed pictures: the owner's body dressed (the nude one made unnamed outfits nude; the old clothed one was heavier, round 7)");
+    yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");
     yes(clothed.includes(R.DRESSED) && !clothed.includes(R.NAKED), "clothed: DRESSED, no NAKED");
@@ -351,7 +352,11 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(W.picWords("you in my shirt"), "her in her shirt", "/pic without a sex act: unchanged");
     yes(W.mayDraw("her giving a blowjob") && W.sexAct("her giving a blowjob"), "a sex act is drawn with the switch on");
     const act = await prompt("riding the man on the bed");
-    yes(act.includes(R.POV_MAN) && act.includes(R.NAKED) === false, "a sex act: POV_MAN added", act.slice(-200));
+    yes(act.includes(R.POV_MAN) && act.includes(R.NAKED), "a sex act: POV_MAN added, and she is naked (round 7)", act.slice(-200));
+    const part = await prompt("missionary sex, naked from the waist down, still wearing her black bra over her breasts");
+    yes(part.includes(R.PARTIAL) && !part.includes(R.NAKED), "partly naked in a sex act: PARTIAL, not NAKED (round 7)", part.slice(-300));
+    const dog = await prompt("the man fucking her doggy style on the bed");
+    yes(dog.includes(R.NAKED_BACK) && !dog.includes(R.NAKED) && dog.includes("seen from behind: the same back") && !/breast/i.test(dog) && W.runwareBody("back"), "doggy: from behind, no breasts (round 7)", dog);
     const nude = await prompt("naked on the bed, her pussy in view");
     yes(nude.includes(R.NAKED) && !nude.includes(R.POV_MAN), "nude, no act: NAKED, no POV_MAN");
     eq(W.scenePicturePrompt("*She straddles you on the couch, riding you slowly, her hands on your chest.*"), "She straddles the man on the couch, riding the man slowly, her hands on the man's chest.", "scene: a sex-act sentence about him stays, he is the man");
@@ -378,9 +383,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     let lk = await look("*She pulls you down on top of her, legs wrapping around your hips as you push inside her.*");
     yes(lk && lk.lora.some((l) => l.model === "ferasalm:missionary@1") && lk.positivePrompt.includes(W.CONFIG.PICTURE.SCENE_ACT_STYLE) && !lk.positivePrompt.includes("She is wearing") && lk.positivePrompt.includes("Sex act: missionary."), "/look missionary in her words: Missionary POV, his-eyes style, no clothes", lk && lk.positivePrompt.slice(0, 200));
     lk = await look("*She kneels between your legs and takes you into her mouth, slow.*");
-    yes(lk && lk.lora.some((l) => l.model === "ferasalm:povdt@1") && lk.width === R.ORAL_WIDTH && lk.height === R.ORAL_HEIGHT, "/look blowjob in her words: Holding Deepthroat POV at the oral size (1:1)", lk && [lk.width, lk.height]);
+    yes(lk && lk.lora.some((l) => l.model === "ferasalm:povdt@1") && Object.keys(R.ASPECTS.ORAL).map((k) => R.SIZES[k]).includes(`${lk.width}x${lk.height}`), "/look blowjob in her words: Holding Deepthroat POV, 1:1 or 16:9 (round 7)", lk && [lk.width, lk.height]);
     c = await call("riding the man on the bed", "pic");
-    yes(sent[0].width === R.WIDTH && sent[0].height === R.HEIGHT, "other sex acts keep WIDTH x HEIGHT (9:16)", [sent[0].width, sent[0].height]);
+    yes(Object.keys(R.ASPECTS.ACT).map((k) => R.SIZES[k]).includes(`${sent[0].width}x${sent[0].height}`), "other sex acts: 9:16, 1:1 or 16:9 (round 7)", [sent[0].width, sent[0].height]);
+    c = await call("on the couch in a sweater", "pic");
+    yes(sent[0].width === R.WIDTH && sent[0].height === R.HEIGHT && R.SIZES["9:16"] === `${R.WIDTH}x${R.HEIGHT}`, "every other picture: 9:16", [sent[0].width, sent[0].height]);
+    c = await call("deepthroating the man", "pic");
+    yes(c.loras.includes("ferasalm:povdt@1") && c.loras.length > 1, "deepthroat: Holding Deepthroat POV with the others (alone drifted her face 3/3, round 7)", c.loras);
     c = await call("smiling at the camera on the couch", "pic");
     yes(!c.text.includes("Her face: "), "words that name her face: no MOODS pick", c.text);
     c = await call("on the couch", "pic");
@@ -394,7 +403,9 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("naked on the bed, legs spread", "pic");
     yes(c.loras.includes("ferasalm:pussyd@1") && c.text.startsWith("instapic. hairy pussy"), "legs spread, no act: PussyDiffusion and its trigger first", c.loras);
     c = await call("riding the man on the bed, her pussy spread", "pic");
-    yes(!c.loras.includes("ferasalm:pussyd@1") && !c.text.includes("hairy pussy"), "pussy in a sex act: no PussyDiffusion (Unchained draws it)", c.loras);
+    yes(c.loras.includes("ferasalm:pussyd@1") && c.text.includes("hairy pussy"), "a vaginal sex act: PussyDiffusion (WITH_LORAS, round 7)", c.loras);
+    c = await call("missionary on the bed", "pic");
+    yes(c.loras.includes("ferasalm:pussyd@1") && c.loras.includes("ferasalm:missionary@1") && c.loras.length <= 6, "missionary: PussyDiffusion too", c.loras);
     c = await call("naked, holding the man's erect penis in her hand", "pic");
     yes(c.loras.includes("ferasalm:penis@1"), "a penis without an act LoRA: General Penis", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");

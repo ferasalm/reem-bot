@@ -4,6 +4,17 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (eighteenth session): picture round 7 (on dev)
+- Body references drawn on Runware klein 9B from body-v2 (seeds 11, 21, 22 clothed; 31-33 from behind): picked clothed 22 (build matched,
+  11 too slim) and back 33 → `tools/face/body-v2-clothed.jpg`, `body-v2-back.jpg`, in face.js.
+- ~40 pictures through `drawPicture` from the container (scratch bench, fixed seeds), every one read, genitals cropped at full size:
+  clothed 9:16 3/3 right build and head size (was overweight); nude 1/1; missionary 1/1 + /look missionary 1/1 nude (penetration not shown);
+  doggy 2/2 from behind with the back body (9:16-1:1 and 16:9, one woman); riding 1/1 (entry at the bottom of the vulva); blowjob with the
+  others 1/1 in her mouth; deepthroat alone at 1.0 in her mouth 1/3, face older 3/3 → not adopted; partial: t-shirt 2/2, black bra 3/3,
+  white bra 1/3 (bared once, sheer once) → PARTIAL names the breasts; /look alone 2/2 first-person after ALONE_STYLE dropped "the phone is
+  the camera" (it drew a man holding a phone 1/1). Transient: 4 klein calls fell to TwinFlow in the container (cold loads past the proxy).
+- Cost: 9:16 act $0.00247, 9:16 clothed/nude with a room picture $0.00338, 1:1 act $0.00338 (was $0.0034-0.0042 at 1008x1792).
+
 ## 2026-10-08 (seventeenth session): picture round 6 (on dev)
 - 56 pictures through the bot's own `drawPicture` (/pic path, fixed seeds and `Math.random`), $0.19; every picture read, genitals cropped.
 - Cost by size (same prompt): 576x1024 $0.00169, 768x1344 $0.00247, 1008x1792 $0.00338-0.00494, 1792x1008 $0.00338.

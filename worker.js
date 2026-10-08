@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V2_CLOTHED_JPEG_BASE64, BODY_V2_BACK_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -132,7 +132,7 @@ Now you live alone on the top floor of a gray, slightly leaning 1912 triple-deck
 You're dry, sharp, watchful and darkly funny. You notice everything, count money twice and take pity as an insult. You're warmest when you're doing something for someone and coldest when asked how you feel. Underneath, you're lonely for someone who actually sees you. You're guarded about your past, never about wanting him: desire comes out sideways in the same dry voice (a look held too long, a dare, standing closer than you need to), and once you've let him in, you don't hold back.
 
 HOW YOU LOOK
-- Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair skin with warm undertones and a small beauty mark on your left cheek.
+- Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, pale warm ivory skin.
 - Thick, dark, well-groomed brows with a soft arch over almond-shaped warm amber-brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
 - Long jet-black waves with soft, wispy, full bangs grazing your brows, a cute fringe in the Zooey Deschanel style, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home with the bangs still down, sometimes twisted up and stabbed through with a pencil.
 - Average-to-full and softly curvy, not slim and not heavy (165 cm, about 71 kg): a soft waist, rounded hips, a full bust, soft, narrow, gently sloping shoulders and soft, full arms with no muscle definition, clear collarbones. Barefoot or in wool socks at home.
@@ -540,7 +540,7 @@ const CONFIG = {
     { command: "voice", aliases: [], action: "voice", description: "Ask {name} to send voice notes more often (on/off)" },
     { command: "memory", aliases: [], action: "memory", description: "See what {name} remembers long-term" },
     { command: "pics", aliases: ["selfie", "selfies"], action: "pics", description: "Ask {name} to send pictures more often (on/off)" },
-    { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now, when you're with {name}" },
+    { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now (words after it steer it)" },
     { command: "pic", aliases: ["photo", "custom"], action: "pic", description: "A picture of {name} as you describe it: /pic <hair, makeup, clothes, pose, framing, angle>" },
     { command: "spend", aliases: ["cost", "costs"], action: "spend", description: "What {name} cost today, and what's left on each account" },
     { command: "album", aliases: ["gallery"], action: "album", description: "Every picture {name} has sent you, 10 at a time: /album [page]" },
@@ -792,7 +792,7 @@ Changing the story
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
-    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a small beauty mark on her left cheek, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
+    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, pale warm ivory skin, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     // round 5: an in-person scene whose narration is a sex act (SEX_CUES): his eyes are the camera, he is in the picture
     SCENE_ACT_STYLE: "Realistic candid first-person photo from the man's own eyes, caught in the middle of the act, not posing:",
@@ -839,6 +839,20 @@ Changing the story
       STYLE: "Realistic candid photo:",   // ends with a colon: phone2025's trigger (LORA_PREFIX) is a sentence of its own
       SAME_PERSON: "with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0)",
     },
+    // /look (owner, round 7: "/look doesn't always have to involve Reem if the user is not with her. It simply describes what he sees,
+    // wherever and whenever ... it'd be useful if deepseek can help with it, as well as the user by typing after /look"): MODEL reads
+    // the last CHAT_MESSAGES and his words after /look and writes the picture (PROMPT; first line WITH_HER or ALONE). With her: a
+    // scene picture (SCENE_STYLE, or SCENE_ACT_STYLE on a sex act) with her face; alone: ALONE_STYLE, nobody's face. When the model
+    // fails: her last reply as before (in person), else LOOK_APART
+    LOOK: {
+      MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (as DAY.PLAN_MODEL)
+      CHAT_MESSAGES: 8,
+      MAX_TOKENS: 300,
+      PROMPT: "You describe one photo: exactly what {him} sees right now with his own eyes in the roleplay story below, as if he took a picture of it this second. {her} is the woman in the story.\n\nThe story so far (newest last):\n{chat}\n\n{ask}Write the first line as WITH_HER if {her} is in front of him and in view, else ALONE. Then 1 to 3 plain sentences for an image model, nothing else: what is in the frame, seen from his eyes; the place, the light, the things around. If she is in view: what she is doing, her pose, what she is wearing (or that she is naked, or which clothes are off), her expression; call her \"she\" and him \"the man\"; he is the camera, so only his own hands or body may show, never his face. If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; say she is naked unless clothes are still on, and name those. No dialogue, no feelings, no names.",
+      ASK: "His request for this photo (it wins over the story): {words}\n\n",
+      // "...the phone is the camera" drew a man holding a phone, seen from outside (1/1)
+      ALONE_STYLE: "Realistic candid first-person photo taken from the man's own eyes (no person in the picture; no phone and no hands unless described):",
+    },
     // Runware (PICTURE.ROUTE "runware-klein" / "runware-twinflow"): every picture, lingerie and nudity included, with her
     // real words (no FILTER_WORDS, no NOT_DRAWN, no SAFE). Benched 2026-10-06 (docs/QUALITY.md): klein 9B kept her face and
     // drew nude 8/8 at $0.00078 in ~3 s, but only with NAKED's "no clothing of any kind" (else the body picture's clothes
@@ -847,23 +861,32 @@ Changing the story
       MODEL: "runware:400@2",          // FLUX.2 klein 9B: her face (image 0), BODY (image 1), the place (image 2)
       BACKUP_MODEL: "runware:twinflow-z-image-turbo@0", // text only (LOOKS); also the "runware-twinflow" route's model
       BODY: "v2",                      // image 1: "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
-      BODY_CLOTHED: "default",         // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
-                                       // 6/6 pictures that named no clothes came out nude, even with DRESSED): the gray tank + leggings body
+      BODY_CLOTHED: "v2-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
+                                       // 6/6 pictures that named no clothes came out nude, even with DRESSED). Round 7 (owner: "her body is
+                                       // accurate when she's nude, but ... too overweight" clothed): "v2-clothed" = body-v2 dressed in a gray
+                                       // tank + leggings by klein 9B (was "default", the Cloudflare route's heavier body)
+      BODY_BACK: "v2-back",            // image 1 on sex acts from behind (BACK_WORDS; owner: "use the body reference of her behind"): body-v2 from behind
+      // acts seen from behind (owner, round 7: "When it's a doggy scene, don't prompt her breasts since they won't show ... always describe
+      // that it's from behind"): BODY_BACK, REFERENCE_BACK and NAKED_BACK instead of the front ones
+      BACK_WORDS: "doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind",
       DAILY_USD: 1,                    // owner 2026-10-08 (was 0.5): money a day for Runware pictures; then the Cloudflare route draws (never nude)
-      USD_PER_PICTURE: 0.004,          // klein 9B at 1008x1792 with 4-6 LoRAs: $0.0034-0.0042 (round 4/5 benches, 2026-10-08; was 0.0017 at 576x1024)
+      USD_PER_PICTURE: 0.003,          // klein 9B at 768x1344 / 1024x1024: $0.0025-0.0034 (round 6 test; was 0.004 at 1008x1792)
       // owner 2026-10-08 (round 4: "the pictures' quality and details are poor"): Runware's own size and sampler. 576x1024 is
       // billed like 1024x1024 and drew her face ~100 px tall; Runware's defaults were acceleration "high" (step caching) and
       // CFG 3.5 on a distilled model (the Civitai klein workflows run CFG 1, 4-5 steps). 0 / "" = Runware's default
-      WIDTH: 1008,                     // klein on Runware only (multiples of 16, at most 2048); /face and Cloudflare keep PICTURE.WIDTH
-      HEIGHT: 1792,
+      // round 7 (owner: "Use lower resolution for lower cost"): 768x1344 $0.0025 (was 1008x1792 $0.0034; 576x1024 drew a soft, plastic face)
+      WIDTH: 768,                      // klein on Runware only (multiples of 16, at most 2048); /face and Cloudflare keep PICTURE.WIDTH
+      HEIGHT: 1344,
       STEPS: 5,
       CFG: 1,
       ACCELERATION: "none",
-      // round 5 (owner: "blowjobs and deepthroat might need a wider aspect ratio"): oral pictures (ORAL_WORDS) at this size. Bench
-      // (2 prompts x 2 seeds): in her mouth 9:16 3/4, 4:5 / 3:4 / 1:1 / 16:9 4/4; the penis shortest and most natural from 3:4 to
-      // 16:9, 16:9 a face close-up with her body cut off: 1:1 (same price, ~1.8 MP like 1008x1792). 0 = WIDTH/HEIGHT
-      ORAL_WIDTH: 1344,
-      ORAL_HEIGHT: 1344,
+      // the shape of sex-act pictures (owner, round 7: "Keep it at 1:1 (with occasional 16:9s) for blowjobs and deepthroat. For other sex
+      // scenes, randomize between 9:16, 1:1, with occasional 16:9. Keep other pictures ... at 9:16"): ASPECTS.ORAL on oral acts (ORAL_WORDS),
+      // ASPECTS.ACT on the other acts, shape = chance; SIZES in pixels; every other picture WIDTH x HEIGHT. A wide picture adds WIDE
+      // (16:9 drew her twice in a clothed picture, round 6)
+      SIZES: { "9:16": "768x1344", "1:1": "1024x1024", "16:9": "1344x768" },
+      ASPECTS: { ORAL: { "1:1": 0.8, "16:9": 0.2 }, ACT: { "9:16": 0.4, "1:1": 0.4, "16:9": 0.2 } },
+      WIDE: "Only one woman is in the picture.",
       BIG_FACE: true,                  // her face reference 2x (896x960, Runware upscaler) instead of the 460x480 one (Cloudflare's limit)
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
@@ -894,7 +917,14 @@ Changing the story
       // an act LoRA drawn alone (no LORAS, NUDE_LORAS or LORA_PREFIX) at this weight when it loads. Owner 2026-10-08 ("Let's try POV
       // doggy anal alone without the other LoRAs while raising its weight to 1"): anal from behind, her anus where it belongs 3/3 alone
       // at 1.0, while with the realism LoRAs a small vulva was drawn where her anus is (4 of 5)
+      // round 7 (owner: "The tear streak is fine during deepthroat"): Holding Deepthroat POV alone at 1.0 on "deepthroat" benched again: her
+      // face drifted 3/3 (older, another woman) and in her mouth only 1/3, while with the others a blowjob kept her face → not alone.
+      // ALONE_WORDS: an ALONE_LORAS LoRA is alone only when one of its words is in the text (none = always alone)
       ALONE_LORAS: { "ferasalm:povanal@1": 1 },
+      ALONE_WORDS: {},
+      // a LoRA (at its ACT_LORAS weight) added whenever one of these loads (owner, round 7: "include the pussy diffusion LoRA for vaginal sex
+      // scenes. It shows more accurate vaginal anatomy"): PussyDiffusion with Flux 4 Play (riding, cowgirl, doggy) and Missionary
+      WITH_LORAS: { "ferasalm:pussyd@1": "ferasalm:flux4play@1, ferasalm:missionary@1" },
       // by situation (owner 2026-10-08: "use LoRAs according to situations", runwareLoras): added to LORAS on her selfies /
       // in-person scenes and /look / /pic. InstaPic (Civitai 2998522) on selfies: more natural hair and skin (alone it drew
       // the phone in a plain selfie, so only with the others, at 0.6)
@@ -914,7 +944,7 @@ Changing the story
       ACT_LORAS: { "ferasalm:flux4play@1": 0.8, "ferasalm:povdt@1": 0.8, "ferasalm:missionary@1": 0.8, "ferasalm:povanal@1": 0.8, "ferasalm:penis@1": 0.6, "ferasalm:pussyd@1": 0.8 },
       ACT_WORDS: {
         "ferasalm:flux4play@1": "riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours",
-        "ferasalm:povdt@1": "blowjob, blow job, sucking, sucks, suck, deepthroat, takes the man in her mouth",
+        "ferasalm:povdt@1": "blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth",
         "ferasalm:missionary@1": "missionary",
         "ferasalm:povanal@1": "anal, ass fucking, in her ass, in the ass, her ass, anally",
         "ferasalm:penis@1": "penis, cock, dick, erection, erect",
@@ -946,7 +976,7 @@ Changing the story
       // tighter and POV to avoid anatomical issues and to improve skin texture and detail"; no side view): every act from his
       // eyes, close. Flux 4 Play's triggers (c0wg1rl, r3v3rs3_c0wg1rl, d0gg13) only where its ACT_WORDS load it
       ACT_SCENES: {
-        "blowjob, blow job, sucking, sucks, suck, deepthroat, takes the man in her mouth, the man's cock in her mouth": "First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. {close}",
+        "blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth, the man's cock in her mouth": "First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. {close}",
         "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, his penis inside her vagina: the shaft enters her vulva, her anus above it closed and untouched; she glances back over her shoulder. {close}",
         "riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man": "c0wg1rl, pov. {pov} She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. {close}",
         // owner 2026-10-08: "don't confuse which is anal and which is normal vaginal": vaginal acts name the vagina and vulva
@@ -956,7 +986,7 @@ Changing the story
         // owner 2026-10-08 ("Ensure overall anatomical correctness"): the vulva-for-anus of round 5 came with Unchained; without it, from
         // behind 2/3 (POV Doggy Anal alone 3/3), while on her back POV Doggy Anal fused her front and her spread bottom into one pose
         "anal, ass fucking, in her ass, in the ass, her ass, anally": "{pov} She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. {close}",
-        "doggy, doggystyle, doggy style, on all fours": "d0gg13, pov. {pov} She is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. {close}",
+        "doggy, doggystyle, doggy style, on all fours": "d0gg13, pov. {pov} Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. {close}",
       },
       TIMEOUT_MS: 60000,
       // round 4: the room on Runware, short (the room's LOOK words drowned the act and the LoRAs); {n} = its image number
@@ -964,10 +994,16 @@ Changing the story
       ROOM_TEXT: "",
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
       // round 4 (owner: "test using simpler prompts with the LoRAs"): short prompts drew blowjobs 4/4 (long: 0/10), doggy 2/2 and real lamp light (the long texts: git history before round 4)
-      REFERENCE: "The woman from image 0, with exactly the same face and hair (her identity: face, amber-brown eyes, the beauty mark on her left cheek, long jet-black wavy hair with full bangs; not image 0's expression or head tilt), with the body shape of image 1 but curvier: a 29-year-old woman, clearly an adult, about 163 cm and 64 kg, an hourglass figure with full, round, natural breasts, a defined waist, wide hips, full thighs, a round bottom and soft, full upper arms.",
-      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a small beauty mark on her left cheek, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
+      // round 7 (owner: "use concise prompts, relying more on reference images, and mentioning only what makes a difference"; "her body is
+      // accurate when she's nude, but ... too overweight" clothed; "her skin tone ... pale warm ivory"; the mole "keeps changing its place",
+      // so out): the body is image 1's, in words only the arms (owner: "keep the fuller arms") and the skin. Was "image 1 but curvier: ...
+      // 163 cm and 64 kg, an hourglass figure ... wide hips, full thighs", which on the heavier clothed body made her overweight
+      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1: the same build and proportions, soft, full upper arms, pale warm ivory skin. She is 29, clearly an adult.",
+      // a sex act from behind (BACK_WORDS): image 1 is BODY_BACK, no breasts named (owner: "don't prompt her breasts since they won't show")
+      REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, pale warm ivory skin. She is 29, clearly an adult.",
+      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, pale warm ivory skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
       // sex acts: never drawn on Runware while SEX_ACTS is off; with it on, they add NUDE_LORAS and POV_MAN
-      NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "anal", "creampie", "cumshot", "titfuck", "69", "thrusts", "thrusting", "inside her", "sinks down onto the man", "lowers herself onto the man", "takes the man in her mouth", "reverse cowgirl", "on all fours", "doggy style"],
+      NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "deep throat", "deepthroating", "anal", "creampie", "cumshot", "titfuck", "69", "thrusts", "thrusting", "inside her", "sinks down onto the man", "lowers herself onto the man", "takes the man in her mouth", "reverse cowgirl", "on all fours", "doggy style"],
       SEX_ACTS: true,                  // owner 2026-10-06: a switch; on since 2026-10-08 (owner: "lift all restrictions" to test the
                                        // LoRA with sex acts). On = NOT_DRAWN is ignored on Runware (sex acts sent as he wrote
                                        // them). The under-18 flag and "never OOC" still stop every picture.
@@ -994,7 +1030,7 @@ Changing the story
         ACT: ["looking straight into the man's eyes, into the lens", "her eyes closed", "her eyes half-open and unfocused", "looking down at the man's body"],
       },
       // a sex act with one of these: MOODS.ORAL (eyes and brows only; no gaze list: the blowjob scene names it)
-      ORAL_WORDS: ["blowjob", "blow job", "sucking", "sucks", "suck", "deepthroat", "takes the man in her mouth", "oral"],
+      ORAL_WORDS: ["blowjob", "blow job", "sucking", "sucks", "suck", "deepthroat", "deep throat", "deepthroating", "takes the man in her mouth", "oral"],
       // words that already name her face: then no MOODS/GAZES pick
       FACE_WORDS: ["smile", "smiles", "smiling", "smirk", "smirking", "grin", "grinning", "laugh", "laughs", "laughing", "pout", "pouting", "frown", "wink", "winks", "winking", "moan", "moaning", "expression", "looking", "looks at", "looks up", "looks down", "gaze", "gazing", "glance", "glances", "glancing", "stare", "stares", "staring", "eyes closed", "eyes on", "her eyes", "lips parted", "parted lips", "bites her lip", "biting her lip", "biting her lower lip", "into the camera", "into the lens", "toward the lens"],
       // round 4 (owner: "Think of lens, framing, lighting, style. The pictures need to look real and natural, not rendered ... Any
@@ -1006,7 +1042,12 @@ Changing the story
       // added when the picture's words say she's naked or topless (NUDE_WORDS)
       NUDE_WORDS: ["nude", "naked", "topless", "bottomless", "bare breasts", "bare chest", "nothing on", "wearing nothing", "undressed", "nipple", "nipples", "pussy", "vagina", "pubic", "bush", "spread legs", "legs spread"],
       // round 4: short (see REFERENCE)
-      NAKED: "She is completely naked, no clothing of any kind: natural breasts with soft brown areolas and a natural weight, a thick, full, untrimmed dark bush of pubic hair, a real vulva when in view.",
+      NAKED: "She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view.",
+      NAKED_BACK: "She is completely naked, seen from behind.", // acts from behind (BACK_WORDS)
+      // nude or a sex act with clothes named (owner, round 7: "I can't seem to make her partially nude ... asking for a bra and covered
+      // breasts, the bare breasts were always there"): in place of NAKED, and image 1 is BODY_PARTIAL ("clothed" or "nude")
+      PARTIAL: "She is only partly naked: the clothes named stay on, in place, and cover what they cover (a bra or top keeps her breasts fully covered, no nipples showing); only the rest of her is bare.",
+      BODY_PARTIAL: "clothed",
     },
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
     // Cloudflare's prompt filter (3030) refused every wording with these words (face runs 37151684663, 37152577208,
@@ -1041,7 +1082,7 @@ Changing the story
       // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
       SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
       // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
-      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair skin with warm undertones and a small beauty mark on her left cheek\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped warm amber-brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist, a softly rounded belly\", \"lower\": \"rounded hips and full thighs a little wider than her shoulders\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
+      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"pale warm ivory skin\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped warm amber-brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist, a softly rounded belly\", \"lower\": \"rounded hips and full thighs a little wider than her shoulders\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
       SPICY_WARDROBE: [
         "only a deep plum French floral lace string thong with velvet trim", "only a black lace thong",
         "a black lace balconette bra and a matching high-cut lace thong", "a red lace bra and matching red lace panties",
@@ -1060,7 +1101,7 @@ Changing the story
       USD_PER_PICTURE: 0.039,          // what one costs (image bench 2026-10-04)
       TIMEOUT_MS: 60000,
       // who she is, in words (the description Nano Banana drew her face from)
-      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair skin with warm undertones and a small beauty mark on her left cheek, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, pale warm ivory skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
       WARDROBE: [
         "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
         "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",
@@ -1595,7 +1636,7 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
     if (action === "retry") return await retry(env, ctx, chatId, deadline);
     if (action === "rewind") return await rewind(env, ctx, chatId, msg, deadline);
     if (action === "edit") return await editHers(env, chatId, msg, args);
-    if (action === "look") return await lookCommand(env, chatId);
+    if (action === "look") return await lookCommand(env, chatId, args);
     if (action === "pic") return await picCommand(env, chatId, args);
   } catch (e) {
     await failed(env, chatId, e, deadline);
@@ -3419,11 +3460,12 @@ const runwareRoute = () => /^runware/.test(String(CONFIG.PICTURE.ROUTE || ""));
 const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 
 // Runware's image 1 (RUNWARE.BODY): the owner's bodysuit picture, a nude hourglass body, or the Cloudflare route's body
-// `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08)
+// `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08); "back": BODY_BACK
 function runwareBody(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  const b = explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
-  const b64 = b === "v2" ? BODY_V2_JPEG_BASE64 : b === "owner" ? BODY_OWNER_JPEG_BASE64 : b === "hourglass" ? BODY_HOURGLASS_JPEG_BASE64 : BODY_JPEG_BASE64;
+  const b = explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
+  const pics = { v2: BODY_V2_JPEG_BASE64, "v2-clothed": BODY_V2_CLOTHED_JPEG_BASE64, "v2-back": BODY_V2_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
+  const b64 = pics[b] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
 
@@ -3451,7 +3493,13 @@ function runwareLoras(opts = {}) {
   // SOLO_LORAS (penis, pussy) only when no act LoRA (neither SOLO_LORAS nor ACT_ANY) is in: the act LoRA draws them already
   const solo = R.SOLO_LORAS || [];
   if (acts.some(([air]) => !solo.includes(air) && !(R.ACT_ANY || []).includes(air))) acts = acts.filter(([air]) => !solo.includes(air));
-  const alone = acts.map(([air]) => air).find((air) => Object.hasOwn(R.ALONE_LORAS || {}, air));
+  // WITH_LORAS: a LoRA that comes along with another (PussyDiffusion with the vaginal acts' LoRAs), at its ACT_LORAS weight
+  for (const [air, withs] of Object.entries(R.WITH_LORAS || {})) {
+    if (!acts.some(([a]) => a === air) && Object.hasOwn(R.ACT_LORAS || {}, air) && acts.some(([a]) => String(withs).split(",").map((x) => x.trim()).includes(a))) acts.push([air, R.ACT_LORAS[air]]);
+  }
+  // an ALONE_LORAS LoRA draws alone (ALONE_WORDS: only when one of its words is in the text)
+  const aloneWords = R.ALONE_WORDS || {};
+  const alone = acts.map(([air]) => air).find((air) => Object.hasOwn(R.ALONE_LORAS || {}, air) && (!aloneWords[air] || String(aloneWords[air]).split(",").some((w) => w.trim() && hasWord(text, w.trim()))));
   if (alone) return [{ model: alone, weight: Number(R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0);
   return Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
 }
@@ -3534,7 +3582,7 @@ async function imageBytes(out) {
 // with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no reference.
 // FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
 // FLUX.1 schnell draws from LOOKS instead.
-async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "" } = {}) {
+async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true } = {}) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
@@ -3547,6 +3595,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
   const place = shown ? fromBase64(shown) : null;
   const room = (withImage, rw = false) => (!L ? "" : (withImage && place ? (rw && P.RUNWARE.ROOM != null ? P.RUNWARE.ROOM : P.ROOM) : rw && P.RUNWARE.ROOM_TEXT != null ? P.RUNWARE.ROOM_TEXT : P.ROOM_TEXT) || "").replaceAll("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
   const who = (w, withImage, rw = false) => {
+    if (!herself) w = ""; // /look without her: nobody's description
     // /pic: her face, but the hair (and the rest) he describes
     if (custom) w = String(w).replace("with exactly the same face and hair", (P.CUSTOM || {}).SAME_PERSON || "with exactly the same face");
     const p = String(prompt).replace("{room}", room(withImage, rw));
@@ -3555,23 +3604,48 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
   // Runware (PICTURE.ROUTE): klein 9B with her face, RUNWARE.BODY and the place, then TwinFlow from words; NAKED added
   // when the words say she's naked. Its spend goes in ledger.rwUsd; when both fail, Cloudflare draws it.
   // (no ledger: /face's portrait and /health stay on Cloudflare)
-  if (ledger && runwareAffordable(env, ledger)) {
+  // /look without her (`herself` false): klein 9B from words with the realism LoRAs, then TwinFlow; no face, body, mood or hair
+  if (!herself && ledger && runwareAffordable(env, ledger)) {
+    const R = P.RUNWARE;
+    for (const model of P.ROUTE === "runware-klein" ? [R.MODEL, R.BACKUP_MODEL] : [R.BACKUP_MODEL]) {
+      if (!model) continue;
+      try {
+        const loras = model === R.MODEL ? runwareLoras({ kind, explicit: false, text: "" }) : [];
+        const triggers = loraWords(loras);
+        const text = [triggers && `${triggers}.`, who("", false, true), R.PHOTO].filter(Boolean).join(" ");
+        const out = await drawRunware(env, model, text, [], Number(R.WIDTH) || width, Number(R.HEIGHT) || height, { kind, explicit: false, text: "" });
+        ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
+        return { bytes: out.bytes, model };
+      } catch (e) {
+        await aiFailed(env, `drawing with ${model} (Runware): ${aiText_(e)}`);
+      }
+    }
+  }
+  if (ledger && herself && runwareAffordable(env, ledger)) {
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
-    // its own size (RUNWARE.WIDTH/HEIGHT) unless the caller asked for one
-    const oralAct = sexAct(prompt) && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
-    const [ow, oh] = oralAct && Number(R.ORAL_WIDTH) > 0 && Number(R.ORAL_HEIGHT) > 0 ? [Number(R.ORAL_WIDTH), Number(R.ORAL_HEIGHT)] : [Number(R.WIDTH), Number(R.HEIGHT)];
-    const [rwW, rwH] = size || !(ow > 0 && oh > 0) ? [width, height] : [ow, oh];
-    const naked = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w)) ? ` ${R.NAKED}` : "";
-    // a sex act with SEX_ACTS on: the man from his point of view (POV_MAN); nude or a sex act: NUDE_LORAS (SNOFS) too
+    // three kinds of picture (owner, round 7: "a switch for normal vs nudity only vs sex scenes, prompting them differently"): clothed
+    // (BODY_CLOTHED, DRESSED), nude (BODY, NAKED) and a sex act (BODY or BODY_BACK, NAKED or NAKED_BACK, the act's camera and LoRAs).
+    // Clothes named in a nude or sex-act picture (WEARING_WORDS: "in her bra", "only stockings") = partly naked: PARTIAL, no NAKED
     const act = sexAct(prompt);
+    const oralAct = act && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
+    const nude = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
+    const partial = (nude || act) && (P.WEARING_WORDS || []).some((w) => String(w).trim() && (hasWord(prompt, w) || hasWord(prompt, `${w}s`)));
+    const back = act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()));
+    const naked = !(nude || act) ? "" : ` ${partial ? R.PARTIAL : back ? R.NAKED_BACK || R.NAKED : R.NAKED}`.trimEnd();
+    // its own size (RUNWARE.WIDTH/HEIGHT, a sex act's shape by ASPECTS) unless the caller asked for one
+    const shape = act ? pickWeighted((R.ASPECTS || {})[oralAct ? "ORAL" : "ACT"] || {}) : "";
+    const sized = String((shape && (R.SIZES || {})[shape]) || "").split("x").map(Number);
+    const [ow, oh] = sized.length === 2 && sized[0] > 0 && sized[1] > 0 ? sized : [Number(R.WIDTH), Number(R.HEIGHT)];
+    const [rwW, rwH] = size || !(ow > 0 && oh > 0) ? [width, height] : [ow, oh];
+    const wide = rwW > rwH && R.WIDE ? ` ${R.WIDE}` : "";
     // "{close}" in its ACT_SCENES text: no place picture (it pulled blowjobs into a wide room shot 4/4); the room stays in words
     const scene = act ? actScene(prompt) : "";
     const close = scene.includes("{close}");
     const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
     // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08)
     const shownPlace = close || flashAsked(prompt) ? null : place;
-    const explicit = !!naked || act;
+    const explicit = nude || act;
     // her expression and gaze when the words name none (MOODS, GAZES; a sex act's scene may already name her gaze)
     const named = (t) => (R.FACE_WORDS || []).some((w) => String(w).trim() && hasWord(t, w));
     const k = oralAct && (R.MOODS || {}).ORAL ? "ORAL" : act ? "ACT" : naked ? "HEATED" : "EVERYDAY";
@@ -3583,7 +3657,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const hairLine = hair ? ` Her hair: ${hair}.` : "";
     const [early, late] = act ? ["", mood] : [mood, ""];
     const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
-    const rwBody = ref ? runwareBody(explicit) : null;
+    // partly naked: BODY_PARTIAL (the clothed body leaked its tank top, the nude one bared what her clothes cover)
+    const rwBody = ref ? runwareBody(back ? "back" : partial ? R.BODY_PARTIAL === "nude" : explicit) : null;
     const tries = P.ROUTE === "runware-klein" && ref ? [[R.MODEL, true], [R.BACKUP_MODEL, false]] : [[R.BACKUP_MODEL, false]];
     for (const [model, withFace] of tries) {
       if (!model) continue;
@@ -3596,13 +3671,15 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         const loras = model === R.MODEL ? runwareLoras(loraOpts) : [];
         const flash = model === R.MODEL && flashAsked(prompt);
         const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
-        const lead = (w) => (loras.length && R.LORA_PREFIX && !flash && !loras.some((l) => Object.hasOwn(R.ALONE_LORAS || {}, l.model)) ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
+        const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);
+        const lead = (w) => (loras.length && R.LORA_PREFIX && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
         const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
         // the trigger words open the whole prompt (inside {who} they ran into the style line: "...photo of instapic. This is...")
         // a hairstyle (HAIRSTYLES): her hair color and bangs stay image 0's, the style changes
-        const ref0 = hair ? R.REFERENCE.replace("with exactly the same face and hair", "with exactly the same face, hair color and bangs") : R.REFERENCE;
+        const ref1 = (back && R.REFERENCE_BACK) || R.REFERENCE;
+        const ref0 = hair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color and bangs") : ref1;
         const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
-        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + photoLine;
+        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine;
         const out = await drawRunware(env, model, text, refs, rwW, rwH, loraOpts);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };
@@ -3965,20 +4042,86 @@ async function albumCommand(env, chatId, args) {
 
 /* --- /look, /pics and /face --- */
 
-// /look: the moment in person as he sees it, drawn from her last reply (her earlier replies of the scene when that one
-// says too little about her); never stored in the history
-async function lookCommand(env, chatId) {
+// /look [words]: what he sees right now (PICTURE.LOOK): DeepSeek reads the chat and his words and writes the picture, with her
+// in it (her face) or without (where he is); when it fails, in person: her last reply as before (her earlier replies of the scene
+// when that one says too little about her). Never stored in the history
+async function lookCommand(env, chatId, args = "") {
   const M = CONFIG.MESSAGES;
+  const P = CONFIG.PICTURE;
   const kv = env.REEM_KV;
   const [history, settings, ledger] = await Promise.all([kv.get(`h:${chatId}`, "json").then((h) => h || []), getSettings(kv, chatId), loadLedger(env)]);
-  if (sceneOf(history, "") !== "together") return notice(env, chatId, M.LOOK_APART);
+  const together = sceneOf(history, "") === "together";
   if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
+  await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
+  const seen = await lookWrite(env, history, settings, args);
+  if (seen && seen.withHer) {
+    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, true));
+    return sent ? undefined : notice(env, chatId, M.LOOK_FAILED);
+  }
+  if (seen) {
+    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, false));
+    return sent ? undefined : notice(env, chatId, M.LOOK_FAILED);
+  }
+  if (!together) return notice(env, chatId, M.LOOK_APART);
   const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-3).map((m) => m.content).filter(inPerson);
   const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t));
   if (!text) return notice(env, chatId, M.LOOK_NONE);
-  await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history }));
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
+}
+
+// /look's picture in words (PICTURE.LOOK.MODEL): { withHer, text } or null when the model fails or says nothing usable
+async function lookWrite(env, history, settings, args = "") {
+  const P = CONFIG.PICTURE;
+  const L = P.LOOK || {};
+  if (!L.MODEL || !L.PROMPT) return null;
+  const him = hisName(settings) || "the man";
+  const her = CONFIG.CHARACTER.NAME;
+  const chat = history.slice(-(Number(L.CHAT_MESSAGES) || 8)).map((m) => `${m.role === "user" ? him : her}: ${String(m.content).slice(0, 800)}`).join("\n");
+  const words = String(args || "").trim();
+  const prompt = fill(L.PROMPT, { him, her, chat: chat || "(nothing yet)", ask: words ? fill(L.ASK || "", { words }) : "" });
+  let out;
+  try {
+    out = await callModel(env, [{ role: "user", content: prompt }], { temperature: 0.7, max_tokens: Number(L.MAX_TOKENS) || 300 }, { model: L.MODEL, timeoutMs: 40000, attempts: 2, task: true });
+  } catch (e) {
+    await aiFailed(env, `/look description: ${aiText_(e)}`);
+    return null;
+  }
+  const lines = String(out || "").replace(/\*/g, "").split("\n").map((x) => x.trim()).filter(Boolean);
+  if (!lines.length) return null;
+  const withHer = /^WITH[_ ]HER\b/i.test(lines[0]);
+  const first = lines[0].replace(/^(?:WITH[_ ]HER|ALONE)\b[:.\s-]*/i, "");
+  const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
+  const text = [first, ...lines.slice(1)].filter(Boolean).join(" ").replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "she").replace(/^she\b/, "She").trim();
+  return wordsOf(text).length >= 4 ? { withHer, text } : null;
+}
+
+// Draws /look's picture: with her, a scene picture with her face (SCENE_ACT_STYLE on a sex act); without, ALONE_STYLE and no face
+function lookPicture(env, ledger, text, withHer) {
+  const P = CONFIG.PICTURE;
+  return (async () => {
+    let model = null;
+    let error = null;
+    try {
+      const location = withHer ? locationOf(text) : null;
+      const night = timeOfDay() === "night";
+      const lightText = lightFor(text, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]));
+      const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
+      const style = withHer ? (sexAct(text) && P.SCENE_ACT_STYLE) || P.SCENE_STYLE : (P.LOOK || {}).ALONE_STYLE;
+      const body = withHer ? filterSafe(text) : text;
+      const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), light, location && "{room}", P.CRAFT, withHer ? safeLine() : ""].filter(Boolean).join(" ");
+      const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer });
+      model = drawn.model;
+      return { bytes: drawn.bytes, kind: "scene" };
+    } catch (e) {
+      error = e;
+      model = P.MODEL;
+      await aiFailed(env, `drawing /look: ${aiText_(e)}`);
+      return null;
+    } finally {
+      if (model && !String(model).startsWith("runware:")) aiSpent(ledger, model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, error);
+    }
+  })();
 }
 
 // /pic's words about her; in a sex act (sexAct) or with "my hand", his me/my/I are "the man" (POV_MAN), "you" is still her
