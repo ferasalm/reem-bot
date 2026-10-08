@@ -5,6 +5,8 @@
 # alpha/rank is folded into lora_B; q, k and v become one fused qkv LoRA (down stacked, up block-diagonal).
 # --rank N (2026-10-08): each module cut to rank N by SVD (the 400 MB file was refused by litterbox and 0x0.st; rank 32 =
 # 166 MB, the size of the LoRAs Runware loads); prints how much of the change (Frobenius norm) is kept.
+# Whole-model modules outside the blocks (embedders, modulation, output layer; OneTrainer saves them, e.g. "POV hand",
+# 2026-10-08) are left out with a note: their BFL names aren't verified, and the blocks carry the LoRA's effect.
 # Pure numpy (no torch, no safetensors package). Usage: python3 dora-to-lora.py in.safetensors out.safetensors [--rank N]
 import os, sys
 import numpy as np
@@ -63,7 +65,14 @@ for i in singles:
     put(f"single_blocks.{i}.linear1", lora(f"{t}.attn.to_qkv_mlp_proj"))
     put(f"single_blocks.{i}.linear2", lora(f"{t}.attn.to_out"))
 
+GLOBALS = {"transformer.context_embedder", "transformer.x_embedder", "transformer.proj_out", "transformer.norm_out.linear",
+           "transformer.double_stream_modulation_img.linear", "transformer.double_stream_modulation_txt.linear",
+           "transformer.single_stream_modulation.linear", "transformer.time_guidance_embed.timestep_embedder.linear_1",
+           "transformer.time_guidance_embed.timestep_embedder.linear_2"}
 used = {k.rsplit(".", 2)[0] if k.endswith(".weight") else k.rsplit(".", 1)[0] for k in src}
+left = sorted(used & GLOBALS)
+if left: print(f"left out {len(left)} whole-model modules: {', '.join(m.split('transformer.', 1)[1] for m in left)}")
+used -= GLOBALS
 done = len(blocks) * 12 + len(singles) * 2
 print(f"{len(blocks)} double blocks, {len(singles)} single blocks: {done} of {len(used)} modules mapped; {len(out)} tensors written")
 if done != len(used):
