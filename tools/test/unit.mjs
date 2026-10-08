@@ -259,6 +259,17 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     ["@cf/deepseek-ai/deepseek-v4-flash-0731", "@cf/deepseek-ai/deepseek-v4-flash-0731", "@cf/deepseek-ai/deepseek-v4-flash-0731", "openrouter", "google/gemini-3.8-flash-tts", "Sulafat", true, "google/gemini-3.8-flash", true, "runware-klein", "runware:400@2"],
     "the owner's main routes");
 }
+{
+  // RUNWARE.LORAS (2026-10-08): sent with klein 9B (MODEL) only; weight 0 drops one
+  const R = W.CONFIG.PICTURE.RUNWARE, keep = [R.LORAS, R.LORA_PREFIX], realFetch = globalThis.fetch, sent = [];
+  R.LORAS = { "ferasalm:phone2025@1": "0.8", "ferasalm:realhd2k@1": 0 }; R.LORA_PREFIX = "Candid phone photo of";
+  globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
+  try {
+    await W.drawRunware({ RUNWARE_API_KEY: "k" }, R.MODEL, "words", [], 576, 1024);
+    await W.drawRunware({ RUNWARE_API_KEY: "k" }, R.BACKUP_MODEL, "words", [], 576, 1024);
+  } finally { globalThis.fetch = realFetch; [R.LORAS, R.LORA_PREFIX] = keep; }
+  eq(sent.map((t) => t.lora || null), [[{ model: "ferasalm:phone2025@1", weight: 0.8 }], null], "LoRAs go with klein 9B only, weight 0 left out");
+}
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
 

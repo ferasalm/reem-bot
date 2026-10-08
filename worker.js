@@ -831,6 +831,10 @@ Changing the story
       BODY: "hourglass",               // image 1: "owner" = the owner's bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
       DAILY_USD: 0.5,                  // money a day for Runware pictures; then the Cloudflare route draws (never nude)
       USD_PER_PICTURE: 0.0008,         // klein 9B at 576x1024 (TwinFlow 0.0006)
+      // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
+      // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
+      LORAS: {},
+      LORA_PREFIX: "",                 // put before her description when LORAS is on (a LoRA's trigger words)
       TIMEOUT_MS: 60000,
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
       REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
@@ -3216,12 +3220,19 @@ function runwareAffordable(env, ledger) {
   return !ledger || (ledger.rwUsd || 0) + (Number(R.USD_PER_PICTURE) || 0) <= (Number(R.DAILY_USD) || 0);
 }
 
+// RUNWARE.LORAS as Runware's lora list ([{ model, weight }]); weight 0 or not a number = left out
+function runwareLoras() {
+  return Object.entries((CONFIG.PICTURE.RUNWARE || {}).LORAS || {}).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
+}
+
 // One picture from Runware (POST api.runware.ai/v1, one imageInference task, its content check off): { bytes, cost }.
 // `refs`: JPEG bytes sent as reference images (klein: face, body, place); none for TwinFlow.
 async function drawRunware(env, model, prompt, refs, width, height) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
   if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
+  const loras = model === R.MODEL ? runwareLoras() : [];
+  if (loras.length) task.lora = loras;
   budget.used++;
   let res;
   try {
@@ -3287,7 +3298,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
       try {
         // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
         const refs = withFace ? [ref, rwBody, place].filter(Boolean) : [];
-        const text = (withFace ? who(R.REFERENCE, !!place) : who(R.LOOKS, false)) + naked;
+        const prefix = model === R.MODEL && runwareLoras().length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ` : "";
+        const text = prefix + (withFace ? who(R.REFERENCE, !!place) : who(R.LOOKS, false)) + naked;
         const out = await drawRunware(env, model, text, refs, width, height);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };

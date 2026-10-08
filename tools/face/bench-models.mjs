@@ -89,6 +89,11 @@ const ROUTES = {
   "rw-zimage": { usd: 0.0008, family: "text", run: (p, r, s) => runware(job.runware_models?.["rw-zimage"] || "runware:z-image@turbo", p, [], s) },
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
+// job.lora_routes (2026-10-08): { name: { lora: { air: weight }, prefix? } } adds a klein 9B route with her face and the
+// job's refs plus those LoRAs (uploaded to Runware as ferasalm:...); `prefix` goes before the prompt (a LoRA's trigger words)
+for (const [name, L] of Object.entries(job.lora_routes || {})) {
+  ROUTES[name] = { usd: 0.0012, family: "ref", run: (p, r, s) => runware("runware:400@2", (L.prefix ? `${L.prefix} ` : "") + p, r, s, L.lora) };
+}
 
 async function cfFlux2(model, prompt, refs, seed, extra = {}) {
   const form = new FormData();
@@ -204,13 +209,14 @@ async function openRouterChat(model, prompt, refs, seed) {
 
 // Runware's REST API: one imageInference task, safety check off, picture back as base64 with its cost. The
 // reference pictures go in inputs.referenceImages (FLUX.2's shape); job.runware_steps / runware_size tune it.
-async function runware(model, prompt, refs, seed) {
+async function runware(model, prompt, refs, seed, lora) {
   if (!rwKey) return { error: "no RUNWARE_API_KEY secret" };
   const [width, height] = job.runware_size || [576, 1024];
   const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, seed,
     numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
   if (job.runware_steps?.[model]) task.steps = job.runware_steps[model];
   if (refs.length) task.inputs = { referenceImages: refs.map(dataUri) };
+  if (lora && Object.keys(lora).length) task.lora = Object.entries(lora).map(([model, weight]) => ({ model, weight: Number(weight) }));
   // a small balance stays reserved for a moment after each call (concurrentRequestLimitExceeded): wait and retry
   let res, data;
   for (let tries = 0; ; tries++) {

@@ -87,6 +87,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
   pictures pushed to branch `face-candidates` (pictures only, listed in retired-branches.txt).
   `bench-models.mjs` + `bench.json` + `.github/workflows/image-bench.yml`: image model bench (`family_of` gives a route its own prompt set, `aspect` the Nano Banana shape; same prompts and
   references through Workers AI, Cloudflare's third-party models, OpenRouter, Runware (`rw-*`, safety check off, `RUNWARE_API_KEY`); capped by `max_usd`; never on dev).
+  `lora_routes` (2026-10-08): klein 9B with her face plus `{ lora: { air: weight }, prefix }` (Runware AIRs `ferasalm:...`).
+- `tools/lora/dora-to-lora.py`: a diffusers-named FLUX.2 klein DoRA → the BFL-named LoRA Runware loads (dora_scale dropped,
+  q/k/v fused); numpy only. Runware fetches a model only from a public URL (`model_upload` / `modelUpload`, AIR source `ferasalm`).
 - `tools/test/recall-check.mjs` + `.github/workflows/recall-check.yml`: real bge-m3 scores for pairs of her replies, to set
   `RECALL.REPEAT_SCORE` (Workers AI only).
 - `tools/test/cf-probe.mjs` + `.github/workflows/cf-probe.yml`: empty-answer check of a Workers AI text model, direct vs AI Gateway.
