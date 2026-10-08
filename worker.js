@@ -833,8 +833,9 @@ Changing the story
       USD_PER_PICTURE: 0.0017,         // klein 9B at 576x1024 with LoRAs ($0.00169, run 37720473185; $0.00078 without, TwinFlow 0.0006)
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
-      // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16)
-      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6 },
+      // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16);
+      // then "Switch on Real HD 2K too": realhd2kc (converted, rank 32) at 0.5, as in the all-three bench (run 37722968583, 4/4)
+      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "ferasalm:realhd2kc@1": 0.5 },
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
       TIMEOUT_MS: 60000,
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM

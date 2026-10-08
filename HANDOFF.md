@@ -18,13 +18,13 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   `/album`; `/spend`; text and vectors through AI Gateway "default" (pictures can't go through it).
 - **Owner, 2026-10-06:** no tests on OpenRouter: replays on Workers AI (test.yml with an empty `model` now uses Workers AI),
   `cf-probe.yml` for quick model checks. Sulafat stays. /setup is a web page; no settings panel.
-- **LoRAs (live 2026-10-08):** her klein 9B pictures with two Civitai LoRAs (`PICTURE.RUNWARE.LORAS`: Phone Photography
+- **LoRAs (live 2026-10-08):** her klein 9B pictures with three Civitai LoRAs (`PICTURE.RUNWARE.LORAS`: Phone Photography
   `ferasalm:phone2025@1` + UltraReal V5 Pro `ferasalm:ultrareal5@1`, 0.6 each, phone's trigger words before her description).
-  Real HD 2k is on Runware too (`ferasalm:realhd2kc@1`, converted from a DoRA) but not switched on. Pictures cost $0.0017 (was $0.0008).
+  + Real HD 2k (`ferasalm:realhd2kc@1`, converted from a DoRA) at 0.5. Pictures cost about $0.0017 (was $0.0008).
 - Owner's preview page (private artifact): https://claude.ai/artifact/LWGGrnTjMRAiLCTTSZ3rmg
 
 ## Waiting on the owner
-- **LoRAs (live):** try /pic and selfies in Telegram; say if you want another set (Real HD alone, all three, other weights).
+- **LoRAs (live):** try /pic and selfies in Telegram; say if you want another set or other weights.
 - **In Telegram:** chat as usual; try /spend and /album (empty until her next picture). Recall starts after ~40 more messages;
   the weather and her day's plan show from her second reply of the day.
 - Sex-act switch (`PICTURE.RUNWARE.SEX_ACTS`, off): tell Claude to turn it on, then try /pic.
