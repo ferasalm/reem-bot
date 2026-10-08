@@ -4,7 +4,7 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
-## 2026-10-08 (thirteenth session): SNOFS on nude pictures (on dev)
+## 2026-10-08 (thirteenth session): SNOFS on nude pictures (deployed: main afbd4fd, run 37793652334)
 - SNOFS klein 9B v1.4 (Civitai 2960556) is a LoKR (w1 4x4, full w2, alpha 1e10 = full): `ferasalm:snofs14@1` "failed to load" (the same
   file is on Runware as `aisudo:klein9b-lora@snofs`, also failing). Merged checkpoints (Civitai 2985440) uploaded as `ferasalm:snofs9b@14`
   (bf16, 17.7 GB) and `ferasalm:snofs9b8@14` (fp8): both "internalError" when drawing. `lokr-to-lora.py`: rank 128 keeps 57% of the change

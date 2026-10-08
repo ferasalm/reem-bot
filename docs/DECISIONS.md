@@ -10,7 +10,12 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   "Nude/explicit only" and "Deploy when verified"): `PICTURE.RUNWARE.NUDE_LORAS` `ferasalm:snofsc@1` at 0.8 (Claude's value) is added
   to the three LORAS when NUDE_WORDS match (or, with SEX_ACTS on, a sex act). SNOFS v1.4 is a LoKR Runware can't load, and Runware
   can't draw with its merged checkpoints, so it is a rank-128 LoRA copy (lora-upload run 37788419189). Bench 37789786856 (28/28 read).
-  On `dev` (ee2decb); the deploy waits on the owner's OK (the session's safety check refused the push to `main`).
+  Deployed (owner: "Deploy"): `dev` (afbd4fd) fast-forwarded into `main` (was 206de7d), deploy run 37793652334 green, /setup all ✅,
+  live code read back (`NUDE_LORAS` `ferasalm:snofsc@1` 0.8). To go back: push 206de7d to `main`.
+- 2026-10-08 — **Next chat: refresh her face, body, expressions, poses, wardrobe** (owner: "update Reem's face, body, expressions, poses, and
+  give her variety of wardrobe options. I will need a prompt for each picture you request to use nanobanana on my part ... then hand you
+  the pictures", "I will also include reference images for the new face and body"): a planned job, not built. Claude writes one Nano
+  Banana prompt per picture it asks for; the owner generates and hands them back; nothing changes in the bot until then.
 - 2026-10-08 — **Real HD 2k on too; deploy** (owner: "Switch on Real HD 2K too and make it live (deploy if needed)"):
   `PICTURE.RUNWARE.LORAS` adds `ferasalm:realhd2kc@1` at 0.5 (Claude's value, the all-three bench run 37722968583) to phone2025 +
   ultrareal5 at 0.6. *Supersedes "Real HD benched, not on" in the LoRA entry below.* Deployed: `main` = 206de7d (was 375f490),
