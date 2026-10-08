@@ -90,9 +90,10 @@ const ROUTES = {
   "or-klein4b": { usd: 0.016, run: (p, r, s) => openRouter("black-forest-labs/flux.2-klein-4b", p, r, s, job.klein_options) },
 };
 // job.lora_routes (2026-10-08): { name: { lora: { air: weight }, prefix? } } adds a klein 9B route with her face and the
-// job's refs plus those LoRAs (uploaded to Runware as ferasalm:...); `prefix` goes before the prompt (a LoRA's trigger words)
+// job's refs plus those LoRAs (uploaded to Runware as ferasalm:...); `prefix` goes before the prompt (a LoRA's trigger words);
+// `model` another klein 9B checkpoint (e.g. ferasalm:snofs9b@14, SNOFS merged) instead of runware:400@2
 for (const [name, L] of Object.entries(job.lora_routes || {})) {
-  ROUTES[name] = { usd: 0.0012, family: "ref", run: (p, r, s) => runware("runware:400@2", (L.prefix ? `${L.prefix} ` : "") + p, r, s, L.lora) };
+  ROUTES[name] = { usd: 0.0012, family: "ref", run: (p, r, s) => runware(L.model || "runware:400@2", (L.prefix ? `${L.prefix} ` : "") + p, r, s, L.lora) };
 }
 
 async function cfFlux2(model, prompt, refs, seed, extra = {}) {

@@ -837,6 +837,10 @@ Changing the story
       // then "Switch on Real HD 2K too": realhd2kc (converted, rank 32) at 0.5, as in the all-three bench (run 37722968583, 4/4)
       LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "ferasalm:realhd2kc@1": 0.5 },
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
+      // owner 2026-10-08: SNOFS (Civitai, klein 9B v1.4) on nude/explicit pictures only. Runware can't load its LoKR ("failed to
+      // load"; a rank-128 LoRA copy kept 57% of it), so its author's merged klein 9B distilled v1.4 checkpoint, uploaded as
+      // ferasalm:snofs9b@14, draws them instead of MODEL, with the same LORAS and her face; MODEL when it fails. "" = off
+      NUDE_MODEL: "ferasalm:snofs9b@14",
       TIMEOUT_MS: 60000,
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
       REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
@@ -3233,7 +3237,7 @@ async function drawRunware(env, model, prompt, refs, width, height) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
   if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
-  const loras = model === R.MODEL ? runwareLoras() : [];
+  const loras = model === R.MODEL || (R.NUDE_MODEL && model === R.NUDE_MODEL) ? runwareLoras() : [];
   if (loras.length) task.lora = loras;
   budget.used++;
   let res;
@@ -3294,14 +3298,17 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const R = P.RUNWARE;
     const naked = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w)) ? ` ${R.NAKED}` : "";
     const rwBody = ref ? runwareBody() : null;
-    const tries = P.ROUTE === "runware-klein" && ref ? [[R.MODEL, true], [R.BACKUP_MODEL, false]] : [[R.BACKUP_MODEL, false]];
+    // nude, or a sex act with SEX_ACTS on: NUDE_MODEL (SNOFS) first
+    const explicit = !!naked || (R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(prompt, w)));
+    const klein = explicit && R.NUDE_MODEL ? [[R.NUDE_MODEL, true], [R.MODEL, true]] : [[R.MODEL, true]];
+    const tries = P.ROUTE === "runware-klein" && ref ? [...klein, [R.BACKUP_MODEL, false]] : [[R.BACKUP_MODEL, false]];
     for (const [model, withFace] of tries) {
       if (!model) continue;
       try {
         // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
         const refs = withFace ? [ref, rwBody, place].filter(Boolean) : [];
         // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
-        const lead = (w) => (model === R.MODEL && runwareLoras().length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
+        const lead = (w) => (model !== R.BACKUP_MODEL && runwareLoras().length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
         const text = (withFace ? who(lead(R.REFERENCE), !!place) : who(R.LOOKS, false)) + naked;
         const out = await drawRunware(env, model, text, refs, width, height);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);

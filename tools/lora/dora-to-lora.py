@@ -6,42 +6,11 @@
 # --rank N (2026-10-08): each module cut to rank N by SVD (the 400 MB file was refused by litterbox and 0x0.st; rank 32 =
 # 166 MB, the size of the LoRAs Runware loads); prints how much of the change (Frobenius norm) is kept.
 # Pure numpy (no torch, no safetensors package). Usage: python3 dora-to-lora.py in.safetensors out.safetensors [--rank N]
-import json, struct, sys
+import os, sys
 import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lora_io import load, save  # noqa: E402
 
-DT = {"F32": np.float32, "F16": np.float16, "BF16": np.uint16}
-
-def load(path):
-    with open(path, "rb") as f:
-        n = struct.unpack("<Q", f.read(8))[0]
-        head = json.loads(f.read(n))
-        base = 8 + n
-    head.pop("__metadata__", None)
-    mm = np.memmap(path, dtype=np.uint8, mode="r")
-    out = {}
-    for k, v in head.items():
-        a, b = v["data_offsets"]
-        arr = np.frombuffer(mm[base + a: base + b], dtype=DT[v["dtype"]]).reshape(v["shape"])
-        if v["dtype"] == "BF16":
-            arr = (arr.astype(np.uint32) << 16).view(np.float32)
-        out[k] = arr.astype(np.float32)
-    return out
-
-def bf16(a):
-    u = np.ascontiguousarray(a, dtype=np.float32).view(np.uint32)
-    return ((u + 0x7FFF + ((u >> 16) & 1)) >> 16).astype(np.uint16)  # round to nearest even
-
-def save(path, tensors, meta):
-    head, blobs, off = {"__metadata__": meta}, [], 0
-    for k, a in tensors.items():
-        b = bf16(a).tobytes()
-        head[k] = {"dtype": "BF16", "shape": list(a.shape), "data_offsets": [off, off + len(b)]}
-        blobs.append(b); off += len(b)
-    h = json.dumps(head, separators=(",", ":")).encode()
-    h += b" " * ((8 - len(h) % 8) % 8)
-    with open(path, "wb") as f:
-        f.write(struct.pack("<Q", len(h))); f.write(h)
-        for b in blobs: f.write(b)
 
 args = [a for a in sys.argv[1:] if not a.startswith("--")]
 rank = int(sys.argv[sys.argv.index("--rank") + 1]) if "--rank" in sys.argv else 0
