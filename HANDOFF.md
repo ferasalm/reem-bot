@@ -3,8 +3,8 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-08 (twelfth session). **Deployed:** `main` = `dev` (375f490, deploy run 37726288341, /setup all ✅,
-live code read back). To go back to before the LoRAs: push d95fd55 to `main`.
+**Last updated:** 2026-10-08 (twelfth session). **Deployed:** `main` = 206de7d (deploy run 37726965611, /setup all ✅, live code
+read back: three LoRAs). Back to two LoRAs: push 375f490 to `main`; back to no LoRAs: push d95fd55.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month). **Live now:**
@@ -35,7 +35,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
   37722968583): face, body, clothes and scene kept with every LoRA set; differences small (docs/CHANGELOG.md).
 - The prompt with LoRAs on, built by the bot's own code: "...she took herself: This is a candid photograph taken with a smartphone
   of the woman from image 0, ..." with both LoRAs in the Runware task.
-- Deploy 37726288341: /setup all ✅, live code has `LORAS`. Not checked: a real Telegram picture with LoRAs.
+- Deploys 37726288341 (two LoRAs) and 37726965611 (three): /setup all ✅, live code has `LORAS`. Not checked: a real Telegram picture with LoRAs.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.

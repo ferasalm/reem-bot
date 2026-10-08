@@ -7,7 +7,8 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
 - 2026-10-08 — **Real HD 2k on too; deploy** (owner: "Switch on Real HD 2K too and make it live (deploy if needed)"):
   `PICTURE.RUNWARE.LORAS` adds `ferasalm:realhd2kc@1` at 0.5 (Claude's value, the all-three bench run 37722968583) to phone2025 +
-  ultrareal5 at 0.6. *Supersedes "Real HD benched, not on" in the LoRA entry below.*
+  ultrareal5 at 0.6. *Supersedes "Real HD benched, not on" in the LoRA entry below.* Deployed: `main` = 206de7d (was 375f490),
+  deploy run 37726965611 green, /setup all ✅, live code read back (three LoRAs). To go back: push 375f490 to `main`.
 - 2026-10-08 — **Deploy the LoRAs** (owner: "deploy"): `dev` (375f490) fast-forwarded into `main` (was d95fd55). Deploy run
   37726288341 green: /health drew and saw, /setup all ✅ (Workers AI DeepSeek, OpenRouter backup via Novita, Sulafat, Gemini hearing,
   Runware klein); live code read back (`LORAS` phone2025 + ultrareal5 0.6, `LORA_PREFIX`). *Completes the entry below.* To go back:
