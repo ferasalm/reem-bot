@@ -794,6 +794,24 @@ Changing the story
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
     LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair skin with warm undertones and a small beauty mark on her left cheek, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
+    // round 5: an in-person scene whose narration is a sex act (SEX_CUES): his eyes are the camera, he is in the picture
+    SCENE_ACT_STYLE: "Realistic candid first-person photo from the man's own eyes, caught in the middle of the act, not posing:",
+    // round 5 (owner: "Would doing the /look while in a sex scene give a picture that properly reflects that act from POV of
+    // user?"): her narration rarely names the act ("wraps her lips around it", "pulls you down on top of her"), so /look missed
+    // the act's LoRA and camera, dropped sentences about him and dressed her. act words (what ACT_WORDS/ACT_SCENES know) = a
+    // regex (case-insensitive) on her narration; the first match wins, so the narrower acts come first
+    SEX_CUES: {
+      "anal": "\\banal(?:ly)?\\b|\\b(?:in|into|inside) her (?:ass|asshole)\\b|\\bfuck\\w* her ass\\b|\\b(?:press|push|slid|slide|sink|ease)\\w* into her ass\\b",
+      "deepthroat": "\\bdeep ?throat\\w*|\\bdown her throat\\b|\\bto the base\\b|\\bgag(?:s|ging|ged)?\\b",
+      "a blowjob": "\\bblow ?job\\b|\\bsuck(?:s|ing|ed)?\\b|\\blips (?:wrap\\w* |close |tighten )?around\\b|\\b(?:in|into) her mouth\\b|\\bher mouth (?:on|around) (?:you|your|the man|his)\\b|\\blick\\w* (?:up )?(?:your|the man's|his) (?:cock|shaft|tip|length)\\b",
+      "reverse cowgirl": "\\breverse cowgirl\\b|\\bfacing away\\b[^.]*\\b(?:rid\\w*|straddl\\w*|on top)\\b|\\b(?:rid\\w*|straddl\\w*|on top)\\b[^.]*\\bfacing away\\b",
+      "riding the man, cowgirl": "\\bcowgirl\\b|\\brid(?:es|ing|e) (?:you|the man|him|your cock|the man's cock|his cock)\\b|\\bstraddl\\w*|\\bsinks? (?:down )?onto\\b|\\blowers herself onto\\b|\\bon top of (?:you|the man|him)\\b",
+      "doggy style": "\\bdoggy\\w*|\\bon all fours\\b|\\bhands and knees\\b|\\bbent over\\b|\\bbends over\\b|\\bfrom behind\\b[^.]*\\b(?:into her|inside her|thrust\\w*|fuck\\w*)\\b|\\b(?:take\\w*|fuck\\w*|thrust\\w*|push\\w* into) her from behind\\b|\\bas (?:you|the man|he) takes? her from behind\\b",
+      "missionary": "\\bmissionary\\b|\\bon top of her\\b|\\bdown (?:on top of|onto) her\\b|\\blegs (?:wrap\\w*|lock\\w*|hook\\w*) around (?:your|the man's|his) (?:hips|waist|back)\\b|\\b(?:lies|lying) (?:back|on her back)\\b[^.]*\\b(?:into her|inside her)\\b|\\b(?:legs spread|spreads her legs)\\b[^.]*\\b(?:into her|inside her)\\b",
+    },
+    // and a cue counts only when the narration also has one of these (so "sucks in a breath" or "bends over for the laundry"
+    // stay everyday pictures)
+    SEX_CONTEXT: "\\b(?:cock|dick|penis|shaft|erection|inside her|into her|thrust\\w*|fuck\\w*|naked|nude|moan\\w*|cum\\w*|sex|her throat|her ass|(?:takes?|taking) her from behind|pounds? her)\\b",
     SCENE_STYLE: "Realistic candid first-person photo from where he stands in front of her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing:", // "seen from the eyes of the man in front of her" drew a man at the edge (face run 2026-10-05)
     // its light: LIGHT for her time of day, or this after dark ("natural light" drew 3 of 3 night scenes in daylight, 2026-10-05)
     SCENE_NIGHT: "It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps.",
@@ -818,7 +836,7 @@ Changing the story
     // angle, but Reem remains Reem"): STYLE + who she is + his words + the light of her hour + CRAFT; her face stays the
     // reference, but REFERENCE's "same face and hair" becomes SAME_PERSON, so the hair he asks for is drawn
     CUSTOM: {
-      STYLE: "Realistic candid photo of",
+      STYLE: "Realistic candid photo:",   // ends with a colon: phone2025's trigger (LORA_PREFIX) is a sentence of its own
       SAME_PERSON: "with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0)",
     },
     // Runware (PICTURE.ROUTE "runware-klein" / "runware-twinflow"): every picture, lingerie and nudity included, with her
@@ -832,7 +850,7 @@ Changing the story
       BODY_CLOTHED: "default",         // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
                                        // 6/6 pictures that named no clothes came out nude, even with DRESSED): the gray tank + leggings body
       DAILY_USD: 1,                    // owner 2026-10-08 (was 0.5): money a day for Runware pictures; then the Cloudflare route draws (never nude)
-      USD_PER_PICTURE: 0.0017,         // klein 9B at 576x1024 with LoRAs ($0.00169, run 37720473185; $0.00078 without, TwinFlow 0.0006)
+      USD_PER_PICTURE: 0.004,          // klein 9B at 1008x1792 with 4-6 LoRAs: $0.0034-0.0042 (round 4/5 benches, 2026-10-08; was 0.0017 at 576x1024)
       // owner 2026-10-08 (round 4: "the pictures' quality and details are poor"): Runware's own size and sampler. 576x1024 is
       // billed like 1024x1024 and drew her face ~100 px tall; Runware's defaults were acceleration "high" (step caching) and
       // CFG 3.5 on a distilled model (the Civitai klein workflows run CFG 1, 4-5 steps). 0 / "" = Runware's default
@@ -841,6 +859,11 @@ Changing the story
       STEPS: 5,
       CFG: 1,
       ACCELERATION: "none",
+      // round 5 (owner: "blowjobs and deepthroat might need a wider aspect ratio"): oral pictures (ORAL_WORDS) at this size. Bench
+      // (2 prompts x 2 seeds): in her mouth 9:16 3/4, 4:5 / 3:4 / 1:1 / 16:9 4/4; the penis shortest and most natural from 3:4 to
+      // 16:9, 16:9 a face close-up with her body cut off: 1:1 (same price, ~1.8 MP like 1008x1792). 0 = WIDTH/HEIGHT
+      ORAL_WIDTH: 1344,
+      ORAL_HEIGHT: 1344,
       BIG_FACE: true,                  // her face reference 2x (896x960, Runware upscaler) instead of the 460x480 one (Cloudflare's limit)
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
@@ -849,7 +872,9 @@ Changing the story
       // owner 2026-10-08 (round 3): "Add anatomy fixer to every picture, and remove the least impactful LoRA": the drop-one
       // bench changed least without Real HD 2K (Lenovo UltraReal, ferasalm:lenovoc@1, drew the same as it): both out
       // round 4 (owner: "use instapic for every pic"): InstaPic moves here from SELFIE_LORAS
-      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "myaiprojectsqqq:3@2": 0.7, "ferasalm:instapic@1": 0.6 },
+      // round 5 (owner: "Cut LoRAs where they make the least impact and where they worsen the output"): Anatomy Fixer
+      // (myaiprojectsqqq:3@2) out: the drop-one bench (6 situations x 2 seeds) drew the same faces, bodies and acts without it
+      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "ferasalm:instapic@1": 0.6 },
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
       // owner 2026-10-08: SNOFS (Civitai, klein 9B v1.4) on nude/explicit pictures only: added to LORAS when NUDE_WORDS match
       // (or, with SEX_ACTS on, a NOT_DRAWN word). Runware can't load its LoKR ("failed to load") and its merged klein 9B
@@ -875,7 +900,9 @@ Changing the story
       // (ACT_SCENES): oral and an average size 2/2 (without it, oral 3/6)
       // round 4 (owner: "Remove any side-view, where it implies Reem is having sex with another man", "Add the following LoRA for
       // blowjob scenes": Holding Deepthroat POV, Civitai 2779637, ferasalm:povdt@1): blowjobs from his eyes with it (povbj stays on Runware)
-      ACT_LORAS: { "ferasalm:flux4play@1": 0.8, "ferasalm:povdt@1": 0.8, "ferasalm:missionary@1": 0.8, "ferasalm:povanal@1": 0.8, "ferasalm:penis@1": 0.6, "ferasalm:pussyd@1": 0.8, "ferasalm:povhandc@1": 0.6 },
+      // round 5: POV hand (ferasalm:povhandc@1) out: ACT_SCENES' "his hands on her butt" drew his hands 4/4 without it, and
+      // with it one anal picture got a stray bra strap. Holding Deepthroat POV kept: in her mouth 3/3 at 0.6-1.0, without it 0/2
+      ACT_LORAS: { "ferasalm:flux4play@1": 0.8, "ferasalm:povdt@1": 0.8, "ferasalm:missionary@1": 0.8, "ferasalm:povanal@1": 0.8, "ferasalm:penis@1": 0.6, "ferasalm:pussyd@1": 0.8 },
       ACT_WORDS: {
         "ferasalm:flux4play@1": "riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours",
         "ferasalm:povdt@1": "blowjob, blow job, sucking, sucks, suck, deepthroat, takes the man in her mouth",
@@ -885,7 +912,7 @@ Changing the story
         "ferasalm:pussyd@1": "pussy, vagina, spread legs, legs spread",
         "ferasalm:povhandc@1": "the man's hand, the man's hands, grabbing, grabs, groping, gropes, squeezing, squeezes, his hand, his hands, anal, doggy, doggystyle",
       },
-      ACT_ANY: ["ferasalm:povhandc@1"],  // ACT_LORAS also allowed on clothed pictures (the others: nude or sex acts only)
+      ACT_ANY: [],                       // ACT_LORAS also allowed on clothed pictures (round 5: none; POV hand was the only one)
       // round 4 (owner: "Remove the overlapping LoRAs (General Penis, pussy diffusion) unless the picture requested specifically
       // requests for a pussy or penis without a sex act"): these load only when no other ACT_LORAS act LoRA does
       SOLO_LORAS: ["ferasalm:penis@1", "ferasalm:pussyd@1"],
@@ -934,6 +961,8 @@ Changing the story
       MOODS: {
         EVERYDAY: ["a wide, open-mouthed laugh", "a playful grin showing her teeth", "a lopsided smirk", "a shy small smile, chin tucked", "a mock-annoyed eye roll", "a relaxed face with soft, closed lips and no smile", "a surprised, delighted look, eyebrows raised", "a thoughtful look, lips pressed together", "a cheeky grin with the tip of her tongue out", "a sleepy half smile", "a raised-eyebrow 'really?' look", "a calm, serious face"],
         HEATED: ["a sultry look with her lips parted", "a teasing smile, biting her lower lip", "a daring, confident stare with no smile", "a shy, flushed smile", "heavy-lidded eyes and a slow smile", "a playful laugh", "a serious, intense look", "a soft, dreamy look"],
+        // oral acts (ORAL_WORDS): her mouth is on him, so only eyes and brows (an open-mouthed moan drew her tongue out, not sucking: 2/2 seeds)
+        ORAL: ["teary, eager eyes", "brows raised, eyes wide and eager", "heavy-lidded eyes, flushed cheeks", "a teasing look in her eyes", "eyes half-closed, cheeks flushed", "a hungry, intent stare"],
         ACT: ["her mouth open in pleasure, brows drawn together", "eyes half-closed, lips parted, cheeks flushed", "biting her lower lip hard", "a breathless open-mouthed moan", "a wicked, satisfied smile", "eyes squeezed shut, head pressed back", "a dazed, blissful look", "an intense, hungry stare"],
       },
       GAZES: {
@@ -941,6 +970,8 @@ Changing the story
         HEATED: ["looking straight into the lens", "looking down at her own body", "looking away toward the window", "looking up at the camera from under her bangs", "her eyes closed, head tilted back"],
         ACT: ["looking straight into the man's eyes, into the lens", "her eyes closed", "her eyes half-open and unfocused", "looking down at the man's body"],
       },
+      // a sex act with one of these: MOODS.ORAL (eyes and brows only; no gaze list: the blowjob scene names it)
+      ORAL_WORDS: ["blowjob", "blow job", "sucking", "sucks", "suck", "deepthroat", "takes the man in her mouth", "oral"],
       // words that already name her face: then no MOODS/GAZES pick
       FACE_WORDS: ["smile", "smiles", "smiling", "smirk", "smirking", "grin", "grinning", "laugh", "laughs", "laughing", "pout", "pouting", "frown", "wink", "winks", "winking", "moan", "moaning", "expression", "looking", "looks at", "looks up", "looks down", "gaze", "gazing", "glance", "glances", "glancing", "stare", "stares", "staring", "eyes closed", "eyes on", "her eyes", "lips parted", "parted lips", "bites her lip", "biting her lip", "biting her lower lip", "into the camera", "into the lens", "toward the lens"],
       // round 4 (owner: "Think of lens, framing, lighting, style. The pictures need to look real and natural, not rendered ... Any
@@ -3256,22 +3287,40 @@ function isSpicy(pic) {
   return !!L.SPICY_PATTERN && spicyWords(`${pic.asked || ""} ${pic.args.words || ""} ${pic.args.doing || ""}`);
 }
 
+// The act her narration shows (SEX_CUES, first match) as the words ACT_WORDS/ACT_SCENES know, or ""; Runware with SEX_ACTS on only
+function sexCue(sceneText) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  if (!runwareRoute() || R.SEX_ACTS !== true) return "";
+  const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
+  try {
+    if (CONFIG.PICTURE.SEX_CONTEXT && !new RegExp(CONFIG.PICTURE.SEX_CONTEXT, "i").test(narration)) return "";
+  } catch {}
+  for (const [act, re] of Object.entries(CONFIG.PICTURE.SEX_CUES || {})) {
+    try {
+      if (re && new RegExp(re, "i").test(narration)) return act;
+    } catch {}
+  }
+  return "";
+}
+
 // The prompt for a picture of the moment in person, from the scene's narration about her: only sentences
 // about her (none about him: "you", "his"), none with a NOT_DRAWN word. "" when too little is left.
 function scenePicturePrompt(sceneText) {
   const P = CONFIG.PICTURE;
   const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
   const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
+  // a sex act in her own words (SEX_CUES): its sentences about him stay too, and the act is named first
+  const cue = sexCue(sceneText);
   const kept = sentencesOf(narration)
     .map((x) => x.trim())
     // a lowercase start is a speech tag cut from its line ("she murmurs, a teasing edge to her voice")
     // with SEX_ACTS on (Runware), a nude or sex-act sentence about him stays: he is "the man" (POV_MAN)
-    .map((x) => (x && explicitWords(x) ? theMan(x.replace(/\byours\b/gi, "the man's")).replace(/^the/, "The") : x))
+    .map((x) => (x && (explicitWords(x) || (cue && sexCue(`*${x}*`))) ? theMan(x.replace(/\byours\b/gi, "the man's")).replace(/^the/, "The") : x))
     .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x))
     // nothing a camera sees: her voice, a pause (seen live: "Her voice drops, mock-soft.")
     .filter((x) => !/\b(?:voice|voices|pause|says|said|whispers|murmurs|tone)\b/i.test(x))
     .map((x) => x.replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "Her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
-  const text = kept.join(" ");
+  const text = [cue && !hasWord(kept.join(" "), cue) ? `Sex act: ${cue}.` : "", ...kept].filter(Boolean).join(" ");
   return wordsOf(text).length >= (Number(P.MIN_SCENE_WORDS) || 0) ? text : "";
 }
 
@@ -3446,7 +3495,9 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
     // its own size (RUNWARE.WIDTH/HEIGHT) unless the caller asked for one
-    const [rwW, rwH] = size || !(Number(R.WIDTH) > 0 && Number(R.HEIGHT) > 0) ? [width, height] : [Number(R.WIDTH), Number(R.HEIGHT)];
+    const oralAct = sexAct(prompt) && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
+    const [ow, oh] = oralAct && Number(R.ORAL_WIDTH) > 0 && Number(R.ORAL_HEIGHT) > 0 ? [Number(R.ORAL_WIDTH), Number(R.ORAL_HEIGHT)] : [Number(R.WIDTH), Number(R.HEIGHT)];
+    const [rwW, rwH] = size || !(ow > 0 && oh > 0) ? [width, height] : [ow, oh];
     const naked = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w)) ? ` ${R.NAKED}` : "";
     // a sex act with SEX_ACTS on: the man from his point of view (POV_MAN); nude or a sex act: NUDE_LORAS (SNOFS) too
     const act = sexAct(prompt);
@@ -3458,7 +3509,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const explicit = !!naked || act;
     // her expression and gaze when the words name none (MOODS, GAZES; a sex act's scene may already name her gaze)
     const named = (t) => (R.FACE_WORDS || []).some((w) => String(w).trim() && hasWord(t, w));
-    const k = act ? "ACT" : naked ? "HEATED" : "EVERYDAY";
+    const k = oralAct && (R.MOODS || {}).ORAL ? "ORAL" : act ? "ACT" : naked ? "HEATED" : "EVERYDAY";
     const look = named(prompt) ? "" : [pickOne((R.MOODS || {})[k]), named(scene) ? "" : pickOne((R.GAZES || {})[k])].filter(Boolean).join(", ");
     // right after who she is (at the end klein kept image 0's smile, round 4 bench), but after a sex act's camera words: early, it
     // turned her face to the lens in doggy 3/3 (without it 1/1 from behind)
@@ -3477,9 +3528,10 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         const loraOpts = { kind, explicit, text: prompt };
         const loras = model === R.MODEL ? runwareLoras(loraOpts) : [];
         const triggers = loraWords(loras);
-        const lead = (w) => `${triggers ? `${triggers}. ` : ""}${loras.length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w}`;
+        const lead = (w) => (loras.length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
         const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
-        const text = (withFace ? who(lead(R.REFERENCE + early), !!shownPlace, true) : who(R.LOOKS + early, false, true)) + naked + pov + late + dressed + photo;
+        // the trigger words open the whole prompt (inside {who} they ran into the style line: "...photo of instapic. This is...")
+        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(R.REFERENCE + early), !!shownPlace, true) : who(R.LOOKS + early, false, true)) + naked + pov + late + dressed + photo;
         const out = await drawRunware(env, model, text, refs, rwW, rwH, loraOpts);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };
@@ -3546,12 +3598,14 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const what = scenePicturePrompt(want);
     if (!what) return null;
     const location = locationOf(what);
-    const wearing = sceneWearing(want, history);
+    // a sex act (SEX_CUES or its words): his eyes, she is naked (no clothes from earlier in the scene or SCENE_WEARING)
+    const act = !!sexCue(want) || sexAct(what);
+    const wearing = act ? "" : sceneWearing(want, history);
     const night = timeOfDay() === "night";
     const lightText = night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]);
     const light = night ? lightText : lightText && `Lit by ${lightText}.`;
     const wornSafe = filterSafe(wearing);
-    pic = { prompt: [P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, safeLine()].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
+    pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, safeLine()].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
     if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
       pic.lingerie = true;
       pic.spicy = spicyWords(`${asked} ${wearing}`);

@@ -300,7 +300,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq([sent[0].width, sent[0].height], [480, 480], "Runware: a size asked by the caller wins");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
   eq(Object.keys(R.NUDE_LORAS), ["ferasalm:unchained@2"], "nude LoRAs: Unchained (round 3)");
-  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "myaiprojectsqqq:3@2", "ferasalm:instapic@1"], "every picture: phone2025, UltraReal, Anatomy Fixer, InstaPic (round 4)");
+  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "ferasalm:instapic@1"], "every picture: phone2025, UltraReal, InstaPic (round 5: Anatomy Fixer out)");
 }
 {
   const yes = (v, label, got) => eq(!!v || got, true, label);
@@ -335,6 +335,22 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     yes(c.loras.includes("ferasalm:instapic@1") && c.text.startsWith("instapic. "), "her selfie: InstaPic and its trigger word first", c.text.slice(0, 60));
     c = await call("in a gray sweater on the couch", "pic");
     yes(c.text.startsWith("instapic. ") && c.text.includes(R.PHOTO) && c.text.includes("Her face: "), "every picture: InstaPic's trigger, PHOTO and an expression + gaze", c.text.slice(0, 60));
+    // the trigger words open the whole prompt, before the style line (they ran into it: "photo of instapic. This is ...")
+    sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, W.customPicture("in a red sweater on the couch", 21).prompt, { ledger: {}, custom: true });
+    c = { text: sent[0].positivePrompt };
+    yes(c.text.startsWith("instapic. Realistic candid photo: This is a candid photograph") && !/photo of (instapic|this is)/i.test(c.text), "/pic: triggers first, then the style line, then phone2025's sentence", c.text.slice(0, 120));
+    c = await call("a blowjob on the bed", "pic");
+    yes(R.MOODS.ORAL.some((m) => c.text.includes(`Her face: ${m}`)) && !R.MOODS.ACT.some((m) => c.text.includes(m)), "a blowjob: an eyes-only expression (MOODS.ORAL), never an open-mouthed one", c.text.slice(-400));
+    // round 5: /look and scene pictures find the act in her own words (SEX_CUES, gated by SEX_CONTEXT)
+    eq(["*She sucks in a breath and laughs.*", "*She bends over to grab the laundry basket.*", "*She pops a strawberry in her mouth.*", "*She straddles your lap and kisses you slowly.*", "*She gets on all fours to look under the couch for the remote.*"].map(W.sexCue), ["", "", "", "", ""], "SEX_CUES: everyday lines are no sex act");
+    eq(["*She wraps her lips around your cock.*", "*She takes you into her mouth, slow.*", "*She takes you all the way down her throat.*", "*She rides you hard, moaning.*", "*She gasps as you take her from behind.*", "*You press into her ass, slow.*", "*She pulls you down on top of her as you push inside her.*"].map(W.sexCue), ["a blowjob", "a blowjob", "deepthroat", "riding the man, cowgirl", "doggy style", "anal", "missionary"], "SEX_CUES: the act in her own words");
+    const look = async (t) => { sent = []; await W.startPicture({ RUNWARE_API_KEY: "k" }, { rwUsd: 0 }, "scene", t, { history: [] }); return sent[0]; };
+    let lk = await look("*She pulls you down on top of her, legs wrapping around your hips as you push inside her.*");
+    yes(lk && lk.lora.some((l) => l.model === "ferasalm:missionary@1") && lk.positivePrompt.includes(W.CONFIG.PICTURE.SCENE_ACT_STYLE) && !lk.positivePrompt.includes("She is wearing") && lk.positivePrompt.includes("Sex act: missionary."), "/look missionary in her words: Missionary POV, his-eyes style, no clothes", lk && lk.positivePrompt.slice(0, 200));
+    lk = await look("*She kneels between your legs and takes you into her mouth, slow.*");
+    yes(lk && lk.lora.some((l) => l.model === "ferasalm:povdt@1") && lk.width === R.ORAL_WIDTH && lk.height === R.ORAL_HEIGHT, "/look blowjob in her words: Holding Deepthroat POV at the oral size (1:1)", lk && [lk.width, lk.height]);
+    c = await call("riding the man on the bed", "pic");
+    yes(sent[0].width === R.WIDTH && sent[0].height === R.HEIGHT, "other sex acts keep WIDTH x HEIGHT (9:16)", [sent[0].width, sent[0].height]);
     c = await call("smiling at the camera on the couch", "pic");
     yes(!c.text.includes("Her face: "), "words that name her face: no MOODS pick", c.text);
     c = await call("on the couch", "pic");
@@ -352,13 +368,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("naked, holding the man's erect penis in her hand", "pic");
     yes(c.loras.includes("ferasalm:penis@1"), "a penis without an act LoRA: General Penis", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");
-    yes(c.loras.includes("ferasalm:povanal@1") && !c.text.includes("an4l") && c.text.includes("his hands on her butt") && c.text.includes("POV hand"), "anal: POV Anal + his hands on her butt, no trigger of an unloaded LoRA", c.loras);
+    yes(c.loras.includes("ferasalm:povanal@1") && !c.text.includes("an4l") && c.text.includes("his hands on her butt") && !c.loras.includes("ferasalm:povhandc@1") && !c.text.includes("POV hand"), "anal: POV Anal + his hands on her butt in words (round 5: no POV hand LoRA), no trigger of an unloaded LoRA", c.loras);
     c = await call("naked in bed", "pic");
     yes(!c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:flux4play@1"), "nude, no act: no act LoRAs", c.loras);
     c = await call("missionary sex on the bed", "scene");
     yes(c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:povdt@1") && !c.text.includes("m15510n4ry"), "/look missionary: Missionary POV, no Flux 4 Play trigger", c.loras);
     c = await call("in a black dress, the man's hand on her waist", "pic");
-    yes(c.loras.includes("ferasalm:povhandc@1") && !c.loras.includes("ferasalm:snofsc@1"), "his hand, clothed: POV hand, no nude LoRAs", c.loras);
+    eq(c.loras, [...base].sort(), "his hand, clothed: the base LoRAs only (round 5: POV hand out)");
     eq(W.picWords("my hand on your waist, you in a black dress"), "the man's hand on her waist, her in a black dress", "/pic: 'my hand' is his");
     R.SEX_ACTS = false;
     yes(!W.mayDraw("her giving a blowjob") && !W.sexAct("her giving a blowjob"), "switch off: not drawn");
