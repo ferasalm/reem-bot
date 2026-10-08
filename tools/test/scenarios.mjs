@@ -754,7 +754,7 @@ section("pictures: his photos (Workers AI vision)");
     const a0 = ai.length, b0 = banana.calls.length;
     r = await turn("send me a nude", ["here\n\n[selfie: naked on the bed, wearing nothing at all]"], { history: APART });
     let t = runware.calls.at(-1);
-    yes(r.photos.length === 1 && t.model === R.NUDE_MODEL && t.safety.checkContent === false && t.inputs.referenceImages.length >= 2 && t.inputs.referenceImages.every((x) => x.startsWith("data:image/jpeg;base64,")), "runware-klein: a nude on NUDE_MODEL (SNOFS klein 9B) with her face and body, content check off", t && { model: t.model, refs: t.inputs?.referenceImages?.length });
+    yes(r.photos.length === 1 && t.model === R.MODEL && Object.keys(R.NUDE_LORAS).every((k) => (t.lora || []).some((l) => l.model === k)) && t.safety.checkContent === false && t.inputs.referenceImages.length >= 2 && t.inputs.referenceImages.every((x) => x.startsWith("data:image/jpeg;base64,")), "runware-klein: a nude on klein 9B with NUDE_LORAS (SNOFS), her face and body, content check off", t && { model: t.model, refs: t.inputs?.referenceImages?.length });
     yes(/naked on the bed/.test(t.positivePrompt) && t.positivePrompt.includes(R.NAKED) && !t.positivePrompt.includes(P.SAFE) && t.positivePrompt.startsWith(P.SELFIE_STYLE), "...her words as written, NAKED added, no 'No nudity.'", t.positivePrompt.slice(0, 200));
     yes(ai.length === a0 && JSON.parse(store.get("pics")).rwUsd > 0, "...Cloudflare isn't called; the spend is in the ledger's rwUsd");
     r = await turn("send me a pic in lingerie", ["[selfie: mirror, red lace bra and panties by the window]"], { history: APART });

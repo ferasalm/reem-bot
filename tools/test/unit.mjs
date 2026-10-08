@@ -271,29 +271,29 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq(sent.map((t) => t.lora || null), [[{ model: "ferasalm:phone2025@1", weight: 0.8 }], null], "LoRAs go with klein 9B only, weight 0 left out");
 }
 {
-  // RUNWARE.NUDE_MODEL (owner 2026-10-08: SNOFS on nude/explicit pictures only): nude words → NUDE_MODEL with the LoRAs,
-  // klein 9B when it fails; clothed → klein 9B; a sex act only with SEX_ACTS on
+  // RUNWARE.NUDE_LORAS (owner 2026-10-08: SNOFS on nude/explicit pictures only): added to LORAS on klein 9B when she's naked,
+  // or for a sex act with SEX_ACTS on; never on clothed pictures or TwinFlow
   const R = W.CONFIG.PICTURE.RUNWARE, realFetch = globalThis.fetch, keep = [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS];
-  let sent = [], failNude = false;
+  let sent = [], failKlein = false;
   globalThis.fetch = async (url, init) => {
     const t = JSON.parse(init.body)[0]; sent.push(t);
-    if (failNude && t.model === R.NUDE_MODEL) return new Response(JSON.stringify({ errors: [{ code: "x" }] }), { status: 400 });
+    if (failKlein && t.model === R.MODEL) return new Response(JSON.stringify({ errors: [{ code: "x" }] }), { status: 400 });
     return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] }));
   };
-  const models = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent.map((t) => [t.model, (t.lora || []).length]); };
-  const n = W.runwareLoras().length;
+  const loras = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent.map((t) => [t.model, (t.lora || []).map((l) => l.model).sort()]); };
+  const base = Object.keys(R.LORAS).sort(), nude = [...base, ...Object.keys(R.NUDE_LORAS)].sort();
   try {
     W.CONFIG.PICTURE.ROUTE = "runware-klein"; R.SEX_ACTS = false;
-    eq(await models("in a gray sweater on the couch"), [[R.MODEL, n]], "clothed: klein 9B with the LoRAs");
-    eq(await models("naked in bed"), [[R.NUDE_MODEL, n]], "nude: NUDE_MODEL with the LoRAs");
-    failNude = true;
-    eq(await models("naked in bed"), [[R.NUDE_MODEL, n], [R.MODEL, n]], "NUDE_MODEL fails: klein 9B");
-    failNude = false;
-    eq((await models("having sex"))[0][0], R.MODEL, "a sex act with SEX_ACTS off: klein 9B");
+    eq(await loras("in a gray sweater on the couch"), [[R.MODEL, base]], "clothed: klein 9B with LORAS only");
+    eq(await loras("naked in bed"), [[R.MODEL, nude]], "nude: klein 9B with LORAS + NUDE_LORAS");
+    failKlein = true;
+    eq(await loras("naked in bed"), [[R.MODEL, nude], [R.BACKUP_MODEL, []]], "klein fails: TwinFlow without LoRAs");
+    failKlein = false;
+    eq(await loras("having sex"), [[R.MODEL, base]], "a sex act with SEX_ACTS off: no NUDE_LORAS");
     R.SEX_ACTS = true;
-    eq((await models("having sex"))[0][0], R.NUDE_MODEL, "a sex act with SEX_ACTS on: NUDE_MODEL");
+    eq(await loras("having sex"), [[R.MODEL, nude]], "a sex act with SEX_ACTS on: NUDE_LORAS");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
-  eq(R.NUDE_MODEL, "ferasalm:snofs9b@14", "SNOFS is the nude model");
+  eq(Object.keys(R.NUDE_LORAS), ["ferasalm:snofsc@1"], "SNOFS is the nude LoRA");
 }
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);

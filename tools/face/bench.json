@@ -1,5 +1,5 @@
 {
-  "note": "2026-10-08: SNOFS (merged klein 9B v1.4 checkpoint, ferasalm:snofs9b@14) for nude pictures: klein 9B + 3 LoRAs (live today) vs SNOFS + 3 LoRAs, SNOFS alone, and SNOFS + 3 LoRAs minus one each; 3 nude prompts + 1 clothed.",
+  "note": "2026-10-08: SNOFS as a LoRA (ferasalm:snofsc@1, rank-128 copy of the LoKR) on nude pictures: klein 9B + 3 LoRAs (live) vs + SNOFS 0.8 / 0.6, SNOFS alone, and the 4-set minus one each; 3 nude prompts + 1 clothed. Same body and references as run 37722968583.",
   "want": 4,
   "max_attempts": 4,
   "max_usd": 0.08,
@@ -9,11 +9,12 @@
   ],
   "routes": [
     "k-all3",
-    "s-all3",
-    "s-alone",
-    "s-no-realhd",
-    "s-no-ultra",
-    "s-no-phone"
+    "k-all4",
+    "k-all4-s06",
+    "k-snofs",
+    "k-no-realhd",
+    "k-no-ultra",
+    "k-no-phone"
   ],
   "labels": [
     "mirror selfie, night, nude",
@@ -38,40 +39,50 @@
       },
       "prefix": "This is a candid photograph taken with a smartphone of"
     },
-    "s-all3": {
-      "model": "ferasalm:snofs9b@14",
+    "k-all4": {
       "lora": {
         "ferasalm:phone2025@1": 0.6,
         "ferasalm:ultrareal5@1": 0.6,
-        "ferasalm:realhd2kc@1": 0.5
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.8
       },
       "prefix": "This is a candid photograph taken with a smartphone of"
     },
-    "s-alone": {
-      "model": "ferasalm:snofs9b@14",
-      "lora": {}
-    },
-    "s-no-realhd": {
-      "model": "ferasalm:snofs9b@14",
+    "k-all4-s06": {
       "lora": {
         "ferasalm:phone2025@1": 0.6,
-        "ferasalm:ultrareal5@1": 0.6
+        "ferasalm:ultrareal5@1": 0.6,
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.6
       },
       "prefix": "This is a candid photograph taken with a smartphone of"
     },
-    "s-no-ultra": {
-      "model": "ferasalm:snofs9b@14",
+    "k-snofs": {
+      "lora": {
+        "ferasalm:snofsc@1": 0.8
+      }
+    },
+    "k-no-realhd": {
       "lora": {
         "ferasalm:phone2025@1": 0.6,
-        "ferasalm:realhd2kc@1": 0.5
+        "ferasalm:ultrareal5@1": 0.6,
+        "ferasalm:snofsc@1": 0.8
       },
       "prefix": "This is a candid photograph taken with a smartphone of"
     },
-    "s-no-phone": {
-      "model": "ferasalm:snofs9b@14",
+    "k-no-ultra": {
+      "lora": {
+        "ferasalm:phone2025@1": 0.6,
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.8
+      },
+      "prefix": "This is a candid photograph taken with a smartphone of"
+    },
+    "k-no-phone": {
       "lora": {
         "ferasalm:ultrareal5@1": 0.6,
-        "ferasalm:realhd2kc@1": 0.5
+        "ferasalm:realhd2kc@1": 0.5,
+        "ferasalm:snofsc@1": 0.8
       }
     }
   },
