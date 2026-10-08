@@ -5,6 +5,12 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **SNOFS on nude pictures only; deploy once verified** (owner: "download the LoRA from Civitai at your machine, upload
+  it to runware, and do what you have to do in order to have the LoRA working on our Flux.2 Klein 9B for Reem ... SNOFS", then picked
+  "Nude/explicit only" and "Deploy when verified"): `PICTURE.RUNWARE.NUDE_LORAS` `ferasalm:snofsc@1` at 0.8 (Claude's value) is added
+  to the three LORAS when NUDE_WORDS match (or, with SEX_ACTS on, a sex act). SNOFS v1.4 is a LoKR Runware can't load, and Runware
+  can't draw with its merged checkpoints, so it is a rank-128 LoRA copy (lora-upload run 37788419189). Bench 37789786856 (28/28 read).
+  On `dev` (ee2decb); the deploy waits on the owner's OK (the session's safety check refused the push to `main`).
 - 2026-10-08 — **Real HD 2k on too; deploy** (owner: "Switch on Real HD 2K too and make it live (deploy if needed)"):
   `PICTURE.RUNWARE.LORAS` adds `ferasalm:realhd2kc@1` at 0.5 (Claude's value, the all-three bench run 37722968583) to phone2025 +
   ultrareal5 at 0.6. *Supersedes "Real HD benched, not on" in the LoRA entry below.* Deployed: `main` = 206de7d (was 375f490),

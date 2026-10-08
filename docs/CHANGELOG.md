@@ -4,6 +4,16 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (thirteenth session): SNOFS on nude pictures (on dev)
+- SNOFS klein 9B v1.4 (Civitai 2960556) is a LoKR (w1 4x4, full w2, alpha 1e10 = full): `ferasalm:snofs14@1` "failed to load" (the same
+  file is on Runware as `aisudo:klein9b-lora@snofs`, also failing). Merged checkpoints (Civitai 2985440) uploaded as `ferasalm:snofs9b@14`
+  (bf16, 17.7 GB) and `ferasalm:snofs9b8@14` (fp8): both "internalError" when drawing. `lokr-to-lora.py`: rank 128 keeps 57% of the change
+  (mean, Frobenius; worst module 36%), 663 MB; rank 256 68%, 1.3 GB. Rank 128 uploaded as `ferasalm:snofsc@1` (run 37788419189; filebin).
+- Bench 37789786856 (her face + hourglass body, 3 nude prompts + 1 clothed, 7 sets): all $0.00169. With SNOFS 0.8: more natural skin
+  and anatomy, poses closer to the words, the bed selfie lost the phone edge the live set drew; clothed unchanged; 0.6 ≈ 0.8; SNOFS
+  alone less like her (makeup, a garbled phone logo). Each 4-set minus one (Real HD, UltraReal, Phone): small differences only.
+  Cost check (direct calls, one reference): 0 LoRAs $0.00078, 1 LoRA $0.00169, 4 LoRAs $0.00169.
+
 ## 2026-10-08 (twelfth session): Civitai LoRAs on Runware klein 9B (on dev, not deployed)
 - Uploads: `ferasalm:phone2025@1`, `ferasalm:ultrareal5@1` (Civitai's signed links), `ferasalm:realhd2kc@1` (Real HD 2k: a diffusers
   DoRA; `ferasalm:realhd2k@1` and the lycoris try `ferasalm:realhd2kdora@1` don't load) via `lora-upload.yml` run 37722581660

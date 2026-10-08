@@ -32,9 +32,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   Text replay on Workers AI: test.yml `model` `@cf/...` (no OpenRouter key passed); never two at once (429, 3021). Runware MCP:
   `account` = balance + today's spend. Hand-run workflows must be on `dev` (404); log blob links are blocked: `get_job_logs`.
 - Civitai → Runware LoRAs (2026-10-08): the proxy allows `api.civitai.com` (not civitai.com); `/api/download/models/<v>` answers a
-  307 to a signed b2 link valid 1 h that Runware fetches itself (`model_upload`, air `ferasalm:<name>@1`; the same file again needs
-  `uniqueIdentifier` = REST). A diffusers-named DoRA "failed to load" → `tools/lora/dora-to-lora.py --rank 32`. No host is reachable
-  from the container; from Actions litterbox/0x0/catbox refused, temp.sh links are pages, filebin worked (`lora-upload.yml`).
+  307 to a signed link (24 h) Runware fetches (REST `modelUpload` + `uniqueIdentifier` = sha256; give Actions that link: it has no key).
+  "failed to load": DoRA → `dora-to-lora.py --rank 32`, LoKR → `lokr-to-lora.py --rank 128`; custom klein checkpoints: "internalError".
+  klein 9B with refs: $0.00078, with 1-4 LoRAs $0.00169 (flat). Calls past ~60 s die at the proxy: `deliveryMethod: "async"`. (2026-10-08)
 - /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it.
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
