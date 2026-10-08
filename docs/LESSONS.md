@@ -22,8 +22,8 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Test pictures: push a `tools/face/job.json` to your own branch (not `dev`); face.yml draws and pushes them to
   `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
   face.yml skips dev/main pushes and its own edits (a job pushed to `dev` drew twice, run 59, 2026-10-05). (2026-10-05)
-- The sync report listed an old branch with "26 commits not here" → the clone was shallow (depth 50), so the
-  merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03) `git cherry origin/dev origin/<b>` counts what's really missing. Deploy = `git push origin origin/dev:main` (fast-forward). (2026-10-05)
+- The session-start sync report can list "N commits not here" for old branches when the clone is shallow (depth 50): the merge base is missing.
+  Fix: `git fetch --unshallow origin`, rerun `node tools/sync-check.mjs` (2026-10-08: 25 branches listed, then "OK"); `git cherry origin/dev origin/<b>` counts what's really missing (2026-10-03). Deploy = `git push origin origin/dev:main` (fast-forward) (2026-10-05).
 - face.yml refused a job at 6,618 neurons used: draw.mjs's day cap 7,000 dates from the free plan → set
   `day_neurons` in job.json (Workers Paid; the owner's cap is AI_BUDGET.DAILY_NEURONS 28,000). (2026-10-03)
 - No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only; Runware has no MiniMax Turbo (run 37541102035).
@@ -134,7 +134,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 
 ## 4. What works
 - `node tools/check.mjs` before every push; a commit message with `[live]` runs the real-model check on Actions.  Its live job once
-  showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); wait with a background `until curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id> | grep -q completed` loop. (2026-10-06)
+  showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); watch the run with a Monitor loop on `curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id>` (anonymous 200; the JSON is pretty-printed, `"status": "in_progress"`, so grep the value; poll every 30 s, emit once on `completed`). (2026-10-06, 2026-10-08)
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
 - Before any model switch, replay `OWNER_CHAT` with `model` (Nemo, removed 2026-10-06, wrote 1-4 word texts). Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);
