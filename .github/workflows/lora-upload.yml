@@ -20,6 +20,9 @@ on:
         description: "Convert a diffusers DoRA to a BFL-named LoRA first"
         type: boolean
         default: false
+      rank:
+        description: "With convert: cut each module to this rank by SVD (32 = about 166 MB); empty = keep"
+        default: ""
 
 jobs:
   upload:
@@ -35,9 +38,11 @@ jobs:
           ls -la in.safetensors
       - name: Convert
         if: ${{ github.event.inputs.convert == 'true' }}
+        env:
+          RANK: ${{ github.event.inputs.rank }}
         run: |
           pip install --quiet numpy
-          python3 tools/lora/dora-to-lora.py in.safetensors out.safetensors
+          python3 tools/lora/dora-to-lora.py in.safetensors out.safetensors ${RANK:+--rank "$RANK"}
           mv out.safetensors in.safetensors
       - name: Host, upload to Runware, test
         env:

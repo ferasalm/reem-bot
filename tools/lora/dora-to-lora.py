@@ -3,7 +3,9 @@
 # 2026-10-08: Runware refused "Real HD 2k" (a DoRA) with "LoRA model failed to load"; the two LoRAs it loads use this naming.
 # DoRA's magnitude (dora_scale) can't be folded in without the base model's weights, so it is dropped (an approximation);
 # alpha/rank is folded into lora_B; q, k and v become one fused qkv LoRA (down stacked, up block-diagonal).
-# Pure numpy (no torch, no safetensors package). Usage: python3 dora-to-lora.py in.safetensors out.safetensors
+# --rank N (2026-10-08): each module cut to rank N by SVD (the 400 MB file was refused by litterbox and 0x0.st; rank 32 =
+# 166 MB, the size of the LoRAs Runware loads); prints how much of the change (Frobenius norm) is kept.
+# Pure numpy (no torch, no safetensors package). Usage: python3 dora-to-lora.py in.safetensors out.safetensors [--rank N]
 import json, struct, sys
 import numpy as np
 
@@ -41,7 +43,19 @@ def save(path, tensors, meta):
         f.write(struct.pack("<Q", len(h))); f.write(h)
         for b in blobs: f.write(b)
 
-src = load(sys.argv[1])
+args = [a for a in sys.argv[1:] if not a.startswith("--")]
+rank = int(sys.argv[sys.argv.index("--rank") + 1]) if "--rank" in sys.argv else 0
+if rank: args = [a for a in args if a != str(rank)]
+src = load(args[0])
+kept = []
+
+def cut(down, up):  # best rank-`rank` approximation of up @ down, via QR of both factors and an SVD of the small core
+    if not rank or down.shape[0] <= rank: return down, up
+    qb, rb = np.linalg.qr(up); qa, ra = np.linalg.qr(down.T)
+    u, sv, vt = np.linalg.svd(rb @ ra.T)
+    kept.append(float(np.sqrt((sv[:rank] ** 2).sum() / (sv ** 2).sum())))
+    root = np.sqrt(sv[:rank])
+    return (root[:, None] * vt[:rank]) @ qa.T, qb @ (u[:, :rank] * root)
 
 def lora(prefix):  # (down [r,in], up*scale [out,r]) of one diffusers module
     down, up = src[f"{prefix}.lora_down.weight"], src[f"{prefix}.lora_up.weight"]
@@ -61,7 +75,7 @@ def fused(prefixes):
 
 out = {}
 def put(name, pair):
-    out[f"diffusion_model.{name}.lora_A.weight"], out[f"diffusion_model.{name}.lora_B.weight"] = pair
+    out[f"diffusion_model.{name}.lora_A.weight"], out[f"diffusion_model.{name}.lora_B.weight"] = cut(*pair)
 
 blocks = sorted({int(k.split(".")[2]) for k in src if k.startswith("transformer.transformer_blocks.")})
 singles = sorted({int(k.split(".")[2]) for k in src if k.startswith("transformer.single_transformer_blocks.")})
@@ -85,4 +99,5 @@ done = len(blocks) * 12 + len(singles) * 2
 print(f"{len(blocks)} double blocks, {len(singles)} single blocks: {done} of {len(used)} modules mapped; {len(out)} tensors written")
 if done != len(used):
     sys.exit("some modules weren't mapped: refusing to write a partial LoRA")
-save(sys.argv[2], out, {"ss_base_model_version": "flux2_klein_9b", "converted_from": "diffusers DoRA (dora_scale dropped)"})
+if kept: print(f"rank {rank}: kept {min(kept):.3f} (worst module) to {np.mean(kept):.3f} (mean) of the change")
+save(args[1], out, {"ss_base_model_version": "flux2_klein_9b", "converted_from": "diffusers DoRA (dora_scale dropped)"})
