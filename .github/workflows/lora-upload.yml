@@ -3,7 +3,7 @@ name: LoRA upload
 # Puts a LoRA on Runware (owner 2026-10-08: Civitai LoRAs for FLUX.2 klein 9B). Runware downloads a model from a public
 # URL; Claude's container can reach no file host, so this runner fetches the file (e.g. Civitai's signed download link,
 # valid an hour), converts a diffusers DoRA to the naming Runware loads when `convert` is on (tools/lora/dora-to-lora.py),
-# puts it on litterbox.catbox.moe (else 0x0.st) for 72 hours, asks Runware to upload it as `air`, then draws one test picture with it.
+# puts it on a public file host (catbox, litterbox, temp.sh, 0x0.st, bashupload; the first that works), asks Runware to upload it as `air`, then draws one test picture with it.
 on:
   workflow_dispatch:
     inputs:
@@ -53,13 +53,25 @@ jobs:
           set -e
           sha=$(sha256sum in.safetensors | cut -d' ' -f1)
           echo "sha256 $sha"
-          # litterbox answered 500 once for a 400 MB file (run 37721538771): three tries, then 0x0.st
-          url=""
-          for i in 1 2 3; do
-            url=$(curl -sSf -F reqtype=fileupload -F time=72h -F "fileToUpload=@in.safetensors;filename=${sha:0:12}.safetensors" https://litterbox.catbox.moe/resources/internals/api.php) && break
-            echo "litterbox try $i failed"; sleep 15
+          # litterbox and 0x0.st refused GitHub's runners 3 runs in a row (500/503, run 37722158897): try several public hosts,
+          # keep the first link that really serves the file (its first 8 bytes = the safetensors header length)
+          f=in.safetensors; n="${sha:0:12}.safetensors"; url=""
+          want=$(head -c 8 $f | od -An -tx1 | tr -d ' \n')
+          serves() { [ "$(curl -sfL -r 0-7 "$1" | head -c 8 | od -An -tx1 | tr -d ' \n')" = "$want" ]; }
+          for host in catbox litterbox tempsh 0x0 bashupload; do
+            case $host in
+              catbox) u=$(curl -sSf -F reqtype=fileupload -F "fileToUpload=@$f;filename=$n" https://catbox.moe/user/api.php) || u="" ;;
+              litterbox) u=$(curl -sSf -F reqtype=fileupload -F time=72h -F "fileToUpload=@$f;filename=$n" https://litterbox.catbox.moe/resources/internals/api.php) || u="" ;;
+              tempsh) u=$(curl -sSf -F "file=@$f;filename=$n" https://temp.sh/upload) || u="" ;;
+              0x0) u=$(curl -sSf -A "reem-bot-lora-upload" -F "file=@$f;filename=$n" -F expires=72 https://0x0.st) || u="" ;;
+              bashupload) u=$(curl -sSf -T "$f" "https://bashupload.com/$n" | grep -o 'https://bashupload.com/[^ ]*' | head -1) || u="" ;;
+            esac
+            u=$(echo "$u" | tr -d '\r\n')
+            echo "$host: ${u:-failed}"
+            case "$u" in https://*) ;; *) continue ;; esac
+            if [ $host = bashupload ] || serves "$u"; then url=$u; break; fi   # bashupload may allow one download only: not checked
+            echo "$host: the link doesn't serve the file"
           done
-          case "$url" in https://*) ;; *) url=$(curl -sSf -A "reem-bot-lora-upload" -F "file=@in.safetensors;filename=${sha:0:12}.safetensors" -F expires=72 https://0x0.st | tr -d '\r\n') || true ;; esac
           echo "hosted at $url"
           case "$url" in https://*) ;; *) echo "hosting failed"; exit 1 ;; esac
           rw() { curl -sS https://api.runware.ai/v1 -H "Authorization: Bearer $RUNWARE_API_KEY" -H "Content-Type: application/json" -d "$1"; }
