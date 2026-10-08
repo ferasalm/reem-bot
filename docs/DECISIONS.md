@@ -5,6 +5,10 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Deploy the LoRAs** (owner: "deploy"): `dev` (375f490) fast-forwarded into `main` (was d95fd55). Deploy run
+  37726288341 green: /health drew and saw, /setup all ✅ (Workers AI DeepSeek, OpenRouter backup via Novita, Sulafat, Gemini hearing,
+  Runware klein); live code read back (`LORAS` phone2025 + ultrareal5 0.6, `LORA_PREFIX`). *Completes the entry below.* To go back:
+  push d95fd55 to `main`.
 - 2026-10-08 — **Civitai LoRAs on Runware klein 9B** (owner: "download the LoRAs from Civitai at your machine, upload them to runware,
   and do what you have to do in order to have the LoRAs working on our Flux.2 Klein 9B for Reem", then "yes put it on the public host"
   / "we want to try both"): uploaded as `ferasalm:phone2025@1`, `ferasalm:ultrareal5@1` (both load) and `ferasalm:realhd2k@1` (a
