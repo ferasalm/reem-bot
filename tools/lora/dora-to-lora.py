@@ -18,7 +18,10 @@ args = [a for a in sys.argv[1:] if not a.startswith("--")]
 rank = int(sys.argv[sys.argv.index("--rank") + 1]) if "--rank" in sys.argv else 0
 if rank: args = [a for a in args if a != str(rank)]
 src = load(args[0])
+# PEFT naming (Lenovo UltraReal, 2026-10-08): "single_transformer_blocks.0.attn.to_out.lora_A.default.weight", no alpha
+src = {("" if k.startswith("transformer.") else "transformer.") + k.replace(".lora_A.default.weight", ".lora_down.weight").replace(".lora_B.default.weight", ".lora_up.weight"): v for k, v in src.items()}
 kept = []
+mapped = set()
 
 def cut(down, up):  # best rank-`rank` approximation of up @ down, via QR of both factors and an SVD of the small core
     if not rank or down.shape[0] <= rank: return down, up
@@ -29,6 +32,7 @@ def cut(down, up):  # best rank-`rank` approximation of up @ down, via QR of bot
     return (root[:, None] * vt[:rank]) @ qa.T, qb @ (u[:, :rank] * root)
 
 def lora(prefix):  # (down [r,in], up*scale [out,r]) of one diffusers module
+    mapped.add(prefix)
     down, up = src[f"{prefix}.lora_down.weight"], src[f"{prefix}.lora_up.weight"]
     alpha = src.get(f"{prefix}.alpha")
     scale = float(alpha) / down.shape[0] if alpha is not None else 1.0
@@ -45,25 +49,31 @@ def fused(prefixes):
     return down, up
 
 out = {}
-def put(name, pair):
+def has(prefix): return f"{prefix}.lora_down.weight" in src
+
+def put(name, prefixes):  # one module, or several fused (q, k, v); a module the LoRA doesn't train is left out
+    if not all(has(p) for p in prefixes):
+        if any(has(p) for p in prefixes): sys.exit(f"{name}: only some of {prefixes} trained")
+        return
+    pair = lora(prefixes[0]) if len(prefixes) == 1 else fused(prefixes)
     out[f"diffusion_model.{name}.lora_A.weight"], out[f"diffusion_model.{name}.lora_B.weight"] = cut(*pair)
 
 blocks = sorted({int(k.split(".")[2]) for k in src if k.startswith("transformer.transformer_blocks.")})
 singles = sorted({int(k.split(".")[2]) for k in src if k.startswith("transformer.single_transformer_blocks.")})
 for i in blocks:
     t = f"transformer.transformer_blocks.{i}"
-    put(f"double_blocks.{i}.img_attn.qkv", fused([f"{t}.attn.to_q", f"{t}.attn.to_k", f"{t}.attn.to_v"]))
-    put(f"double_blocks.{i}.txt_attn.qkv", fused([f"{t}.attn.add_q_proj", f"{t}.attn.add_k_proj", f"{t}.attn.add_v_proj"]))
-    put(f"double_blocks.{i}.img_attn.proj", lora(f"{t}.attn.to_out.0"))
-    put(f"double_blocks.{i}.txt_attn.proj", lora(f"{t}.attn.to_add_out"))
-    put(f"double_blocks.{i}.img_mlp.0", lora(f"{t}.ff.linear_in"))
-    put(f"double_blocks.{i}.img_mlp.2", lora(f"{t}.ff.linear_out"))
-    put(f"double_blocks.{i}.txt_mlp.0", lora(f"{t}.ff_context.linear_in"))
-    put(f"double_blocks.{i}.txt_mlp.2", lora(f"{t}.ff_context.linear_out"))
+    put(f"double_blocks.{i}.img_attn.qkv", [f"{t}.attn.to_q", f"{t}.attn.to_k", f"{t}.attn.to_v"])
+    put(f"double_blocks.{i}.txt_attn.qkv", [f"{t}.attn.add_q_proj", f"{t}.attn.add_k_proj", f"{t}.attn.add_v_proj"])
+    put(f"double_blocks.{i}.img_attn.proj", [f"{t}.attn.to_out.0"])
+    put(f"double_blocks.{i}.txt_attn.proj", [f"{t}.attn.to_add_out"])
+    put(f"double_blocks.{i}.img_mlp.0", [f"{t}.ff.linear_in"])
+    put(f"double_blocks.{i}.img_mlp.2", [f"{t}.ff.linear_out"])
+    put(f"double_blocks.{i}.txt_mlp.0", [f"{t}.ff_context.linear_in"])
+    put(f"double_blocks.{i}.txt_mlp.2", [f"{t}.ff_context.linear_out"])
 for i in singles:
     t = f"transformer.single_transformer_blocks.{i}"
-    put(f"single_blocks.{i}.linear1", lora(f"{t}.attn.to_qkv_mlp_proj"))
-    put(f"single_blocks.{i}.linear2", lora(f"{t}.attn.to_out"))
+    put(f"single_blocks.{i}.linear1", [f"{t}.attn.to_qkv_mlp_proj"])
+    put(f"single_blocks.{i}.linear2", [f"{t}.attn.to_out"])
 
 GLOBALS = {"transformer.context_embedder", "transformer.x_embedder", "transformer.proj_out", "transformer.norm_out.linear",
            "transformer.double_stream_modulation_img.linear", "transformer.double_stream_modulation_txt.linear",
@@ -73,7 +83,7 @@ used = {k.rsplit(".", 2)[0] if k.endswith(".weight") else k.rsplit(".", 1)[0] fo
 left = sorted(used & GLOBALS)
 if left: print(f"left out {len(left)} whole-model modules: {', '.join(m.split('transformer.', 1)[1] for m in left)}")
 used -= GLOBALS
-done = len(blocks) * 12 + len(singles) * 2
+done = len(mapped)
 print(f"{len(blocks)} double blocks, {len(singles)} single blocks: {done} of {len(used)} modules mapped; {len(out)} tensors written")
 if done != len(used):
     sys.exit("some modules weren't mapped: refusing to write a partial LoRA")
