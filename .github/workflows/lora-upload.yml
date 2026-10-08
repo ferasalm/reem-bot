@@ -3,7 +3,7 @@ name: LoRA upload
 # Puts a LoRA on Runware (owner 2026-10-08: Civitai LoRAs for FLUX.2 klein 9B). Runware downloads a model from a public
 # URL; Claude's container can reach no file host, so this runner fetches the file (e.g. Civitai's signed download link,
 # valid an hour), converts a diffusers DoRA to the naming Runware loads when `convert` is on (tools/lora/dora-to-lora.py),
-# puts it on a public file host (catbox, litterbox, temp.sh, 0x0.st, bashupload; the first that works), asks Runware to upload it as `air`, then draws one test picture with it.
+# puts it on a public file host (filebin, uguu, catbox, litterbox, 0x0.st; the first that serves it), asks Runware to upload it as `air`, then draws one test picture with it.
 on:
   workflow_dispatch:
     inputs:
@@ -58,18 +58,19 @@ jobs:
           f=in.safetensors; n="${sha:0:12}.safetensors"; url=""
           want=$(head -c 8 $f | od -An -tx1 | tr -d ' \n')
           serves() { [ "$(curl -sfL -r 0-7 "$1" | head -c 8 | od -An -tx1 | tr -d ' \n')" = "$want" ]; }
-          for host in catbox litterbox tempsh 0x0 bashupload; do
+          # run 37722412788: catbox 412, litterbox 500, temp.sh's link is a download page, 0x0 503, bashupload gone
+          for host in filebin uguu catbox litterbox 0x0; do
             case $host in
               catbox) u=$(curl -sSf -F reqtype=fileupload -F "fileToUpload=@$f;filename=$n" https://catbox.moe/user/api.php) || u="" ;;
               litterbox) u=$(curl -sSf -F reqtype=fileupload -F time=72h -F "fileToUpload=@$f;filename=$n" https://litterbox.catbox.moe/resources/internals/api.php) || u="" ;;
-              tempsh) u=$(curl -sSf -F "file=@$f;filename=$n" https://temp.sh/upload) || u="" ;;
               0x0) u=$(curl -sSf -A "reem-bot-lora-upload" -F "file=@$f;filename=$n" -F expires=72 https://0x0.st) || u="" ;;
-              bashupload) u=$(curl -sSf -T "$f" "https://bashupload.com/$n" | grep -o 'https://bashupload.com/[^ ]*' | head -1) || u="" ;;
+              filebin) bin="reem-$(cat /proc/sys/kernel/random/uuid | tr -d - | head -c 16)"; curl -sSf -T "$f" -H "Content-Type: application/octet-stream" "https://filebin.net/$bin/$n" >/dev/null && u="https://filebin.net/$bin/$n" || u="" ;;
+              uguu) [ $(stat -c %s "$f") -lt 128000000 ] && u=$(curl -sSf -F "files[]=@$f;filename=$n" https://uguu.se/upload | jq -r '.files[0].url') || u="" ;;
             esac
             u=$(echo "$u" | tr -d '\r\n')
             echo "$host: ${u:-failed}"
             case "$u" in https://*) ;; *) continue ;; esac
-            if [ $host = bashupload ] || serves "$u"; then url=$u; break; fi   # bashupload may allow one download only: not checked
+            if serves "$u"; then url=$u; break; fi
             echo "$host: the link doesn't serve the file"
           done
           echo "hosted at $url"
