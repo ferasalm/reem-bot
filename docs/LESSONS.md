@@ -35,7 +35,17 @@ At most 150 lines (`tools/doc-check.mjs`).
   Civitai file keys without downloading: `curl -r 0-7` (header length), then `-r 8-<n+7>`. Kohya and BFL naming load; PEFT doesn't.
   9 LoRAs in one call work, but her face drifted 5/8 → keep ≤6. A named room's picture pulled blowjobs into wide shots. (2026-10-08)
   Runware klein 9B bills GPU time in steps of ~$0.0008: 576x1024 at its defaults $0.00169; 1024² $0.0025-0.0034, 1008x1792 $0.0034-0.0042 (more LoRAs = the higher one); steps 4-5, acceleration and CFG don't change it (round 4, 2026-10-08). Calls past ~60 s die at the proxy: `deliveryMethod: "async"`. The proxy injects Runware's key: `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture(...)` benches the bot's own picture code from the container (calls ~4 s apart, else 502; a bench script that wraps `fetch` can fix `seed`). (2026-10-08)
+- Sex-act pictures (round 5, 2026-10-08): from behind klein draws a vulva where her anus is (0/14: POV Doggy Anal 0.6-1.0, Flux 4 Play,
+  anatomy words) → anal on her back, legs raised (vulva above, penis below 3/3). A random "open-mouthed moan" on a blowjob drew her tongue
+  out, not sucking (2/2 seeds) → eyes-only `MOODS.ORAL`. 9:16 blowjobs stretch the penis across the frame and miss her mouth 1/4 → 1:1
+  (4/4, average length; 16:9 crops her body). /look missed acts: her narration says "wraps her lips around it", "pulls you down on top
+  of her", not "blowjob"/"missionary", and her sentences about "you" were dropped → `SEX_CUES` (+ `SEX_CONTEXT` so "sucks in a breath" stays
+  everyday). Test a new word list on her real phrasing (`startPicture` "scene"), not on keyword prompts.
 - Pictures soft and plastic, same smile, sex acts posed wrong (round 4, 2026-10-08) → 576x1024 (face ~100 px), a 460 px face reference whose closed-lip smile klein copies, and ~2,500-character prompts that drowned the act and the LoRAs (blowjob 0/10, doggy facing the lens) → 1008x1792 or 1024², CFG 1, the 2x face, "not image 0's expression", short prompts (blowjob 4/4, doggy 2/2); 1:1 beat 9:16 on sex acts 7/7 vs 5/7. An expression placed early turned doggy to face the lens: on sex acts it goes after the act words.
+- Picture bench from the container (round 5, 2026-10-08): fix `Math.random` too (MOODS/GAZES/place picks) or two variants differ by
+  more than the LoRA; give `env` an `AI` stub (both Runware models 502 → the Cloudflare fallback crashed the run); `startPicture`'s result
+  has no `model`; `montage -geometry x700` pads every tile to the widest picture → `convert ... -resize x700 +append` for mixed sizes.
+  Dropping 2 of 6 LoRAs cut a sex act from $0.0042 to $0.0034 (fewer LoRA loads = less GPU time).
 - /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it.
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
@@ -73,15 +83,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   9 tamer); one-pieces and layers do better (round 2: 4/12 as asked, 4 half, 4 refused, 0 tamer: bodysuit + stockings,
   robe or his shirt open over a set, satin one-piece; the corset gets shorts added). Runs 37263536954, 37266040257. (2026-10-05)
   Run 37339347977: 2 of 3 refused, 1 drawn as "a red silk romper" → LINGERIE.CHECK sends tamer ones to Nano Banana. (2026-10-05)
-- Lingerie on Workers AI's own models (bench 2026-10-04, `docs/QUALITY.md`): flux-2-dev has klein's output filter
-  (bra/panties 0, babydoll 2/14, and it dodges by drawing tamer clothes or an empty room); lucid-origin and schnell
-  filter the *prompt* (free refusal, 1/14 and 2/9) and draw real lingerie when it passes, but take no face reference.
-  A bench count of "not black" is not "drawn": read each picture (2 empty rooms counted as drawn). schnell refuses
-  `seed` (5006). (2026-10-04)
-- Nano Banana (Gemini image, OpenRouter) refused lingerie 11/11 with her face picture attached (IMAGE_PROHIBITED_CONTENT,
-  IMAGE_OTHER) and drew 11/11 text-only: Google refuses the face reference + lingerie, not lingerie. Gemini image models
-  answer on chat completions (`modalities: ["image","text"]`, `image_config.aspect_ratio`, picture in
-  `message.images[0].image_url.url`); a refusal is HTTP 200 with no picture and `native_finish_reason`. (2026-10-04)
+- Nano Banana (off since 2026-10-06) refused lingerie 11/11 with her face attached, drew it 11/11 text-only; a refusal is HTTP 200 with no picture. (2026-10-04)
 - bench-models.mjs reads `prompt_sets[job.family_of[route] || route.family]`: a route without a family crashes the run
   (run 37172077483). face.yml, image-bench and tts-bench share one queue that keeps one waiting run: a third push
   cancels the waiting one (2026-10-05) → push one job, wait, then the next; tts `max_chars` counts instructions too.
@@ -100,8 +102,6 @@ At most 150 lines (`tools/doc-check.mjs`).
   selfies) → a Nano Banana picture in a gray tank + leggings (bench 37271580261): rounded shoulders 8/8, asked clothes 8/8.
   Words still move the size: "wide hips, full thighs" heavy, "slim legs" or "not plump" slim; "165 cm, 71 kg, not slim and
   not obese" got 1/3 selfies at BMI ~25, 2/3 ~23 (face runs 2026-10-05). Trim jobs past `day_neurons`, don't raise it.
-- Cheap lingerie without her face (2026-10-04): Recraft V4.1 Flash (OpenRouter) 7/7 at $0.007; Seedream 4.5 always without a face picture
-  (5/9 with one); Krea has no 3:4. Free route: beta SD models blank NSFW to black; SD 1.5 inpainting over klein 3/5 (1 good).
 - Lingerie pictures came out as robes or tamer outfits → Cloudflare's filter (3030) refuses any prompt with bra,
   panties, briefs, thong or g-string (5/5), and every boudoir back view (4/4), and judges the whole prompt (a
   "two-piece set" passed once, failed once) → `FILTER_WORDS` draws those as a bodysuit or string bikini in her

@@ -368,7 +368,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("naked, holding the man's erect penis in her hand", "pic");
     yes(c.loras.includes("ferasalm:penis@1"), "a penis without an act LoRA: General Penis", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");
-    yes(c.loras.includes("ferasalm:povanal@1") && !c.text.includes("an4l") && c.text.includes("his hands on her butt") && !c.loras.includes("ferasalm:povhandc@1") && !c.text.includes("POV hand"), "anal: POV Anal + his hands on her butt in words (round 5: no POV hand LoRA), no trigger of an unloaded LoRA", c.loras);
+    yes(c.loras.includes("ferasalm:povanal@1") && !c.text.includes("an4l") && c.text.includes("She lies on her back") && c.text.includes("her vulva, closed and untouched, is above it") && !c.loras.includes("ferasalm:povhandc@1") && !c.text.includes("POV hand"), "anal: POV Anal, drawn on her back (round 5: from behind drew a vulva for her anus), no POV hand, no trigger of an unloaded LoRA", c.loras);
     c = await call("naked in bed", "pic");
     yes(!c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:flux4play@1"), "nude, no act: no act LoRAs", c.loras);
     c = await call("missionary sex on the bed", "scene");

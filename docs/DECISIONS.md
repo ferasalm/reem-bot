@@ -5,6 +5,19 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Picture round 5: LoRA cuts, oral at 1:1, /look shows the act, anal on her back; deploy** (owner: "Cut LoRAs
+  where they make the least impact and where they worsen the output. Test the deepthroat LoRA ... and deploy", "I think blowjobs
+  and deepthroat might need a wider aspect ratio instead of 9:16. Test wider aspect ratios going wider gradually until 1:1 ... and
+  the 16:9", "Would doing the /look while in a sex scene give a picture that properly reflects that act from POV of user?", "the
+  anus looks like a vagina", "we might wanna test how general Penis LoRA might affect the blowjob picture"): Anatomy Fixer out of
+  `LORAS` and POV hand out of `ACT_LORAS` (drop-one bench, 6 situations x 2 seeds: no visible change; POV hand's hands are drawn
+  by the words 4/4; sex acts now $0.0034, was $0.0042); Holding Deepthroat POV kept at 0.8 (in her mouth 3/3, without 0/2); General
+  Penis stays off blowjobs (no change with it; alone only the tip). Claude's calls: oral pictures (`ORAL_WORDS`) at 1344x1344
+  (`ORAL_WIDTH`/`ORAL_HEIGHT`; in her mouth 9:16 3/4 vs 1:1 4/4 + 8/8, average length; every other picture stays 9:16 per
+  2026-10-04), `MOODS.ORAL` (eyes only: "open-mouthed moan" drew her tongue out), `SEX_CUES` + `SEX_CONTEXT` + `SCENE_ACT_STYLE`
+  (/look and her scene pictures name the act in her words, keep the sentences about him, draw her naked: 6/6), the anal camera on
+  her back (from behind 0/14 drew a vulva for her anus; on her back 3/3), LoRA trigger words first in the prompt. POV Doggy Anal
+  kept for now: on her back it drew the same with and without it (owner decides). Deployed with this session's handoff.
 - 2026-10-08 — **Picture quality round 4: InstaPic on every picture, short prompts, his-eyes sex acts; dev only** (owner: "use
   instapic for every pic, review the prompts, settings and workflow ... Unlock the spending cap for this test", "Don't cut POV Doggy
   Anal (owner) until you test the alternatives and consult me", "Remove the overlapping LoRAs (General Penis, pussy diffusion) unless

@@ -4,6 +4,20 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (sixteenth session): picture round 5 (deployed)
+- 117 pictures drawn from the container through the bot's own `drawPicture`/`startPicture` (fixed seeds and `Math.random`), $0.57 in all
+  (Runware $17.30 → $16.74), every sheet read, faces and genitals zoomed at full size.
+- Drop-one (selfie, nude, blowjob, doggy, riding, missionary x seeds 111/222; full / no Anatomy Fixer / no InstaPic / neither): Anatomy
+  Fixer no visible change anywhere; InstaPic: skin texture and the asked gaze on selfies (faint freckles), a second glans mid-shaft on 1
+  blowjob seed, else no change → kept (owner asked for it everywhere). POV hand: his hands drawn by the words 4/4 without it; with it 1
+  anal picture got a stray strap and a missing arm (owner) → out.
+- Holding Deepthroat POV 0.6/0.8/1.0/none: in her mouth 3/3 with it, 0/2 without; General Penis 0.4/0.6 on top: no change; alone: the tip only.
+- Aspect (blowjob + deepthroat, ~1.8 MP each, same $0.0042): 9:16 3/4 in her mouth (long penis), 4:5 / 3:4 / 1:1 / 16:9 4/4; 1:1 picked.
+- Anal: from behind 0/14 (vulva drawn for her anus: POV Doggy Anal 0.6-1.0, anatomy words, Flux 4 Play); on her back 3/3.
+- /look: 8 written narrations → right act, LoRA and camera 8/8 after `SEX_CUES`; drawn: missionary 2/2, blowjob 2/2, riding 2/2.
+- Final (seed 555, real code): selfie, nude, blowjob, anal, doggy, /look riding 6/6. Slips fixed: trigger words ran into the style line
+  ("photo of instapic. This is..."), /pic's style "photo of" + phone2025's sentence, `USD_PER_PICTURE` 0.0017 → 0.004.
+
 ## 2026-10-08 (fifteenth session): picture quality round 4 (on dev)
 - Upload from the container: `ferasalm:povdt@1` (Civitai 2779637, trigger "POV deepthroat scene"; REST modelUpload with the signed link).
   Her face upscaled 2x with Runware's `upscale` task ($0.0006): `tools/face/reference-2x.jpg`, `FACE_2X_JPEG_BASE64`.

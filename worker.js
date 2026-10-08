@@ -932,7 +932,9 @@ Changing the story
         "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, glancing back over her shoulder. {close}",
         "riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man": "c0wg1rl, pov. {pov} She straddles the man lying on his back, riding him, his penis inside her, seen from below. {close}",
         "missionary": "{pov} She lies on her back with her legs spread, the man kneeling between them, his penis inside her, looking up at him. {close}",
-        "anal, ass fucking, in her ass, in the ass, her ass, anally": "{pov} She is on all fours on the bed, the man fucking her in the ass from behind, his hands on her butt, she looks back over her shoulder. {close}",
+        // round 5 (owner: "the anus looks like a vagina"): from behind, klein drew a vulva where her anus is 0/14 (POV Doggy Anal at
+        // 0.6-1.0, Flux 4 Play, anatomy words); on her back, legs raised, the vulva above and the penis below it 3/3
+        "anal, ass fucking, in her ass, in the ass, her ass, anally": "{pov} She lies on her back on the bed, her legs raised and held back by her hands, seen from between her legs: the man is fucking her in the ass, his penis inside her anus; her vulva, closed and untouched, is above it, both clearly visible. She looks up at him. {close}",
         "doggy, doggystyle, doggy style, on all fours": "d0gg13, pov. {pov} She is on all fours on the bed, the man fucking her doggy style from behind, his hands on her butt, she looks back over her shoulder. {close}",
       },
       TIMEOUT_MS: 60000,
