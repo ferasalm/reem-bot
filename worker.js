@@ -833,8 +833,9 @@ Changing the story
       USD_PER_PICTURE: 0.0008,         // klein 9B at 576x1024 (TwinFlow 0.0006)
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
-      LORAS: {},
-      LORA_PREFIX: "",                 // put before her description when LORAS is on (a LoRA's trigger words)
+      // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16)
+      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6 },
+      LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
       TIMEOUT_MS: 60000,
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
       REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
@@ -3298,8 +3299,9 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
       try {
         // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
         const refs = withFace ? [ref, rwBody, place].filter(Boolean) : [];
-        const prefix = model === R.MODEL && runwareLoras().length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ` : "";
-        const text = prefix + (withFace ? who(R.REFERENCE, !!place) : who(R.LOOKS, false)) + naked;
+        // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
+        const lead = (w) => (model === R.MODEL && runwareLoras().length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
+        const text = (withFace ? who(lead(R.REFERENCE), !!place) : who(R.LOOKS, false)) + naked;
         const out = await drawRunware(env, model, text, refs, width, height);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };

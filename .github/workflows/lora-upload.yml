@@ -1,0 +1,68 @@
+name: LoRA upload
+
+# Puts a LoRA on Runware (owner 2026-10-08: Civitai LoRAs for FLUX.2 klein 9B). Runware downloads a model from a public
+# URL; Claude's container can reach no file host, so this runner fetches the file (e.g. Civitai's signed download link,
+# valid an hour), converts a diffusers DoRA to the naming Runware loads when `convert` is on (tools/lora/dora-to-lora.py),
+# puts it on litterbox.catbox.moe for 72 hours, asks Runware to upload it as `air`, then draws one test picture with it.
+on:
+  workflow_dispatch:
+    inputs:
+      source_url:
+        description: "Download URL of the .safetensors file"
+        required: true
+      air:
+        description: "Runware AIR to create (ferasalm:<name>@<version>)"
+        required: true
+      name:
+        description: "Display name on Runware"
+        required: true
+      convert:
+        description: "Convert a diffusers DoRA to a BFL-named LoRA first"
+        type: boolean
+        default: false
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download
+        env:
+          SRC: ${{ github.event.inputs.source_url }}
+        run: |
+          curl -sSfL -o in.safetensors "$SRC"
+          ls -la in.safetensors
+      - name: Convert
+        if: ${{ github.event.inputs.convert == 'true' }}
+        run: |
+          pip install --quiet numpy
+          python3 tools/lora/dora-to-lora.py in.safetensors out.safetensors
+          mv out.safetensors in.safetensors
+      - name: Host, upload to Runware, test
+        env:
+          RUNWARE_API_KEY: ${{ secrets.RUNWARE_API_KEY }}
+          AIR: ${{ github.event.inputs.air }}
+          NAME: ${{ github.event.inputs.name }}
+        run: |
+          set -e
+          sha=$(sha256sum in.safetensors | cut -d' ' -f1)
+          echo "sha256 $sha"
+          url=$(curl -sSf -F reqtype=fileupload -F time=72h -F "fileToUpload=@in.safetensors;filename=${sha:0:12}.safetensors" https://litterbox.catbox.moe/resources/internals/api.php)
+          echo "hosted at $url"
+          case "$url" in https://*) ;; *) echo "hosting failed"; exit 1 ;; esac
+          rw() { curl -sS https://api.runware.ai/v1 -H "Authorization: Bearer $RUNWARE_API_KEY" -H "Content-Type: application/json" -d "$1"; }
+          body=$(jq -nc --arg air "$AIR" --arg name "$NAME" --arg sha "$sha" --arg url "$url" --arg id "$(cat /proc/sys/kernel/random/uuid)" \
+            '[{taskType:"modelUpload",taskUUID:$id,category:"lora",architecture:"flux2klein_9b",format:"safetensors",air:$air,uniqueIdentifier:$sha,name:$name,version:"1",downloadURL:$url,defaultWeight:1,private:true}]')
+          rw "$body" | tee upload.json
+          # wait until Runware has it, then one klein 9B test picture with it (about $0.0008)
+          for i in $(seq 1 60); do
+            test=$(jq -nc --arg air "$AIR" --arg id "$(cat /proc/sys/kernel/random/uuid)" \
+              '[{taskType:"imageInference",taskUUID:$id,model:"runware:400@2",positivePrompt:"A woman with dark wavy hair on a couch, warm lamp light",width:576,height:1024,lora:[{model:$air,weight:1}],includeCost:true,outputType:"URL",safety:{checkContent:false}}]')
+            out=$(rw "$test")
+            if echo "$out" | grep -q imageURL; then echo "$out"; echo "LoRA works: $AIR"; exit 0; fi
+            echo "try $i: $(echo "$out" | jq -c '.errors[0].message' 2>/dev/null || echo "$out" | head -c 200)"
+            echo "$out" | grep -q -i "not ready\|valid AIR" || { echo "LoRA failed: $AIR"; exit 1; }
+            sleep 20
+          done
+          echo "still not ready after 20 minutes"; exit 1
