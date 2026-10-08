@@ -3,8 +3,8 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-08 (fourteenth session). **Deployed:** see "Verified this session". Before this session `main` = afbd4fd
-(SNOFS); push afbd4fd to `main` to go back.
+**Last updated:** 2026-10-08 (fourteenth session). **Deployed:** `main` = 1176ec8 (deploy run 37799616836, /setup all ✅, $1.00 cap,
+face "built in"). Back to before this session: push afbd4fd to `main`.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month). **Live now:**
@@ -33,7 +33,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - `node tools/check.mjs` all 6 ok (new unit rows: SEX_ACTS on/off, POV_MAN only on sex acts, /pic "riding me" → "the man", scene
   sentences about him only when explicit, body v2 only on nude/sex pictures, DRESSED on clothed).
 - ~30 pictures drawn by the bot's own `drawPicture` on Runware, each opened at full size (docs/CHANGELOG.md): face kept on all.
-- Deploy: see the last commit of this session and docs/DECISIONS.md.
+- Deploy run 37799616836 green: /health drew and saw, /setup all ✅ (Runware klein, today $0.11 of $1.00). Live code not read back
+  (the Cloudflare MCP returns the whole bundle); /setup's new cap is the proof. Not checked: a real Telegram sex-act picture.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.

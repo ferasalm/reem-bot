@@ -12,7 +12,8 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   riding, doggystyle, missionary, ...); `NUDE_WORDS` adds pussy, vagina, pubic, bush, spread legs; new `POV_MAN` on sex-act pictures
   (his eyes are the camera, never his face; his penis anatomically correct); /pic's me/my/I are "the man" in a sex act; /look and her
   scene pictures keep a nude or sex-act sentence about him as "the man"; `NAKED` asks for a detailed, unblurred vulva;
-  `RUNWARE.DAILY_USD` 1 (was 0.5). Kept (Claude): no picture after he says he's under 18, none in an OOC reply.
+  `RUNWARE.DAILY_USD` 1 (was 0.5). Kept (Claude): no picture after he says he's under 18, none in an OOC reply. Deployed with the entry below: `main` = 1176ec8
+  (was afbd4fd), deploy run 37799616836 green, /setup all ✅. To go back: push afbd4fd to `main`.
 - 2026-10-08 — **New face and body (the picture refresh)** (owner: "find attached pictures for Reem. We want to keep the fuller arms",
   "All AI-made. Use 1-2 for face, and the rest for exact body shape and contours (notice the breasts type, areolas, nipples, bushy
   groin)", "They're AI-made, use them", and picked "Natural pubic hair" over the piercings): her face is cropped from his picture 1
