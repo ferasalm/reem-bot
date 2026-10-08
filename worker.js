@@ -837,47 +837,71 @@ Changing the story
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
       // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16);
       // then "Switch on Real HD 2K too": realhd2kc (converted, rank 32) at 0.5, as in the all-three bench (run 37722968583, 4/4)
-      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "ferasalm:realhd2kc@1": 0.5 },
+      // owner 2026-10-08 (round 3): "Add anatomy fixer to every picture, and remove the least impactful LoRA": the drop-one
+      // bench changed least without Real HD 2K (Lenovo UltraReal, ferasalm:lenovoc@1, drew the same as it): both out
+      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "myaiprojectsqqq:3@2": 0.7 },
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
       // owner 2026-10-08: SNOFS (Civitai, klein 9B v1.4) on nude/explicit pictures only: added to LORAS when NUDE_WORDS match
       // (or, with SEX_ACTS on, a NOT_DRAWN word). Runware can't load its LoKR ("failed to load") and its merged klein 9B
       // checkpoints (bf16 and fp8: internalError), so it is a rank-128 LoRA copy (tools/lora/lokr-to-lora.py, run 37788419189)
       // + NSFW Unlocked V2 (Civitai 3030169, fuller natural bush 2/2) and Anatomy Quality Fixer (on Runware, myaiprojectsqqq:3@2:
       // cleaner limbs, followed the words better 3/3), owner 2026-10-08
-      NUDE_LORAS: { "ferasalm:snofsc@1": 0.8, "ferasalm:nsfwunlock@1": 0.5, "myaiprojectsqqq:3@2": 0.7 },
+      // round 3 (owner: "Compare between SNOFS and NSFW unlocked", + Unchained XXX v2, Civitai 2753532): Unchained spread her
+      // legs and showed penetration riding where SNOFS and Unlocked didn't; Unlocked beat SNOFS on 2 of 3 → Unchained +
+      // Unlocked (SNOFS, ferasalm:snofsc@1, stays on Runware)
+      // Unlocked (ferasalm:nsfwunlock@1) out too: with every LoRA stacked (9) her face drifted in 5 of 8 sex pictures
+      NUDE_LORAS: { "ferasalm:unchained@2": 0.8 },
       // by situation (owner 2026-10-08: "use LoRAs according to situations", runwareLoras): added to LORAS on her selfies /
       // in-person scenes and /look / /pic. InstaPic (Civitai 2998522) on selfies: more natural hair and skin (alone it drew
       // the phone in a plain selfie, so only with the others, at 0.6)
       SELFIE_LORAS: { "ferasalm:instapic@1": 0.6 },
       SCENE_LORAS: {},
       PIC_LORAS: {},
-      // a LoRA added when one of its ACT_WORDS (comma-separated, whole words) is in the picture's words. Bench 2026-10-08 (live set
-      // + the LoRA): POV Blowjob (Civitai 2623129) 3/4 right (0/4 without), Missionary POV K3NK (2699087) 4/4, POV Doggy Anal
-      // Adriano (2821244, anal only) 2/2, POV hand (2640656, converted to BFL naming: ferasalm:povhandc@1) his hand from his eyes 3/3
-      ACT_LORAS: { "ferasalm:povbj@1": 0.9, "ferasalm:missionary@1": 0.8, "ferasalm:povanal@1": 0.8, "ferasalm:povhandc@1": 0.6 },
+      // a LoRA added when one of its ACT_WORDS (comma-separated, whole words) is in the picture's words. Benches 2026-10-08:
+      // Flux 4 Play AIO (Civitai 2702716) cowgirl, reverse cowgirl, missionary, doggy 5/5 (riding had no LoRA before);
+      // Missionary POV K3NK (2699087) 4/4; POV Doggy Anal (2821244) 2/2; General Penis (2624854) and PussyDiffusion v2 (2960754:
+      // a full natural bush and a real vulva 2/2) on every sex act; POV hand (2640656, converted: ferasalm:povhandc@1) his hands.
+      // POV Blowjob (ferasalm:povbj@1): its POV penis came out far too long 0/9 (owner: "too long") → 0.6 with a side view
+      // (ACT_SCENES): oral and an average size 2/2 (without it, oral 3/6)
+      ACT_LORAS: { "ferasalm:flux4play@1": 0.8, "ferasalm:povbj@1": 0.6, "ferasalm:missionary@1": 0.8, "ferasalm:povanal@1": 0.8, "ferasalm:penis@1": 0.6, "ferasalm:pussyd@1": 0.8, "ferasalm:povhandc@1": 0.6 },
       ACT_WORDS: {
-        "ferasalm:povbj@1": "blowjob, blow job, blowing, sucking, sucks, suck, deepthroat, deep throat, oral",
+        "ferasalm:flux4play@1": "riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours",
+        "ferasalm:povbj@1": "blowjob, blow job, sucking, sucks, suck, deepthroat, takes the man in her mouth",
         "ferasalm:missionary@1": "missionary",
         "ferasalm:povanal@1": "anal, ass fucking, in her ass",
-        "ferasalm:povhandc@1": "the man's hand, the man's hands, grabbing, grabs, groping, gropes, squeezing, squeezes, his hand, his hands",
+        "ferasalm:penis@1": "sex, fuck, fucks, fucked, fucking, penis, cock, dick, blowjob, blow job, sucking, sucks, deepthroat, riding, rides, cowgirl, missionary, doggy, doggystyle, anal, thrusts, thrusting, inside her",
+        "ferasalm:pussyd@1": "pussy, vagina, spread legs, legs spread",
+        "ferasalm:povhandc@1": "the man's hand, the man's hands, grabbing, grabs, groping, gropes, squeezing, squeezes, his hand, his hands, anal, doggy, doggystyle",
       },
+      ACT_ANY: ["ferasalm:povhandc@1"],  // ACT_LORAS also allowed on clothed pictures (the others: nude or sex acts only)
       // a LoRA's trigger words, put first in the prompt whenever that LoRA is used
       LORA_WORDS: {
         "ferasalm:instapic@1": "instapic",
-        "ferasalm:povbj@1": "pov photo from the man's view, she is doing a blowjob, close-up",
-        "ferasalm:povhandc@1": "POV hand, zoom in, man's hand",
+        "ferasalm:pussyd@1": "hairy pussy",
+      },
+      // the camera, his hands and the act's trigger words, by act (owner 2026-10-08: POV hand holding her head in a blowjob, her
+      // breasts riding, her butt in doggy anal). The first entry whose words (comma-separated) are in the picture's words is
+      // added in place of POV_MAN ({pov} = POV_MAN); none = POV_MAN. Blowjob: a side view (the POV ones drew the penis too long 0/9,
+      // the side view 3/3 average-sized)
+      ACT_SCENES: {
+        "blowjob, blow job, sucking, sucks, suck, deepthroat, takes the man in her mouth, the man's cock in her mouth": "Side view photo: she sucks the standing man's average-sized penis, her lips halfway down the shaft; we see his hips and thighs from the side, never his face. One man, one penis. {close}",
+        "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov}",
+        "riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man": "c0wg1rl, pov. {pov}",
+        "missionary": "m15510n4ry, pov. {pov}",
+        "anal, ass fucking, in her ass": "an4l, pov. {pov} POV hand, the man's hands gripping her butt.",
+        "doggy, doggystyle, doggy style, on all fours": "d0gg13, pov. {pov} POV hand, the man's hands gripping her butt.",
       },
       TIMEOUT_MS: 60000,
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
       REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes or nakedness, her pose, her hair and her background; she is dressed as the words below say, and naked only when they say so): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a small beauty mark on her left cheek, thick dark arched brows, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body.",
       LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a small beauty mark on her left cheek, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
       // sex acts: never drawn on Runware while SEX_ACTS is off; with it on, they add NUDE_LORAS and POV_MAN
-      NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "anal", "creampie", "cumshot", "titfuck", "69"],
+      NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "anal", "creampie", "cumshot", "titfuck", "69", "thrusts", "thrusting", "inside her", "sinks down onto the man", "lowers herself onto the man", "takes the man in her mouth", "reverse cowgirl", "on all fours", "doggy style"],
       SEX_ACTS: true,                  // owner 2026-10-06: a switch; on since 2026-10-08 (owner: "lift all restrictions" to test the
                                        // LoRA with sex acts). On = NOT_DRAWN is ignored on Runware (sex acts sent as he wrote
                                        // them). The under-18 flag and "never OOC" still stop every picture.
       // the man in a sex-act picture (owner 2026-10-08: "POV, faceless man"), added when a NOT_DRAWN word matches with SEX_ACTS on
-      POV_MAN: "First-person photo taken from the man's own eyes: the camera is his head, so his face and head are never in the picture; only his hands, chest, belly, hips and thighs may show. He is an adult man. Her face is in frame. One penis, his, drawn realistically and anatomically correct when it is part of the act.",
+      POV_MAN: "First-person photo taken from the man's own eyes: the camera is his head, so his face and head are never in the picture; only his hands, chest, belly, hips and thighs may show. He is an adult man. Her face is in frame. One penis, his, average-sized, drawn realistically and anatomically correct when it is part of the act.",
       // added when the picture is neither nude nor a sex act: the nude body picture (BODY "v2") leaked nudity into 3/3
       // pictures that named no clothes (owner's refresh bench, 2026-10-08)
       DRESSED: "She is dressed, wearing clothes that suit the moment (the clothes named above when there are any): not naked, not topless, her breasts and body covered by her clothes.",
@@ -3285,8 +3309,16 @@ function runwareLoras(opts = {}) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const own = { selfie: R.SELFIE_LORAS, scene: R.SCENE_LORAS, pic: R.PIC_LORAS }[kind] || {};
   const words = R.ACT_WORDS || {};
-  const acts = Object.entries(R.ACT_LORAS || {}).filter(([air]) => String(words[air] || "").split(",").some((w) => w.trim() && hasWord(text, w.trim())));
+  // only on nude or sex-act pictures, except ACT_ANY (his hand can be on her waist in a clothed picture)
+  const acts = Object.entries(R.ACT_LORAS || {}).filter(([air]) => (explicit || (R.ACT_ANY || []).includes(air)) && String(words[air] || "").split(",").some((w) => w.trim() && hasWord(text, w.trim())));
   return Object.entries({ ...(R.LORAS || {}), ...own, ...(explicit ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
+}
+
+// The camera and his hands for a sex act (ACT_SCENES, first match; {pov} = POV_MAN), else POV_MAN
+function actScene(text) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  const hit = Object.entries(R.ACT_SCENES || {}).find(([words]) => String(words).split(",").some((w) => w.trim() && hasWord(text, w.trim())));
+  return (hit ? String(hit[1]).replace("{pov}", R.POV_MAN || "") : R.POV_MAN || "").replace(/\s{2,}/g, " ").trim();
 }
 
 // The trigger words of the LoRAs in use (LORA_WORDS), joined, for the start of the prompt
@@ -3360,7 +3392,11 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const naked = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w)) ? ` ${R.NAKED}` : "";
     // a sex act with SEX_ACTS on: the man from his point of view (POV_MAN); nude or a sex act: NUDE_LORAS (SNOFS) too
     const act = sexAct(prompt);
-    const pov = act && R.POV_MAN ? ` ${R.POV_MAN}` : "";
+    // "{close}" in its ACT_SCENES text: no place picture (it pulled blowjobs into a wide room shot 4/4); the room stays in words
+    const scene = act ? actScene(prompt) : "";
+    const close = scene.includes("{close}");
+    const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
+    const shownPlace = close ? null : place;
     const explicit = !!naked || act;
     const rwBody = ref ? runwareBody(explicit) : null;
     const tries = P.ROUTE === "runware-klein" && ref ? [[R.MODEL, true], [R.BACKUP_MODEL, false]] : [[R.BACKUP_MODEL, false]];
@@ -3368,7 +3404,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
       if (!model) continue;
       try {
         // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
-        const refs = withFace ? [ref, rwBody, place].filter(Boolean) : [];
+        const refs = withFace ? [ref, rwBody, shownPlace].filter(Boolean) : [];
         // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
         // the LoRAs' own trigger words (LORA_WORDS) go first
         const loraOpts = { kind, explicit, text: prompt };
@@ -3376,7 +3412,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         const triggers = loraWords(loras);
         const lead = (w) => `${triggers ? `${triggers}. ` : ""}${loras.length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w}`;
         const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
-        const text = (withFace ? who(lead(R.REFERENCE), !!place) : who(R.LOOKS, false)) + naked + pov + dressed;
+        const text = (withFace ? who(lead(R.REFERENCE), !!shownPlace) : who(R.LOOKS, false)) + naked + pov + dressed;
         const out = await drawRunware(env, model, text, refs, width, height, loraOpts);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };

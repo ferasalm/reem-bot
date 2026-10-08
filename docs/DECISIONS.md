@@ -5,6 +5,16 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **LoRA round 3: Anatomy Fixer everywhere, Real HD out, new act LoRAs; dev only** (owner: "In blowjob scenes: the
+  penis is too long", "Compare between SNOFS and NSFW unlocked", "Add POV hand to blowjob (like holding her head) and to riding (holding
+  her breasts) and doggy anal (gripping her butt)", "Add anatomy fixer to every picture, and remove the least impactful LoRA", the penis,
+  PussyDiffusion, Lenovo UltraReal, Unchained XXX and Flux 4 Play LoRAs; then picked "Keywords + more words" for /look and "Dev only"):
+  `LORAS` phone2025 + ultrareal5 + Anatomy Fixer (Real HD 2K out: least change in the drop-one bench; Lenovo drew the same, not added);
+  `NUDE_LORAS` Unchained 0.8 (beat SNOFS and Unlocked; both kept on Runware); `ACT_LORAS` by words: Flux 4 Play (riding, cowgirl,
+  doggy), Missionary, POV Anal, penis 0.6, PussyDiffusion (pussy, spread legs), POV hand (his hands, doggy/anal), POV Blowjob 0.6;
+  `ACT_SCENES`: the camera per act (blowjob a side view without the room picture; doggy/anal his hands on her butt). Claude's calls:
+  POV hand on her head (blowjob) drew a second penis and on her breasts (riding) 0/4, so they are left out. *Supersedes the LORAS and
+  NUDE_LORAS of "LoRAs by situation" (same day).* Not deployed.
 - 2026-10-08 — **LoRAs by situation; seven new LoRAs** (owner: "Use the following LoRAs (upload them if they are not on runware)" — Anatomy
   Fixer (Runware `myaiprojectsqqq:3@2`), POV Blowjob, POV hand, NSFW Unlocked, POV Doggy Anal, Missionary POV, InstaPic — "After testing
   each individually, List all the LoRAs that we have and use, so we can set conditions for each depending on user's request ... instead

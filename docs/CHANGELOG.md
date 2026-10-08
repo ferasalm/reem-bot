@@ -4,6 +4,19 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (fourteenth session, part 3): LoRA round 3 (on dev)
+- Uploaded from the container: `ferasalm:penis@1` (2624854), `ferasalm:pussyd@1` (2960754), `ferasalm:unchained@2` (2753532, kohya
+  naming loads), `ferasalm:flux4play@1` (2702716); Lenovo (2682771, PEFT naming) failed to load → dora-to-lora.py now reads PEFT and
+  skips modules a LoRA doesn't train → lora-upload run 37814913818 `ferasalm:lenovoc@1`.
+- SNOFS vs Unlocked vs Unchained (standing, legs spread, riding): Unchained spread her legs and showed penetration; SNOFS riding put
+  her on his back with his face in frame. Flux 4 Play with its triggers: cowgirl ×2, reverse, missionary, doggy 5/5. PussyDiffusion
+  ("hairy pussy"): full bush, real vulva 2/2. POV hand: on her head (blowjob) and butt (anal) yes, on her breasts riding 0/4.
+- Blowjob length: POV Blowjob + penis LoRA + "13-14 cm" / close-up / from above: still long 0/9 (the POV lens); a side view: average
+  length 3/3 when no room is named. With a room ("in the living room") 0/4 even without the room picture: open.
+- Drop-one (clothed + nude): without phone2025 her face changed most; without Real HD 2K least; Lenovo ≈ Real HD. 10 steps: same cost.
+- Everything stacked (9 LoRAs): her face drifted (lighter hair) in 5/8 sex pictures → leaner sets (≤6): faces back 8/8.
+- Final routing bench: riding ×2, reverse cowgirl, missionary, doggy, anal, nude, legs spread, selfie, hand on waist right; blowjob 2/4.
+
 ## 2026-10-08 (fourteenth session, part 2): LoRAs by situation (on dev)
 - Uploads from the container (REST `modelUpload`, Civitai signed links): povbj, nsfwunlock, povanal, missionary, instapic loaded; POV
   hand "failedLoraLoad" (OneTrainer naming) → lora-upload run 37804594857 converted it (`ferasalm:povhandc@1`, 9 global modules left out).

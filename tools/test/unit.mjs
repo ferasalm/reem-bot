@@ -291,9 +291,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     failKlein = false;
     eq(await loras("having sex"), [[R.MODEL, base]], "a sex act with SEX_ACTS off: no NUDE_LORAS");
     R.SEX_ACTS = true;
-    eq(await loras("having sex"), [[R.MODEL, nude]], "a sex act with SEX_ACTS on: NUDE_LORAS");
+    eq(await loras("having sex"), [[R.MODEL, [...nude, "ferasalm:penis@1"].sort()]], "a sex act with SEX_ACTS on: NUDE_LORAS + the penis LoRA");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
-  eq(Object.keys(R.NUDE_LORAS), ["ferasalm:snofsc@1", "ferasalm:nsfwunlock@1", "myaiprojectsqqq:3@2"], "nude LoRAs: SNOFS, NSFW Unlocked, Anatomy Fixer");
+  eq(Object.keys(R.NUDE_LORAS), ["ferasalm:unchained@2"], "nude LoRAs: Unchained (round 3)");
+  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "myaiprojectsqqq:3@2"], "every picture: phone2025, UltraReal, Anatomy Fixer; Real HD 2K out");
 }
 {
   const yes = (v, label, got) => eq(!!v || got, true, label);
@@ -327,7 +328,15 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("in a gray hoodie in her bedroom", "selfie");
     yes(c.loras.includes("ferasalm:instapic@1") && c.text.startsWith("instapic. "), "her selfie: InstaPic and its trigger word first", c.text.slice(0, 60));
     c = await call("giving the man a blowjob, kneeling", "pic");
-    yes([...nudeSet, "ferasalm:povbj@1"].every((k) => c.loras.includes(k)) && !c.loras.includes("ferasalm:missionary@1") && c.text.startsWith(R.LORA_WORDS["ferasalm:povbj@1"]), "a blowjob: nude LoRAs + POV Blowjob (only), its trigger words first", c.loras);
+    yes([...nudeSet, "ferasalm:penis@1"].every((k) => c.loras.includes(k)) && c.loras.includes("ferasalm:povbj@1") && !c.loras.includes("ferasalm:povhandc@1") && c.text.includes("Side view photo") && !c.text.includes("{close}") && !c.text.includes(R.POV_MAN), "a blowjob: nude LoRAs + penis + POV Blowjob, a side view, no POV_MAN", c.loras);
+    c = await call("riding the man on the bed", "pic");
+    yes(c.loras.includes("ferasalm:flux4play@1") && c.loras.length <= 6 && c.text.includes("c0wg1rl") && c.text.includes(R.POV_MAN), "riding: Flux 4 Play (c0wg1rl), POV_MAN kept, at most 6 LoRAs", c.loras);
+    c = await call("naked on the bed, legs spread", "pic");
+    yes(c.loras.includes("ferasalm:pussyd@1") && c.text.startsWith("hairy pussy"), "legs spread: PussyDiffusion and its trigger first", c.loras);
+    c = await call("the man fucking her anal doggystyle", "pic");
+    yes(c.loras.includes("ferasalm:povanal@1") && c.text.includes("an4l") && c.text.includes("gripping her butt"), "anal: POV Anal + his hands on her butt", c.loras);
+    c = await call("naked in bed", "pic");
+    yes(!c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:flux4play@1"), "nude, no act: no act LoRAs", c.loras);
     c = await call("missionary sex on the bed", "scene");
     yes(c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:povbj@1") && !c.loras.includes("ferasalm:instapic@1"), "/look missionary: Missionary POV, no selfie LoRA", c.loras);
     c = await call("in a black dress, the man's hand on her waist", "pic");
