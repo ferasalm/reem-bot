@@ -17,7 +17,8 @@ entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-chec
   2026-10-04), `MOODS.ORAL` (eyes only: "open-mouthed moan" drew her tongue out), `SEX_CUES` + `SEX_CONTEXT` + `SCENE_ACT_STYLE`
   (/look and her scene pictures name the act in her words, keep the sentences about him, draw her naked: 6/6), the anal camera on
   her back (from behind 0/14 drew a vulva for her anus; on her back 3/3), LoRA trigger words first in the prompt. POV Doggy Anal
-  kept for now: on her back it drew the same with and without it (owner decides). Deployed with this session's handoff.
+  kept for now: on her back it drew the same with and without it (owner decides). Deployed: `main` = 088c9be (was 1176ec8),
+  deploy run 37845500501 green, /setup all ✅, live code read back. To go back: push 1176ec8 to `main`.
 - 2026-10-08 — **Picture quality round 4: InstaPic on every picture, short prompts, his-eyes sex acts; dev only** (owner: "use
   instapic for every pic, review the prompts, settings and workflow ... Unlock the spending cap for this test", "Don't cut POV Doggy
   Anal (owner) until you test the alternatives and consult me", "Remove the overlapping LoRAs (General Penis, pussy diffusion) unless
