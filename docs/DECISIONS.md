@@ -5,6 +5,14 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **LoRAs by situation; seven new LoRAs** (owner: "Use the following LoRAs (upload them if they are not on runware)" — Anatomy
+  Fixer (Runware `myaiprojectsqqq:3@2`), POV Blowjob, POV hand, NSFW Unlocked, POV Doggy Anal, Missionary POV, InstaPic — "After testing
+  each individually, List all the LoRAs that we have and use, so we can set conditions for each depending on user's request ... instead
+  of dumping them all together if that's better"): uploaded as `ferasalm:povbj@1`, `ferasalm:povhandc@1` (converted: OneTrainer
+  naming failed to load), `ferasalm:nsfwunlock@1`, `ferasalm:povanal@1`, `ferasalm:missionary@1`, `ferasalm:instapic@1`. Claude's
+  routing and weights (`runwareLoras`): LORAS (phone2025, ultrareal5, realhd2kc) on every picture; SELFIE_LORAS InstaPic 0.6; NUDE_LORAS
+  SNOFS 0.8 + NSFW Unlocked 0.5 + Anatomy Fixer 0.7; ACT_LORAS by words (blowjob → POV Blowjob 0.9, missionary → Missionary 0.8, anal →
+  POV Anal 0.8, his hand/grabbing → POV hand 0.6); LORA_WORDS put their trigger words first. On `dev`; deploy waits on the owner.
 - 2026-10-08 — **Sex-act pictures on, POV man, detailed genitalia, $1/day; deploy once verified** (owner: "We're at the development
   stage, we need to lift all restrictions, especially on generating pictures ... I must verify the LoRA is working even with sex acts",
   then picked "POV, faceless man", "Raise to $1", "Deploy when verified", and on the plan: "Allow detailed genitalia"):

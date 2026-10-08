@@ -293,7 +293,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     R.SEX_ACTS = true;
     eq(await loras("having sex"), [[R.MODEL, nude]], "a sex act with SEX_ACTS on: NUDE_LORAS");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
-  eq(Object.keys(R.NUDE_LORAS), ["ferasalm:snofsc@1"], "SNOFS is the nude LoRA");
+  eq(Object.keys(R.NUDE_LORAS), ["ferasalm:snofsc@1", "ferasalm:nsfwunlock@1", "myaiprojectsqqq:3@2"], "nude LoRAs: SNOFS, NSFW Unlocked, Anatomy Fixer");
 }
 {
   const yes = (v, label, got) => eq(!!v || got, true, label);
@@ -319,6 +319,20 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     yes(nude.includes(R.NAKED) && !nude.includes(R.POV_MAN), "nude, no act: NAKED, no POV_MAN");
     eq(W.scenePicturePrompt("*She straddles you on the couch, riding you slowly, her hands on your chest.*"), "She straddles the man on the couch, riding the man slowly, her hands on the man's chest.", "scene: a sex-act sentence about him stays, he is the man");
     eq(W.scenePicturePrompt("*She sits beside you on the couch with a mug of tea. She tucks her feet under her, the gray cardigan sliding off one shoulder.*"), "She tucks her feet under her, the gray cardigan sliding off one shoulder.", "scene: a clothed sentence about him is still left out");
+    // LoRAs by situation (owner 2026-10-08)
+    const call = async (words, kind) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {}, kind }); return { loras: (sent[0].lora || []).map((l) => l.model).sort(), text: sent[0].positivePrompt }; };
+    const base = Object.keys(R.LORAS), nudeSet = Object.keys(R.NUDE_LORAS);
+    let c = await call("in a gray sweater on the couch", "pic");
+    eq(c.loras, [...base].sort(), "/pic, clothed: the base LoRAs only");
+    c = await call("in a gray hoodie in her bedroom", "selfie");
+    yes(c.loras.includes("ferasalm:instapic@1") && c.text.startsWith("instapic. "), "her selfie: InstaPic and its trigger word first", c.text.slice(0, 60));
+    c = await call("giving the man a blowjob, kneeling", "pic");
+    yes([...nudeSet, "ferasalm:povbj@1"].every((k) => c.loras.includes(k)) && !c.loras.includes("ferasalm:missionary@1") && c.text.startsWith(R.LORA_WORDS["ferasalm:povbj@1"]), "a blowjob: nude LoRAs + POV Blowjob (only), its trigger words first", c.loras);
+    c = await call("missionary sex on the bed", "scene");
+    yes(c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:povbj@1") && !c.loras.includes("ferasalm:instapic@1"), "/look missionary: Missionary POV, no selfie LoRA", c.loras);
+    c = await call("in a black dress, the man's hand on her waist", "pic");
+    yes(c.loras.includes("ferasalm:povhandc@1") && !c.loras.includes("ferasalm:snofsc@1"), "his hand, clothed: POV hand, no nude LoRAs", c.loras);
+    eq(W.picWords("my hand on your waist, you in a black dress"), "the man's hand on her waist, her in a black dress", "/pic: 'my hand' is his");
     R.SEX_ACTS = false;
     yes(!W.mayDraw("her giving a blowjob") && !W.sexAct("her giving a blowjob"), "switch off: not drawn");
     eq(W.picWords("you riding me"), "her riding her", "switch off: /pic unchanged");

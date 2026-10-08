@@ -3,7 +3,7 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-08 (fourteenth session). **Deployed:** `main` = 1176ec8 (deploy run 37799616836, /setup all ✅, $1.00 cap,
+**Last updated:** 2026-10-08 (fourteenth session, part 2: LoRAs by situation on `dev`). **Deployed:** `main` = 1176ec8 (deploy run 37799616836, /setup all ✅, $1.00 cap,
 face "built in"). Back to before this session: push afbd4fd to `main`.
 
 ## Where we are
@@ -11,8 +11,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 - **Texts, memory notes, /auto:** DeepSeek V4 Flash on Workers AI (`@cf/deepseek-ai/deepseek-v4-flash-0731`), the same DeepSeek on
   OpenRouter (Novita...) as the backup. Her replies: reasoning "none" + empty-answer retries (last 2 "low"); tasks: "low".
 - **Voice:** Sulafat (OpenRouter); backup aura-2 Andromeda (Workers AI), then ElevenLabs. **Hearing:** Gemini 3.8 Flash, then Whisper, then Scribe.
-- **Pictures:** Runware klein 9B with her face + 3 LoRAs (phone2025, ultrareal5 0.6, realhd2kc 0.5), SNOFS 0.8 on nude and sex-act
-  pictures; `RUNWARE.DAILY_USD` $1 (then Cloudflare klein, never nude). Seeing his photos: Llama 4 Scout. Runware balance ~$18.30.
+- **Pictures (live):** Runware klein 9B with her face + 3 LoRAs (phone2025, ultrareal5 0.6, realhd2kc 0.5), SNOFS 0.8 on nude and
+  sex-act pictures; `RUNWARE.DAILY_USD` $1 (then Cloudflare klein, never nude). Seeing his photos: Llama 4 Scout. Runware ~$18.20.
+- **On `dev`, not deployed: LoRAs by situation** (`runwareLoras`): base 3 on every picture; selfies + InstaPic; nude/sex + SNOFS, NSFW
+  Unlocked, Anatomy Fixer; by words: blowjob → POV Blowjob, missionary → Missionary POV, anal → POV Anal, his hand → POV hand
+  (`ACT_LORAS`/`ACT_WORDS`, trigger words in `LORA_WORDS`). Bench: 7/8 right, blowjob fixed; riding has no LoRA (no penetration shown).
 - **New this session (owner):** sex acts drawn (`SEX_ACTS` true, widened word lists), the man from his own eyes (`POV_MAN`, never his
   face), detailed genitals in `NAKED`, /pic's me/my = "the man" in a sex act, /look keeps sex sentences about him.
 - **New face and body:** his picture 1 (black wavy hair, full bangs, amber-brown eyes, beauty mark on her left cheek) = `face.js`;
@@ -24,7 +27,8 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 ## Waiting on the owner
 - **In Telegram:** /pic nudes and sex acts (e.g. "/pic you riding me on the bed"); a selfie; /look in a heated scene.
   If an old `/face keep` is stored, pictures keep the old face: send `/face reset`.
-- **Blowjobs draw wrong** (0/4 on klein + SNOFS): try your own wording; if it stays wrong, it's the model.
+- **Deploy the LoRA routing?** It's on `dev`, benched (docs/CHANGELOG.md); say "deploy" and Claude pushes it to `main`.
+- **Riding/cowgirl:** no LoRA covers it yet (penetration not shown); a Civitai cowgirl POV LoRA for klein 9B would be the fix.
 - **Still to do from the refresh:** expressions, poses and wardrobe variety (words, Claude can write them; Nano Banana prompts if you
   want reference pictures).
 - Still open: ElevenLabs backup voice "North Jersey"; delete old branches (Actions > Delete retired branches).
@@ -38,10 +42,10 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers 
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Owner's live test** of /pic nudes, sex acts, selfies and /look; report slips. *Effort: low*
+1. **Deploy the LoRA routing** (owner's call), then his live test of /pic, selfies and /look; report slips. *Effort: low*
 2. **Wardrobe, expressions, poses:** widen `WARDROBE`, `EXPRESSIONS`, `SHOTS` (Claude's picks), bench on Runware from the container
    (LESSONS §1), read every picture. *Effort: medium*
-3. **Blowjob drawing:** try wordings or a second LoRA for oral (Civitai, klein 9B) if the owner wants it. *Effort: medium*
+3. **Riding LoRA:** find and upload a cowgirl/riding POV LoRA for klein 9B, add it to `ACT_LORAS` (words: riding, cowgirl). *Effort: medium*
 4. **After a day live:** /spend vs the dashboards, AI Gateway logs, the day's plan in KV "day", recall in a real prompt. *Effort: low*
 5. **Workers AI "habibti" slip:** she remarks on his "habibti"; try the prompt line without naming it. *Effort: medium*
 6. **Selfie framing:** the phone shows in plain selfies (1 of 6). *Effort: medium*

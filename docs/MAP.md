@@ -57,7 +57,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `timeOfDay`) `composePicture`/scene pictures set `night` and `drawPicture` sends `<key>_night` when it exists
   - picture versions (2026-10-06): `PICTURE.ROUTE` "cloudflare" | "runware-klein" | "runware-twinflow"; `runwareRoute` (her words unfiltered:
     `filterSafe` a no-op, `mayDraw` uses RUNWARE.NOT_DRAWN unless the panel switch RUNWARE.SEX_ACTS is on, `safeLine` drops SAFE), `runwareAffordable` (key + RUNWARE.DAILY_USD, ledger `rwUsd`),
-    `runwareBody` (RUNWARE.BODY), `drawRunware` (api.runware.ai, content check off); `drawPicture` tries Runware first when given a ledger
+    `runwareBody` (RUNWARE.BODY; BODY_CLOTHED when not nude), `runwareLoras` (LoRAs by situation: LORAS + SELFIE/SCENE/PIC_LORAS by `kind`, NUDE_LORAS, ACT_LORAS by ACT_WORDS; `loraWords` puts LORA_WORDS first), `drawRunware` (api.runware.ai, content check off); `drawPicture` tries Runware first when given a ledger
     (klein 9B with face/body/place, then TwinFlow from LOOKS, then Cloudflare), adds RUNWARE.NAKED on NUDE_WORDS; `startPicture` skips the klein
     check and Nano Banana on Runware. The deploy copies the GitHub secret RUNWARE_API_KEY to the Worker; /setup shows the route.
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,

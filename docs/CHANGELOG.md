@@ -4,6 +4,17 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (fourteenth session, part 2): LoRAs by situation (on dev)
+- Uploads from the container (REST `modelUpload`, Civitai signed links): povbj, nsfwunlock, povanal, missionary, instapic loaded; POV
+  hand "failedLoraLoad" (OneTrainer naming) → lora-upload run 37804594857 converted it (`ferasalm:povhandc@1`, 9 global modules left out).
+- Each LoRA benched alone on top of the live set, every picture opened: Anatomy Fixer: cleaner limbs, followed "on the bed" 3/3 (live
+  set put her on the floor once); POV Blowjob 2/3 (0/4 without; the miss was a wide room shot → its trigger words: fixed in the final
+  bench); Missionary 2/2; POV Anal 2/2; NSFW Unlocked: fuller bush, riding without SNOFS lost the man (with SNOFS ok); POV hand: his
+  hand from his eyes 3/3 (without it a hand came in from the side); InstaPic: more natural hair/skin, alone it drew the phone.
+- 4 vs 7 LoRAs: both drew the acts; 7 kept her face and the photo look better. 7 LoRAs ~20 s, $0.00169.
+- Final routing bench (real `runwareLoras`, kinds pic/selfie/scene): 7/8 right; riding (no LoRA for it) showed no penetration.
+  Runware 502 "no picture" ~1 call in 8 from the container (retried fine).
+
 ## 2026-10-08 (fourteenth session): sex acts on, new face and body (deployed from dev, see DECISIONS)
 - Owner: "lift all restrictions" for pictures to test SNOFS with sex acts; the refresh's face (his picture 1) and body (his picture 5).
 - Bench from the container (the bot's own `drawPicture`, Runware klein 9B + LoRAs, $0.00169 each, ~30 pictures), every picture opened:
