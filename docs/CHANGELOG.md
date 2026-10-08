@@ -4,6 +4,19 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (fifteenth session): picture quality round 4 (on dev)
+- Upload from the container: `ferasalm:povdt@1` (Civitai 2779637, trigger "POV deepthroat scene"; REST modelUpload with the signed link).
+  Her face upscaled 2x with Runware's `upscale` task ($0.0006): `tools/face/reference-2x.jpg`, `FACE_2X_JPEG_BASE64`.
+- Workflows read (Civitai 2401644, 2514913, 2462854): klein at CFG 1, 4-5 steps, ~1-1.5 MP, a face detailer / second pass at
+  denoise 0.4-0.5, film grain, long photographic prompts. Runware's klein has no img2img (only reference images): no second pass yet.
+- Benches (~75 pictures, the bot's `drawPicture` from the container, seeds fixed): A/B/C stages (576 → 1008x1792 + CFG 1 + 5 steps +
+  no acceleration → + 2x face, PHOTO, expression): C showed pores and fine hair where A was smooth. Expression early: doggy faced the
+  lens 3/3 (late: 2/2 from behind). Long prompts: blowjob 0/10 with any LoRA, framing or CFG (CFG 3.5 = same price, same poses); short
+  prompts 4/4. Drop-one (selfie): without phone2025 or UltraReal she held the phone 1/1 each; without InstaPic or Anatomy Fixer little
+  changed. Final (short prompts, real drawPicture): 1:1 7/7, 9:16 5/7 (blowjob tongue-out, nude pose wrong).
+- Slip fixed: "in the ass" matched no anal LoRA or scene (words only had "in her ass"); `an4l`/`m15510n4ry` triggers sent without
+  Flux 4 Play loaded; POV hand's own trigger was missing.
+
 ## 2026-10-08 (fourteenth session, part 3): LoRA round 3 (on dev)
 - Uploaded from the container: `ferasalm:penis@1` (2624854), `ferasalm:pussyd@1` (2960754), `ferasalm:unchained@2` (2753532, kohya
   naming loads), `ferasalm:flux4play@1` (2702716); Lenovo (2682771, PEFT naming) failed to load → dora-to-lora.py now reads PEFT and

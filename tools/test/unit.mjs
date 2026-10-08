@@ -291,10 +291,16 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     failKlein = false;
     eq(await loras("having sex"), [[R.MODEL, base]], "a sex act with SEX_ACTS off: no NUDE_LORAS");
     R.SEX_ACTS = true;
-    eq(await loras("having sex"), [[R.MODEL, [...nude, "ferasalm:penis@1"].sort()]], "a sex act with SEX_ACTS on: NUDE_LORAS + the penis LoRA");
+    eq(await loras("having sex"), [[R.MODEL, nude]], "a sex act with SEX_ACTS on: NUDE_LORAS (the penis LoRA only when named, round 4)");
+    // round 4: Runware's own size and sampler
+    sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, "{who} on the couch", { ledger: {} });
+    eq([sent[0].width, sent[0].height, sent[0].steps, sent[0].CFGScale, sent[0].acceleration], [R.WIDTH, R.HEIGHT, R.STEPS, R.CFG, R.ACCELERATION], "Runware: its own size, steps, CFG and acceleration sent");
+    eq(sent[0].inputs.referenceImages[0].length > 150000, true, "Runware: the 2x face reference (BIG_FACE)");
+    sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, "{who} on the couch", { ledger: {}, size: 480 });
+    eq([sent[0].width, sent[0].height], [480, 480], "Runware: a size asked by the caller wins");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
   eq(Object.keys(R.NUDE_LORAS), ["ferasalm:unchained@2"], "nude LoRAs: Unchained (round 3)");
-  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "myaiprojectsqqq:3@2"], "every picture: phone2025, UltraReal, Anatomy Fixer; Real HD 2K out");
+  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "myaiprojectsqqq:3@2", "ferasalm:instapic@1"], "every picture: phone2025, UltraReal, Anatomy Fixer, InstaPic (round 4)");
 }
 {
   const yes = (v, label, got) => eq(!!v || got, true, label);
@@ -327,18 +333,30 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(c.loras, [...base].sort(), "/pic, clothed: the base LoRAs only");
     c = await call("in a gray hoodie in her bedroom", "selfie");
     yes(c.loras.includes("ferasalm:instapic@1") && c.text.startsWith("instapic. "), "her selfie: InstaPic and its trigger word first", c.text.slice(0, 60));
+    c = await call("in a gray sweater on the couch", "pic");
+    yes(c.text.startsWith("instapic. ") && c.text.includes(R.PHOTO) && c.text.includes("Her face: "), "every picture: InstaPic's trigger, PHOTO and an expression + gaze", c.text.slice(0, 60));
+    c = await call("smiling at the camera on the couch", "pic");
+    yes(!c.text.includes("Her face: "), "words that name her face: no MOODS pick", c.text);
+    c = await call("on the couch", "pic");
+    yes(c.text.indexOf("Her face: ") < c.text.indexOf("on the couch"), "her expression comes before the scene words", c.text);
     c = await call("giving the man a blowjob, kneeling", "pic");
-    yes([...nudeSet, "ferasalm:penis@1"].every((k) => c.loras.includes(k)) && c.loras.includes("ferasalm:povbj@1") && !c.loras.includes("ferasalm:povhandc@1") && c.text.includes("Side view photo") && !c.text.includes("{close}") && !c.text.includes(R.POV_MAN), "a blowjob: nude LoRAs + penis + POV Blowjob, a side view, no POV_MAN", c.loras);
+    yes(nudeSet.every((k) => c.loras.includes(k)) && c.loras.includes("ferasalm:povdt@1") && !c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:povhandc@1") && c.text.includes("POV deepthroat scene") && /first-person/i.test(c.text) && !/side view/i.test(c.text) && !c.text.includes("{close}"), "a blowjob: nude LoRAs + Holding Deepthroat POV, from his eyes, no side view, no penis LoRA", c.loras);
+    yes(Object.values(R.ACT_SCENES).every((t) => !/side view/i.test(t) && (/first-person/i.test(t) || t.includes("{pov}"))), "every act scene: from his eyes, never a side view (round 4)");
+    yes(Object.values(R.ACT_SCENES).every((t) => t.includes("{close}")), "every act scene: no room picture (tight framing)");
     c = await call("riding the man on the bed", "pic");
     yes(c.loras.includes("ferasalm:flux4play@1") && c.loras.length <= 6 && c.text.includes("c0wg1rl") && c.text.includes(R.POV_MAN), "riding: Flux 4 Play (c0wg1rl), POV_MAN kept, at most 6 LoRAs", c.loras);
     c = await call("naked on the bed, legs spread", "pic");
-    yes(c.loras.includes("ferasalm:pussyd@1") && c.text.startsWith("hairy pussy"), "legs spread: PussyDiffusion and its trigger first", c.loras);
+    yes(c.loras.includes("ferasalm:pussyd@1") && c.text.startsWith("instapic. hairy pussy"), "legs spread, no act: PussyDiffusion and its trigger first", c.loras);
+    c = await call("riding the man on the bed, her pussy spread", "pic");
+    yes(!c.loras.includes("ferasalm:pussyd@1") && !c.text.includes("hairy pussy"), "pussy in a sex act: no PussyDiffusion (Unchained draws it)", c.loras);
+    c = await call("naked, holding the man's erect penis in her hand", "pic");
+    yes(c.loras.includes("ferasalm:penis@1"), "a penis without an act LoRA: General Penis", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");
-    yes(c.loras.includes("ferasalm:povanal@1") && c.text.includes("an4l") && c.text.includes("gripping her butt"), "anal: POV Anal + his hands on her butt", c.loras);
+    yes(c.loras.includes("ferasalm:povanal@1") && !c.text.includes("an4l") && c.text.includes("his hands on her butt") && c.text.includes("POV hand"), "anal: POV Anal + his hands on her butt, no trigger of an unloaded LoRA", c.loras);
     c = await call("naked in bed", "pic");
     yes(!c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:flux4play@1"), "nude, no act: no act LoRAs", c.loras);
     c = await call("missionary sex on the bed", "scene");
-    yes(c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:povbj@1") && !c.loras.includes("ferasalm:instapic@1"), "/look missionary: Missionary POV, no selfie LoRA", c.loras);
+    yes(c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:povdt@1") && !c.text.includes("m15510n4ry"), "/look missionary: Missionary POV, no Flux 4 Play trigger", c.loras);
     c = await call("in a black dress, the man's hand on her waist", "pic");
     yes(c.loras.includes("ferasalm:povhandc@1") && !c.loras.includes("ferasalm:snofsc@1"), "his hand, clothed: POV hand, no nude LoRAs", c.loras);
     eq(W.picWords("my hand on your waist, you in a black dress"), "the man's hand on her waist, her in a black dress", "/pic: 'my hand' is his");

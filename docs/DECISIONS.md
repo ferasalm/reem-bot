@@ -5,6 +5,18 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Picture quality round 4: InstaPic on every picture, short prompts, his-eyes sex acts; dev only** (owner: "use
+  instapic for every pic, review the prompts, settings and workflow ... Unlock the spending cap for this test", "Don't cut POV Doggy
+  Anal (owner) until you test the alternatives and consult me", "Remove the overlapping LoRAs (General Penis, pussy diffusion) unless
+  the picture requested specifically requests for a pussy or penis without a sex act", "Remove any side-view, where it implies Reem is
+  having sex with another man", "Make framing for sex acts tighter and POV", "Reem has the same expression and gaze direction in almost
+  every picture", "The pictures need to look real and natural", "Add the following LoRA for blowjob scenes" (Holding Deepthroat POV),
+  "test using 1:1 aspect ratio ... tell me which variables affect cost ... test using simpler prompts with the LoRAs"): InstaPic in
+  `LORAS`; `SOLO_LORAS` (penis, PussyDiffusion only without an act LoRA); `ferasalm:povdt@1` uploaded and on blowjobs (POV Blowjob stays on
+  Runware); every `ACT_SCENES` from his eyes, no room picture; POV Doggy Anal kept (it and Flux 4 Play both drew doggy from behind
+  once the expression moved after the act words). Claude's calls: Runware `WIDTH`/`HEIGHT` 1008x1792, `STEPS` 5, `CFG` 1, `ACCELERATION`
+  "none", `BIG_FACE` (2x face), `MOODS`/`GAZES`, `PHOTO`, short REFERENCE/NAKED/POV_MAN/ROOM. Bench: 1:1 7/7 vs 9:16 5/7 and ~25%
+  cheaper, but 9:16 (2026-10-04) stays until the owner says. Not deployed.
 - 2026-10-08 — **LoRA round 3: Anatomy Fixer everywhere, Real HD out, new act LoRAs; dev only** (owner: "In blowjob scenes: the
   penis is too long", "Compare between SNOFS and NSFW unlocked", "Add POV hand to blowjob (like holding her head) and to riding (holding
   her breasts) and doggy anal (gripping her butt)", "Add anatomy fixer to every picture, and remove the least impactful LoRA", the penis,

@@ -1,3 +1,4 @@
 tools/face/out/
 dist/
 tools/voice/out/
+__pycache__/

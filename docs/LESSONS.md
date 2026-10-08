@@ -21,8 +21,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   checks (face vs reference, age, outfit, phone rule, room vs reference, framing, hands and reflections).
 - Test pictures: push a `tools/face/job.json` to your own branch (not `dev`); face.yml draws and pushes them to
   `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
-  Pushing a job to `dev`, or restoring job.json on your branch, drew it again (run 59, 2026-10-05) → face.yml now skips
-  dev/main pushes and its own edits (like tts/stt benches); a job.json push to your branch still draws. (2026-10-05)
+  face.yml skips dev/main pushes and its own edits (a job pushed to `dev` drew twice, run 59, 2026-10-05). (2026-10-05)
 - The sync report listed an old branch with "26 commits not here" → the clone was shallow (depth 50), so the
   merge base was missing → `git fetch --unshallow origin`, then recount before asking the owner. (2026-10-03) `git cherry origin/dev origin/<b>` counts what's really missing. Deploy = `git push origin origin/dev:main` (fast-forward). (2026-10-05)
 - face.yml refused a job at 6,618 neurons used: draw.mjs's day cap 7,000 dates from the free plan → set
@@ -35,7 +34,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   "failed to load": DoRA or OneTrainer LoRA (`transformer.` keys, POV hand) → `dora-to-lora.py`, LoKR → `lokr-to-lora.py --rank 128`; custom klein checkpoints: "internalError".
   Civitai file keys without downloading: `curl -r 0-7` (header length), then `-r 8-<n+7>`. Kohya and BFL naming load; PEFT doesn't.
   9 LoRAs in one call work, but her face drifted 5/8 → keep ≤6. A named room's picture pulled blowjobs into wide shots. (2026-10-08)
-  klein 9B with refs: $0.00078, with 1-4 LoRAs $0.00169 (flat). Calls past ~60 s die at the proxy: `deliveryMethod: "async"`. The proxy injects Runware's key: `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture(...)` benches the bot's own picture code from the container (calls ~4 s apart, else 502). (2026-10-08)
+  Runware klein 9B bills GPU time in steps of ~$0.0008: 576x1024 at its defaults $0.00169; 1024² $0.0025-0.0034, 1008x1792 $0.0034-0.0042 (more LoRAs = the higher one); steps 4-5, acceleration and CFG don't change it (round 4, 2026-10-08). Calls past ~60 s die at the proxy: `deliveryMethod: "async"`. The proxy injects Runware's key: `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture(...)` benches the bot's own picture code from the container (calls ~4 s apart, else 502; a bench script that wraps `fetch` can fix `seed`). (2026-10-08)
+- Pictures soft and plastic, same smile, sex acts posed wrong (round 4, 2026-10-08) → 576x1024 (face ~100 px), a 460 px face reference whose closed-lip smile klein copies, and ~2,500-character prompts that drowned the act and the LoRAs (blowjob 0/10, doggy facing the lens) → 1008x1792 or 1024², CFG 1, the 2x face, "not image 0's expression", short prompts (blowjob 4/4, doggy 2/2); 1:1 beat 9:16 on sex acts 7/7 vs 5/7. An expression placed early turned doggy to face the lens: on sex acts it goes after the act words.
 - /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it.
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
