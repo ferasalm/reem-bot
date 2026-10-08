@@ -1,0 +1,54 @@
+{
+ "note": "2026-10-08: Civitai LoRAs on Runware klein 9B (owner). Same seeds per attempt across routes; baseline = no LoRA.",
+ "want": 4,
+ "max_attempts": 4,
+ "max_usd": 0.03,
+ "reference": "tools/face/reference.jpg",
+ "refs": [
+  "tools/face/body-hourglass.jpg"
+ ],
+ "routes": [
+  "rw-klein9b-b2",
+  "lora-phone",
+  "lora-ultrareal",
+  "lora-both"
+ ],
+ "labels": [
+  "couch, own arm",
+  "porch, by someone",
+  "mirror selfie, night",
+  "bed, morning"
+ ],
+ "prompt_sets": {
+  "ref": [
+   "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. She is in a fitted black tank top and gray sweatpants, sitting cross-legged on her couch in her living room at evening, warm lamp light, a soft teasing smile; a close photo taken from her own outstretched arm at her eye level; no phone and no hand holding a camera anywhere in the picture. Framed from her head to her hips. Realistic amateur photo, natural skin texture, vertical 9:16.",
+   "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. She stands in a fitted cream knit sweater and blue jeans on the porch of her Watertown triple-decker on a cloudy autumn afternoon, laughing, photographed by someone a few steps away. Framed from her head to her knees. Realistic amateur photo, natural skin texture, vertical 9:16.",
+   "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. A mirror selfie in her bedroom at night, lamp on: she holds an iPhone at chest height, the phone and her hand visible in the mirror, wearing a black satin slip dress, a playful look. Realistic amateur photo, natural skin texture, vertical 9:16.",
+   "The woman from image 0, with exactly the same face and hair, and exactly the body shape and proportions of the woman in image 1 (only her shape: ignore her clothes, her pose, her skin tone and her background): a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair skin with a few faint freckles, thick dark arched brows, long dark brown wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: a full round natural bust, a clearly defined waist, a soft, nearly flat belly, wide rounded hips, full thighs, soft full upper arms and soft, rounded shoulders; curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height; her head does not look small next to her body. She lies on her side in bed in the morning, soft window light, wearing an oversized white t-shirt, hair messy, a sleepy smile; a close photo from her own arm, no phone visible. Framed from her head to her waist. Realistic amateur photo, natural skin texture, vertical 9:16."
+  ]
+ },
+ "lora_routes": {
+  "lora-phone": {
+   "lora": {
+    "ferasalm:phone2025@1": 0.8
+   },
+   "prefix": "This is a candid photograph taken with a smartphone of"
+  },
+  "lora-ultrareal": {
+   "lora": {
+    "ferasalm:ultrareal5@1": 0.8
+   }
+  },
+  "lora-both": {
+   "lora": {
+    "ferasalm:phone2025@1": 0.6,
+    "ferasalm:ultrareal5@1": 0.6
+   },
+   "prefix": "This is a candid photograph taken with a smartphone of"
+  }
+ },
+ "runware_size": [
+  576,
+  1024
+ ]
+}
