@@ -341,9 +341,9 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const prompt = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0].positivePrompt; };
   try {
     P.ROUTE = "runware-klein"; R.SEX_ACTS = true;
-    eq(R.BODY, "v2", "Runware's body picture is the owner's new body");
+    eq(R.BODY, "v3", "Runware's body picture: the owner's body with pale ivory skin and fuller arms (round 8)");
     yes(W.runwareBody() && W.runwareBody().length > 10000, "the v2 body picture is built into face.js");
-    eq(R.BODY_CLOTHED, "v2-clothed", "clothed pictures: the owner's body dressed (the nude one made unnamed outfits nude; the old clothed one was heavier, round 7)");
+    eq(R.BODY_CLOTHED, "v3-clothed", "clothed pictures: the owner's body dressed (the nude one made unnamed outfits nude; the old clothed one was heavier, round 7)");
     yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");
@@ -403,9 +403,11 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("naked on the bed, legs spread", "pic");
     yes(c.loras.includes("ferasalm:pussyd@1") && c.text.startsWith("instapic. hairy pussy"), "legs spread, no act: PussyDiffusion and its trigger first", c.loras);
     c = await call("riding the man on the bed, her pussy spread", "pic");
-    yes(c.loras.includes("ferasalm:pussyd@1") && c.text.includes("hairy pussy"), "a vaginal sex act: PussyDiffusion (WITH_LORAS, round 7)", c.loras);
+    yes(!c.loras.includes("ferasalm:pussyd@1") && !c.loras.includes("ferasalm:penis@1"), "riding: neither PussyDiffusion nor General Penis (round 8: both drew it wrong)", c.loras);
     c = await call("missionary on the bed", "pic");
-    yes(c.loras.includes("ferasalm:pussyd@1") && c.loras.includes("ferasalm:missionary@1") && c.loras.length <= 6, "missionary: PussyDiffusion too", c.loras);
+    yes(c.loras.includes("ferasalm:penis@1") && c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:pussyd@1") && c.loras.length <= 6, "missionary: General Penis (WITH_LORAS, round 8), no PussyDiffusion", c.loras);
+    c = await call("doggy style on the bed", "pic");
+    yes(c.loras.includes("ferasalm:penis@1") && c.loras.includes("ferasalm:flux4play@1"), "doggy: General Penis too", c.loras);
     c = await call("naked, holding the man's erect penis in her hand", "pic");
     yes(c.loras.includes("ferasalm:penis@1"), "a penis without an act LoRA: General Penis", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");

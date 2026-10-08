@@ -4,6 +4,15 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (eighteenth session, part 2): picture round 8 (on dev)
+- Body set v3 on Runware klein 9B + phone2025/ultrareal5 0.6 at 768x1344: front from body-v2 (seeds 41-43 thin arms, a face edge, elbow
+  marks; 51-54 with "noticeably thicker" arms → 52), back from front 52 (61-63 → 62), clothed (61-63 cropped tank → leaked crop tops;
+  71-73 normal length → 72). Files `tools/face/body-v3*.jpg` (768x1344); face.js holds 576x1024 copies.
+- Penis bench `bench8` (missionary, riding, doggy x seeds 7001-7002, 9:16, fixed `Math.random`): table in DECISIONS; confirmed 7003-7004
+  with the new setup 6/6 right on zoom. Cost 9:16 act $0.00338 with 768x1344 body pictures, $0.00247 with 576x1024.
+- Clothed with the v3 body: slim 4/4 until REFERENCE named image 1's shape; then 4/4 matching the nude build; nude skin spotty 1/3 in the
+  first run ("faint freckles" in the body picture), 0/4 after.
+
 ## 2026-10-08 (eighteenth session): picture round 7 (on dev)
 - Body references drawn on Runware klein 9B from body-v2 (seeds 11, 21, 22 clothed; 31-33 from behind): picked clothed 22 (build matched,
   11 too slim) and back 33 → `tools/face/body-v2-clothed.jpg`, `body-v2-back.jpg`, in face.js.

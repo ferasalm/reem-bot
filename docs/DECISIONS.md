@@ -5,6 +5,17 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Picture round 8: General Penis on missionary and doggy, one consistent v3 body set; dev only** (owner: "When applying
+  pussy diffusion in sex scenes, his penis becomes as if it were part of the pussy. Try running general penis with it to see how it works.
+  Also, update her body reference to reflect the skin tone and fuller arms. Make sure all her body shots (back, front, clothed, and nude)
+  are consistent. Make them high quality and ultra-realistic with hyperdetailed skin texture, and use the Realism LoRAs if possible"):
+  bench (zoom crops, 2 seeds per act): PussyDiffusion alone missionary 0/2, riding 1/2, doggy 1/2; PussyDiffusion + General Penis 0/2,
+  0/2, 1/2; General Penis alone 2/2, 0/2 (a penis drawn growing from her bush), 2/2 → Claude's call: `WITH_LORAS` General Penis on
+  missionary and doggy, riding with neither (fresh seeds: 2/2 each); PussyDiffusion only on nude pictures without an act (as before
+  round 7). Body set "v3" (`BODY`, `BODY_BACK` "v3-back", `BODY_CLOTHED` "v3-clothed"): body-v2 redrawn by klein 9B with phone2025 +
+  ultrareal5 (pale warm ivory skin, fuller arms, detailed skin), the back and clothed (normal-length tank) drawn from it; sent at
+  576x1024 (768x1344 cost $0.0009 more and drew the same). `REFERENCE` names image 1's shape again, "not slimmer" (clothed came out slim
+  4/4 without it). *Supersedes round 7's PussyDiffusion on vaginal acts and its v2-clothed / v2-back bodies.* Not deployed.
 - 2026-10-08 — **Picture round 7: lower resolution, aspect ratios by kind, three picture kinds, /look rebuilt; dev only** (owner: "Use lower
   resolution for lower cost", "Keep it at 1:1 (with occasional 16:9s) for blowjobs and deepthroat. For other sex scenes, randomize between
   9:16, 1:1, with occasional 16:9. Keep other pictures, like clothed, nude, selfies, and mirror selfies at 9:16 vertical", "When it's a doggy

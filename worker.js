@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V2_CLOTHED_JPEG_BASE64, BODY_V2_BACK_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -860,12 +860,15 @@ Changing the story
     RUNWARE: {
       MODEL: "runware:400@2",          // FLUX.2 klein 9B: her face (image 0), BODY (image 1), the place (image 2)
       BACKUP_MODEL: "runware:twinflow-z-image-turbo@0", // text only (LOOKS); also the "runware-twinflow" route's model
-      BODY: "v2",                      // image 1: "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
-      BODY_CLOTHED: "v2-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
+      // round 8 (owner: "update her body reference to reflect the skin tone and fuller arms ... all her body shots (back, front, clothed, and
+      // nude) are consistent ... ultra-realistic with hyperdetailed skin texture, and use the Realism LoRAs"): "v3" = body-v2 redrawn with
+      // pale warm ivory skin and fuller arms, "v3-back" and "v3-clothed" drawn from it, all with phone2025 + ultrareal5 (768x1344)
+      BODY: "v3",                      // image 1: "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
+      BODY_CLOTHED: "v3-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
                                        // 6/6 pictures that named no clothes came out nude, even with DRESSED). Round 7 (owner: "her body is
                                        // accurate when she's nude, but ... too overweight" clothed): "v2-clothed" = body-v2 dressed in a gray
                                        // tank + leggings by klein 9B (was "default", the Cloudflare route's heavier body)
-      BODY_BACK: "v2-back",            // image 1 on sex acts from behind (BACK_WORDS; owner: "use the body reference of her behind"): body-v2 from behind
+      BODY_BACK: "v3-back",            // image 1 on sex acts from behind (BACK_WORDS; owner: "use the body reference of her behind"): body-v2 from behind
       // acts seen from behind (owner, round 7: "When it's a doggy scene, don't prompt her breasts since they won't show ... always describe
       // that it's from behind"): BODY_BACK, REFERENCE_BACK and NAKED_BACK instead of the front ones
       BACK_WORDS: "doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind",
@@ -922,9 +925,12 @@ Changing the story
       // ALONE_WORDS: an ALONE_LORAS LoRA is alone only when one of its words is in the text (none = always alone)
       ALONE_LORAS: { "ferasalm:povanal@1": 1 },
       ALONE_WORDS: {},
-      // a LoRA (at its ACT_LORAS weight) added whenever one of these loads (owner, round 7: "include the pussy diffusion LoRA for vaginal sex
-      // scenes. It shows more accurate vaginal anatomy"): PussyDiffusion with Flux 4 Play (riding, cowgirl, doggy) and Missionary
-      WITH_LORAS: { "ferasalm:pussyd@1": "ferasalm:flux4play@1, ferasalm:missionary@1" },
+      // a LoRA (at its ACT_LORAS weight) added to a sex act whose words (comma-separated) are in the picture, even next to another act
+      // LoRA (SOLO_LORAS aside). Round 7 put PussyDiffusion on vaginal acts; round 8 (owner: "his penis becomes as if it were part of the
+      // pussy. Try running general penis with it"), zoom crops, 2 seeds each: PussyDiffusion missionary 0/2, riding 1/2, doggy 1/2; with
+      // General Penis too 0/2, 0/2, 1/2; General Penis alone 2/2, 0/2 (on riding it drew the penis growing from her bush), 2/2 →
+      // General Penis on missionary and doggy, riding with neither (right 2/2 in round 6)
+      WITH_LORAS: { "ferasalm:penis@1": "missionary, doggy, doggystyle, doggy style" },
       // by situation (owner 2026-10-08: "use LoRAs according to situations", runwareLoras): added to LORAS on her selfies /
       // in-person scenes and /look / /pic. InstaPic (Civitai 2998522) on selfies: more natural hair and skin (alone it drew
       // the phone in a plain selfie, so only with the others, at 0.6)
@@ -998,7 +1004,9 @@ Changing the story
       // accurate when she's nude, but ... too overweight" clothed; "her skin tone ... pale warm ivory"; the mole "keeps changing its place",
       // so out): the body is image 1's, in words only the arms (owner: "keep the fuller arms") and the skin. Was "image 1 but curvier: ...
       // 163 cm and 64 kg, an hourglass figure ... wide hips, full thighs", which on the heavier clothed body made her overweight
-      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1: the same build and proportions, soft, full upper arms, pale warm ivory skin. She is 29, clearly an adult.",
+      // round 8: with only "the same build and proportions" clothed pictures came out slimmer than image 1 (narrow hips, thin arms 4/4):
+      // image 1's own shape named, "not slimmer" (round 7's overweight came from "but curvier" on a heavier picture)
+      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, softly rounded belly, wide hips, full thighs and soft, full upper arms, pale warm ivory skin. She is 29, clearly an adult.",
       // a sex act from behind (BACK_WORDS): image 1 is BODY_BACK, no breasts named (owner: "don't prompt her breasts since they won't show")
       REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, pale warm ivory skin. She is 29, clearly an adult.",
       LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, pale warm ivory skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
@@ -3464,7 +3472,7 @@ const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 function runwareBody(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const b = explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
-  const pics = { v2: BODY_V2_JPEG_BASE64, "v2-clothed": BODY_V2_CLOTHED_JPEG_BASE64, "v2-back": BODY_V2_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
+  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
   const b64 = pics[b] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
@@ -3493,9 +3501,9 @@ function runwareLoras(opts = {}) {
   // SOLO_LORAS (penis, pussy) only when no act LoRA (neither SOLO_LORAS nor ACT_ANY) is in: the act LoRA draws them already
   const solo = R.SOLO_LORAS || [];
   if (acts.some(([air]) => !solo.includes(air) && !(R.ACT_ANY || []).includes(air))) acts = acts.filter(([air]) => !solo.includes(air));
-  // WITH_LORAS: a LoRA that comes along with another (PussyDiffusion with the vaginal acts' LoRAs), at its ACT_LORAS weight
+  // WITH_LORAS: a LoRA added to a sex act by its own words (General Penis on missionary and doggy), at its ACT_LORAS weight
   for (const [air, withs] of Object.entries(R.WITH_LORAS || {})) {
-    if (!acts.some(([a]) => a === air) && Object.hasOwn(R.ACT_LORAS || {}, air) && acts.some(([a]) => String(withs).split(",").map((x) => x.trim()).includes(a))) acts.push([air, R.ACT_LORAS[air]]);
+    if (explicit && !acts.some(([a]) => a === air) && Object.hasOwn(R.ACT_LORAS || {}, air) && String(withs).split(",").some((w) => w.trim() && hasWord(text, w.trim()))) acts.push([air, R.ACT_LORAS[air]]);
   }
   // an ALONE_LORAS LoRA draws alone (ALONE_WORDS: only when one of its words is in the text)
   const aloneWords = R.ALONE_WORDS || {};

@@ -20,8 +20,8 @@
 - /restart (also /start): Start the story over (wipes her memory)
 
 ## Kinds of picture (Runware)
-- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v2-clothed`), the room picture when a place is named.
-- **Nude** (a nude word, below): 9:16, her nude body (`v2`), the nude LoRAs.
+- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v3-clothed`), the room picture when a place is named.
+- **Nude** (a nude word, below): 9:16, her nude body (`v3`), the nude LoRAs.
 - **Sex act** (a sex word, below): from his eyes, no room picture; shape picked at random: oral 1:1 80%, 16:9 20%; the rest 9:16 40%, 1:1 40%, 16:9 20% (sizes: 9:16 768x1344, 1:1 1024x1024, 16:9 1344x768). From behind (doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind): her body from behind, no breasts named.
 - **Partly naked**: a nude or sex picture that also names clothes (cardigan, sweater, hoodie, sweatshirt, t-shirt, tee, shirt, blouse, tank top, camisole, slip dress, dress...): those clothes stay on.
 - **Flash**: "camera flash", "flash on", "with flash", "with the flash", "with a flash", "flash photo", "flash pic", "flash picture", "flash selfie", "use flash", "using flash", "using the flash", "harsh flash", "direct flash", "flash photography".
@@ -181,8 +181,8 @@ Gaze: **everyday**: looking straight into the lens; looking off to the side, out
 | Holding Deepthroat POV (`ferasalm:povdt@1`) | words: blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth | 0.8 | POV deepthroat scene |
 | Missionary POV K3NK (`ferasalm:missionary@1`) | words: missionary | 0.8 |  |
 | POV Doggy Anal (`ferasalm:povanal@1`) | words: anal, ass fucking, in her ass, in the ass, her ass, anally (alone at 1, no other LoRA) | 0.8 |  |
-| General Penis (`ferasalm:penis@1`) | words: penis, cock, dick, erection, erect (only without another act LoRA) | 0.6 |  |
-| PussyDiffusion v2 (`ferasalm:pussyd@1`) | words: pussy, vagina, spread legs, legs spread (only without another act LoRA); also with Flux 4 Play AIO, Missionary POV K3NK | 0.8 | hairy pussy |
+| General Penis (`ferasalm:penis@1`) | words: penis, cock, dick, erection, erect (only without another act LoRA); also added on sex acts with: missionary, doggy, doggystyle, doggy style | 0.6 |  |
+| PussyDiffusion v2 (`ferasalm:pussyd@1`) | words: pussy, vagina, spread legs, legs spread (only without another act LoRA) | 0.8 | hairy pussy |
 | Tushy Raw Filter (camera flash) (`ferasalm:tushyraw@1`) | flash words: in place of the realism LoRAs | 1 | (flash trigger sentence) |
 
-Cost (measured 2026-10-08, round 7): a LoRA has no fee of its own; the price is GPU time, which grows with the size, the reference pictures and the number of LoRAs: 9:16 sex acts (face + body, 5 LoRAs) $0.0025; 9:16 clothed or nude with a room picture (3 pictures, 3-4 LoRAs) $0.0034; 1:1 or 16:9 sex acts $0.0025-0.0034; a cold LoRA load can add $0.0008. Daily cap $1 (about 333 pictures), then Cloudflare (never nude).
+Cost (measured 2026-10-08, round 8): a LoRA has no fee of its own; the price is GPU time, which grows with the size, the reference pictures (body pictures are sent at 576x1024: at 768x1344 they cost $0.0009 more) and the number of LoRAs: 9:16 pictures $0.0025 (sometimes $0.0034 with a room picture or a cold LoRA load); 1:1 and 16:9 $0.0025-0.0034. Daily cap $1 (about 333 pictures), then Cloudflare (never nude).
