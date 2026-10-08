@@ -886,6 +886,15 @@ Changing the story
       // Unlocked (SNOFS, ferasalm:snofsc@1, stays on Runware)
       // Unlocked (ferasalm:nsfwunlock@1) out too: with every LoRA stacked (9) her face drifted in 5 of 8 sex pictures
       NUDE_LORAS: { "ferasalm:unchained@2": 0.8 },
+      // owner 2026-10-08 ("don't confuse which is anal and which is normal vaginal ... Ensure overall anatomical correctness"): with
+      // Unchained on a sex act the penis went in below an open, empty vulva on riding 0/4 and missionary 0/4 (even worded "inside her
+      // vagina"), and anal from behind came out vaginal 0/2; without it riding 2/2, missionary 2/2, anal from behind 2/3. NUDE_LORAS
+      // are left out when one of these act LoRAs (penetration) loads; blowjobs and nude pictures keep them
+      NUDE_LORAS_OFF_WITH: ["ferasalm:flux4play@1", "ferasalm:missionary@1", "ferasalm:povanal@1"],
+      // an act LoRA drawn alone (no LORAS, NUDE_LORAS or LORA_PREFIX) at this weight when it loads. Owner 2026-10-08 ("Let's try POV
+      // doggy anal alone without the other LoRAs while raising its weight to 1"): anal from behind, her anus where it belongs 3/3 alone
+      // at 1.0, while with the realism LoRAs a small vulva was drawn where her anus is (4 of 5)
+      ALONE_LORAS: { "ferasalm:povanal@1": 1 },
       // by situation (owner 2026-10-08: "use LoRAs according to situations", runwareLoras): added to LORAS on her selfies /
       // in-person scenes and /look / /pic. InstaPic (Civitai 2998522) on selfies: more natural hair and skin (alone it drew
       // the phone in a plain selfie, so only with the others, at 0.6)
@@ -923,19 +932,31 @@ Changing the story
         "ferasalm:povhandc@1": "POV hand, man's hand", // its Civitai trigger ("POV hand, zoom in, man's hand")
         "ferasalm:povdt@1": "POV deepthroat scene",   // its Civitai trigger
       },
+      // a camera-flash picture, only when the words ask for one (owner 2026-10-08: "when asked for specifically: camera flash LoRA",
+      // Tushy Raw Filter klein 9B, Civitai 2569967 v2887624, ferasalm:tushyraw@1; its author: "DO NOT USE ANY OTHER REALISM STYLE!
+      // ... Strength: 1.0"): FLASH_LORAS replace LORAS (the realism LoRAs) and LORA_PREFIX; NUDE_LORAS and ACT_LORAS stay.
+      // FLASH_LIGHT replaces the picture's light, FLASH_PHOTO the PHOTO line, FLASH_TRIGGER opens the prompt
+      FLASH_WORDS: ["camera flash", "flash on", "with flash", "with the flash", "with a flash", "flash photo", "flash pic", "flash picture", "flash selfie", "use flash", "using flash", "using the flash", "harsh flash", "direct flash", "flash photography"],
+      FLASH_LORAS: { "ferasalm:tushyraw@1": 1 },
+      FLASH_TRIGGER: "the photograph is shot with harsh frontal flash. background is very dark. change the entire lighting of the image into tushy raw style",
+      FLASH_LIGHT: "only the phone's harsh direct camera flash, the room behind her falling into darkness",
+      FLASH_PHOTO: "Raw, unretouched flash photo: flat frontal light, blown-out highlights on her skin, hard shadows behind her, a very dark background.",
       // the camera, his hands and the act's trigger words, by act. The first entry whose words (comma-separated) are in the
       // picture's words is added in place of POV_MAN ({pov} = POV_MAN); none = POV_MAN. Round 4 (owner: "Make framing for sex acts
       // tighter and POV to avoid anatomical issues and to improve skin texture and detail"; no side view): every act from his
       // eyes, close. Flux 4 Play's triggers (c0wg1rl, r3v3rs3_c0wg1rl, d0gg13) only where its ACT_WORDS load it
       ACT_SCENES: {
         "blowjob, blow job, sucking, sucks, suck, deepthroat, takes the man in her mouth, the man's cock in her mouth": "First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. {close}",
-        "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, glancing back over her shoulder. {close}",
-        "riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man": "c0wg1rl, pov. {pov} She straddles the man lying on his back, riding him, his penis inside her, seen from below. {close}",
-        "missionary": "{pov} She lies on her back with her legs spread, the man kneeling between them, his penis inside her, looking up at him. {close}",
+        "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, his penis inside her vagina: the shaft enters her vulva, her anus above it closed and untouched; she glances back over her shoulder. {close}",
+        "riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man": "c0wg1rl, pov. {pov} She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. {close}",
+        // owner 2026-10-08: "don't confuse which is anal and which is normal vaginal": vaginal acts name the vagina and vulva
+        "missionary": "{pov} She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. {close}",
         // round 5 (owner: "the anus looks like a vagina"): from behind, klein drew a vulva where her anus is 0/14 (POV Doggy Anal at
         // 0.6-1.0, Flux 4 Play, anatomy words); on her back, legs raised, the vulva above and the penis below it 3/3
-        "anal, ass fucking, in her ass, in the ass, her ass, anally": "{pov} She lies on her back on the bed, her legs raised and held back by her hands, seen from between her legs: the man is fucking her in the ass, his penis inside her anus; her vulva, closed and untouched, is above it, both clearly visible. She looks up at him. {close}",
-        "doggy, doggystyle, doggy style, on all fours": "d0gg13, pov. {pov} She is on all fours on the bed, the man fucking her doggy style from behind, his hands on her butt, she looks back over her shoulder. {close}",
+        // owner 2026-10-08 ("Ensure overall anatomical correctness"): the vulva-for-anus of round 5 came with Unchained; without it, from
+        // behind 2/3 (POV Doggy Anal alone 3/3), while on her back POV Doggy Anal fused her front and her spread bottom into one pose
+        "anal, ass fucking, in her ass, in the ass, her ass, anally": "{pov} She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. {close}",
+        "doggy, doggystyle, doggy style, on all fours": "d0gg13, pov. {pov} She is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. {close}",
       },
       TIMEOUT_MS: 60000,
       // round 4: the room on Runware, short (the room's LOOK words drowned the act and the LoRAs); {n} = its image number
@@ -1069,6 +1090,14 @@ Changing the story
       neckline: "{selfie} Taken from above, chest-up, her collarbones and neckline in the frame, {expression}, {wearing}{where}, {light}.",
       legs: "{selfie} Taken from above while she sits {on the sofa in @living|on the bed in @bedroom|on a chair on @porch}, her legs crossed and in the frame, {expression}, {wearing}, {light}.",
       waist: "{mirror} 3/4-body reflection in a mirror in @bedroom, one hand on her waist, her hip turned toward the mirror, {expression}, {wearing}, {light}.",
+      // owner 2026-10-08: "more poses"
+      "belly-down": "{selfie} Taken from above while she lies on her stomach {on the bed in @bedroom|on the sofa in @living}, propped on her elbows, her feet up and crossed behind her, {expression}, {wearing}, {light}.",
+      "overhead": "{selfie} Taken from straight above while she lies on her back in bed in @bedroom, her hair spread over the pillow, {expression}, {wearing}, {light}.",
+      "floor-sit": "{selfie} Sitting on the floor of @living with her back against the sofa, knees pulled up, a mug beside her, {angle}, {expression}, {wearing}, {light}.",
+      "counter-sit": "{selfie} Sitting up on the counter in @kitchen, legs dangling, leaning back on one hand, {angle}, {expression}, {wearing}, {light}.",
+      "window-lean": "{selfie} Leaning on the window frame {in @bedroom|in @living}, half turned toward the glass, {angle}, {expression}, {wearing}, {light}.",
+      "stretch-mirror": "{mirror} Full-body reflection in a mirror in {@bedroom|@hallway}, stretching one arm up over her head, her top riding up a little, {expression}, {wearing}, {light}.",
+      "kneel-mirror": "{mirror} Reflection in the tall mirror in @bedroom: she kneels on the bed, sitting back on her heels, back arched a little, {expression}, {wearing}, {light}.",
     },
     // The phone rules (owner): selfies never show the phone or her hand; mirror selfies always show an iPhone
     SELFIE_PHONE: "Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame.",
@@ -1076,9 +1105,9 @@ Changing the story
     POV_PHONE: "First-person photo through her own eyes; the phone is the camera, never in the picture.",
     // Which shots each tier uses
     TIERS: {
-      EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden"],
-      FLIRTY: ["mirror-back", "neckline", "legs", "waist"],
-      BOUDOIR: ["selfie", "mirror", "neckline", "waist", "cozy"], // refused by the filter (3030): legs twice (2026-10-02), mirror-back 4/4 (2026-10-03)
+      EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden", "floor-sit", "counter-sit", "window-lean"],
+      FLIRTY: ["mirror-back", "neckline", "legs", "waist", "belly-down", "stretch-mirror", "window-lean"],
+      BOUDOIR: ["selfie", "mirror", "neckline", "waist", "cozy", "belly-down", "overhead", "kneel-mirror"], // refused by the filter (3030): legs twice (2026-10-02), mirror-back 4/4 (2026-10-03)
     },
     // How likely each tier is when the code picks, by how hot the chat is (HEAT_WORDS, late hours)
     TIER_WEIGHTS: {
@@ -1094,7 +1123,7 @@ Changing the story
     // Told to her with the picture's shot: {hint} in FORMAT, FORMAT_ASKED and REMINDER
     TIER_HINTS: { everyday: "", flirty: " Make it a little flirty.", boudoir: " You're in lingerie, satin or swimwear." },
     // Words in his ask or her [selfie: ...] that name a shot (the longest match counts)
-    SHOT_WORDS: { "close-up": "close", "close up": "close", face: "close", "mirror selfie": "mirror", mirror: "mirror", "full body": "mirror", outfit: "mirror", fit: "mirror", ootd: "mirror", belfie: "mirror-back", booty: "mirror-back", butt: "mirror-back", ass: "mirror-back", "from behind": "mirror-back", "over the shoulder": "mirror-back", cleavage: "neckline", neckline: "neckline", chest: "neckline", legs: "legs", thighs: "legs", waist: "waist", curves: "waist", cozy: "cozy", couch: "cozy", "golden hour": "golden", sunset: "golden", detail: "detail" },
+    SHOT_WORDS: { "close-up": "close", "close up": "close", face: "close", "mirror selfie": "mirror", mirror: "mirror", "full body": "mirror", outfit: "mirror", fit: "mirror", ootd: "mirror", belfie: "mirror-back", booty: "mirror-back", butt: "mirror-back", ass: "mirror-back", "from behind": "mirror-back", "over the shoulder": "mirror-back", cleavage: "neckline", neckline: "neckline", chest: "neckline", legs: "legs", thighs: "legs", waist: "waist", curves: "waist", cozy: "cozy", couch: "cozy", "lying down": "belly-down", "on your stomach": "belly-down", "on my stomach": "belly-down", "on the floor": "floor-sit", "on the counter": "counter-sit", stretching: "stretch-mirror", kneeling: "kneel-mirror", "golden hour": "golden", sunset: "golden", detail: "detail" },
     SHOT_HOURS: { golden: "15-19" },   // shots only picked by the code in these hours (her time)
     // The slots, picked by the code. ANGLES only go where a shot has {angle}; ANGLE_WEIGHTS: how often each
     ANGLES: { high: "camera held a little above her eyes, tilted down", eye: "camera at eye level", low: "camera a little below her chin, tilted up", over: "shot over her shoulder as she glances back at the camera" },
@@ -1107,10 +1136,13 @@ Changing the story
     // From her persona. "clothes | place" brings its own place (only for shots with {where})
     WARDROBE: {
       // fitted, so her shape shows (owner 2026-10-05: "clothes that better reflect her body shape and contours")
-      EVERYDAY: ["a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted black ribbed knit midi dress", "a fitted black ribbed tank top and high-waisted jeans", "a fitted gray ribbed tee and high-waisted jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a fitted black wrap dress"],
-      FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh"],
+      EVERYDAY: ["a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted black ribbed knit midi dress", "a fitted black ribbed tank top and high-waisted jeans", "a fitted gray ribbed tee and high-waisted jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a fitted black wrap dress",
+        // owner 2026-10-08: "more outfits"
+        "a cream cable-knit sweater and fitted dark jeans", "a fitted olive ribbed long-sleeve top and gray yoga pants", "a denim button-up shirt knotted at the waist over a white tank top and jeans", "a fitted burgundy sweater dress and black tights", "a camel wool coat over a black turtleneck, a scarf around her neck", "a gray zip-up hoodie half open over a white crop tank and joggers", "a fitted white linen button-down tucked into black trousers", "a black leather jacket over a fitted gray tee and jeans", "a matching soft beige lounge set, cropped top and wide pants", "a fitted navy striped Breton top and high-waisted jeans", "a red silk blouse with the top buttons open and black jeans"],
+      FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh",
+        "a tight ribbed white tank top and tiny gray sleep shorts", "a red satin cami and black satin shorts", "a fitted black corset top and high-waisted jeans", "his oversized flannel shirt, unbuttoned low, and bare legs", "a short emerald satin wrap dress", "a cropped white tee with no bra and low-rise sweatpants", "a backless black knit top and a fitted midi skirt", "a sheer black mesh top over a black bralette and jeans"],
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
-      BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
+      BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a red lace bodysuit", "a white lace bodysuit", "a burgundy velvet slip with thin straps", "a black mesh bodysuit", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
     },
     // @name = one of her fixed places (LOCATIONS): the same room in every picture
     PLACES: {
@@ -1133,12 +1165,20 @@ Changing the story
     },
     // Light by her time of day (TIMES: hours, her time)
     TIMES: { morning: "5-11", afternoon: "11-17", evening: "17-21", night: "21-5" },
+    // owner 2026-10-08: "more lighting settings (golden hour, blue hour, dim candle soft lighting ...)"
     LIGHT: {
-      MORNING: ["soft morning daylight", "bright morning sun through the window"],
-      AFTERNOON: ["bright afternoon daylight", "soft window light"],
-      EVENING: ["warm lamp light", "the last of the evening light"],
-      NIGHT: ["warm lamp light in a dark room", "dim light from a bedside lamp"],
+      MORNING: ["soft morning daylight", "bright morning sun through the window", "low golden early-morning sun through the window, long warm shadows", "soft gray overcast daylight from the window"],
+      AFTERNOON: ["bright afternoon daylight", "soft window light", "dappled sunlight through the leaves outside the window", "soft gray overcast daylight from the window"],
+      EVENING: ["warm lamp light", "the last of the evening light", "golden hour: low, warm orange sun across her face, long soft shadows", "blue hour: cool blue dusk light from the window, one warm lamp on"],
+      NIGHT: ["warm lamp light in a dark room", "dim light from a bedside lamp", "dim, soft candlelight from a few candles, warm flickering glow, deep soft shadows", "the cool glow of a laptop screen and string lights in a dark room"],
     },
+    // words that already name the light (his /pic words, her [selfie: ...] or scene): then no LIGHT pick
+    LIGHT_WORDS: ["golden hour", "blue hour", "sunset", "sunrise", "candle", "candles", "candlelight", "candlelit", "moonlight", "neon", "string lights", "lamp light", "lamplight", "daylight", "sunlight", "in the dark", "flash"],
+    // owner 2026-10-08: "more hairstyles": Runware pictures get one of these HAIR_CHANCE of the time, unless the words name her hair
+    // (HAIR_WORDS); her hair color and bangs stay image 0's (REFERENCE "same face, hair color and bangs")
+    HAIRSTYLES: ["her long hair down in loose natural waves", "pulled up in a messy bun, her bangs down and a few loose strands framing her face", "in a high ponytail, her bangs down", "in a loose side braid over one shoulder, bangs down", "half-up with a black claw clip, the rest falling down her back", "tucked behind one ear, the rest down", "in a low, sleek bun at the nape of her neck, bangs down", "damp and tousled from the shower", "blown out straight and glossy, bangs down", "piled up with a claw clip, loose, messy strands falling out", "messy bedhead waves, a little flat on one side", "in a loose low ponytail with a silk scrunchie"],
+    HAIR_CHANCE: 0.5,
+    HAIR_WORDS: ["hair", "ponytail", "bun", "braid", "braids", "pigtails", "updo", "claw clip", "scrunchie", "bedhead", "bangs"],
     RECENT_SHOTS: 2,                   // the code avoids the shot types and angle of this many recent pictures
 
     // What she's told. FORMAT: this reply comes with a picture (decided by the code, like a voice note).
@@ -3215,7 +3255,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
     angle: angle ? (P.ANGLES || {})[angle] || "" : "",
     expression: pickOne((P.EXPRESSIONS || {})[T]),
     wearing, where,
-    light: pickOne((P.LIGHT || {})[time.toUpperCase()]),
+    light: lightFor(`${words} ${doing}`, pickOne((P.LIGHT || {})[time.toUpperCase()])),
   };
   const night = isDark(hour, vars.light);
   const filled = chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k] || "") : m));
@@ -3403,6 +3443,7 @@ function runwareLoras(opts = {}) {
   if (typeof opts === "boolean") opts = { explicit: opts };
   const { kind = "", explicit = false, text = "" } = opts;
   const R = CONFIG.PICTURE.RUNWARE || {};
+  const flash = flashAsked(text);
   const own = { selfie: R.SELFIE_LORAS, scene: R.SCENE_LORAS, pic: R.PIC_LORAS }[kind] || {};
   const words = R.ACT_WORDS || {};
   // only on nude or sex-act pictures, except ACT_ANY (his hand can be on her waist in a clothed picture)
@@ -3410,7 +3451,28 @@ function runwareLoras(opts = {}) {
   // SOLO_LORAS (penis, pussy) only when no act LoRA (neither SOLO_LORAS nor ACT_ANY) is in: the act LoRA draws them already
   const solo = R.SOLO_LORAS || [];
   if (acts.some(([air]) => !solo.includes(air) && !(R.ACT_ANY || []).includes(air))) acts = acts.filter(([air]) => !solo.includes(air));
-  return Object.entries({ ...(R.LORAS || {}), ...own, ...(explicit ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
+  const alone = acts.map(([air]) => air).find((air) => Object.hasOwn(R.ALONE_LORAS || {}, air));
+  if (alone) return [{ model: alone, weight: Number(R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0);
+  return Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
+}
+
+// The words ask for a camera-flash picture (RUNWARE.FLASH_WORDS, Runware routes only; FLASH_LORAS set)
+function flashAsked(text) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  return !!(runwareRoute() && Object.keys(R.FLASH_LORAS || {}).length && (R.FLASH_WORDS || []).some((w) => String(w).trim() && hasWord(text, w)));
+}
+
+// One of HAIRSTYLES (HAIR_CHANCE of the time) when the words name no hairstyle (HAIR_WORDS), else ""
+function pickHair(text) {
+  const P = CONFIG.PICTURE;
+  if (!(P.HAIRSTYLES || []).length || (P.HAIR_WORDS || []).some((w) => String(w).trim() && hasWord(text, w))) return "";
+  return Math.random() < (Number(P.HAIR_CHANCE) || 0) ? pickOne(P.HAIRSTYLES) : "";
+}
+
+// The light of a picture: FLASH_LIGHT when a flash is asked, none when the words already name a light (LIGHT_WORDS), else `light`
+function lightFor(words, light) {
+  if (flashAsked(words)) return (CONFIG.PICTURE.RUNWARE || {}).FLASH_LIGHT || light;
+  return (CONFIG.PICTURE.LIGHT_WORDS || []).some((w) => String(w).trim() && hasWord(words, w)) ? "" : light;
 }
 
 // The camera and his hands for a sex act (ACT_SCENES, first match; {pov} = POV_MAN), else POV_MAN
@@ -3507,7 +3569,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const scene = act ? actScene(prompt) : "";
     const close = scene.includes("{close}");
     const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
-    const shownPlace = close ? null : place;
+    // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08)
+    const shownPlace = close || flashAsked(prompt) ? null : place;
     const explicit = !!naked || act;
     // her expression and gaze when the words name none (MOODS, GAZES; a sex act's scene may already name her gaze)
     const named = (t) => (R.FACE_WORDS || []).some((w) => String(w).trim() && hasWord(t, w));
@@ -3516,6 +3579,8 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     // right after who she is (at the end klein kept image 0's smile, round 4 bench), but after a sex act's camera words: early, it
     // turned her face to the lens in doggy 3/3 (without it 1/1 from behind)
     const mood = look ? ` Her face: ${look}.` : "";
+    const hair = pickHair(prompt);
+    const hairLine = hair ? ` Her hair: ${hair}.` : "";
     const [early, late] = act ? ["", mood] : [mood, ""];
     const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
     const rwBody = ref ? runwareBody(explicit) : null;
@@ -3529,11 +3594,15 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         // the LoRAs' own trigger words (LORA_WORDS) go first
         const loraOpts = { kind, explicit, text: prompt };
         const loras = model === R.MODEL ? runwareLoras(loraOpts) : [];
-        const triggers = loraWords(loras);
-        const lead = (w) => (loras.length && R.LORA_PREFIX ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
+        const flash = model === R.MODEL && flashAsked(prompt);
+        const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
+        const lead = (w) => (loras.length && R.LORA_PREFIX && !flash && !loras.some((l) => Object.hasOwn(R.ALONE_LORAS || {}, l.model)) ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
         const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
         // the trigger words open the whole prompt (inside {who} they ran into the style line: "...photo of instapic. This is...")
-        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(R.REFERENCE + early), !!shownPlace, true) : who(R.LOOKS + early, false, true)) + naked + pov + late + dressed + photo;
+        // a hairstyle (HAIRSTYLES): her hair color and bangs stay image 0's, the style changes
+        const ref0 = hair ? R.REFERENCE.replace("with exactly the same face and hair", "with exactly the same face, hair color and bangs") : R.REFERENCE;
+        const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
+        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + photoLine;
         const out = await drawRunware(env, model, text, refs, rwW, rwH, loraOpts);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };
@@ -3604,8 +3673,9 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const act = !!sexCue(want) || sexAct(what);
     const wearing = act ? "" : sceneWearing(want, history);
     const night = timeOfDay() === "night";
-    const lightText = night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]);
-    const light = night ? lightText : lightText && `Lit by ${lightText}.`;
+    // her narration's own light (candles, golden hour: LIGHT_WORDS) or a flash beats the time's light
+    const lightText = lightFor(what, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]));
+    const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
     const wornSafe = filterSafe(wearing);
     pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, safeLine()].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
     if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
@@ -3950,7 +4020,7 @@ async function picCommand(env, chatId, args) {
 // light of her hour, CRAFT and (on Cloudflare) SAFE. { prompt, location, night }
 function customPicture(words, hour = herHour()) {
   const P = CONFIG.PICTURE;
-  const light = pickOne((P.LIGHT || {})[timeOfDay(hour).toUpperCase()]);
+  const light = lightFor(words, pickOne((P.LIGHT || {})[timeOfDay(hour).toUpperCase()]));
   const location = locationOf(words);
   const prompt = [(P.CUSTOM || {}).STYLE, "{who}", `${filterSafe(words)}.`, location && "{room}", light && `Lit by ${light}.`, P.CRAFT, safeLine()].filter(Boolean).join(" ");
   return { prompt, location, night: isDark(hour, light || "") };

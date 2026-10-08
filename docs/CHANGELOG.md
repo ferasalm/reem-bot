@@ -4,6 +4,19 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-08 (seventeenth session): picture round 6 (on dev)
+- 56 pictures through the bot's own `drawPicture` (/pic path, fixed seeds and `Math.random`), $0.19; every picture read, genitals cropped.
+- Cost by size (same prompt): 576x1024 $0.00169, 768x1344 $0.00247, 1008x1792 $0.00338-0.00494, 1792x1008 $0.00338.
+- POV Doggy Anal alone at 1.0: from behind right 6/6 (zoom), on her back a fused pose 2/2; with the realism LoRAs from behind a vulva
+  for her anus 4/5 → `ALONE_LORAS`, anal from behind.
+- 16:9: blowjob + deepthroat 3/3 in her mouth; riding / missionary wrong (Unchained); clothed sofa drew her twice 1/1. Not committed.
+- Holding Deepthroat alone at 1.0: in her mouth 2/2, her face drifted (older, a tear streak). Not committed.
+- InstaPic out on nude / riding, phone2025 + ultrareal5 0.6 → 0.9 (same seeds): no visible change 2/2. Not committed.
+- Unchained on riding 0/4, missionary 0/4 (penis below an open vulva); without it riding 3/3, missionary 4/5 → `NUDE_LORAS_OFF_WITH`.
+  Doggy from behind right 3/3, reverse cowgirl 1/1. Flux 4 Play: her tongue out on riding/doggy (open).
+- Flash (`ferasalm:tushyraw@1`, BFL keys, rank 32): with her room picture lamp-lit 2/2 → no place picture: flash look 2/2.
+- Final through the real code: riding, doggy, reverse cowgirl, golden hour, candlelight, anal x3, missionary 2 of 3 right.
+
 ## 2026-10-08 (sixteenth session): picture round 5 (deployed)
 - 117 pictures drawn from the container through the bot's own `drawPicture`/`startPicture` (fixed seeds and `Math.random`), $0.57 in all
   (Runware $17.30 → $16.74), every sheet read, faces and genitals zoomed at full size.

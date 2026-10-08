@@ -5,6 +5,19 @@ Newest first; one dated entry each (`- YYYY-MM-DD — **what** (owner's words): 
 entry: strike it through (`~~…~~`) and say what superseded it. `tools/doc-check.mjs` checks the format.
 
 ## Decision log (owner's decisions; newest first; never drop or reword an entry, mark it superseded instead)
+- 2026-10-08 — **Picture round 6: tests, anatomy, flash, variety; dev only** (owner: "(Test; do not commit): Let's try POV doggy anal alone
+  without the other LoRAs while raising it's weight to 1", "(Test; do not commit): Randomize pictures between 9:16 and 16:19. Blowjobs and
+  deepthroats at 16:9 ... Only /look pictures stay at 1:1", "Does reducing resolution reduce cost?", "(Test; do not commit): When there is a
+  deepthroat mentioned, use deepthroat LoRA alone ... weight to 1", "(Test; do not commit): InstaPic LoRA replaced by other LoRAs when there is
+  nudity or sex act", "For when removing a LoRA, Adjust weights of other LoRAs accordingly", "Implement more variety: more poses, more
+  outfits, more hairstyles, more lighting settings (golden hour, blue hour, dim candle soft lighting, and when asked for specifically: camera
+  flash LoRA ... Strength: 1.0)", then mid-session: "Remember and don't confuse which is anal and which is normal vaginal ... Ensure overall
+  antomical correctness"): the 16:9, deepthroat-alone and InstaPic tests are reported, not committed (sizes, `LORAS`, `ACT_LORAS` weights
+  unchanged). Built: Tushy Raw Filter uploaded as `ferasalm:tushyraw@1`, `FLASH_*` (only when asked: it alone in place of the realism
+  LoRAs at 1.0, no place picture); `HAIRSTYLES`/`HAIR_CHANCE` 0.5; more `LIGHT` (golden hour, blue hour, candlelight), `LIGHT_WORDS`; 7 new
+  shots (poses) and 23 outfits. For anatomy (Claude's calls, from the owner's last message): `NUDE_LORAS_OFF_WITH` (Unchained off riding,
+  missionary, anal), vaginal acts worded "inside her vagina", anal from behind with POV Doggy Anal alone at 1.0 (`ALONE_LORAS`: the owner's
+  test 1 adopted, it was the only anal setup right on zoom, 6/6). *Supersedes the anal camera "on her back" of round 5.* Not deployed.
 - 2026-10-08 — **Picture round 5: LoRA cuts, oral at 1:1, /look shows the act, anal on her back; deploy** (owner: "Cut LoRAs
   where they make the least impact and where they worsen the output. Test the deepthroat LoRA ... and deploy", "I think blowjobs
   and deepthroat might need a wider aspect ratio instead of 9:16. Test wider aspect ratios going wider gradually until 1:1 ... and

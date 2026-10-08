@@ -567,7 +567,7 @@ section("pictures: his photos (Workers AI vision)");
     eq(cams.filter(([, c]) => !["{selfie}", "{mirror}", "{pov}"].includes(c)), [], "every shot starts from exactly one phone rule");
     yes(P.SELFIE_PHONE.includes("the phone itself is never in the picture") && P.SELFIE_PHONE.includes("her hands are out of the frame") && P.MIRROR_PHONE.includes("iPhone") && P.MIRROR_PHONE.includes("visible in the mirror"), "phone rules: selfie no phone or hand; mirror an iPhone, visible");
     const mirrorShots = cams.filter(([, c]) => c === "{mirror}").map(([t]) => t);
-    eq(mirrorShots, ["mirror", "mirror-back", "waist"], "mirror shots: mirror, mirror-back, waist");
+    eq(mirrorShots, ["mirror", "mirror-back", "waist", "stretch-mirror", "kneel-mirror"], "mirror shots: mirror, mirror-back, waist, stretch-mirror, kneel-mirror (owner 2026-10-08: more poses)");
     yes(mirrorShots.every((s) => W.composePicture({ tier: "boudoir", shot: s }).prompt.includes("iPhone")) && ["close", "selfie", "neckline", "golden"].every((s) => { const p = W.composePicture({ tier: "everyday", shot: s }).prompt; return p.includes(P.SELFIE_PHONE) && !p.includes("iPhone"); }), "...and in the prompts");
     // Slots picked in code, by weight
     const counts = {};

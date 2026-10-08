@@ -271,6 +271,29 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq(sent.map((t) => t.lora || null), [[{ model: "ferasalm:phone2025@1", weight: 0.8 }], null], "LoRAs go with klein 9B only, weight 0 left out");
 }
 {
+  // owner 2026-10-08: a camera-flash picture only when asked (FLASH_WORDS): the flash LoRA replaces the realism LoRAs (its author: no
+  // other realism style), no LORA_PREFIX, the flash trigger first and FLASH_PHOTO; hairstyles (HAIRSTYLES) unless the words name her hair
+  const P = W.CONFIG.PICTURE, R = P.RUNWARE, realFetch = globalThis.fetch, keep = [P.ROUTE, P.HAIR_CHANCE], r0 = Math.random;
+  let sent = [];
+  globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
+  const draw = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0]; };
+  try {
+    P.ROUTE = "runware-klein"; P.HAIR_CHANCE = 0;
+    const flash = await draw("in a black slip dress on her bed, with flash");
+    eq(flash.lora.map((l) => [l.model, l.weight]), Object.entries(R.FLASH_LORAS), "flash asked: only the flash LoRA (no realism LoRAs), at its weight");
+    eq(!!(flash.positivePrompt.startsWith(R.FLASH_TRIGGER) && !flash.positivePrompt.includes(R.LORA_PREFIX) && flash.positivePrompt.includes(R.FLASH_PHOTO) && !flash.positivePrompt.includes(R.PHOTO)), true, "flash: its trigger first, no phone2025 prefix, FLASH_PHOTO in place of PHOTO");
+    const plain = await draw("in a black slip dress on her bed");
+    eq(plain.lora.map((l) => l.model).sort(), Object.keys(R.LORAS).sort(), "no flash asked: the usual LoRAs");
+    eq(W.customPicture("you in a slip dress with flash", 22).prompt.includes(R.FLASH_LIGHT), true, "/pic with flash: the flash light, not the time's");
+    eq(W.customPicture("you by candlelight in your bedroom", 22).prompt.includes("Lit by"), false, "/pic naming its light (candlelight): no light picked");
+    eq(!!(!W.composePicture({ words: "on the porch at golden hour", hour: 21 }).prompt.includes("lamp")), true, "her words name the light: no LIGHT pick");
+    P.HAIR_CHANCE = 1; Math.random = () => 0;
+    const hair = await draw("on the couch");
+    eq(!!(hair.positivePrompt.includes(`Her hair: ${P.HAIRSTYLES[0]}.`) && hair.positivePrompt.includes("same face, hair color and bangs")), true, "a hairstyle: named, her hair color and bangs kept");
+    eq(!!(!(await draw("on the couch, her hair in a ponytail")).positivePrompt.includes("Her hair:")), true, "the words name her hair: no hairstyle picked");
+  } finally { globalThis.fetch = realFetch; [P.ROUTE, P.HAIR_CHANCE] = keep; Math.random = r0; }
+}
+{
   // RUNWARE.NUDE_LORAS (owner 2026-10-08: SNOFS on nude/explicit pictures only): added to LORAS on klein 9B when she's naked,
   // or for a sex act with SEX_ACTS on; never on clothed pictures or TwinFlow
   const R = W.CONFIG.PICTURE.RUNWARE, realFetch = globalThis.fetch, keep = [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS];
@@ -292,6 +315,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(await loras("having sex"), [[R.MODEL, base]], "a sex act with SEX_ACTS off: no NUDE_LORAS");
     R.SEX_ACTS = true;
     eq(await loras("having sex"), [[R.MODEL, nude]], "a sex act with SEX_ACTS on: NUDE_LORAS (the penis LoRA only when named, round 4)");
+    // owner 2026-10-08 ("Ensure overall anatomical correctness"): Unchained misplaced the penis on penetration → left out with those act LoRAs
+    for (const [words, act] of [["riding the man", "ferasalm:flux4play@1"], ["missionary", "ferasalm:missionary@1"]]) {
+      const got = (await loras(words))[0][1];
+      eq([got.includes(act), Object.keys(R.NUDE_LORAS).some((n) => got.includes(n))], [true, false], `${words}: ${act}, no NUDE_LORAS (NUDE_LORAS_OFF_WITH)`);
+    }
+    eq(await loras("the man fucking her ass, anal"), [[R.MODEL, Object.keys(R.ALONE_LORAS)]], "anal: POV Doggy Anal alone (ALONE_LORAS), owner's test 2026-10-08");
+    eq((await loras("sucking the man's cock, blowjob"))[0][1].includes(Object.keys(R.NUDE_LORAS)[0]), true, "a blowjob keeps NUDE_LORAS");
     // round 4: Runware's own size and sampler
     sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, "{who} on the couch", { ledger: {} });
     eq([sent[0].width, sent[0].height, sent[0].steps, sent[0].CFGScale, sent[0].acceleration], [R.WIDTH, R.HEIGHT, R.STEPS, R.CFG, R.ACCELERATION], "Runware: its own size, steps, CFG and acceleration sent");
@@ -368,7 +398,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("naked, holding the man's erect penis in her hand", "pic");
     yes(c.loras.includes("ferasalm:penis@1"), "a penis without an act LoRA: General Penis", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");
-    yes(c.loras.includes("ferasalm:povanal@1") && !c.text.includes("an4l") && c.text.includes("She lies on her back") && c.text.includes("her vulva, closed and untouched, is above it") && !c.loras.includes("ferasalm:povhandc@1") && !c.text.includes("POV hand"), "anal: POV Anal, drawn on her back (round 5: from behind drew a vulva for her anus), no POV hand, no trigger of an unloaded LoRA", c.loras);
+    yes(JSON.stringify(c.loras) === JSON.stringify(["ferasalm:povanal@1"]) && !c.text.includes("an4l") && c.text.includes("seen from behind") && c.text.includes("his penis inside her anus; below it, between her thighs, her vulva closed and untouched") && !c.text.includes("This is a candid photograph") && !c.text.includes("POV hand"), "anal: POV Doggy Anal alone, from behind, the vulva below her anus, no LORA_PREFIX (owner 2026-10-08)", c);
     c = await call("naked in bed", "pic");
     yes(!c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:flux4play@1"), "nude, no act: no act LoRAs", c.loras);
     c = await call("missionary sex on the bed", "scene");
