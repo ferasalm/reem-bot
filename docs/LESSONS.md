@@ -133,6 +133,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 ## 4. What works
 - `node tools/check.mjs` before every push; a commit message with `[live]` runs the real-model check on Actions.  Its live job once
   showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); watch the run with a Monitor loop on `curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id>` (anonymous 200; the JSON is pretty-printed, `"status": "in_progress"`, so grep the value; poll every 30 s, emit once on `completed`). (2026-10-06, 2026-10-08)
+- Before writing "deployed" or "not deployed" in HANDOFF, read the remote: `git ls-remote origin main` and the Deploy to Cloudflare runs for `main` (2026-10-09: remote main was 9309e8e, deployed 03:13 UTC, while the draft said 9803e28).
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
 - Before any model switch, replay `OWNER_CHAT` with `model` (Nemo, removed 2026-10-06, wrote 1-4 word texts). Examples teach as strongly as rules: Basbousa drifted to "he" because an example said "bring him back" (2026-10-02);

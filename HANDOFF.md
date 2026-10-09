@@ -3,8 +3,8 @@
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 
-**Last updated:** 2026-10-09 (twentieth session: clothed body reference v7 on `dev`). **Deployed:** `main` = 9803e28 (rounds 6-8).
-`dev` is ahead: the body and face sets of 2026-10-09 (v4 to v6, plus v7 clothed) are not deployed. Round 5 is `088c9be`: to go back, push it to `main`.
+**Last updated:** 2026-10-09 (twentieth session: clothed body reference v7 on `dev`). **Deployed:** `main` = 9309e8e: rounds 6-8 plus the face and body sets v4-v6, live since 2026-10-09 03:13 UTC (a push to `main`, deploy run 37878269763, success; this session did not push `main`). Rollback: push `9803e28` (rounds 6-8, without v4-v6) or `088c9be` (round 5) to `main`.
+`dev` (3615f3e) is ahead by the v7 clothed body only, not deployed.
 New `dev` work goes live when the owner says "deploy" (`git push origin origin/dev:main`).
 
 ## Where we are
@@ -15,10 +15,10 @@ nudity and sex acts on).
 **Pictures, rounds 6-8 (live on `main`):** 9:16 768x1344 for most pictures, 1:1 or 16:9 for blowjobs and some sex acts (about
 $0.0025-0.0034 a picture); three picture kinds (clothed, nude, sex act) with their own body pictures; General Penis on missionary and
 doggy; `/look` from the chat; hairstyles, light, poses, outfits. `docs/OPTIONS.md` lists every command, word, act and LoRA.
-**On `dev`, not deployed (2026-10-09):** her face is the old face as a macro; the nude body is v6 (klein 9B + InstaPic 1.0 + Real HD 2K 1.0,
-fuller arms, soft belly); the clothed body is **v7** (`BODY_CLOTHED` "v7-clothed", the nude v6 dressed in a fitted opaque gray tank).
+**Live on `main` since 03:13 UTC:** her face as a macro; the nude body v6 (klein 9B + InstaPic 1.0 + Real HD 2K 1.0, fuller arms, soft belly). **On `dev`, not deployed:** the clothed body **v7** (`BODY_CLOTHED` "v7-clothed", the nude v6 dressed in a fitted opaque gray tank).
 
 ## Waiting on the owner
+- **v4-v6 went live on `main` at 03:13 UTC**, by a push this session did not make: confirm it was intended, or roll `main` back to `9803e28`.
 - **Your Telegram test** of the rounds 6-8 pictures on `main` (next step 1). They are not yet checked live.
 - **Keep v7-clothed?** Its one pick (seed 103 of 4) shows no nipples and is fuller than v6-clothed, but it is not a full match to the
   nude: the bust and hips are still lighter. Its kitchen test picture's belly looks rounder in a leaning pose. Deploy it, or ask for a
@@ -33,7 +33,8 @@ fuller arms, soft belly); the clothed body is **v7** (`BODY_CLOTHED` "v7-clothed
 - Bench (container, `runware:400@2`, nude v6 as image 0, InstaPic + Real HD 2K at 1.0, 576x1024, $0.00169 each): round 1 seeds 101, 102,
   104 showed nipples through the knit; seed 103 showed none and was picked. Round 2 not run. Read at full size (no sub-agents).
 - Bot check (`drawPicture`, `BODY_CLOTHED` v7-clothed, 2 pictures): her face held in both against `tools/face/reference.jpg`.
-- Not checked: Telegram, `/look`'s DeepSeek call, the deployed code (`main` unchanged), v7 in a live chat.
+- Main: remote `main` = 9309e8e (`git ls-remote`). Deploy to Cloudflare run 37878269763 (push to `main`, 03:13 UTC) success; Tests run 37878269775 success. The v4-v6 deploy was not checked live (no /health or /setup read).
+- Not checked: Telegram, `/look`'s DeepSeek call, v7 in a live chat.
 
 ## Next steps (in order)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
@@ -50,7 +51,7 @@ Each has a recommended effort. The owner sets the effort; Claude only recommends
 
 ## Open questions for the owner
 - Her tongue on riding/doggy and in the kitchen picture: keep it, lower the Flux 4 Play weight, or use another LoRA?
-- v7-clothed: deploy it, or round 2 first?
+- v7-clothed: deploy it, or round 2 first? And was the 03:13 UTC push to `main` (v4-v6 live) intended?
 - OK to press Actions > Delete retired branches for the list in `tools/retired-branches.txt`? The sync check says no work is missing from `dev`.
 - Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? The warning came again this session.
 - Commit trailers: the attribution reminder asks for a Co-Authored-By line naming the model; the system rules bar model names in commit
