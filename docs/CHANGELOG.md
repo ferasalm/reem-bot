@@ -4,6 +4,9 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-09 (twentieth session, deploy): clothed body v9 to main
+- Owner: "Deploy v9-clothed". `dev` 9c1270f fast-forwarded into `main` (was 9309e8e). Deploy to Cloudflare run 37944915522 (job 113868585857) success: Deploy Worker uploaded `reem-bot` (6998.61 KiB, gzip 4677.58 KiB), Current Version ID 04777c05-d54f-4dd8-874c-60dd2809b204; `/health` ok (klein 60,126 bytes; vision model described it); `/setup` all ✅. Leak check before the deploy (`drawPicture`, 2 pictures, black ribbed tank + jeans and olive ribbed top + gray yoga pants): no white set. The seated olive picture showed a rounded lower belly (pose).
+
 ## 2026-10-09 (twentieth session, later): clothed body v9, the white linen set; dev only
 - Clothes model 501 (klein 9B on Runware, 768x1344, 8 steps, InstaPic + Real HD 2K at 1.0; references: the owner’s close-up as image 0, the nude photo (576x1008) as image 1, the white set as image 2): $0.00338 each, seeds 501 and 502. 501 chosen (owner: "Yes this is it. 501 it is."). Body reference `tools/face/body-v9-clothed.jpg` (cropped below the mouth). `BODY_CLOTHED` "v9-clothed"; `face.js` `BODY_V9_CLOTHED_JPEG_BASE64`; `worker.js` import, CONFIG, pics map; `WARDROBE.EVERYDAY` white set first; FLIRTY long black slip and lace-trim slip. Checks: `node tools/check.mjs` all 6 ok (output read). Bot check, 2 pictures: outfit and belly right in both; couch face close, standing one a random laughing grin.
 
