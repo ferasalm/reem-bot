@@ -8,7 +8,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 - Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` works (face.yml). Klein needs
   multipart form data even with only a prompt; reference images must be under 512x512 (ours: 480).
 - Claude's cloud container can't reach openrouter.ai or workers.dev (network policy; the owner can allow a host in
-  the environment's Network access settings); deleting branches is refused too. The permission check refused reading files under `tools/face/` and a workflow dumping the live KV chat (2026-10-05): work from code, tests and the owner's report. `gh run download` is blocked. Live checks and the bench run on
+  the environment's Network access settings); deleting branches is refused too. A workflow dumping the live KV chat was refused (2026-10-05): work from code, tests and the owner's report; reading `tools/face/` images works (2026-10-09). `gh run download` is blocked. Live checks and the bench run on
   GitHub Actions; read their logs with the GitHub MCP (`actions_list` / `get_job_logs`).
 - The ElevenLabs MCP needs any voice description and sample line to come from the owner. Transcribing a TTS node
   in a flow only echoes its prompt: upload the MP3 as an asset to really transcribe it.
@@ -34,7 +34,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   "failed to load": DoRA or OneTrainer LoRA (`transformer.` keys, POV hand) → `dora-to-lora.py`, LoKR → `lokr-to-lora.py --rank 128`; custom klein checkpoints: "internalError".
   Civitai file keys without downloading: `curl -r 0-7` (header length), then `-r 8-<n+7>`. Kohya and BFL naming load; PEFT doesn't.
   9 LoRAs in one call work, but her face drifted 5/8 → keep ≤6. A named room's picture pulled blowjobs into wide shots. (2026-10-08)
-  Runware klein 9B bills GPU time in steps of ~$0.0008: 576x1024 at its defaults $0.00169; 1024² $0.0025-0.0034, 1008x1792 $0.0034-0.0042 (more LoRAs = the higher one); steps 4-5, acceleration and CFG don't change it (round 4, 2026-10-08). Calls past ~60 s die at the proxy: `deliveryMethod: "async"`. The proxy injects Runware's key: `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture(...)` benches the bot's own picture code from the container (calls ~4 s apart, else 502; a bench script that wraps `fetch` can fix `seed`). (2026-10-08)
+  Runware klein 9B bills GPU time in steps of ~$0.0008: 576x1024 at its defaults $0.00169; 1024² $0.0025-0.0034, 1008x1792 $0.0034-0.0042 (more LoRAs = the higher one); steps 4-5, acceleration and CFG don't change it (round 4, 2026-10-08). Calls past ~60 s die at the proxy: `deliveryMethod: "async"`. The proxy injects Runware's key: `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture(...)` benches the bot's own picture code from the container (calls ~4 s apart, else 502; a bench script that wraps `fetch` can fix `seed`). (2026-10-08) A direct Runware call (`inputs.referenceImages`, `lora: [{model, weight}]`) from the container works the same way (2026-10-09).
 - Sex acts drawn with the wrong opening (round 6, 2026-10-08; owner: "don't confuse which is anal and which is normal vaginal") → judge genitals only on a full-size crop (`convert -crop 600x600+200+1050`): at 800 px a small vulva-shaped slit where her anus is looked "right" (0/3 on zoom). Unchained XXX on penetration put the penis below an open, empty vulva (riding 0/4, missionary 0/4, even worded "inside her vagina") → `NUDE_LORAS_OFF_WITH`; the realism LoRAs with POV Doggy Anal drew a vulva for her anus from behind (4/5) → `ALONE_LORAS` (alone at 1.0: 6/6); on her back it fused her front and spread bottom. Vaginal acts say "inside her vagina". Flux 4 Play draws her tongue out whatever the mood words.
 - A random "open-mouthed moan" on a blowjob drew her tongue out → eyes-only `MOODS.ORAL`. /look missed acts: her narration says "wraps her lips around it", "pulls you down on top of her" → `SEX_CUES` (+ `SEX_CONTEXT`). Test a new word list on her real phrasing (`startPicture` "scene"), not on keyword prompts. (round 5)
 - A new body reference costs cents (round 7, 2026-10-08): klein 9B on Runware with body-v2 as image 0 ("image 0 dressed: exactly the same body
@@ -43,6 +43,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   reference count twice; with none, klein drew her slimmer than image 1 (round 8) → name image 1's own shape + "not slimmer". A bigger
   reference costs GPU time: a third picture (the room) or a 768x1344 body picture each add ~$0.0009 → body pictures at 576x1024.
   A cropped top in the body picture cropped every T-shirt. PussyDiffusion on penetration melted the penis into the labia (General Penis fixes it).
+- Clothed body reference redraw (2026-10-09): nipples showed through a fitted opaque tank on 3/4 seeds (klein 9B, 576x1024, InstaPic + Real HD 2K at 1.0, nude body as image 0; $0.00169 each) → pick the seed with none and read it at full size. A leaning kitchen pose made the belly look rounder than the standing body; the bot's own `drawPicture` kept her face (2/2).
 - Klein copies the place picture's light: a flash picture with her room attached kept its lamp light → no place picture on flash (2/2). 16:9: blowjobs 3/3 in her mouth, but a clothed sofa picture drew her twice (1/1). New shot names are matched as words in her descriptions (`shotNamed`): "lying"/"pillow" stole her plain selfies → names nobody writes. (2026-10-08)
 - Pictures soft and plastic, same smile, sex acts posed wrong (round 4, 2026-10-08) → 576x1024 (face ~100 px), a 460 px face reference whose closed-lip smile klein copies, and ~2,500-character prompts that drowned the act and the LoRAs (blowjob 0/10, doggy facing the lens) → 1008x1792 or 1024², CFG 1, the 2x face, "not image 0's expression", short prompts (blowjob 4/4, doggy 2/2); 1:1 beat 9:16 on sex acts 7/7 vs 5/7. An expression placed early turned doggy to face the lens: on sex acts it goes after the act words.
 - Picture bench from the container (round 5, 2026-10-08): fix `Math.random` too (MOODS/GAZES/place picks) or two variants differ by
@@ -53,8 +54,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
 ## 2. Known traps
-- History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either.
-  Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.
+- History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either. Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.
 - A `VOICE_ID` Worker secret, if set, overrides `VOICE.ID`: remove it.
 - Cron runs (every 15 min) must finish within 30 s, so `scheduled` only queues a task.
 - `clean()` strips `[...]` at line starts except allowed audio tags; `dropCues()` strips them anywhere (keeping
@@ -96,8 +96,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   Sesame needs a voice; MAI-Voice-2 and Qwen gave a bare "Provider returned 400". Telegram's sendVoice takes MP3.
   Whisper never transcribes laughs: judge them by ear. (2026-10-04) Hearing (stt bench 2026-10-05): OpenRouter audio
   chat models take Telegram's OGG as `input_audio` format "ogg"; Nova-3 turns Arabic into Devanagari.
-- Vendoring a third-party npm package into the repo (lamejs for Gemini TTS's PCM → MP3) was refused by the session's
-  permission check until the owner said "add lamejs": ask first, then add. 5 s of speech encode in ~0.2 s. (2026-10-04)
+- Vendoring a third-party npm package into the repo (lamejs for Gemini TTS's PCM → MP3) was refused by the session's permission check until the owner said "add lamejs": ask first, then add. 5 s of speech encode in ~0.2 s. (2026-10-04)
 - Body on klein follows image 1: the black-dress body picture gave square shoulders and its dress leaked (live, and 2/3
   selfies) → a Nano Banana picture in a gray tank + leggings (bench 37271580261): rounded shoulders 8/8, asked clothes 8/8.
   Words still move the size: "wide hips, full thighs" heavy, "slim legs" or "not plump" slim; "165 cm, 71 kg, not slim and
@@ -121,14 +120,13 @@ At most 150 lines (`tools/doc-check.mjs`).
   read every reply of a `[live]` run, not its summary. (2026-10-01)
 
 ## 3. Routes to avoid (and the cheaper route)
-- Never read `worker.js` whole (~212 KB, ~53k tokens): `grep -n` the function or CONFIG key (docs/MAP.md names
-  them), then read only those lines. Never open `face.js` (base64 image), `tools/face/reference.jpg` or
-  `tools/settings-panel.html` (generated: run `node tools/build-panel.mjs`).
+- Never read `worker.js` whole (~212 KB, ~53k tokens): `grep -n` the function or CONFIG key (docs/MAP.md names them), then read only those lines.
+  Never open `face.js` (base64 image) or `tools/settings-panel.html` (generated: run `node tools/build-panel.mjs`); `tools/face/reference.jpg` once, for a face check only.
 - `docs/CHANGELOG.md` and `tools/model-bench/FINDINGS.md`: `grep -n`, don't read whole.
 - Mocked tests: trust the exit code and read the failing lines (`node tools/check.mjs`). `[live]` runs: read every
   reply in the job log (GitHub MCP `get_job_logs`), REVIEW lines included.
 - Don't spawn sub-agents to explore: they start cold and re-read what you already know.
-- Moving text between files: use a script that asserts each old string exists, never retype it.
+- Moving text between files: use a script that asserts each old string exists, never retype it. The assert alone is not enough: anchor on text unique to the line, then print the changed lines (2026-10-09: an import edit hit the pics map).
 - The live log cuts each model reply at ~400 characters → to reproduce a slip, rebuild the reply and run it through
   `shapeReply` from a scratch script with `loadWorker()` (`tools/test/load-worker.mjs`). (2026-10-05)
 

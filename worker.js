@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64, BODY_V4_JPEG_BASE64, BODY_V4_BACK_JPEG_BASE64, BODY_V4_CLOTHED_JPEG_BASE64, BODY_V5_JPEG_BASE64, BODY_V5_BACK_JPEG_BASE64, BODY_V5_CLOTHED_JPEG_BASE64, BODY_V6_JPEG_BASE64, BODY_V6_BACK_JPEG_BASE64, BODY_V6_CLOTHED_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64, BODY_V4_JPEG_BASE64, BODY_V4_BACK_JPEG_BASE64, BODY_V4_CLOTHED_JPEG_BASE64, BODY_V5_JPEG_BASE64, BODY_V5_BACK_JPEG_BASE64, BODY_V5_CLOTHED_JPEG_BASE64, BODY_V6_JPEG_BASE64, BODY_V6_BACK_JPEG_BASE64, BODY_V6_CLOTHED_JPEG_BASE64, BODY_V7_CLOTHED_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -871,7 +871,9 @@ Changing the story
       // + Real HD 2K 1.0; "v5-back" from behind, "v5-clothed" drawn from v5
       // then "v6" (owner: "redraw the body (the fuller are what's important)"): v5 redrawn with fuller arms and a softer belly
       BODY: "v6",                      // image 1: "v5" = the slimmer first draw, "v4" = the first 2026-10-09 set, "v3" = round 8's ivory set, "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
-      BODY_CLOTHED: "v6-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
+      // v7-clothed (2026-10-09, owner: "update the clothed body reference to better replicate the nude version"): the nude v6 body
+      // dressed by klein 9B + InstaPic 1.0 + Real HD 2K 1.0; v6-clothed had nipples showing under its rib knit (see the v6 history below)
+      BODY_CLOTHED: "v7-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
                                        // 6/6 pictures that named no clothes came out nude, even with DRESSED). Round 7 (owner: "her body is
                                        // accurate when she's nude, but ... too overweight" clothed): "v2-clothed" = body-v2 dressed in a gray
                                        // tank + leggings by klein 9B (was "default", the Cloudflare route's heavier body)
@@ -3480,7 +3482,7 @@ const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 function runwareBody(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const b = explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
-  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, v4: BODY_V4_JPEG_BASE64, "v4-clothed": BODY_V4_CLOTHED_JPEG_BASE64, "v4-back": BODY_V4_BACK_JPEG_BASE64, v5: BODY_V5_JPEG_BASE64, "v5-clothed": BODY_V5_CLOTHED_JPEG_BASE64, "v5-back": BODY_V5_BACK_JPEG_BASE64, v6: BODY_V6_JPEG_BASE64, "v6-clothed": BODY_V6_CLOTHED_JPEG_BASE64, "v6-back": BODY_V6_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
+  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, v4: BODY_V4_JPEG_BASE64, "v4-clothed": BODY_V4_CLOTHED_JPEG_BASE64, "v4-back": BODY_V4_BACK_JPEG_BASE64, v5: BODY_V5_JPEG_BASE64, "v5-clothed": BODY_V5_CLOTHED_JPEG_BASE64, "v5-back": BODY_V5_BACK_JPEG_BASE64, v6: BODY_V6_JPEG_BASE64, "v6-clothed": BODY_V6_CLOTHED_JPEG_BASE64, "v7-clothed": BODY_V7_CLOTHED_JPEG_BASE64, "v6-back": BODY_V6_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
   const b64 = pics[b] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }

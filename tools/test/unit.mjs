@@ -344,7 +344,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(R.BODY, "v6", "Runware's body picture: the owner's lace body nude, klein + InstaPic + Real HD 2K (2026-10-09)");
     eq(R.BODY_BACK, "v6-back", "acts from behind: the v6 back picture");
     yes(W.runwareBody() && W.runwareBody().length > 10000, "the v2 body picture is built into face.js");
-    eq(R.BODY_CLOTHED, "v6-clothed", "clothed pictures: v6 dressed (the nude one made unnamed outfits nude, round 7)");
+    eq(R.BODY_CLOTHED, "v7-clothed", "clothed pictures: v7 dressed (the nude one made unnamed outfits nude, round 7)");
     yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");

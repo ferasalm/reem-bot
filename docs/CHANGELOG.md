@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-09 (twentieth session): clothed body reference v7; dev only
+- Bench (klein 9B on Runware, `runware:400@2`, 576x1024, steps 5, CFG 1, safety off; reference `tools/face/body-v6.jpg`, the nude v6 body; LoRAs `ferasalm:instapic@1` 1.0 and `ferasalm:realhd2kc@1` 1.0 only). Round 1, seeds 101-104, $0.00169 each: 101 nipples visible, 102 nipples visible, 103 no nipples (fuller bust and upper arms, less rounded belly than v6-clothed) = pick, 104 nipples visible. Round 2 not run (only when round 1 has no winner). Bench pictures in the session scratchpad, not in the repo; the pick is `tools/face/body-v7-clothed.jpg` (576x1024, 167,517 bytes).
+- Wiring: `face.js` `BODY_V7_CLOTHED_JPEG_BASE64` (appended after the v6 lines); `worker.js` import (line 123), CONFIG `RUNWARE.BODY_CLOTHED` "v7-clothed" (line 876, with the v7 note above it), `runwareBody` pics map (line 3485); `tools/test/unit.mjs:347`; `tools/settings-panel.html` rebuilt; `docs/OPTIONS.md` and `docs/MAP.md` updated. v6 files kept.
+- Checks: `node tools/check.mjs` all 6 ok (output read: settings panel, worker.js parses, unit, scenarios, e2e, docs). Bot check: `drawPicture` (route runware-klein, `BODY_CLOTHED` v7-clothed), 2 pictures; cost not logged. "on the couch reading a book": face held (dark bangs, brown eyes, olive skin), no nipples showing. "making tea in the kitchen": face held; belly rounder in the leaning pose; tongue out in a grin (no act LoRA on this route, so not the body reference).
+- Not deployed: `main` stays 9803e28.
+
 ## 2026-10-08 (nineteenth session): deploy of picture rounds 6-8 to main
 - `main` = 9803e28 (was 088c9be). Deploy run 37860789952, job 113595746221: Cloudflare resources, Deploy Worker (`reem-bot`, upload 5054 KiB,
   gzip 3217 KiB, version a8330967-fdd5-40db-b84e-bacb68b15187, RUNWARE_API_KEY secret written), `/health` (Cloudflare klein 52,713 bytes in
