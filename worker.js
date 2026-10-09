@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64, BODY_V4_JPEG_BASE64, BODY_V4_BACK_JPEG_BASE64, BODY_V4_CLOTHED_JPEG_BASE64, BODY_V5_JPEG_BASE64, BODY_V5_BACK_JPEG_BASE64, BODY_V5_CLOTHED_JPEG_BASE64, BODY_V6_JPEG_BASE64, BODY_V6_BACK_JPEG_BASE64, BODY_V6_CLOTHED_JPEG_BASE64, BODY_V7_CLOTHED_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64, BODY_V4_JPEG_BASE64, BODY_V4_BACK_JPEG_BASE64, BODY_V4_CLOTHED_JPEG_BASE64, BODY_V5_JPEG_BASE64, BODY_V5_BACK_JPEG_BASE64, BODY_V5_CLOTHED_JPEG_BASE64, BODY_V6_JPEG_BASE64, BODY_V6_BACK_JPEG_BASE64, BODY_V6_CLOTHED_JPEG_BASE64, BODY_V7_CLOTHED_JPEG_BASE64, BODY_V9_CLOTHED_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -873,7 +873,9 @@ Changing the story
       BODY: "v6",                      // image 1: "v5" = the slimmer first draw, "v4" = the first 2026-10-09 set, "v3" = round 8's ivory set, "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
       // v7-clothed (2026-10-09, owner: "update the clothed body reference to better replicate the nude version"): the nude v6 body
       // dressed by klein 9B + InstaPic 1.0 + Real HD 2K 1.0; v6-clothed had nipples showing under its rib knit (see the v6 history below)
-      BODY_CLOTHED: "v7-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
+      // v9-clothed (2026-10-09, owner: "Yes this is it. 501 it is."): the clothes model 501 (face from the close-up, body from the nude photo,
+      // the white linen set; InstaPic 1.0 + Real HD 2K 1.0), faceless; the gray tank is gone. v7-clothed kept below.
+      BODY_CLOTHED: "v9-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
                                        // 6/6 pictures that named no clothes came out nude, even with DRESSED). Round 7 (owner: "her body is
                                        // accurate when she's nude, but ... too overweight" clothed): "v2-clothed" = body-v2 dressed in a gray
                                        // tank + leggings by klein 9B (was "default", the Cloudflare route's heavier body)
@@ -1195,10 +1197,10 @@ Changing the story
     // From her persona. "clothes | place" brings its own place (only for shots with {where})
     WARDROBE: {
       // fitted, so her shape shows (owner 2026-10-05: "clothes that better reflect her body shape and contours")
-      EVERYDAY: ["a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted black ribbed knit midi dress", "a fitted black ribbed tank top and high-waisted jeans", "a fitted gray ribbed tee and high-waisted jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a fitted black wrap dress",
+      EVERYDAY: ["a sleeveless white linen top with a square neckline and wide-leg white linen pants", "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted black ribbed knit midi dress", "a fitted black ribbed tank top and high-waisted jeans", "a fitted gray ribbed tee and high-waisted jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a fitted black wrap dress",
         // owner 2026-10-08: "more outfits"
         "a cream cable-knit sweater and fitted dark jeans", "a fitted olive ribbed long-sleeve top and gray yoga pants", "a denim button-up shirt knotted at the waist over a white tank top and jeans", "a fitted burgundy sweater dress and black tights", "a camel wool coat over a black turtleneck, a scarf around her neck", "a gray zip-up hoodie half open over a white crop tank and joggers", "a fitted white linen button-down tucked into black trousers", "a black leather jacket over a fitted gray tee and jeans", "a matching soft beige lounge set, cropped top and wide pants", "a fitted navy striped Breton top and high-waisted jeans", "a red silk blouse with the top buttons open and black jeans"],
-      FLIRTY: ["a black satin slip dress", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh",
+      FLIRTY: ["a long black satin-look slip dress with thin straps, relaxed drape", "a black satin slip dress with lace trim at the neckline", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh",
         "a tight ribbed white tank top and tiny gray sleep shorts", "a red satin cami and black satin shorts", "a fitted black corset top and high-waisted jeans", "his oversized flannel shirt, unbuttoned low, and bare legs", "a short emerald satin wrap dress", "a cropped white tee with no bra and low-rise sweatpants", "a backless black knit top and a fitted midi skirt", "a sheer black mesh top over a black bralette and jeans"],
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
       BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a red lace bodysuit", "a white lace bodysuit", "a burgundy velvet slip with thin straps", "a black mesh bodysuit", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
@@ -3482,7 +3484,7 @@ const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 function runwareBody(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const b = explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
-  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, v4: BODY_V4_JPEG_BASE64, "v4-clothed": BODY_V4_CLOTHED_JPEG_BASE64, "v4-back": BODY_V4_BACK_JPEG_BASE64, v5: BODY_V5_JPEG_BASE64, "v5-clothed": BODY_V5_CLOTHED_JPEG_BASE64, "v5-back": BODY_V5_BACK_JPEG_BASE64, v6: BODY_V6_JPEG_BASE64, "v6-clothed": BODY_V6_CLOTHED_JPEG_BASE64, "v7-clothed": BODY_V7_CLOTHED_JPEG_BASE64, "v6-back": BODY_V6_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
+  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, v4: BODY_V4_JPEG_BASE64, "v4-clothed": BODY_V4_CLOTHED_JPEG_BASE64, "v4-back": BODY_V4_BACK_JPEG_BASE64, v5: BODY_V5_JPEG_BASE64, "v5-clothed": BODY_V5_CLOTHED_JPEG_BASE64, "v5-back": BODY_V5_BACK_JPEG_BASE64, v6: BODY_V6_JPEG_BASE64, "v6-clothed": BODY_V6_CLOTHED_JPEG_BASE64, "v7-clothed": BODY_V7_CLOTHED_JPEG_BASE64, "v9-clothed": BODY_V9_CLOTHED_JPEG_BASE64, "v6-back": BODY_V6_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
   const b64 = pics[b] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }

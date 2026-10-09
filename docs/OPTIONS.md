@@ -20,7 +20,7 @@
 - /restart (also /start): Start the story over (wipes her memory)
 
 ## Kinds of picture (Runware)
-- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v7-clothed`, round 9: the nude v6 body redrawn with InstaPic + Real HD 2K), the room picture when a place is named.
+- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v9-clothed`: the clothes model 501, the white linen set, a faceless body; v7 kept), the room picture when a place is named.
 - **Nude** (a nude word, below): 9:16, her nude body (`v6`), the nude LoRAs.
 - **Sex act** (a sex word, below): from his eyes, no room picture; shape picked at random: oral 1:1 80%, 16:9 20%; the rest 9:16 40%, 1:1 40%, 16:9 20% (sizes: 9:16 768x1344, 1:1 1024x1024, 16:9 1344x768). From behind (doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind): her body from behind, no breasts named.
 - **Partly naked**: a nude or sex picture that also names clothes (cardigan, sweater, hoodie, sweatshirt, t-shirt, tee, shirt, blouse, tank top, camisole, slip dress, dress...): those clothes stay on.
