@@ -341,9 +341,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const prompt = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0].positivePrompt; };
   try {
     P.ROUTE = "runware-klein"; R.SEX_ACTS = true;
-    eq(R.BODY, "v3", "Runware's body picture: the owner's body with pale ivory skin and fuller arms (round 8)");
+    eq(R.BODY, "v4", "Runware's body picture: the owner's pictures redrawn by klein in fair olive skin (2026-10-09)");
+    eq(R.BODY_BACK, "v4-back", "acts from behind: the v4 back picture");
     yes(W.runwareBody() && W.runwareBody().length > 10000, "the v2 body picture is built into face.js");
-    eq(R.BODY_CLOTHED, "v3-clothed", "clothed pictures: the owner's body dressed (the nude one made unnamed outfits nude; the old clothed one was heavier, round 7)");
+    eq(R.BODY_CLOTHED, "v4-clothed", "clothed pictures: v4 dressed (the nude one made unnamed outfits nude, round 7)");
     yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");
