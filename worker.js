@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64, BODY_V4_JPEG_BASE64, BODY_V4_BACK_JPEG_BASE64, BODY_V4_CLOTHED_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64, BODY_V4_JPEG_BASE64, BODY_V4_BACK_JPEG_BASE64, BODY_V4_CLOTHED_JPEG_BASE64, BODY_V5_JPEG_BASE64, BODY_V5_BACK_JPEG_BASE64, BODY_V5_CLOTHED_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -866,12 +866,15 @@ Changing the story
       // 2026-10-09 (owner: "her body looks so airbrushed ... fair olive and ... hyperdetailed skin texture, natural and imperfect", then
       // "use klein for everything with a realism LoRA"): "v4" = the owner's nude pictures redrawn by klein 9B + phone2025 0.6 + ultrareal5 0.9
       // in fair olive skin; "v4-back" from his back picture, "v4-clothed" drawn from v4 (tools/face/owner-2026-10-09)
-      BODY: "v4",                      // image 1: "v3" = round 8's ivory set, "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
-      BODY_CLOTHED: "v4-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
+      // then "v5" (owner: "We want the bodies of the clothed pictures ... nudify it ... same breasts from the nude image front shot ... same
+      // ass from the nude pictures", "Instapic and Real HD 2k are good. Use them both together"): his lace body nude, by klein 9B + InstaPic 1.0
+      // + Real HD 2K 1.0; "v5-back" from behind, "v5-clothed" drawn from v5
+      BODY: "v5",                      // image 1: "v4" = the first 2026-10-09 set, "v3" = round 8's ivory set, "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
+      BODY_CLOTHED: "v5-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
                                        // 6/6 pictures that named no clothes came out nude, even with DRESSED). Round 7 (owner: "her body is
                                        // accurate when she's nude, but ... too overweight" clothed): "v2-clothed" = body-v2 dressed in a gray
                                        // tank + leggings by klein 9B (was "default", the Cloudflare route's heavier body)
-      BODY_BACK: "v4-back",            // image 1 on sex acts from behind (BACK_WORDS; owner: "use the body reference of her behind"): body-v2 from behind
+      BODY_BACK: "v5-back",            // image 1 on sex acts from behind (BACK_WORDS; owner: "use the body reference of her behind"): body-v2 from behind
       // acts seen from behind (owner, round 7: "When it's a doggy scene, don't prompt her breasts since they won't show ... always describe
       // that it's from behind"): BODY_BACK, REFERENCE_BACK and NAKED_BACK instead of the front ones
       BACK_WORDS: "doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind",
@@ -3475,7 +3478,7 @@ const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 function runwareBody(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const b = explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
-  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, v4: BODY_V4_JPEG_BASE64, "v4-clothed": BODY_V4_CLOTHED_JPEG_BASE64, "v4-back": BODY_V4_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
+  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, v4: BODY_V4_JPEG_BASE64, "v4-clothed": BODY_V4_CLOTHED_JPEG_BASE64, "v4-back": BODY_V4_BACK_JPEG_BASE64, v5: BODY_V5_JPEG_BASE64, "v5-clothed": BODY_V5_CLOTHED_JPEG_BASE64, "v5-back": BODY_V5_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
   const b64 = pics[b] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
