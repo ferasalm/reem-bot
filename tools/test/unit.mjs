@@ -330,7 +330,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq([sent[0].width, sent[0].height], [480, 480], "Runware: a size asked by the caller wins");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
   eq(Object.keys(R.NUDE_LORAS), ["ferasalm:unchained@2"], "nude LoRAs: Unchained (round 3)");
-  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "ferasalm:instapic@1"], "every picture: phone2025, UltraReal, InstaPic (round 5: Anatomy Fixer out)");
+  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "ferasalm:instapic@1", "ferasalm:realhd2kc@1"], "every picture: phone2025, UltraReal, InstaPic, Real HD 2K (Real HD back 2026-10-09)");
 }
 {
   const yes = (v, label, got) => eq(!!v || got, true, label);
@@ -341,10 +341,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const prompt = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0].positivePrompt; };
   try {
     P.ROUTE = "runware-klein"; R.SEX_ACTS = true;
-    eq(R.BODY, "v5", "Runware's body picture: the owner's lace body nude, klein + InstaPic + Real HD 2K (2026-10-09)");
-    eq(R.BODY_BACK, "v5-back", "acts from behind: the v5 back picture");
+    eq(R.BODY, "v6", "Runware's body picture: the owner's lace body nude, klein + InstaPic + Real HD 2K (2026-10-09)");
+    eq(R.BODY_BACK, "v6-back", "acts from behind: the v6 back picture");
     yes(W.runwareBody() && W.runwareBody().length > 10000, "the v2 body picture is built into face.js");
-    eq(R.BODY_CLOTHED, "v5-clothed", "clothed pictures: v5 dressed (the nude one made unnamed outfits nude, round 7)");
+    eq(R.BODY_CLOTHED, "v6-clothed", "clothed pictures: v6 dressed (the nude one made unnamed outfits nude, round 7)");
     yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");

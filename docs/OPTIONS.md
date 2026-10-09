@@ -20,8 +20,8 @@
 - /restart (also /start): Start the story over (wipes her memory)
 
 ## Kinds of picture (Runware)
-- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v3-clothed`), the room picture when a place is named.
-- **Nude** (a nude word, below): 9:16, her nude body (`v3`), the nude LoRAs.
+- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v6-clothed`), the room picture when a place is named.
+- **Nude** (a nude word, below): 9:16, her nude body (`v6`), the nude LoRAs.
 - **Sex act** (a sex word, below): from his eyes, no room picture; shape picked at random: oral 1:1 80%, 16:9 20%; the rest 9:16 40%, 1:1 40%, 16:9 20% (sizes: 9:16 768x1344, 1:1 1024x1024, 16:9 1344x768). From behind (doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind): her body from behind, no breasts named.
 - **Partly naked**: a nude or sex picture that also names clothes (cardigan, sweater, hoodie, sweatshirt, t-shirt, tee, shirt, blouse, tank top, camisole, slip dress, dress...): those clothes stay on.
 - **Flash**: "camera flash", "flash on", "with flash", "with the flash", "with a flash", "flash photo", "flash pic", "flash picture", "flash selfie", "use flash", "using flash", "using the flash", "harsh flash", "direct flash", "flash photography".
@@ -176,6 +176,7 @@ Gaze: **everyday**: looking straight into the lens; looking off to the side, out
 | Phone Photography 2000-2025 (`ferasalm:phone2025@1`) | every picture (not with the flash or an alone LoRA) | 0.6 | This is a candid photograph taken with a smartphone of |
 | UltraReal V5 Pro (`ferasalm:ultrareal5@1`) | every picture (not with the flash or an alone LoRA) | 0.6 |  |
 | InstaPic (`ferasalm:instapic@1`) | every picture (not with the flash or an alone LoRA) | 0.6 | instapic |
+| ferasalm:realhd2kc@1 (`ferasalm:realhd2kc@1`) | every picture (not with the flash or an alone LoRA) | 0.5 |  |
 | Unchained XXX v2 (`ferasalm:unchained@2`) | nude pictures and blowjobs; off with Flux 4 Play AIO, Missionary POV K3NK, POV Doggy Anal | 0.8 |  |
 | Flux 4 Play AIO (`ferasalm:flux4play@1`) | words: riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours | 0.8 | c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes |
 | Holding Deepthroat POV (`ferasalm:povdt@1`) | words: blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth | 0.8 | POV deepthroat scene |
