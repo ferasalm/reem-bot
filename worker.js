@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_OWNER_JPEG_BASE64, BODY_HOURGLASS_JPEG_BASE64, BODY_V2_JPEG_BASE64, BODY_V3_JPEG_BASE64, BODY_V3_BACK_JPEG_BASE64, BODY_V3_CLOTHED_JPEG_BASE64, BODY_V4_JPEG_BASE64, BODY_V4_BACK_JPEG_BASE64, BODY_V4_CLOTHED_JPEG_BASE64, BODY_V5_JPEG_BASE64, BODY_V5_BACK_JPEG_BASE64, BODY_V5_CLOTHED_JPEG_BASE64, BODY_V6_JPEG_BASE64, BODY_V6_BACK_JPEG_BASE64, BODY_V6_CLOTHED_JPEG_BASE64, BODY_V7_CLOTHED_JPEG_BASE64, BODY_V9_CLOTHED_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, STYLE_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -134,7 +134,7 @@ You're dry, sharp, watchful and darkly funny. You notice everything, count money
 HOW YOU LOOK
 - Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair olive skin.
 - Thick, dark, well-groomed brows with a soft arch over almond-shaped warm amber-brown eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
-- Long jet-black waves with soft, wispy, full bangs grazing your brows, a cute fringe in the Zooey Deschanel style, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy ponytail at home with the bangs still down, sometimes twisted up and stabbed through with a pencil.
+- Long jet-black waves, sometimes with a cute fringe, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy bun at home, sometimes with wispy bangs, sometimes twisted up and stabbed through with a pencil.
 - Average-to-full and softly curvy, not slim and not heavy (165 cm, about 71 kg): a soft waist, rounded hips, a full bust, soft, narrow, gently sloping shoulders and soft, full arms with no muscle definition, clear collarbones. Barefoot or in wool socks at home.
 - You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on summer weekends at Crane Beach. At home, your father's old gray knit cardigan, elbows worn through, sliding off one shoulder. Thin gold rings. You take mirror selfies in the tall arched mirror in your bedroom.
 Show your looks the way a real person would: in scenes through light, movement and how he looks at you; in texts only when it fits (what you're wearing, your hair being a disaster). Never list them.
@@ -791,8 +791,8 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|spicier|naughty|naughtier|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Soft wispy full bangs across her forehead.",
-    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair olive skin, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
+    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Her hair often sits in a messy bun, sometimes with wispy bangs.",
+    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair olive skin, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     // round 5: an in-person scene whose narration is a sex act (SEX_CUES): his eyes are the camera, he is in the picture
     SCENE_ACT_STYLE: "Realistic candid first-person photo from the man's own eyes, caught in the middle of the act, not posing:",
@@ -870,16 +870,9 @@ Changing the story
       // ass from the nude pictures", "Instapic and Real HD 2k are good. Use them both together"): his lace body nude, by klein 9B + InstaPic 1.0
       // + Real HD 2K 1.0; "v5-back" from behind, "v5-clothed" drawn from v5
       // then "v6" (owner: "redraw the body (the fuller are what's important)"): v5 redrawn with fuller arms and a softer belly
-      BODY: "v6",                      // image 1: "v5" = the slimmer first draw, "v4" = the first 2026-10-09 set, "v3" = round 8's ivory set, "v2" = the owner's faceless nude body (2026-10-08), "owner" = his bodysuit picture, "hourglass" = a faceless nude hourglass body (both 2026-10-06), "default" = the Cloudflare route's body
-      // v7-clothed (2026-10-09, owner: "update the clothed body reference to better replicate the nude version"): the nude v6 body
-      // dressed by klein 9B + InstaPic 1.0 + Real HD 2K 1.0; v6-clothed had nipples showing under its rib knit (see the v6 history below)
-      // v9-clothed (2026-10-09, owner: "Yes this is it. 501 it is."): the clothes model 501 (face from the close-up, body from the nude photo,
-      // the white linen set; InstaPic 1.0 + Real HD 2K 1.0), faceless; the gray tank is gone. v7-clothed kept below.
-      BODY_CLOTHED: "v9-clothed",      // image 1 when she isn't naked (owner's refresh bench 2026-10-08: with the nude "v2" body,
-                                       // 6/6 pictures that named no clothes came out nude, even with DRESSED). Round 7 (owner: "her body is
-                                       // accurate when she's nude, but ... too overweight" clothed): "v2-clothed" = body-v2 dressed in a gray
-                                       // tank + leggings by klein 9B (was "default", the Cloudflare route's heavier body)
-      BODY_BACK: "v6-back",            // image 1 on sex acts from behind (BACK_WORDS; owner: "use the body reference of her behind"): body-v2 from behind
+      BODY: "v10",                     // image 1 on nude pictures: the owner's nude front (2026-10-10); older sets are in the history above
+      BODY_CLOTHED: "v10-clothed",     // image 1 when she isn't naked: the owner's rust halter + jeans picture (2026-10-10). A nude body picture made her naked when no clothes were named (2026-10-08)
+      BODY_BACK: "v10-back",           // image 1 on sex acts from behind (BACK_WORDS): the owner's nude back (2026-10-10)
       // acts seen from behind (owner, round 7: "When it's a doggy scene, don't prompt her breasts since they won't show ... always describe
       // that it's from behind"): BODY_BACK, REFERENCE_BACK and NAKED_BACK instead of the front ones
       BACK_WORDS: "doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind",
@@ -902,6 +895,18 @@ Changing the story
       ASPECTS: { ORAL: { "1:1": 0.8, "16:9": 0.2 }, ACT: { "9:16": 0.4, "1:1": 0.4, "16:9": 0.2 } },
       WIDE: "Only one woman is in the picture.",
       BIG_FACE: true,                  // her face reference 2x (896x960, Runware upscaler) instead of the 460x480 one (Cloudflare's limit)
+      // owner 2026-10-10: these outfits and hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when
+      // the picture's words contain the text (an outfit before a hairstyle; at most one picture: about $0.0009 more each)
+      STYLE_PICTURES: {
+        "outfit-olive-cardigan": "a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan",
+        "outfit-camel-coat": "a long camel wool coat open over a black turtleneck and charcoal trousers, a cream chunky-knit scarf around her neck",
+        "outfit-gray-shirt-lace": "an open, oversized gray linen shirt over a black ribbed bralette with lace trim and black knit shorts with lace side panels",
+        "hair-long-bangs": "long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows",
+        "hair-bun-bangs": "pulled up loosely, with full wispy bangs down to her brows and long loose strands framing her face",
+        "hair-long-waves": "long, loose dark waves with a center part and no bangs, falling over her shoulders",
+      },
+      OUTFIT_LINE: "She wears exactly the clothes shown in image {n} (not image {n}'s body or pose), not image 1's clothes.",
+      HAIR_LINE: "Her hair is styled exactly as in image {n}; her face stays image 0's.",
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
       // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16);
@@ -1021,7 +1026,7 @@ Changing the story
       REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, softly rounded belly, wide hips, full thighs and soft, full upper arms, fair olive skin. She is 29, clearly an adult.",
       // a sex act from behind (BACK_WORDS): image 1 is BODY_BACK, no breasts named (owner: "don't prompt her breasts since they won't show")
       REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult.",
-      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
+      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
       // sex acts: never drawn on Runware while SEX_ACTS is off; with it on, they add NUDE_LORAS and POV_MAN
       NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "deep throat", "deepthroating", "anal", "creampie", "cumshot", "titfuck", "69", "thrusts", "thrusting", "inside her", "sinks down onto the man", "lowers herself onto the man", "takes the man in her mouth", "reverse cowgirl", "on all fours", "doggy style"],
       SEX_ACTS: true,                  // owner 2026-10-06: a switch; on since 2026-10-08 (owner: "lift all restrictions" to test the
@@ -1045,8 +1050,8 @@ Changing the story
         ACT: ["her mouth open in pleasure, brows drawn together", "eyes half-closed, lips parted, cheeks flushed", "biting her lower lip hard", "a breathless open-mouthed moan", "a wicked, satisfied smile", "eyes squeezed shut, head pressed back", "a dazed, blissful look", "an intense, hungry stare"],
       },
       GAZES: {
-        EVERYDAY: ["looking straight into the lens", "looking off to the side, out of the frame", "looking down at something in her hands", "looking up at the camera from under her bangs", "looking past the camera at someone", "her eyes closed", "her head turned in three-quarter profile, eyes to the lens"],
-        HEATED: ["looking straight into the lens", "looking down at her own body", "looking away toward the window", "looking up at the camera from under her bangs", "her eyes closed, head tilted back"],
+        EVERYDAY: ["looking straight into the lens", "looking off to the side, out of the frame", "looking down at something in her hands", "looking up at the camera through her lashes", "looking past the camera at someone", "her eyes closed", "her head turned in three-quarter profile, eyes to the lens"],
+        HEATED: ["looking straight into the lens", "looking down at her own body", "looking away toward the window", "looking up at the camera through her lashes", "her eyes closed, head tilted back"],
         ACT: ["looking straight into the man's eyes, into the lens", "her eyes closed", "her eyes half-open and unfocused", "looking down at the man's body"],
       },
       // a sex act with one of these: MOODS.ORAL (eyes and brows only; no gaze list: the blowjob scene names it)
@@ -1102,7 +1107,7 @@ Changing the story
       // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
       SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
       // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
-      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair olive skin\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped warm amber-brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist, a softly rounded belly\", \"lower\": \"rounded hips and full thighs a little wider than her shoulders\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
+      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair olive skin\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped warm amber-brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist, a softly rounded belly\", \"lower\": \"rounded hips and full thighs a little wider than her shoulders\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
       SPICY_WARDROBE: [
         "only a deep plum French floral lace string thong with velvet trim", "only a black lace thong",
         "a black lace balconette bra and a matching high-cut lace thong", "a red lace bra and matching red lace panties",
@@ -1121,7 +1126,7 @@ Changing the story
       USD_PER_PICTURE: 0.039,          // what one costs (image bench 2026-10-04)
       TIMEOUT_MS: 60000,
       // who she is, in words (the description Nano Banana drew her face from)
-      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair with soft wispy full bangs across her forehead, grazing her brows, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
       WARDROBE: [
         "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
         "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",
@@ -1197,10 +1202,10 @@ Changing the story
     // From her persona. "clothes | place" brings its own place (only for shots with {where})
     WARDROBE: {
       // fitted, so her shape shows (owner 2026-10-05: "clothes that better reflect her body shape and contours")
-      EVERYDAY: ["a sleeveless white linen top with a square neckline and wide-leg white linen pants", "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted black ribbed knit midi dress", "a fitted black ribbed tank top and high-waisted jeans", "a fitted gray ribbed tee and high-waisted jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a fitted black wrap dress",
+      EVERYDAY: ["a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan", "a long camel wool coat open over a black turtleneck and charcoal trousers, a cream chunky-knit scarf around her neck", "a fitted rust-red halter crop top and light-blue straight-leg jeans", "a sleeveless white linen top with a square neckline and wide-leg white linen pants", "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted black ribbed knit midi dress", "a fitted black ribbed tank top and high-waisted jeans", "a fitted gray ribbed tee and high-waisted jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a fitted black wrap dress",
         // owner 2026-10-08: "more outfits"
-        "a cream cable-knit sweater and fitted dark jeans", "a fitted olive ribbed long-sleeve top and gray yoga pants", "a denim button-up shirt knotted at the waist over a white tank top and jeans", "a fitted burgundy sweater dress and black tights", "a camel wool coat over a black turtleneck, a scarf around her neck", "a gray zip-up hoodie half open over a white crop tank and joggers", "a fitted white linen button-down tucked into black trousers", "a black leather jacket over a fitted gray tee and jeans", "a matching soft beige lounge set, cropped top and wide pants", "a fitted navy striped Breton top and high-waisted jeans", "a red silk blouse with the top buttons open and black jeans"],
-      FLIRTY: ["a long black satin-look slip dress with thin straps, relaxed drape", "a black satin slip dress with lace trim at the neckline", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh",
+        "a cream cable-knit sweater and fitted dark jeans", "a fitted olive ribbed long-sleeve top and gray yoga pants", "a denim button-up shirt knotted at the waist over a white tank top and jeans", "a fitted burgundy sweater dress and black tights", "a gray zip-up hoodie half open over a white crop tank and joggers", "a fitted white linen button-down tucked into black trousers", "a black leather jacket over a fitted gray tee and jeans", "a matching soft beige lounge set, cropped top and wide pants", "a fitted navy striped Breton top and high-waisted jeans", "a red silk blouse with the top buttons open and black jeans"],
+      FLIRTY: ["an open, oversized gray linen shirt over a black ribbed bralette with lace trim and black knit shorts with lace side panels", "a long black satin-look slip dress with thin straps, relaxed drape", "a black satin slip dress with lace trim at the neckline", "a cropped black top and black high-waisted leggings", "a black bodycon mini dress", "a low-cut black camisole and cotton shorts", "an oversized white shirt worn as a dress, unbuttoned at the collar", "a black off-shoulder top and a short skirt", "an oversized gray tee that barely reaches mid-thigh",
         "a tight ribbed white tank top and tiny gray sleep shorts", "a red satin cami and black satin shorts", "a fitted black corset top and high-waisted jeans", "his oversized flannel shirt, unbuttoned low, and bare legs", "a short emerald satin wrap dress", "a cropped white tee with no bra and low-rise sweatpants", "a backless black knit top and a fitted midi skirt", "a sheer black mesh top over a black bralette and jeans"],
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
       BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a red lace bodysuit", "a white lace bodysuit", "a burgundy velvet slip with thin straps", "a black mesh bodysuit", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
@@ -1236,9 +1241,9 @@ Changing the story
     // words that already name the light (his /pic words, her [selfie: ...] or scene): then no LIGHT pick
     LIGHT_WORDS: ["golden hour", "blue hour", "sunset", "sunrise", "candle", "candles", "candlelight", "candlelit", "moonlight", "neon", "string lights", "lamp light", "lamplight", "daylight", "sunlight", "in the dark", "flash"],
     // owner 2026-10-08: "more hairstyles": Runware pictures get one of these HAIR_CHANCE of the time, unless the words name her hair
-    // (HAIR_WORDS); her hair color and bangs stay image 0's (REFERENCE "same face, hair color and bangs")
-    HAIRSTYLES: ["her long hair down in loose natural waves", "pulled up in a messy bun, her bangs down and a few loose strands framing her face", "in a high ponytail, her bangs down", "in a loose side braid over one shoulder, bangs down", "half-up with a black claw clip, the rest falling down her back", "tucked behind one ear, the rest down", "in a low, sleek bun at the nape of her neck, bangs down", "damp and tousled from the shower", "blown out straight and glossy, bangs down", "piled up with a claw clip, loose, messy strands falling out", "messy bedhead waves, a little flat on one side", "in a loose low ponytail with a silk scrunchie"],
-    HAIR_CHANCE: 0.5,
+    // (HAIR_WORDS); her hair color stays image 0's (REFERENCE "same face, hair color"); bangs are a style, not fixed (owner 2026-10-10)
+    HAIRSTYLES: ["long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows", "pulled up in a big messy top bun, no bangs, loose wispy strands around her face and neck", "pulled up loosely, with full wispy bangs down to her brows and long loose strands framing her face", "long, loose dark waves with a center part and no bangs, falling over her shoulders", "her long hair down in loose natural waves", "pulled up in a messy bun and a few loose strands framing her face", "in a high ponytail", "in a loose side braid over one shoulder", "half-up with a black claw clip, the rest falling down her back", "tucked behind one ear, the rest down", "in a low, sleek bun at the nape of her neck", "damp and tousled from the shower", "blown out straight and glossy", "piled up with a claw clip, loose, messy strands falling out", "messy bedhead waves, a little flat on one side", "in a loose low ponytail with a silk scrunchie"],
+    HAIR_CHANCE: 1,
     HAIR_WORDS: ["hair", "ponytail", "bun", "braid", "braids", "pigtails", "updo", "claw clip", "scrunchie", "bedhead", "bangs"],
     RECENT_SHOTS: 2,                   // the code avoids the shot types and angle of this many recent pictures
 
@@ -3479,12 +3484,12 @@ const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null)
 const runwareRoute = () => /^runware/.test(String(CONFIG.PICTURE.ROUTE || ""));
 const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 
-// Runware's image 1 (RUNWARE.BODY): the owner's bodysuit picture, a nude hourglass body, or the Cloudflare route's body
+// Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): the owner's 2026-10-10 set (v10 nude front, v10-back, v10-clothed)
 // `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08); "back": BODY_BACK
 function runwareBody(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const b = explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
-  const pics = { v2: BODY_V2_JPEG_BASE64, v3: BODY_V3_JPEG_BASE64, "v3-clothed": BODY_V3_CLOTHED_JPEG_BASE64, "v3-back": BODY_V3_BACK_JPEG_BASE64, v4: BODY_V4_JPEG_BASE64, "v4-clothed": BODY_V4_CLOTHED_JPEG_BASE64, "v4-back": BODY_V4_BACK_JPEG_BASE64, v5: BODY_V5_JPEG_BASE64, "v5-clothed": BODY_V5_CLOTHED_JPEG_BASE64, "v5-back": BODY_V5_BACK_JPEG_BASE64, v6: BODY_V6_JPEG_BASE64, "v6-clothed": BODY_V6_CLOTHED_JPEG_BASE64, "v7-clothed": BODY_V7_CLOTHED_JPEG_BASE64, "v9-clothed": BODY_V9_CLOTHED_JPEG_BASE64, "v6-back": BODY_V6_BACK_JPEG_BASE64, owner: BODY_OWNER_JPEG_BASE64, hourglass: BODY_HOURGLASS_JPEG_BASE64 };
+  const pics = { "v10": BODY_NUDE_JPEG_BASE64, "v10-back": BODY_BACK_JPEG_BASE64, "v10-clothed": BODY_CLOTHED_JPEG_BASE64 };
   const b64 = pics[b] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
@@ -3528,6 +3533,17 @@ function runwareLoras(opts = {}) {
 function flashAsked(text) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   return !!(runwareRoute() && Object.keys(R.FLASH_LORAS || {}).length && (R.FLASH_WORDS || []).some((w) => String(w).trim() && hasWord(text, w)));
+}
+
+// RUNWARE.STYLE_PICTURES: the outfit whose text is in the picture's words (outfits first), else the hairstyle picked for it.
+// Returns {key, kind, bytes} or null; that picture goes in after face, body and place (drawPicture)
+function stylePicture(text, hair) {
+  const S = (CONFIG.PICTURE.RUNWARE || {}).STYLE_PICTURES || {};
+  const low = String(text || "").toLowerCase();
+  const keys = Object.keys(S).filter((k) => STYLE_JPEG_BASE64 && STYLE_JPEG_BASE64[k]);
+  const key = keys.find((k) => k.startsWith("outfit-") && low.includes(String(S[k]).toLowerCase()))
+    || keys.find((k) => k.startsWith("hair-") && hair && String(S[k]).toLowerCase() === String(hair).toLowerCase());
+  return key ? { key, kind: key.startsWith("outfit-") ? "outfit" : "hair", bytes: fromBase64(STYLE_JPEG_BASE64[key]) } : null;
 }
 
 // One of HAIRSTYLES (HAIR_CHANCE of the time) when the words name no hairstyle (HAIR_WORDS), else ""
@@ -3674,6 +3690,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     // turned her face to the lens in doggy 3/3 (without it 1/1 from behind)
     const mood = look ? ` Her face: ${look}.` : "";
     const hair = pickHair(prompt);
+    const style = stylePicture(prompt, hair);
     const hairLine = hair ? ` Her hair: ${hair}.` : "";
     const [early, late] = act ? ["", mood] : [mood, ""];
     const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
@@ -3684,7 +3701,10 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
       if (!model) continue;
       try {
         // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
-        const refs = withFace ? [rwFace, rwBody, shownPlace].filter(Boolean) : [];
+        const base = withFace ? [rwFace, rwBody, shownPlace].filter(Boolean) : [];
+        // the style picture comes after them: its image number is base.length
+        const refs = withFace && style ? [...base, style.bytes] : base;
+        const styleLine = withFace && style ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
         // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
         // the LoRAs' own trigger words (LORA_WORDS) go first
         const loraOpts = { kind, explicit, text: prompt };
@@ -3695,11 +3715,11 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         const lead = (w) => (loras.length && R.LORA_PREFIX && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
         const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
         // the trigger words open the whole prompt (inside {who} they ran into the style line: "...photo of instapic. This is...")
-        // a hairstyle (HAIRSTYLES): her hair color and bangs stay image 0's, the style changes
+        // a hairstyle (HAIRSTYLES): her hair color stays image 0's, the style changes
         const ref1 = (back && R.REFERENCE_BACK) || R.REFERENCE;
-        const ref0 = hair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color and bangs") : ref1;
+        const ref0 = hair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color") : ref1;
         const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
-        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine;
+        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
         const out = await drawRunware(env, model, text, refs, rwW, rwH, loraOpts);
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };

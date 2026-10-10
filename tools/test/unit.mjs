@@ -289,8 +289,30 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(!!(!W.composePicture({ words: "on the porch at golden hour", hour: 21 }).prompt.includes("lamp")), true, "her words name the light: no LIGHT pick");
     P.HAIR_CHANCE = 1; Math.random = () => 0;
     const hair = await draw("on the couch");
-    eq(!!(hair.positivePrompt.includes(`Her hair: ${P.HAIRSTYLES[0]}.`) && hair.positivePrompt.includes("same face, hair color and bangs")), true, "a hairstyle: named, her hair color and bangs kept");
+    eq(!!(hair.positivePrompt.includes(`Her hair: ${P.HAIRSTYLES[0]}.`) && hair.positivePrompt.includes("same face, hair color")), true, "a hairstyle: named, her hair color kept");
     eq(!!(!(await draw("on the couch, her hair in a ponytail")).positivePrompt.includes("Her hair:")), true, "the words name her hair: no hairstyle picked");
+  } finally { globalThis.fetch = realFetch; [P.ROUTE, P.HAIR_CHANCE] = keep; Math.random = r0; }
+}
+{
+  // owner 2026-10-10: an outfit or a hairstyle with a picture (RUNWARE.STYLE_PICTURES) sends that picture as the next image, after face, body and place, and names it
+  const P = W.CONFIG.PICTURE, R = P.RUNWARE, realFetch = globalThis.fetch, keep = [P.ROUTE, P.HAIR_CHANCE], r0 = Math.random;
+  let sent = [];
+  globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
+  const draw = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0]; };
+  try {
+    P.ROUTE = "runware-klein"; P.HAIR_CHANCE = 0; Math.random = () => 0;
+    const plain = await draw("on the couch reading a book");
+    const n0 = plain.inputs.referenceImages.length;
+    const camel = await draw(`on the couch in ${R.STYLE_PICTURES["outfit-camel-coat"]}`);
+    eq(camel.inputs.referenceImages.length, n0 + 1, "an outfit with a picture: that picture is one more image");
+    eq(camel.positivePrompt.includes("exactly the clothes shown in image"), true, "an outfit picture is named in the prompt");
+    const rust = await draw("on the couch in a fitted rust-red halter crop top and light-blue straight-leg jeans");
+    eq(rust.inputs.referenceImages.length, n0, "an outfit without a picture: no extra image");
+    P.HAIR_CHANCE = 1;
+    const hair = await draw("on the couch");
+    eq(hair.inputs.referenceImages.length, n0 + 1, "a hairstyle with a picture (the first one, picked at chance 1): one more image");
+    eq(hair.positivePrompt.includes("styled exactly as in image"), true, "a hairstyle picture is named in the prompt");
+    eq(!!W.stylePicture(`x ${R.STYLE_PICTURES["outfit-olive-cardigan"]}`, null) && W.stylePicture("nothing", null) === null, true, "stylePicture: the outfit's key, or null");
   } finally { globalThis.fetch = realFetch; [P.ROUTE, P.HAIR_CHANCE] = keep; Math.random = r0; }
 }
 {
@@ -341,10 +363,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const prompt = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0].positivePrompt; };
   try {
     P.ROUTE = "runware-klein"; R.SEX_ACTS = true;
-    eq(R.BODY, "v6", "Runware's body picture: the owner's lace body nude, klein + InstaPic + Real HD 2K (2026-10-09)");
-    eq(R.BODY_BACK, "v6-back", "acts from behind: the v6 back picture");
-    yes(W.runwareBody() && W.runwareBody().length > 10000, "the v2 body picture is built into face.js");
-    eq(R.BODY_CLOTHED, "v9-clothed", "clothed pictures: v9 (the white linen set, the clothes model) dressed (the nude one made unnamed outfits nude, round 7)");
+    eq(R.BODY, "v10", "Runware's body picture: the owner's 2026-10-10 nude front");
+    eq(R.BODY_BACK, "v10-back", "acts from behind: the owner's 2026-10-10 nude back");
+    yes(W.runwareBody() && W.runwareBody().length > 10000, "the nude front picture is built into face.js");
+    eq(R.BODY_CLOTHED, "v10-clothed", "clothed pictures: the owner's 2026-10-10 rust halter picture (the nude one made unnamed outfits nude, round 7)");
     yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");

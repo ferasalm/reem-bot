@@ -20,8 +20,8 @@
 - /restart (also /start): Start the story over (wipes her memory)
 
 ## Kinds of picture (Runware)
-- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v9-clothed`: the clothes model 501, the white linen set, a faceless body; v7 kept), the room picture when a place is named.
-- **Nude** (a nude word, below): 9:16, her nude body (`v6`), the nude LoRAs.
+- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v10-clothed`), the room picture when a place is named.
+- **Nude** (a nude word, below): 9:16, her nude body (`v10`), the nude LoRAs.
 - **Sex act** (a sex word, below): from his eyes, no room picture; shape picked at random: oral 1:1 80%, 16:9 20%; the rest 9:16 40%, 1:1 40%, 16:9 20% (sizes: 9:16 768x1344, 1:1 1024x1024, 16:9 1344x768). From behind (doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind): her body from behind, no breasts named.
 - **Partly naked**: a nude or sex picture that also names clothes (cardigan, sweater, hoodie, sweatshirt, t-shirt, tee, shirt, blouse, tank top, camisole, slip dress, dress...): those clothes stay on.
 - **Flash**: "camera flash", "flash on", "with flash", "with the flash", "with a flash", "flash photo", "flash pic", "flash picture", "flash selfie", "use flash", "using flash", "using the flash", "harsh flash", "direct flash", "flash photography".
@@ -73,6 +73,10 @@ Tiers: everyday close, selfie, mirror, cozy, detail, golden, floor-sit, counter-
 
 ## Outfits
 **everyday**
+- a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan
+- a long camel wool coat open over a black turtleneck and charcoal trousers, a cream chunky-knit scarf around her neck
+- a fitted rust-red halter crop top and light-blue straight-leg jeans
+- a sleeveless white linen top with a square neckline and wide-leg white linen pants
 - a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants
 - a fitted black t-shirt tucked into high-waisted jeans
 - a fitted black ribbed knit midi dress
@@ -84,7 +88,6 @@ Tiers: everyday close, selfie, mirror, cozy, detail, golden, floor-sit, counter-
 - a fitted olive ribbed long-sleeve top and gray yoga pants
 - a denim button-up shirt knotted at the waist over a white tank top and jeans
 - a fitted burgundy sweater dress and black tights
-- a camel wool coat over a black turtleneck, a scarf around her neck
 - a gray zip-up hoodie half open over a white crop tank and joggers
 - a fitted white linen button-down tucked into black trousers
 - a black leather jacket over a fitted gray tee and jeans
@@ -93,7 +96,9 @@ Tiers: everyday close, selfie, mirror, cozy, detail, golden, floor-sit, counter-
 - a red silk blouse with the top buttons open and black jeans
 
 **flirty**
-- a black satin slip dress
+- an open, oversized gray linen shirt over a black ribbed bralette with lace trim and black knit shorts with lace side panels
+- a long black satin-look slip dress with thin straps, relaxed drape
+- a black satin slip dress with lace trim at the neckline
 - a cropped black top and black high-waisted leggings
 - a black bodycon mini dress
 - a low-cut black camisole and cotton shorts
@@ -123,15 +128,19 @@ Tiers: everyday close, selfie, mirror, cozy, detail, golden, floor-sit, counter-
 In person, when nothing is named: her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a plain black tank top and soft gray sweatpants.
 
 ## Hairstyles (half of the pictures, unless your words name her hair: hair, ponytail, bun, braid, braids, pigtails, updo, claw clip, scrunchie, bedhead, bangs)
+- long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows
+- pulled up in a big messy top bun, no bangs, loose wispy strands around her face and neck
+- pulled up loosely, with full wispy bangs down to her brows and long loose strands framing her face
+- long, loose dark waves with a center part and no bangs, falling over her shoulders
 - her long hair down in loose natural waves
-- pulled up in a messy bun, her bangs down and a few loose strands framing her face
-- in a high ponytail, her bangs down
-- in a loose side braid over one shoulder, bangs down
+- pulled up in a messy bun and a few loose strands framing her face
+- in a high ponytail
+- in a loose side braid over one shoulder
 - half-up with a black claw clip, the rest falling down her back
 - tucked behind one ear, the rest down
-- in a low, sleek bun at the nape of her neck, bangs down
+- in a low, sleek bun at the nape of her neck
 - damp and tousled from the shower
-- blown out straight and glossy, bangs down
+- blown out straight and glossy
 - piled up with a claw clip, loose, messy strands falling out
 - messy bedhead waves, a little flat on one side
 - in a loose low ponytail with a silk scrunchie
@@ -164,9 +173,9 @@ In person, when nothing is named: her father's old gray knit cardigan, elbows wo
 
 **act**: her mouth open in pleasure, brows drawn together; eyes half-closed, lips parted, cheeks flushed; biting her lower lip hard; a breathless open-mouthed moan; a wicked, satisfied smile; eyes squeezed shut, head pressed back; a dazed, blissful look; an intense, hungry stare
 
-Gaze: **everyday**: looking straight into the lens; looking off to the side, out of the frame; looking down at something in her hands; looking up at the camera from under her bangs; looking past the camera at someone; her eyes closed; her head turned in three-quarter profile, eyes to the lens
+Gaze: **everyday**: looking straight into the lens; looking off to the side, out of the frame; looking down at something in her hands; looking up at the camera through her lashes; looking past the camera at someone; her eyes closed; her head turned in three-quarter profile, eyes to the lens
 
-**heated**: looking straight into the lens; looking down at her own body; looking away toward the window; looking up at the camera from under her bangs; her eyes closed, head tilted back
+**heated**: looking straight into the lens; looking down at her own body; looking away toward the window; looking up at the camera through her lashes; her eyes closed, head tilted back
 
 **act**: looking straight into the man's eyes, into the lens; her eyes closed; her eyes half-open and unfocused; looking down at the man's body
 
