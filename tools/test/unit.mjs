@@ -325,14 +325,14 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     if (failKlein && t.model === R.MODEL) return new Response(JSON.stringify({ errors: [{ code: "x" }] }), { status: 400 });
     return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] }));
   };
-  const loras = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent.map((t) => [t.model, (t.lora || []).map((l) => l.model).sort()]); };
+  const loras = async (words) => { sent = []; try { await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); } catch (e) { /* Cloudflare has no AI binding here: the Runware calls are what this checks */ } return sent.map((t) => [t.model, (t.lora || []).map((l) => l.model).sort()]); };
   const base = Object.keys(R.LORAS).sort(), nude = [...base, ...Object.keys(R.NUDE_LORAS)].sort();
   try {
     W.CONFIG.PICTURE.ROUTE = "runware-klein"; R.SEX_ACTS = false;
     eq(await loras("in a gray sweater on the couch"), [[R.MODEL, base]], "clothed: klein 9B with LORAS only");
     eq(await loras("naked in bed"), [[R.MODEL, nude]], "nude: klein 9B with LORAS + NUDE_LORAS");
     failKlein = true;
-    eq(await loras("naked in bed"), [[R.MODEL, nude], [R.BACKUP_MODEL, []]], "klein fails: TwinFlow without LoRAs");
+    eq(await loras("naked in bed"), [[R.MODEL, nude], [R.MODEL, nude]], "klein fails: klein tries again with the same LoRAs, no TwinFlow (Cloudflare draws after; 2026-10-10)");
     failKlein = false;
     eq(await loras("having sex"), [[R.MODEL, base]], "a sex act with SEX_ACTS off: no NUDE_LORAS");
     R.SEX_ACTS = true;
@@ -446,6 +446,14 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     yes(!W.mayDraw("her giving a blowjob") && !W.sexAct("her giving a blowjob"), "switch off: not drawn");
     eq(W.picWords("you riding me"), "her riding her", "switch off: /pic unchanged");
   } finally { globalThis.fetch = realFetch; [P.ROUTE, R.SEX_ACTS] = keep; }
+}
+{
+  // owner 2026-10-10 ("where does the big belly come from"): her body words carry no belly, hip or thigh clauses and no hourglass
+  const P = W.CONFIG.PICTURE, R = P.RUNWARE;
+  const bodyWords = { "REFERENCE": P.REFERENCE, "LOOKS": P.LOOKS, "RUNWARE REFERENCE": R.REFERENCE, "RUNWARE LOOKS": R.LOOKS, "LINGERIE WHO": P.LINGERIE.WHO, "LINGERIE SPICY": P.LINGERIE.SPICY_PROMPT };
+  for (const [name, text] of Object.entries(bodyWords)) eq(/belly|hourglass|wide hips|rounded hips|full thighs|round full bottom/i.test(String(text)), false, `${name}: no belly, hip or thigh words (2026-10-10)`);
+  eq(typeof JSON.parse(P.LINGERIE.SPICY_PROMPT), "object", "LINGERIE SPICY_PROMPT: still valid JSON after the cut");
+  eq(R.KLEIN_TRIES, 2, "her pictures: klein tried twice, then Cloudflare klein (no TwinFlow)");
 }
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);

@@ -791,8 +791,8 @@ Changing the story
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|spicier|naughty|naughtier|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
     BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
-    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; a softly rounded belly; rounded hips and full thighs a little wider than her shoulders; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Her hair often sits in a messy bun, sometimes with wispy bangs.",
-    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair olive skin, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
+    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Her hair often sits in a messy bun, sometimes with wispy bangs.",
+    LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair olive skin, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     // round 5: an in-person scene whose narration is a sex act (SEX_CUES): his eyes are the camera, he is in the picture
     SCENE_ACT_STYLE: "Realistic candid first-person photo from the man's own eyes, caught in the middle of the act, not posing:",
@@ -895,6 +895,7 @@ Changing the story
       ASPECTS: { ORAL: { "1:1": 0.8, "16:9": 0.2 }, ACT: { "9:16": 0.4, "1:1": 0.4, "16:9": 0.2 } },
       WIDE: "Only one woman is in the picture.",
       BIG_FACE: true,                  // her face reference 2x (896x960, Runware upscaler) instead of the 460x480 one (Cloudflare's limit)
+      KLEIN_TRIES: 2,                  // her pictures: klein 9B tries (2 = one retry), then Cloudflare klein with the same references; TwinFlow never draws her (words only: its LOOKS drew the belly, 2026-10-10)
       // owner 2026-10-10: these outfits and hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when
       // the picture's words contain the text (an outfit before a hairstyle; at most one picture: about $0.0009 more each)
       STYLE_PICTURES: {
@@ -1023,10 +1024,10 @@ Changing the story
       // 163 cm and 64 kg, an hourglass figure ... wide hips, full thighs", which on the heavier clothed body made her overweight
       // round 8: with only "the same build and proportions" clothed pictures came out slimmer than image 1 (narrow hips, thin arms 4/4):
       // image 1's own shape named, "not slimmer" (round 7's overweight came from "but curvier" on a heavier picture)
-      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, softly rounded belly, wide hips, full thighs and soft, full upper arms, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
       // a sex act from behind (BACK_WORDS): image 1 is BODY_BACK, no breasts named (owner: "don't prompt her breasts since they won't show")
       REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult.",
-      LOOKS: "Photo of a woman with an hourglass figure: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs; about 163 cm and 64 kg, a curvy hourglass figure: full, round, natural breasts with a soft natural weight, a clearly defined waist, a soft lower belly, wide rounded hips, full thighs, a round full bottom, soft, rounded shoulders and soft, full, fleshy upper arms (fuller and softer than in image 1, with no muscle definition); curvy, not chubby and not plump, not slim. Her head is naturally sized for her body, about one seventh of her height.",
+      LOOKS: "Photo of a woman: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs; about 165 cm and 71 kg, an average-to-full figure, not slim and not heavy: a full bust, a soft defined waist, soft, narrow, rounded shoulders and soft, full upper arms with no muscle definition. Her head is naturally sized for her body, about one seventh of her height.",
       // sex acts: never drawn on Runware while SEX_ACTS is off; with it on, they add NUDE_LORAS and POV_MAN
       NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "deep throat", "deepthroating", "anal", "creampie", "cumshot", "titfuck", "69", "thrusts", "thrusting", "inside her", "sinks down onto the man", "lowers herself onto the man", "takes the man in her mouth", "reverse cowgirl", "on all fours", "doggy style"],
       SEX_ACTS: true,                  // owner 2026-10-06: a switch; on since 2026-10-08 (owner: "lift all restrictions" to test the
@@ -1107,7 +1108,7 @@ Changing the story
       // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
       SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
       // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
-      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair olive skin\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped warm amber-brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist, a softly rounded belly\", \"lower\": \"rounded hips and full thighs a little wider than her shoulders\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
+      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair olive skin\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped warm amber-brown eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs\"}, \"body\": {\"frame\": \"average-to-full figure, about 165 cm and 71 kg, not slim and not obese, soft feminine curves\", \"upper\": \"a full bust; soft, narrow, gently sloping, rounded shoulders\", \"waist\": \"a soft defined waist\", \"arms\": \"soft, full upper arms with no muscle definition\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
       SPICY_WARDROBE: [
         "only a deep plum French floral lace string thong with velvet trim", "only a black lace thong",
         "a black lace balconette bra and a matching high-cut lace thong", "a red lace bra and matching red lace panties",
@@ -1126,7 +1127,7 @@ Changing the story
       USD_PER_PICTURE: 0.039,          // what one costs (image bench 2026-10-04)
       TIMEOUT_MS: 60000,
       // who she is, in words (the description Nano Banana drew her face from)
-      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, a softly rounded belly, rounded hips and full thighs a little wider than her shoulders, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs, and an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition and no visible muscle or tone.",
       WARDROBE: [
         "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
         "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",
@@ -2967,6 +2968,7 @@ async function loadLedger(env) {
     neurons: fresh ? saved.neurons || 0 : 0,
     usd: fresh ? saved.usd || 0 : 0, // OpenRouter pictures today (PICTURE.LINGERIE)
     rwUsd: fresh ? saved.rwUsd || 0 : 0, // Runware pictures today (PICTURE.RUNWARE.DAILY_USD)
+    rwFailed: fresh ? saved.rwFailed || 0 : 0, // failed Runware attempts today (/spend)
     voiceUsd: fresh ? saved.voiceUsd || 0 : 0, // OpenRouter voice notes today (VOICE.OR_DAILY_USD)
     out: fresh && saved.out ? saved.out : false, // the time Cloudflare said out of neurons (true = old format)
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
@@ -3653,6 +3655,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };
       } catch (e) {
+        if (ledger) ledger.rwFailed = (ledger.rwFailed || 0) + 1; // failed Runware attempts today (/spend)
         await aiFailed(env, `drawing with ${model} (Runware): ${aiText_(e)}`);
       }
     }
@@ -3696,7 +3699,9 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
     // partly naked: BODY_PARTIAL (the clothed body leaked its tank top, the nude one bared what her clothes cover)
     const rwBody = ref ? runwareBody(back ? "back" : partial ? R.BODY_PARTIAL === "nude" : explicit) : null;
-    const tries = P.ROUTE === "runware-klein" && ref ? [[R.MODEL, true], [R.BACKUP_MODEL, false]] : [[R.BACKUP_MODEL, false]];
+    // her pictures: klein again (KLEIN_TRIES), then Cloudflare klein with the same references below. Never TwinFlow for her: it has no
+    // reference and its words drew the big belly (2026-10-10). Without her face, TwinFlow as before.
+    const tries = P.ROUTE === "runware-klein" && ref ? Array.from({ length: Math.max(1, Number(R.KLEIN_TRIES) || 1) }, () => [R.MODEL, true]) : [[R.BACKUP_MODEL, false]];
     for (const [model, withFace] of tries) {
       if (!model) continue;
       try {
@@ -3724,6 +3729,7 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
         if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
         return { bytes: out.bytes, model };
       } catch (e) {
+        if (ledger) ledger.rwFailed = (ledger.rwFailed || 0) + 1; // failed Runware attempts today (/spend)
         await aiFailed(env, `drawing with ${model} (Runware): ${aiText_(e)}`);
       }
     }
@@ -4047,7 +4053,9 @@ async function spendCommand(env, chatId) {
       return `about ${Math.round(l.neurons).toLocaleString("en-US")} of ${B.DAILY_NEURONS.toLocaleString("en-US")} neurons counted by the bot (${usd(paid)} past the free 10,000; pictures, photos, voice and hearing; the backup texts, plan and memory are in the gateway's figures)`;
     }) : null,
   ]);
-  const lines = [or, rw, cf].filter(Boolean).join("\n") || "• no accounts connected";
+  const today = await loadLedger(env).catch(() => null);
+  const failed = env.RUNWARE_API_KEY ? `• Runware attempts that failed today: ${(today && today.rwFailed) || 0} (klein tries again, then Cloudflare draws; never TwinFlow for her pictures)` : "";
+  const lines = [or, rw, cf, failed].filter(Boolean).join("\n") || "• no accounts connected";
   return notice(env, chatId, M.SPEND, { day: new Date().toISOString().slice(0, 10), lines });
 }
 
@@ -5551,7 +5559,7 @@ async function setup(url, env) {
     // the picture route (PICTURE.ROUTE): Runware needs its key; no test picture here (it would cost on every reload)
     if (runwareRoute()) {
       const R = PIC.RUNWARE || {};
-      add(!!env.RUNWARE_API_KEY, `Pictures: Runware (${PIC.ROUTE})`, env.RUNWARE_API_KEY ? `${PIC.ROUTE === "runware-klein" ? `${R.MODEL} with her face, then ${R.BACKUP_MODEL}` : R.BACKUP_MODEL}; nudity allowed. Today about ${usd(ledger.rwUsd)} of ${usd(R.DAILY_USD)}; past it Cloudflare draws.` : "The Worker secret RUNWARE_API_KEY is missing: Cloudflare draws every picture (never nude).");
+      add(!!env.RUNWARE_API_KEY, `Pictures: Runware (${PIC.ROUTE})`, env.RUNWARE_API_KEY ? `${PIC.ROUTE === "runware-klein" ? `${R.MODEL} with her face, retried, then Cloudflare klein` : R.BACKUP_MODEL}; nudity allowed. Today about ${usd(ledger.rwUsd)} of ${usd(R.DAILY_USD)}; past it Cloudflare draws.` : "The Worker secret RUNWARE_API_KEY is missing: Cloudflare draws every picture (never nude).");
     } else add(null, "Pictures: Cloudflare", "klein on Workers AI, lingerie on Nano Banana; never nude. Switch PICTURE.ROUTE to a Runware route on the settings panel.");
     if (L.ENABLED && env.OPENROUTER_API_KEY && !runwareRoute()) {
       // a real picture would cost USD_PER_PICTURE on every reload: only that the model is there

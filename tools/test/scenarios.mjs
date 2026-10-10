@@ -262,7 +262,7 @@ eq(W.isOoc("a cooc: hi") || W.isOoc("oocupied") || W.isOoc("so ooc-ish"), false,
 /*  3. Whole conversations (mocked services)                           */
 /* ------------------------------------------------------------------ */
 let llm = []; const prompts = []; const calls = []; const banana = { mode: "refuse", calls: [] };
-const runware = { mode: "draw", calls: [] }; // PICTURE.ROUTE "runware-…": "draw" | "fail" | "failFirst" (klein fails, TwinFlow draws)
+const runware = { mode: "draw", calls: [] }; // PICTURE.ROUTE "runware-…": "draw" | "fail" | "failFirst" (klein fails: retried, then Cloudflare klein)
 globalThis.fetch = async (url, init = {}) => {
   let body = init.body;
   if (body instanceof FormData) { const o = {}; for (const [k, v] of body) o[k] = typeof v === "string" ? v : "<blob>"; body = JSON.stringify(o); }
@@ -775,7 +775,7 @@ section("pictures: his photos (Workers AI vision)");
     runware.mode = "failFirst"; const n0 = runware.calls.length;
     r = await turn("send me a selfie", ["[selfie: in the hallway in a gray sweater]"], { history: APART });
     const two = runware.calls.slice(n0);
-    yes(r.photos.length === 1 && two.length === 2 && two[1].model === R.BACKUP_MODEL && !two[1].inputs && two[1].positivePrompt.startsWith(P.SELFIE_STYLE) && two[1].positivePrompt.includes(R.LOOKS.slice(0, 40)), "klein fails: TwinFlow draws it from words (LOOKS), no reference pictures", two.map((x) => x.model));
+    yes(r.photos.length === 1 && two.length === 2 && two.every((c) => c.model === R.MODEL && c.inputs) && ai.at(-1).model === P.MODEL && /^<\d+ bytes>$/.test(ai.at(-1).fields.input_image_0), "klein fails: klein tries again, then Cloudflare klein draws it with her face (no TwinFlow: its words drew the belly, 2026-10-10)");
     runware.mode = "draw"; P.ROUTE = "runware-twinflow";
     r = await turn("send me a selfie", ["[selfie: topless on the couch]"], { history: APART });
     t = runware.calls.at(-1);

@@ -33,6 +33,18 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## Belly check, 2026-10-10 (`drawPicture`, Runware klein 9B, the same picks; not a [live] run)
+
+The same custom prompt four times per arm ("fitted black tank top and high-waisted jeans, standing in the kitchen"), read on one sheet. Likeness not measured.
+
+| Arm | Body words | Lower belly | Bust and arms |
+|---|---|---|---|
+| A (before) | REFERENCE with "softly rounded belly, wide hips, full thighs" | soft and rounded over the jeans | full |
+| B (test) | the same, belly, hip and thigh clauses removed | flatter at the waist | full, not slimmer |
+| C (new code) | the fix (B's wording) through `drawPicture` | flatter, as B | full, not slimmer |
+
+A modest change at sheet size. The clothed reference (picture 9) has its own soft lower belly: the next lever if it's still too big.
+
 ## Reference set bot check, 2026-10-10 (`drawPicture`, Runware klein 9B; not a [live] run)
 
 Five pictures drawn by the bot's own code (`W.drawPicture`, route `runware-klein`, InstaPic + Real HD 2K LoRAs, about $0.02), each read at full size. Likeness not measured: the same woman in all five.
