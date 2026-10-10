@@ -33,6 +33,18 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## Reference set bot check, 2026-10-10 (`drawPicture`, Runware klein 9B; not a [live] run)
+
+Five pictures drawn by the bot's own code (`W.drawPicture`, route `runware-klein`, InstaPic + Real HD 2K LoRAs, about $0.02), each read at full size. Likeness not measured: the same woman in all five.
+
+| Pic | Words (outfit / hair named) | Refs | Outfit, body | Framing, artifacts | Verdict |
+|---|---|---|---|---|---|
+| 1 camel | selfie on the couch, camel coat set | 3 | camel coat, black turtleneck, cream scarf, charcoal trousers: as asked; hair in a low bun (words) | iPhone mirror, sharp, no artifacts | pass |
+| 2 kitchen | kitchen, black tee + high-waisted jeans | 2 | black cropped tee and jeans as asked; messy top bun, no bangs (words) | natural light, no artifacts | pass |
+| 3 naked | completely naked, by her bed | 2 | nude; bust and belly near v10 (picture 6); damp hair (words) | nudity as asked (owner's policy), natural skin | pass |
+| 4 lace | mirror selfie, gray shirt + lace set | 3 | gray open shirt, black lace bralette, lace-panel shorts: as asked; high ponytail (words) | bedroom mirror, no artifacts | pass |
+| 5 bangs | relaxed selfie on the couch, long-bangs style forced | 3 | hair matches the long-bangs picture; **outfit not asked: the rust halter + jeans from the body picture came in** | smiling, natural | **fail** for bare words (the real flow names an outfit) |
+
 ## Pictures, judged one by one at full size (600x800 as stored on `face-candidates`)
 Reference face (`tools/face/reference.jpg`): dark-brown wavy hair below the shoulders, thick dark brows, brown eyes,
 small gold hoops, a rounder face, about 30. Places: `tools/face/places/*.jpg`. Re-read on 2026-10-03 (night) after
