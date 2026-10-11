@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (thirty-seventh session, Sonnet 5.5 (`claude-sonnet-5-5`)): deploy of the fix round
+- `main` d21c4b3 → b42cac1 (fast-forward). Deploy run 38173924557 (42) and Tests 38173924502 (545) green; Version ID `b9d09df9-efbe-4163-aa8c-1eb392bc17d1`; `/health` ok (klein 60,871 bytes, 24.3 s); `/setup` all ✅ with the new Off-on-Cloudflare Pictures line. Rollback: push `d21c4b3`.
+- Owner settled the model-ID question: records name each model by name and raw ID (DECISIONS). This chat: Sonnet 5.5 (`claude-sonnet-5-5`), `get_session` `session_context.model` and `last_served_model` both `claude-sonnet-5-5`.
+
 ## 2026-10-11 (thirty-sixth session, Opus): the fix round review; dev only
 - Reran the fix round's checks: the studio browser test reproduces the 404 on d21c4b3 and passes 10/10 on HEAD; check.mjs 8/8.
 - Fixed: the bottoms line (Task C) no longer forces jeans on lingerie with "briefs" or on bare-legs outfits (BOTTOM_WORDS + briefs,
