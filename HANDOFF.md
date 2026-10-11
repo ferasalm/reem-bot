@@ -54,4 +54,5 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (
 - LESSONS.md is at 179 lines (the limit is 180). OK for the next session to summarize it to about 150 on Haiku (your rule)?
 
 ## Prompt for the next chat
-Pick **Opus** (effort high) and paste the "Opus review prompt (Step N)" from `docs/WORKPLAN.md` with N = 7.
+**Fix round first** (Opus planned it 2026-10-11, after the owner's report: studio "not found", a naked lower body at /nsfw Off,
+Reem slimmer): pick **Haiku 5.5** and paste "Fix round prompt" from `docs/WORKPLAN.md` (end of file). *Effort: high.* Opus reviews it once after.

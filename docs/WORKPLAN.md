@@ -635,3 +635,111 @@ two-heads / two-women defect on riding and at 16:9 (WIDE's "Only one woman" did 
 ### Step 7: how to run it cheaply (Opus, 2026-10-11; owner: "spend less")
 The studio is a well-specified build (its section above): **Sonnet 5.5, effort high**, one chat, with the Haiku prompt of "How to run a
 step" (N = 7, $0.05). No orchestrator: little of it is token-heavy. Opus only if the D1 or link-signing part goes wrong twice.
+
+### Step 7 review and the fix round (Opus, 2026-10-11)
+Owner: the studio link shows "not found"; a naked lower body at /nsfw Off; Reem slimmer, without the fuller arms. Opus read D1
+`pictures` and the code (findings in the prompt below). Step 7 deviations (1)-(4): accepted for now, to Later. The fix round is
+built by Haiku 5.5 from this prompt (one chat); Opus reviews it once at the end.
+
+#### Fix round prompt (paste into a new chat, Haiku 5.5)
+
+```
+You are building a fix round for reem-bot (Opus planned it; Opus reviews it once at the end). Work on branch
+claude/step-7-haiku-audit-fmac61 (create it from origin/dev if missing). Follow CLAUDE.md's session start (sync report, HANDOFF,
+DECISIONS, LESSONS, then docs/MAP.md before any code). Lean reads: never read worker.js whole; grep, then read only the lines needed.
+Never open face.js, places.js or tools/settings-panel.html. Records name the model by name ("Haiku 5.5"); the raw-ID question is
+still open with the owner (HANDOFF), don't decide it.
+
+Owner's decisions for this round (log them in docs/DECISIONS.md, dated 2026-10-11, owner's words):
+- "when /nsfw off, we reroute image generation to cloudflare as it has a built in safety filter. Keep nsfw nudity and sex on runware."
+- Lingerie stays allowed at /nsfw Off (owner picked "Keep lingerie at Off").
+- Opus's Step 7 review: the four Step 7 deviations are accepted for now and go to Later (not owner decisions: write them in WORKPLAN
+  "Decided in review", not DECISIONS).
+
+Facts Opus found (don't re-investigate, build on them):
+- D1 reem-studio `pictures` rows 9-14 (nsfw "off"): every Off selfie went to Runware with refs ["face-2x","body-v10"], the NUDE front
+  as image 1 (RUNWARE.CLOTHED_BODY "nude"). Row 13 named only "her father's old gray cardigan over a black cami": klein drew image 1's
+  naked lower half. Runware's checkContent (on at Off) did not stop it.
+- /studio shows "not found": studioRoute (grep `async function studioRoute`) answers `/studio?t=` with a 302 and
+  `Set-Cookie: studio=...; SameSite=Strict`. The link is opened from Telegram (cross-site), so the cookie isn't sent on the redirected
+  request and `/studio` answers 404. D1 has no "studio" rows. Step 7's Chromium test used page.route fixtures, never the real route.
+
+TASK A: the studio link (free)
+1. Reproduce first. Write tools/test/studio-browser.mjs (by hand, not in check.mjs; CI has no browser): load the worker with
+   tools/test/load-worker.mjs, put a node:http server on 127.0.0.1 in front of its `fetch` (a fake env: REEM_KV in memory,
+   TELEGRAM_BOT_TOKEN "test", OWNER_ID "1", STUDIO_DB stubbed like tools/test/studio.mjs does, no RUNWARE key). Make a link with
+   `studioToken`. In Chromium (global Playwright, executablePath /opt/pw-browsers/chromium): open a page on a DIFFERENT origin
+   (e.g. http://localhost:<port2>/ with an <a href="http://127.0.0.1:<port>/studio?t=..."> link), click it, and record what loads.
+   Expect "not found" with the current code. Write the output down; if it does NOT reproduce, stop and report what you saw
+   instead of changing the route.
+2. Fix in studioRoute: a valid `?t=` on GET /studio answers 200 with STUDIO_HTML and
+   `Set-Cookie: studio=<token>; Path=/studio; HttpOnly; Secure; SameSite=Lax; Max-Age=...` (no redirect). In studio.js, first thing:
+   if location.search has t=, `history.replaceState(null, "", "/studio")`. Every other /studio route still needs the cookie (404
+   without). Keep STUDIO_HEADERS (Referrer-Policy no-referrer keeps the token out of referrers).
+3. Rerun the browser script: the cross-site click loads the page, /studio/api/options and /studio/api/log answer ok (look at the
+   screenshot at 390x844 and the console: no errors), a reload without ?t= still works, a fresh context without the cookie gets 404.
+4. tools/test/studio.mjs: rows for 200 + SameSite=Lax on the first visit, no Location header, 404 without the cookie.
+
+TASK B: /nsfw Off draws on Cloudflare
+1. CONFIG.PICTURE.NSFW.OFF_ROUTE: "cloudflare" (comment with the owner's words; "" = as before). Add its field to
+   tools/settings-panel.html SECTIONS by hand, then `node tools/build-panel.mjs`.
+2. `runwareRoute(level)`: false when level === "off" and OFF_ROUTE is "cloudflare"; otherwise as today. `grep -n "runwareRoute("`
+   and pass the level at EVERY call site; where a function has no level yet, thread it from its caller (the chat's level comes from
+   `nsfwLevel(settings)`). This makes filterSafe (FILTER_WORDS), safeLine (SAFE "No nudity."), mayDraw (PICTURE.NOT_DRAWN),
+   nudeTierOk and explicitWords take the Cloudflare rules at Off. Also `runwareAffordable(env, ledger, level)`.
+3. drawPictureNow: at Off skip the Runware block entirely and draw with Cloudflare klein (P.MODEL) with her face, `bodyBytes()`
+   (body.jpg, the clothed small body) and the place: the existing Cloudflare code below the Runware block. At Off never fall back
+   to Runware or TwinFlow: a 3030 refusal or no neurons = no picture (the existing "one tamer try" in startPicture stays).
+4. Nano Banana (startPicture's lingerie route, `drawLingerie`, `nanoScene`, the `L.ENABLED && env.OPENROUTER_API_KEY &&
+   !runwareRoute()` checks): never at Off. Lingerie at Off = Cloudflare klein with FILTER_WORDS (bra/panties become bodysuit words).
+5. /setup's Pictures line adds "at /nsfw Off: Cloudflare klein". studioCompose at Off returns plan [] (no change needed; check).
+6. Tests (unit.mjs or e2e.mjs): at Off, with globalThis.fetch stubbed, drawPicture makes no request to api.runware.ai and calls
+   env.AI with P.MODEL and 2-3 input images; "a black lace bra and panties" at Off reaches klein FILTER_WORDS-ed; SAFE is in the
+   prompt; no OpenRouter image call; the D1 row has model @cf/... and nsfw "off". At On and Nude nothing changes.
+7. Golden plans: run `node tools/test/picture-plans.mjs --check` BEFORE editing to confirm clean, then after. Only the "nsfw Off"
+   case(s) may change (they now send no Runware request). Write the new golden with --write only then, and list the diff case by
+   case in your commit message.
+
+TASK C: clothed with a top and no bottoms (Nude and On, Runware)
+1. In runwarePlan, when the clothed picture sends the nude BODY as image 1 (CLOTHED_BODY "nude", not OUTFIT_BODY) and the words name
+   a top (RUNWARE.TOP_WORDS) but no bottom (BOTTOM_WORDS) and no one-piece, add RUNWARE.DRESSED_BOTTOM after DRESSED_FULL:
+   "Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare."
+   One-pieces: add RUNWARE.ONE_PIECE_WORDS (dress, jumpsuit, romper, robe, nightgown, bodysuit, overalls, onesie, long coat) with a
+   panel field. grep every reader of TOP_WORDS/BOTTOM_WORDS first (LESSONS: a shared pattern has other readers).
+2. A golden case at the END of the list: "/pic her father's old gray cardigan over a black cami, in the kitchen" at On. Only the new
+   case and cases whose words have a top and no bottom may change; list them.
+3. A scenarios.mjs or unit row with row 13's exact words.
+
+TASK D: body audit (Runware, cap $0.12; NO body CONFIG change: Opus decides at review)
+1. Static table in runs/2026-10-11-body-audit/audit.md: for each picture kind (clothed selfie, clothed with an outfit picture, nude,
+   sex act, back, partial, close-up, Cloudflare), at 897dfaf vs HEAD: image 1 sent, the REFERENCE* line used, LORAS and other LoRAs,
+   size, and every body word (bust, arms, figure, kg, slim). From `git show 897dfaf:worker.js | grep -n` and the current file, quoting
+   the strings. Mark which step changed each (git log -S).
+2. Bench through the bot's own code (copy the harness of tools/face/outfit-bench.mjs; `NODE_USE_ENV_PROXY=1`, calls ~4 s apart,
+   Math.random seeded, seeds 101 and 202, level "on"). Read the Runware `account` usage before and after (the MCP).
+   Cases: (1) mirror selfie, standing, full body, "a fitted black tank top and high-waisted jeans" (arms visible);
+   (2) the olive cardigan outfit (its style picture); (3) the camel coat outfit; (4) row 13's words at On (also checks Task C);
+   (5) naked, standing, mirror selfie.
+   Variants: V0 = HEAD as committed; V1 = OUTFIT_BODY false (cases 2-3 only); V2 = LORAS of 897dfaf (phone2025 0.6, ultrareal5 0.6,
+   instapic 0.6, realhd2kc 0.5); V3 = LORAS {} (no realism LoRAs).
+   Draw V0 for every case first, then the variants; stop at $0.12 (the script's own cap).
+3. Push pictures + side-by-side sheets (`convert ... -resize x700 +append`, one row per case and seed: V0 | V1 | V2 | V3) and a
+   table.md to `face-candidates` runs/2026-10-11-body-audit/. In table.md write per picture only what you can measure or plainly
+   see at full size (open each picture alone): arms' width relative to the forearm/wrist, waist, bust, clothes as named, any bare
+   skin below the waist. Do not pick a winner.
+
+TASK E: records and push
+- docs/DECISIONS.md (the two owner decisions above), WORKPLAN "Decided in review" (Step 7 deviations accepted for now; the body
+  audit waits on Opus), QUALITY rows (the bench), LESSONS (two entries: a 302 + SameSite=Strict cookie from a link opened in another
+  app is not sent → 200 + Lax; Runware checkContent didn't block a naked lower half at Off, and a nude image 1 with only a top
+  named draws the bottom half naked), MAP (OFF_ROUTE, DRESSED_BOTTOM, ONE_PIECE_WORDS, studio-browser.mjs, the first-visit change),
+  CHANGELOG. Keep LESSONS at most 180 lines (it is at 179: merge or trim older entries to make room).
+- `node tools/check.mjs` (git add new files first), read every step's output, not the summary. Commit, push the branch, merge
+  origin/dev if needed and `git push origin HEAD:dev`. Do NOT push to main and do not deploy.
+- HANDOFF: what changed, the checks you read, the bench totals and where the sheets are, "not deployed", and next step: "Opus
+  review of the fix round (one chat): the studio browser run, the Off unit rows, the golden diff, the body-audit sheets; then the
+  owner says deploy. Effort: high." Put the Opus review prompt in WORKPLAN.
+
+Stop and report (do not improvise) if: the studio bug does not reproduce; the golden diff shows changes outside the cases named;
+Cloudflare klein is the wrong route for some Off picture you find; the bench would pass $0.12.
+```
