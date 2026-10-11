@@ -19,6 +19,7 @@ const out = [
   one("BODY_NUDE_JPEG_BASE64", "body-nude.jpg", "Runware BODY \"v10\": nude, front, faceless"),
   one("BODY_BACK_JPEG_BASE64", "body-back.jpg", "Runware BODY_BACK \"v10-back\": nude, from behind"),
   one("BODY_CLOTHED_JPEG_BASE64", "body-clothed.jpg", "Runware BODY_CLOTHED \"v10-clothed\": rust halter + jeans, faceless"),
+  one("BODY_NEUTRAL_JPEG_BASE64", "body-neutral.jpg", "Runware BODY_NEUTRAL \"v10-neutral\": v10 dressed in a gray tank + leggings (klein, seed 402)"),
   "// outfits and hairstyles (RUNWARE.STYLE_PICTURES: key = file name without .jpg)\nexport const STYLE_JPEG_BASE64 = {\n",
   ...styles.map((f) => `  "${f.replace(/\.jpg$/, "")}": "${b64(join("style", f))}",\n`),
   "};\n",

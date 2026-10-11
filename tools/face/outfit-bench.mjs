@@ -14,7 +14,7 @@ import * as PLACES from "../../places.js";
 const DRY = process.argv.includes("--dry");
 const OUT = DRY ? null : process.argv[process.argv.indexOf("--run") + 1];
 if (!DRY && !OUT) throw new Error("usage: --dry | --run <outdir>");
-const BUDGET_USD = 0.20; // Step 4: the step budget ($0.20)
+const BUDGET_USD = Number(process.env.BUDGET_USD) || 0.20; // Step 4: the step budget ($0.20); the review ran with what was left
 const PACE_MS = 4000; // Runware answers 502 when calls come closer than ~4 s
 const SEEDS = [101, 202];
 const FROZEN = Date.parse("2026-10-11T18:00:00Z"); // 14:00 in Boston
@@ -54,6 +54,7 @@ addRef("body-cloudflare", FACE.BODY_JPEG_BASE64);
 addRef("body-v10", FACE.BODY_NUDE_JPEG_BASE64);
 addRef("body-v10-back", FACE.BODY_BACK_JPEG_BASE64);
 addRef("body-v10-clothed", FACE.BODY_CLOTHED_JPEG_BASE64);
+addRef("body-v10-neutral", FACE.BODY_NEUTRAL_JPEG_BASE64);
 for (const [k, v] of Object.entries(FACE.STYLE_JPEG_BASE64 || {})) addRef(`style:${k}`, v);
 for (const [k, v] of Object.entries(PLACES.PLACE_JPEG_BASE64 || {})) addRef(`place:${k}`, v);
 const nameOf = (dataUrl) => {
@@ -74,8 +75,9 @@ const OUTFITS = {
   breton: "a fitted navy striped Breton top and high-waisted jeans",
 };
 // rust: the rust-halter body as image 1 (CLOTHED_BODY "rust", today); none: no body picture (REFERENCE_NOBODY)
+// Step 4 review (--review): nude (the nude front + DRESSED_FULL) and neutral (body-neutral, v10 in a gray tank and leggings)
 function applyVariant(name) {
-  R.CLOTHED_BODY = name === "none" ? "none" : "rust";
+  R.CLOTHED_BODY = ["none", "nude", "neutral"].includes(name) ? name : "rust";
   R.OUTFIT_BODY = true;
 }
 const pic = (words) => async (env, ledger) => {
@@ -99,6 +101,15 @@ const CASES = [
   { id: "regress-nude-mirror", variants: ["rust"], seeds: [101, 202], run: pic("naked, standing in front of the bedroom mirror") },
   { id: "regress-doggy", variants: ["rust"], seeds: [202], run: pic("doggy style") },
 ];
+
+// --review (Step 4 review, Opus): the two modes the bench left out, at seed 101 (the seed of the owner's "slimmer" read and the Breton
+// leak), and the crop-length leak (Breton, silk) repeated at a fresh seed 303 in rust, none and neutral. 18 pictures.
+if (process.argv.includes("--review")) {
+  const six = CASES.slice(0, 6);
+  const repeat = CASES.filter((c) => c.id === "outfit-breton" || c.id === "outfit-silk");
+  CASES.splice(0, CASES.length, ...six.map((c) => ({ ...c, variants: ["nude", "neutral"], seeds: [101] })), ...repeat.map((c) => ({ ...c, id: `${c.id}-again`, variants: ["rust", "none", "neutral"], seeds: [303] })));
+  SEEDS.push(303);
+}
 
 // Runs: seed-major (101 first), then case, then variant
 const runs = [];

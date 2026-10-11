@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (thirtieth session, Opus): Step 4 reviewed; dev
+- Fixed: the day's outfit re-rolled after a weather refresh in the same reply (`refreshDay` wrote back the "day" it read first);
+  `OUTSIDE_WORDS` "out", "rain", "snow" put her in street clothes at home ("stretched out", "lights out"); her sex-act words got a
+  wardrobe item (a boudoir swimsuit) and read as partly naked; the golden cases inserted mid-list re-seeded every later case.
+- `CLOTHED_BODY` "none" from the review bench (`face-candidates` runs/2026-10-11-step4-review/, $0.05525): a clothed image 1 leaks its
+  garment's cut (rust: crop length 3, neutral: scoop neck 3, none 0/18). "nude" and "neutral" modes built; `v10-neutral` = seed 402.
+- Golden `--write`: clothed cases lose the rust body (REFERENCE_NOBODY); 5 cases at the end (3 moved, 2 new). check.mjs 7/7.
+
 ## 2026-10-11 (twenty-ninth session, Haiku): Step 4 built and benched; the review is next; dev
 - Step 4 build: V2 realism LoRAs (InstaPic, Real HD 2K); one home and one out outfit a day (KV "day"); image 1 by outfit (OUTFIT_BODY,
   the rust halter as its own picture); CLOTHED_BODY "rust" (today's) with "none" as an option; nude back views on NUDE_BACK_WORDS;

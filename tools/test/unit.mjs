@@ -304,12 +304,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     P.ROUTE = "runware-klein"; P.HAIR_CHANCE = 0; Math.random = () => 0;
     const plain = await draw("on the couch reading a book");
     const n0 = plain.inputs.referenceImages.length;
+    eq(n0, 1, "CLOTHED_BODY none (Step 4 review): a clothed picture with no outfit picture sends her face only");
     const camel = await draw(`on the couch in ${R.STYLE_PICTURES["outfit-camel-coat"]}`);
     // Step 4 (RUNWARE.OUTFIT_BODY): the outfit's picture is image 1 itself, so no fourth image, and REFERENCE_OUTFIT names it
-    eq(camel.inputs.referenceImages.length, n0, "an outfit with a picture is image 1 itself: no fourth image");
+    eq(camel.inputs.referenceImages.length, 2, "an outfit with a picture is image 1 itself: face + outfit, no body, no fourth image");
     eq(camel.positivePrompt.includes("wearing exactly image 1's clothes"), true, "an outfit picture is named in the prompt (REFERENCE_OUTFIT)");
     const rust = await draw("on the couch in a fitted rust-red halter crop top and light-blue straight-leg jeans");
-    eq(rust.inputs.referenceImages.length, n0, "the rust halter (its own picture now): image 1 itself, no extra image");
+    eq(rust.inputs.referenceImages.length, 2, "the rust halter (its own picture now): image 1 itself, no extra image");
     P.HAIR_CHANCE = 1;
     const hair = await draw("on the couch");
     eq(hair.inputs.referenceImages.length, n0 + 1, "a hairstyle with a picture (the first one, picked at chance 1): one more image");
@@ -584,6 +585,38 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const pic = (words, dayWear = day) => W.customPicture(words, 21, dayWear).prompt;
   eq([pic("on the couch reading a book").includes(`She is wearing ${day.home}.`), pic("at the coffee shop, smiling").includes(`She is wearing ${day.out}.`), pic("in a red sweater on the couch").includes("She is wearing"), pic("naked on the bed").includes("She is wearing"), pic("on the couch reading a book", null).includes("She is wearing")],
     [true, true, false, false, false], "/pic: no clothes named gets the day's home outfit, outside words the out outfit; named clothes, nudity and no day outfit get none");
+}
+
+// Step 4 review (Opus, 2026-10-11): the day's outfit holds all day, "out" and the weather aren't outside, act words get no clothes
+{
+  // refreshDay (weather, every 30 min) wrote back the "day" it read before the reply's picture picked the outfits: the next picture
+  // re-rolled them. Yesterday's outfits, stale weather; the reply picks today's while the weather call is still out.
+  const store = new Map([["day", JSON.stringify({ day: "2000-01-01", plan: [], weather: "60°F", temp: 60, wxAt: Date.now() - 4 * 3600000, outfits: { day: "2000-01-01", band: "MILD", home: "y-home", out: "y-out" } })]]);
+  const env = { REEM_KV: { get: async (k) => (store.has(k) ? JSON.parse(store.get(k)) : null), put: async (k, v) => { store.set(k, v); } } };
+  const realFetch = globalThis.fetch, plan = W.CONFIG.DAY.PLAN;
+  let release;
+  const gate = new Promise((r) => (release = r));
+  globalThis.fetch = async () => { await gate; return new Response(JSON.stringify({ current: { temperature_2m: 61, weather_code: 1, wind_speed_10m: 3 } })); };
+  W.CONFIG.DAY.PLAN = false;
+  const waits = [];
+  try {
+    await W.dayInfo(env, { waitUntil: (p) => waits.push(p) });
+    const first = await W.dayOutfits(env);
+    release();
+    await Promise.all(waits);
+    const second = await W.dayOutfits(env);
+    eq([waits.length, second.day, second.home, second.out], [1, first.day, first.home, first.out], "the day's outfits survive a weather refresh in the same reply");
+    eq(JSON.parse(store.get("day")).temp, 61, "the refresh still saves the new temperature");
+  } finally {
+    globalThis.fetch = realFetch;
+    W.CONFIG.DAY.PLAN = plan;
+  }
+  const dw = { day: "2026-10-11", band: "COLD", home: "HOME-OUTFIT", out: "OUT-OUTFIT" };
+  const wear = (words) => (W.composePicture({ tier: "everyday", shot: "selfie", words, dayWear: dw }).prompt.match(/HOME-OUTFIT|OUT-OUTFIT/) || ["none"])[0];
+  eq(["stretched out on the couch", "lights out, in bed", "rain on the window, in bed", "going out tonight", "at the coffee shop", "walking in the rain"].map(wear),
+    ["HOME-OUTFIT", "HOME-OUTFIT", "HOME-OUTFIT", "OUT-OUTFIT", "OUT-OUTFIT", "OUT-OUTFIT"], "OUTSIDE_WORDS: a bare 'out' or the weather is not outside");
+  const act = W.composePicture({ tier: "boudoir", shot: "selfie", words: "riding him on the bed" }).prompt;
+  eq([/wearing/.test(act), W.pictureFlags(act, true, "on").partial], [false, false], "her sex-act words get no wardrobe (it made the act 'partly naked')");
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

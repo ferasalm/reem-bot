@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, STYLE_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_NEUTRAL_JPEG_BASE64, STYLE_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { Mp3Encoder } from "./mp3.js";
 
@@ -838,8 +838,9 @@ Changing the story
     // doesn't fill the gap with image 1's dress (owner 2026-10-05: "She should be wearing casual at home")
     SCENE_UNDER: "a plain black tank top and soft gray sweatpants",
     LAYER_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "coat", "jacket", "scarf", "apron", "socks", "slippers", "heels", "boots", "sneakers", "stockings"],
-    // Step 4: an everyday picture (or /pic) whose words say she is out takes the day's OUT outfit, else HOME
-    OUTSIDE_WORDS: ["outside", "out", "walk", "walking", "street", "park", "cafe", "café", "coffee shop", "store", "grocery", "market", "work", "office", "car", "train", "bus", "subway", "beach", "restaurant", "bar", "date", "campus", "sidewalk", "snow", "rain"],
+    // Step 4: an everyday picture (or /pic) whose words say she is out takes the day's OUT outfit, else HOME. Not a bare "out", "rain"
+    // or "snow" (review: "stretched out", "lights out", "rain on the window" put her in a coat at home)
+    OUTSIDE_WORDS: ["outside", "going out", "out for", "out with", "night out", "walk", "walking", "street", "park", "cafe", "café", "coffee shop", "store", "grocery", "market", "work", "office", "car", "train", "bus", "subway", "beach", "restaurant", "bar", "date", "campus", "sidewalk", "in the snow", "in the rain"],
     WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
@@ -933,8 +934,13 @@ Changing the story
       // Step 4 (2026-10-11): clothed pictures (not nude, back or partly naked). CLOTHED_BODY "rust": the rust-halter body picture
       // (BODY_CLOTHED) stays image 1 with REFERENCE_CLOTHED ("not its clothes"); "none": no body picture, REFERENCE_NOBODY.
       // OUTFIT_BODY: an outfit with a picture (STYLE_PICTURES) is image 1 itself, with REFERENCE_OUTFIT, and no fourth image.
-      CLOTHED_BODY: "rust",
+      // Step 4 review (Opus, 2026-10-11): "none". Klein copies the garment of a clothed image 1: the rust halter cropped other tops
+      // (Breton s101 and s303, silk s101) and the neutral tank turned necklines into its scoop (Breton s101/s303, linen); none: 0 of 18
+      CLOTHED_BODY: "none",
       OUTFIT_BODY: true,
+      // Step 4 review: CLOTHED_BODY "nude" sends BODY with this line; "neutral" sends BODY_NEUTRAL (tools/face/body-neutral.jpg, seed 402)
+      BODY_NEUTRAL: "v10-neutral",
+      DRESSED_FULL: "She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape.",
       REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
       REFERENCE_OUTFIT: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), with exactly the body of image 1 and wearing exactly image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
       REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult.",
@@ -2480,6 +2486,9 @@ async function refreshDay(env, cached, today, { plan, weather }) {
     if (lines.length >= 3) { out.plan = lines; out.day = today; }
   }
   delete out.tried;
+  // `cached` was read before this reply: keep the outfits dayOutfits picked meanwhile, or the day's outfit changes (Step 4 review)
+  const now = await env.REEM_KV.get("day", "json").catch(() => null);
+  if (now && now.outfits) out.outfits = now.outfits;
   await env.REEM_KV.put("day", JSON.stringify(out));
 }
 
@@ -3411,7 +3420,8 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const [clothes = "", ownPlace = ""] = pickOne(wardrobe).split("|").map((x) => x.trim());
   const place = hasWhere ? ownPlace || pickOne((P.PLACES || {})[T]) : "";
   // Step 4: words that name no clothes get the tier's (or the day's) clothes too, so klein doesn't copy image 1's; nude words stay as they are
-  const wearing = !lingerie && words && !(tier === "nude" || nudeWords(words) || namesClothes(words)) ? [words, clothes && `wearing ${clothes}`].filter(Boolean).join(", ") : words || [doing, clothes && `wearing ${clothes}`].filter(Boolean).join(", ");
+  // (nor a sex act: "riding him" got "wearing a black one-shoulder swimsuit" and read as partly naked, review)
+  const wearing = !lingerie && words && !(tier === "nude" || nudeWords(words) || namesClothes(words) || pictureFlags(words, true, "on").act) ? [words, clothes && `wearing ${clothes}`].filter(Boolean).join(", ") : words || [doing, clothes && `wearing ${clothes}`].filter(Boolean).join(", ");
   const where = words || doing || !place ? "" : `, ${place}`;
   // {a|b|c}: the one her words mention, else any
   const chosen = template.replace(/\{([^{}|]+(?:\|[^{}|]+)+)\}/g, (_, alts) => {
@@ -3602,9 +3612,13 @@ function runwareBodyName(explicit = true) {
 }
 
 function runwareBody(explicit = true) {
-  const b = runwareBodyName(explicit);
-  const pics = { "v10": BODY_NUDE_JPEG_BASE64, "v10-back": BODY_BACK_JPEG_BASE64, "v10-clothed": BODY_CLOTHED_JPEG_BASE64 };
-  const b64 = pics[b] || BODY_JPEG_BASE64;
+  return runwareBodyBytes(runwareBodyName(explicit));
+}
+
+// A body picture by its RUNWARE.BODY* name; v10-neutral (Step 4 review): the v10 nude front dressed in a gray tank and leggings
+function runwareBodyBytes(name) {
+  const pics = { "v10": BODY_NUDE_JPEG_BASE64, "v10-back": BODY_BACK_JPEG_BASE64, "v10-clothed": BODY_CLOTHED_JPEG_BASE64, "v10-neutral": BODY_NEUTRAL_JPEG_BASE64 };
+  const b64 = pics[name] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
 
@@ -3837,8 +3851,10 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
   const clothedOnly = !explicit && !partial && !back;
   const outfitBody = !!(clothedOnly && R.OUTFIT_BODY && style && style.kind === "outfit");
   const noBody = clothedOnly && !outfitBody && R.CLOTHED_BODY === "none";
-  const rwBody = outfitBody ? style.bytes : ref && !noBody ? runwareBody(bodyArg) : null;
-  const bodyName = outfitBody ? `style:${style.key}` : `body-${runwareBodyName(bodyArg)}`;
+  // "nude": the nude front (BODY) as image 1 with DRESSED_FULL; "neutral": BODY_NEUTRAL (v10 dressed in a plain gray tank and leggings)
+  const clothedBody = clothedOnly && !outfitBody && !noBody ? { nude: R.BODY, neutral: R.BODY_NEUTRAL }[R.CLOTHED_BODY] || "" : "";
+  const rwBody = outfitBody ? style.bytes : ref && !noBody ? (clothedBody ? runwareBodyBytes(clothedBody) : runwareBody(bodyArg)) : null;
+  const bodyName = outfitBody ? `style:${style.key}` : `body-${clothedBody || runwareBodyName(bodyArg)}`;
   // her pictures: klein again (KLEIN_TRIES), then Cloudflare klein with the same references (drawPicture). Never TwinFlow for
   // her: it has no reference and its words drew the big belly (2026-10-10). Without her face, TwinFlow as before.
   const tries = P.ROUTE === "runware-klein" && ref ? Array.from({ length: Math.max(1, Number(R.KLEIN_TRIES) || 1) }, () => [R.MODEL, true]) : [[R.BACKUP_MODEL, false]];
@@ -3862,7 +3878,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);
     // Step 3: the prefix only when LORA_PREFIX_WITH (phone2025) is one of the LoRAs
     const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
-    const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
+    const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "");
     const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
     const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
     out.push(tryOf(model, text, refs, loras, rwW, rwH));

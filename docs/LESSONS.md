@@ -136,6 +136,13 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - The bench harness names a reference by its bytes: the rust body picture and the rust outfit picture are the same file, so a rust-mode
   run shows `style:outfit-rust-halter` for the body (2026-10-11). Read the refs with that in mind, not as a second picture.
 - Her back: "her back" in NUDE_BACK_WORDS would make "naked, lying on her back" a back view, so it is left out (2026-10-11).
+- Clothed pictures cut like image 1's garment (Step 4 review, 2026-10-11): the rust halter cropped a Breton and a silk blouse to its
+  length, a "neutral" gray tank turned necklines into its scoop, even with "not image 1's clothes" → no body picture for clothed
+  pictures (`CLOTHED_BODY` "none", 0/18). Judge a reference mode on same-seed side-by-sides, and repeat a one-seed suspect at a new seed.
+- Shared KV keys and `ctx.waitUntil` (2026-10-11): `refreshDay` wrote back the "day" object `dayInfo` read at the start of the reply,
+  erasing the outfits `dayOutfits` saved meanwhile → re-read the key right before the write and keep the other writer's field.
+- Golden cases are seeded by their index: inserting cases mid-list moved every later case's random picks and buried the real diff
+  (Step 4) → add cases at the end; compare old and new golden case by case with the expected changes normalized out.
 
 ## 3. Routes to avoid (and the cheaper route)
 - Never read `worker.js` whole (~212 KB, ~53k tokens): `grep -n` the function or CONFIG key (docs/MAP.md names them), then read only those lines.

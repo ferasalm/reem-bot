@@ -521,3 +521,15 @@ check 0/5 (~20 s a call). → her replies stay "none" (+ retries), tasks (memory
 - **Nude back views (4, seed 101):** the back body; no breasts in front; mirror and over-shoulder as asked.
 - **Regressions:** the nude mirror at seeds 101 and 202: head in scale (level gaze); doggy seed 202: the anus above the shaft's entry.
 - Not measured: likeness and build (by eye only); the neutral reference and the nude and neutral CLOTHED_BODY modes are not built.
+- *Corrected by the Step 4 review (Opus):* "worn as named in all 24" missed the rust-mode silk blouse at seed 101, cut short (midriff).
+
+## Step 4 review bench (2026-10-11, Opus's read; `outfit-bench.mjs --review`, `face-candidates` runs/2026-10-11-step4-review)
+4 neutral candidates + 18 pictures, each read at full size beside Haiku's same-seed rust and none pictures; $0.05434 by the sums,
+balance $14.56408 → $14.50883 ($0.05525). Step 4 in all: $0.15691 of $0.20.
+- **Neutral reference (v10 in a gray tank, seeds 401-404):** nipples through the knit at 403, 404, faint at 401; 402 clean, same build: picked.
+- **Seed 101, nude and neutral modes (6 outfits):** nude 6/6 as named, no see-through, the fullest build (v10's bust and arms);
+  neutral 4/6, its tank's scoop neck on the Breton and the linen top.
+- **Seed 303, Breton and silk (rust, none, neutral):** rust cut the Breton to a crop again; neutral a scoop tank again; none clean
+  (sleeveless: klein's own reading of "Breton top", also in none). Silk right in all three.
+- **Leak count:** rust 3 (crop length: Breton s101, s303, silk s101), neutral 3 (scoop neck), none 0 of 18, nude 0 of 6.
+  → `CLOTHED_BODY` "none" (a clothed image 1 leaks its garment's cut). Faint nipple outlines on thin white tops in every mode.

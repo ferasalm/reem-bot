@@ -497,3 +497,40 @@ review (from $14.72138, cause unknown); counting that, the step is $0.25636.
 > for Step 4" at the end of docs/WORKPLAN.md. Report the Runware spend against the step's $0.25 budget. If the golden plans change, run
 > `--write` and say why. Finish with `node tools/check.mjs` (read it in full), then /handoff. CLAUDE.md covers pushes and deploys.
 > The repo records name no model (the session rule); say who did the review in chat.
+
+### Step 4 review (Opus, 2026-10-11)
+Built by Haiku (session_01TtxHDLcufHAr8WtgC8sPXj), reviewed by Opus (session_01SS9jTukEt8oHbi6CVAE3Ni); both read with `get_session`.
+**The build** matches its spec except the bench, which left out the neutral reference and the nude and neutral modes (39 of 67
+pictures, $0.10 of $0.20). Haiku's table read 24 outfits as "worn as named" in one repeated phrase; the rust-mode silk blouse at seed
+101 was cut short too. Opus fixed four slips (each new unit row fails on Haiku's code; `node tools/check.mjs` 7/7):
+- **The day's outfit could change during the day.** `dayInfo` reads KV "day" and starts `refreshDay` (weather every 30 min) in
+  `waitUntil`; the reply's picture then saved today's outfits; `refreshDay` wrote back the "day" it had read, without them, so the next
+  picture re-rolled. Now `refreshDay` re-reads the key and keeps `outfits` (unit: same outfits after a refresh in the same reply).
+- **`OUTSIDE_WORDS` "out", "rain", "snow"** (Opus's own list) matched "stretched out", "lights out", "rain on the window": the coat
+  outfit at home. Now "going out", "out for", "out with", "night out", "in the rain", "in the snow".
+- **Her sex-act words got a wardrobe item.** `composePicture` added the tier's clothes to any words that named none, so a boudoir
+  "riding him on the bed" became "…, wearing a black one-shoulder swimsuit" and read as partly naked. Act words get none now.
+- **The golden diff was noise.** The three new cases were inserted near the top; cases are seeded by index, so every later case's
+  random picks moved (hair, mood, place, aspect). They are at the end now, with two more (an outfit picture as image 1; act words).
+**`CLOTHED_BODY` = "none"** (review bench, `face-candidates` runs/2026-10-11-step4-review/, $0.05525; Step 4 in all $0.15691 of
+$0.20). Klein copies the garment of a clothed image 1, whatever the words say: the rust halter cut tops to its crop length (Breton at
+seeds 101 and 303, silk at 101), the neutral gray tank (built: `v10-neutral`, seed 402) put its scoop neck on the Breton (101, 303)
+and the linen top. No body picture: 0 of 18 leaked, and not slimmer than rust (the owner's "slimmer at seed 101" were the cropped tops
+and the rust picture's smaller bust). The nude mode drew the fullest build, v10's, 6/6 dressed at seed 101, but one seed and no
+boudoir, /nsfw Off or no-clothes scene was tried: kept as an option, not the default. The seed-101 "sleeveless Breton" is klein's
+reading of "Breton top" (none drew it sleeveless at 303 too); only the crop length was the leak.
+Left open: hair drifts to brown highlights at seed 101 in every mode (the face is jet black); faint nipple outlines on thin white tops
+(also in the owner's own olive and rust outfit pictures). The plain "nude belfie in the bedroom mirror" drew no phone and no
+reflection.
+
+### Decided in review, for Step 5 (apply these first)
+- **Partial pictures' image 1.** `BODY_PARTIAL` "clothed" sends the rust-halter picture, which leaks its crop top (Step 4 review).
+  Add `BODY_PARTIAL` "none": no body picture and REFERENCE_NOBODY, like `CLOTHED_BODY` "none" (`runwarePlan`: `noBody` also when
+  `partial && R.BODY_PARTIAL === "none"`). The bench's fourth variant, "Step 4's clothed image 1 at 0.6", becomes BODY_PARTIAL
+  "none" with PussyDiffusion 0.6. Leave the default "clothed" until the review picks.
+- New golden cases go **at the end** of the list (cases are seeded by index); `--write`, then compare old and new case by case. Any
+  changed line outside the partial and close-up cases is a bug.
+- Bench ≤ $0.10 (read the Runware balance before and after with `account`). In table.md, one line per picture saying what you saw in
+  that picture (not one phrase for all), and a P1-P4 zoom crop for the vulva.
+- Name the model in HANDOFF, table.md and the commits (read it with `get_session`).
+- Leave alone: `CLOTHED_BODY`, the day outfits and OUTSIDE_WORDS, the LoRA set, the blowjob routing, `tools/face/bench.json`.

@@ -53,6 +53,7 @@ function knownReferences() {
   add("body-v10", FACE.BODY_NUDE_JPEG_BASE64);
   add("body-v10-back", FACE.BODY_BACK_JPEG_BASE64);
   add("body-v10-clothed", FACE.BODY_CLOTHED_JPEG_BASE64);
+  add("body-v10-neutral", FACE.BODY_NEUTRAL_JPEG_BASE64);
   for (const [k, v] of Object.entries(FACE.STYLE_JPEG_BASE64 || {})) add(`style:${k}`, v);
   for (const [k, v] of Object.entries(PLACES.PLACE_JPEG_BASE64 || {})) add(`place:${k}`, v);
   return names;
@@ -127,10 +128,6 @@ const cases = (W) => {
   return [
     { name: "selfie everyday kitchen (composePicture)", run: selfie("making coffee in my kitchen, gray cardigan").run },
     { name: "selfie no words (cozy)", run: selfie(null).run },
-    // Step 4: her outfits for the day (dayWear as dayOutfits gives them): home when no outside words, out when outside
-    { name: "day outfit: selfie no words (home)", run: selfieDay(null).run },
-    { name: "day outfit: selfie at the coffee shop (out)", run: selfieDay("at the coffee shop, smiling").run },
-    { name: "day outfit: selfie in a named sweater (no day outfit)", run: selfieDay("in a cream sweater, smiling").run },
     { name: "mirror bedroom at night", at: "2026-10-12T04:30:00Z", run: selfie("mirror selfie in the bedroom, late at night").run },
     { name: "flirty mirror-back", run: selfie("flirty, mirror selfie from behind in the bedroom").run },
     { name: "boudoir black lace bodysuit", run: selfie("a black lace bodysuit").run },
@@ -157,6 +154,15 @@ const cases = (W) => {
     { name: "nsfw Off: naked on the bed (no nudity, checkContent on)", run: picAt("naked on the bed", "off") },
     { name: "nsfw Nude: naked on the bed (the On plan)", run: picAt("naked on the bed", "nude") },
     { name: "nsfw Nude: topless, jeans on, mirror selfie", run: picAt("topless, jeans on, mirror selfie", "nude") },
+    // Step 4: her outfits for the day (dayWear as dayOutfits gives them): home when no outside words, out when outside. Cases are
+    // seeded by their index, so new cases go at the end (inserted earlier, they moved every later case's random picks)
+    { name: "day outfit: selfie no words (home)", run: selfieDay(null).run },
+    { name: "day outfit: selfie at the coffee shop (out)", run: selfieDay("at the coffee shop, smiling").run },
+    { name: "day outfit: selfie in a named sweater (no day outfit)", run: selfieDay("in a cream sweater, smiling").run },
+    // Step 4 review: the day's outfit has a picture (the rust halter): that picture is image 1, no fourth image
+    { name: "day outfit with a picture: image 1 is the outfit", run: (env, ledger) => W.startPicture(env, ledger, "selfie", null, { dayWear: { ...DAY, home: W.CONFIG.PICTURE.RUNWARE.STYLE_PICTURES["outfit-rust-halter"] } }) },
+    // Step 4 review: her own sex-act words get no wardrobe added (a boudoir pick made it "partly naked")
+    { name: "selfie act words: no clothes added", run: selfieDay("riding him on the bed").run },
   ];
 };
 
