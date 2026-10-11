@@ -11,7 +11,7 @@ const names = {
   "ferasalm:missionary@1": "Missionary POV K3NK", "ferasalm:povanal@1": "POV Doggy Anal", "ferasalm:penis@1": "General Penis",
   "ferasalm:pussyd@1": "PussyDiffusion v2", "ferasalm:tushyraw@1": "Tushy Raw Filter (camera flash)",
 };
-const nm = (a) => `${names[a] || a} (\`${a}\`)`;
+const nm = (a) => `${names[a] || (R.LORA_INFO[a] || {}).name || a} (\`${a}\`)`;
 const list = (xs) => xs.map((x) => `- ${x}`).join("\n");
 const words = (s) => String(s).split(",").map((x) => x.trim()).filter(Boolean).join(", ");
 const out = [];
@@ -28,6 +28,9 @@ out.push(`## Hairstyles (half of the pictures, unless your words name her hair: 
 out.push(`## Light (by her time of day, unless your words name one: ${P.LIGHT_WORDS.join(", ")})\n${Object.entries(P.LIGHT).map(([k, v]) => `**${k.toLowerCase()}**: ${v.join("; ")}`).join("\n\n")}`);
 out.push(`## Places (say one of the words)\n${list(Object.entries(P.LOCATIONS).map(([k, v]) => `**${v.NAME}**: ${(v.WORDS || []).join(", ")}`))}`);
 out.push(`## Expressions (picked when your words name none)\n${Object.entries(R.MOODS).map(([k, v]) => `**${k.toLowerCase()}**: ${v.join("; ")}`).join("\n\n")}\n\nGaze: ${Object.entries(R.GAZES).map(([k, v]) => `**${k.toLowerCase()}**: ${v.join("; ")}`).join("\n\n")}`);
+// Step 3: the category from LORA_INFO; "used" = in a routing list (LORAS, NUDE, ACT, FLASH, ALONE, the kind lists); the rest are spare
+const cat = (a) => (R.LORA_INFO[a] || {}).category || "?";
+const used = (a) => [R.LORAS, R.NUDE_LORAS, R.ACT_LORAS, R.FLASH_LORAS, R.ALONE_LORAS, R.SELFIE_LORAS, R.SCENE_LORAS, R.PIC_LORAS].some((m) => Object.hasOwn(m || {}, a));
 const rows = [];
 for (const [a, w] of Object.entries(R.LORAS)) rows.push([nm(a), "every picture (not with the flash or an alone LoRA)", w]);
 for (const [a, w] of Object.entries(R.NUDE_LORAS)) rows.push([nm(a), `nude pictures and blowjobs; off with ${R.NUDE_LORAS_OFF_WITH.map((x) => names[x] || x).join(", ")}`, w]);
@@ -38,6 +41,6 @@ for (const [a, w] of Object.entries(R.ACT_LORAS)) {
   rows.push([nm(a), `words: ${words(R.ACT_WORDS[a] || "")}${solo}${withs}${alone}`, w]);
 }
 for (const [a, w] of Object.entries(R.FLASH_LORAS)) rows.push([nm(a), "flash words: in place of the realism LoRAs", w]);
-out.push(`## LoRAs (FLUX.2 klein 9B on Runware)\n| LoRA | When | Weight | Trigger words put first |\n|---|---|---|---|\n${rows.map(([n, when, w]) => `| ${n} | ${when} | ${w} | ${R.LORA_WORDS[n.match(/`(.*)`/)[1]] || (n.includes("tushy") ? "(flash trigger sentence)" : n.includes("Flux 4 Play") ? "c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes" : n.includes("Phone") ? R.LORA_PREFIX : "")} |`).join("\n")}\n\nCost (measured 2026-10-08, round 8): a LoRA has no fee of its own; the price is GPU time, which grows with the size, the reference pictures (body pictures are sent at 576x1024: at 768x1344 they cost $0.0009 more) and the number of LoRAs: 9:16 pictures $0.0025 (sometimes $0.0034 with a room picture or a cold LoRA load); 1:1 and 16:9 $0.0025-0.0034. Daily cap $${R.DAILY_USD} (about ${Math.floor(R.DAILY_USD / R.USD_PER_PICTURE)} pictures), then Cloudflare (never nude).`);
+out.push(`## LoRAs (FLUX.2 klein 9B on Runware)\n| LoRA | Category | When | Weight | Trigger words put first |\n|---|---|---|---|---|\n${rows.map(([n, when, w]) => `| ${n} | ${cat(n.match(/`(.*)`/)[1])} | ${when} | ${w} | ${R.LORA_WORDS[n.match(/`(.*)`/)[1]] || (n.includes("tushy") ? "(flash trigger sentence)" : n.includes("Flux 4 Play") ? "c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes" : n.includes("Phone") ? R.LORA_PREFIX : "")} |`).join("\n")}\n\nSpare (uploaded on Runware, in no list above; not sent): ${Object.keys(R.LORA_INFO).filter((a) => !used(a)).map((a) => `${R.LORA_INFO[a].name} (\`${a}\`)`).join(", ")}.\n\nCost (measured 2026-10-08, round 8): a LoRA has no fee of its own; the price is GPU time, which grows with the size, the reference pictures (body pictures are sent at 576x1024: at 768x1344 they cost $0.0009 more) and the number of LoRAs: 9:16 pictures $0.0025 (sometimes $0.0034 with a room picture or a cold LoRA load); 1:1 and 16:9 $0.0025-0.0034. Daily cap $${R.DAILY_USD} (about ${Math.floor(R.DAILY_USD / R.USD_PER_PICTURE)} pictures), then Cloudflare (never nude).`);
 writeFileSync(new URL("../docs/OPTIONS.md", import.meta.url), out.join("\n\n") + "\n");
 console.log("docs/OPTIONS.md written");

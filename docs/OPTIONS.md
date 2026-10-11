@@ -181,19 +181,21 @@ Gaze: **everyday**: looking straight into the lens; looking off to the side, out
 **act**: looking straight into the man's eyes, into the lens; her eyes closed; her eyes half-open and unfocused; looking down at the man's body
 
 ## LoRAs (FLUX.2 klein 9B on Runware)
-| LoRA | When | Weight | Trigger words put first |
-|---|---|---|---|
-| Phone Photography 2000-2025 (`ferasalm:phone2025@1`) | every picture (not with the flash or an alone LoRA) | 0.6 | This is a candid photograph taken with a smartphone of |
-| UltraReal V5 Pro (`ferasalm:ultrareal5@1`) | every picture (not with the flash or an alone LoRA) | 0.6 |  |
-| InstaPic (`ferasalm:instapic@1`) | every picture (not with the flash or an alone LoRA) | 0.6 | instapic |
-| ferasalm:realhd2kc@1 (`ferasalm:realhd2kc@1`) | every picture (not with the flash or an alone LoRA) | 0.5 |  |
-| Unchained XXX v2 (`ferasalm:unchained@2`) | nude pictures and blowjobs; off with Flux 4 Play AIO, Missionary POV K3NK, POV Doggy Anal | 0.8 |  |
-| Flux 4 Play AIO (`ferasalm:flux4play@1`) | words: riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours | 0.8 | c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes |
-| Holding Deepthroat POV (`ferasalm:povdt@1`) | words: blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth | 0.8 | POV deepthroat scene |
-| Missionary POV K3NK (`ferasalm:missionary@1`) | words: missionary | 0.8 |  |
-| POV Doggy Anal (`ferasalm:povanal@1`) | words: anal, ass fucking, in her ass, in the ass, her ass, anally (alone at 1, no other LoRA) | 0.8 |  |
-| General Penis (`ferasalm:penis@1`) | words: penis, cock, dick, erection, erect (only without another act LoRA); also added on sex acts with: missionary, doggy, doggystyle, doggy style | 0.6 |  |
-| PussyDiffusion v2 (`ferasalm:pussyd@1`) | words: pussy, vagina, spread legs, legs spread (only without another act LoRA) | 0.8 | hairy pussy |
-| Tushy Raw Filter (camera flash) (`ferasalm:tushyraw@1`) | flash words: in place of the realism LoRAs | 1 | (flash trigger sentence) |
+| LoRA | Category | When | Weight | Trigger words put first |
+|---|---|---|---|---|
+| Phone Photography 2000-2025 (`ferasalm:phone2025@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 | This is a candid photograph taken with a smartphone of |
+| UltraReal V5 Pro (`ferasalm:ultrareal5@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 |  |
+| InstaPic (`ferasalm:instapic@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 | instapic |
+| Real HD 2K (DoRA converted to rank 32) (`ferasalm:realhd2kc@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.5 |  |
+| Unchained XXX v2 (`ferasalm:unchained@2`) | nudity | nude pictures and blowjobs; off with Flux 4 Play AIO, Missionary POV K3NK, POV Doggy Anal | 0.8 |  |
+| Flux 4 Play AIO (`ferasalm:flux4play@1`) | act | words: riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours | 0.8 | c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes |
+| Holding Deepthroat POV (`ferasalm:povdt@1`) | act | words: blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth | 0.8 | POV deepthroat scene |
+| Missionary POV K3NK (`ferasalm:missionary@1`) | act | words: missionary | 0.8 |  |
+| POV Doggy Anal (`ferasalm:povanal@1`) | act | words: anal, ass fucking, in her ass, in the ass, her ass, anally (alone at 1, no other LoRA) | 0.8 |  |
+| General Penis (`ferasalm:penis@1`) | anatomy | words: penis, cock, dick, erection, erect (only without another act LoRA); also added on sex acts with: missionary, doggy, doggystyle, doggy style | 0.6 |  |
+| PussyDiffusion v2 (`ferasalm:pussyd@1`) | anatomy | words: pussy, vagina, spread legs, legs spread (only without another act LoRA) | 0.8 | hairy pussy |
+| Tushy Raw Filter (camera flash) (`ferasalm:tushyraw@1`) | light | flash words: in place of the realism LoRAs | 1 | (flash trigger sentence) |
+
+Spare (uploaded on Runware, in no list above; not sent): Lenovo UltraReal (`ferasalm:lenovoc@1`), SNOFS v1.4 (rank-128 copy) (`ferasalm:snofsc@1`), NSFW Unlocked V2 (`ferasalm:nsfwunlock@1`), Anatomy Quality Fixer (`myaiprojectsqqq:3@2`), POV Blowjob (`ferasalm:povbj@1`), POV hand (converted) (`ferasalm:povhandc@1`).
 
 Cost (measured 2026-10-08, round 8): a LoRA has no fee of its own; the price is GPU time, which grows with the size, the reference pictures (body pictures are sent at 576x1024: at 768x1344 they cost $0.0009 more) and the number of LoRAs: 9:16 pictures $0.0025 (sometimes $0.0034 with a room picture or a cold LoRA load); 1:1 and 16:9 $0.0025-0.0034. Daily cap $1 (about 333 pictures), then Cloudflare (never nude).

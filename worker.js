@@ -936,6 +936,30 @@ Changing the story
       // 2026-10-09 (owner: "let's return to using Real HD 2k for all pictures"): realhd2kc back at 0.5, its weight when it was last on
       LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "ferasalm:instapic@1": 0.6, "ferasalm:realhd2kc@1": 0.5 },
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
+      // the prefix goes in only when this LoRA is in the list (Step 3, 2026-10-11): a picture without phone2025 has no smartphone sentence
+      LORA_PREFIX_WITH: "ferasalm:phone2025@1",
+      // Step 3 (2026-10-11): the LoRA catalog, for tools/options.mjs (docs/OPTIONS.md) and the bench; the plans don't read it.
+      // category: realism, nudity, anatomy, act, light. `used` (in a list above) and `spare` (in no list) are worked out by options.mjs.
+      LORA_INFO: {
+        "ferasalm:phone2025@1": { name: "Phone Photography 2000-2025", category: "realism", civitai: null, trigger: "LORA_PREFIX", note: "LORAS" },
+        "ferasalm:ultrareal5@1": { name: "UltraReal V5 Pro", category: "realism", civitai: null, trigger: "", note: "LORAS" },
+        "ferasalm:instapic@1": { name: "InstaPic", category: "realism", civitai: 2998522, trigger: "instapic", note: "LORAS" },
+        "ferasalm:realhd2kc@1": { name: "Real HD 2K (DoRA converted to rank 32)", category: "realism", civitai: null, trigger: "", note: "LORAS" },
+        "ferasalm:lenovoc@1": { name: "Lenovo UltraReal", category: "realism", civitai: null, trigger: "", note: "spare" },
+        "ferasalm:unchained@2": { name: "Unchained XXX v2", category: "nudity", civitai: 2753532, trigger: "", note: "NUDE_LORAS" },
+        "ferasalm:snofsc@1": { name: "SNOFS v1.4 (rank-128 copy)", category: "nudity", civitai: null, trigger: "", note: "spare" },
+        "ferasalm:nsfwunlock@1": { name: "NSFW Unlocked V2", category: "nudity", civitai: 3030169, trigger: "", note: "spare" },
+        "ferasalm:pussyd@1": { name: "PussyDiffusion v2", category: "anatomy", civitai: 2960754, trigger: "hairy pussy", note: "ACT_LORAS (pussy, spread legs); SOLO_LORAS" },
+        "ferasalm:penis@1": { name: "General Penis", category: "anatomy", civitai: 2624854, trigger: "", note: "ACT_LORAS (penis, cock); WITH_LORAS; SOLO_LORAS" },
+        "myaiprojectsqqq:3@2": { name: "Anatomy Quality Fixer", category: "anatomy", civitai: null, trigger: "", note: "spare" },
+        "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl, d0gg13 (ACT_SCENES)", note: "ACT_LORAS (riding, cowgirl, doggy)" },
+        "ferasalm:missionary@1": { name: "Missionary POV K3NK", category: "act", civitai: 2699087, trigger: "", note: "ACT_LORAS (missionary)" },
+        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ALONE_LORAS (anal, alone at 1.0)" },
+        "ferasalm:povdt@1": { name: "Holding Deepthroat POV", category: "act", civitai: 2779637, trigger: "POV deepthroat scene", note: "ACT_LORAS (blowjob, deepthroat)" },
+        "ferasalm:povbj@1": { name: "POV Blowjob", category: "act", civitai: null, trigger: "", note: "spare" },
+        "ferasalm:povhandc@1": { name: "POV hand (converted)", category: "act", civitai: 2640656, trigger: "", note: "spare (not loaded since round 5)" },
+        "ferasalm:tushyraw@1": { name: "Tushy Raw Filter", category: "light", civitai: 2569967, trigger: "FLASH_TRIGGER", note: "FLASH_LORAS (camera flash)" },
+      },
       // owner 2026-10-08: SNOFS (Civitai, klein 9B v1.4) on nude/explicit pictures only: added to LORAS when NUDE_WORDS match
       // (or, with SEX_ACTS on, a NOT_DRAWN word). Runware can't load its LoKR ("failed to load") and its merged klein 9B
       // checkpoints (bf16 and fp8: internalError), so it is a rank-128 LoRA copy (tools/lora/lokr-to-lora.py, run 37788419189)
@@ -989,7 +1013,6 @@ Changing the story
         "ferasalm:povanal@1": "anal, ass fucking, in her ass, in the ass, her ass, anally",
         "ferasalm:penis@1": "penis, cock, dick, erection, erect",
         "ferasalm:pussyd@1": "pussy, vagina, spread legs, legs spread",
-        "ferasalm:povhandc@1": "the man's hand, the man's hands, grabbing, grabs, groping, gropes, squeezing, squeezes, his hand, his hands, anal, doggy, doggystyle",
       },
       ACT_ANY: [],                       // ACT_LORAS also allowed on clothed pictures (round 5: none; POV hand was the only one)
       // round 4 (owner: "Remove the overlapping LoRAs (General Penis, pussy diffusion) unless the picture requested specifically
@@ -999,7 +1022,6 @@ Changing the story
       LORA_WORDS: {
         "ferasalm:instapic@1": "instapic",
         "ferasalm:pussyd@1": "hairy pussy",
-        "ferasalm:povhandc@1": "POV hand, man's hand", // its Civitai trigger ("POV hand, zoom in, man's hand")
         "ferasalm:povdt@1": "POV deepthroat scene",   // its Civitai trigger
       },
       // a camera-flash picture, only when the words ask for one (owner 2026-10-08: "when asked for specifically: camera flash LoRA",
@@ -3756,7 +3778,8 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const flash = model === R.MODEL && flashAsked(prompt);
     const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
     const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);
-    const lead = (w) => (loras.length && R.LORA_PREFIX && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
+    // Step 3: the prefix only when LORA_PREFIX_WITH (phone2025) is one of the LoRAs
+    const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
     const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
     const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
     const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
