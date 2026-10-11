@@ -9,6 +9,8 @@ New entries: when a session's HANDOFF "Where we are" item is finished, move its 
 - /nsfw Off draws on Cloudflare klein (`NSFW.OFF_ROUTE`), never Runware or Nano Banana; Off refuses nudity and sex acts on every route (a route-dependent list let "blowjob" through at Off, caught by the unit tests before the push).
 - The owner's row 13 (a cardigan over a cami, naked below the waist): `RUNWARE.DRESSED_BOTTOM` when a top is named and no bottom or one-piece (`ONE_PIECE_WORDS`).
 - Checks: unit 312 ok (new rows: the Off route, Task C); scenarios 1241 ok (three Off rows now assert the Cloudflare call); studio 32 ok; e2e exit 0; golden 39 cases (changed: the Off naked case, the day's-outfit and turtleneck cases with a top and no bottom, the new row 13 case; each changed value checked to differ only by the new sentence)., the prompt studio at /studio, built; one real draw read; dev only
+- Body audit (`tools/face/body-audit.mjs`, paid: 34 pictures, $0.08684 of the $0.12 cap; Runware usage read before and after): five cases through the bot's own code at seeds 101 and 202, V0 = HEAD, V1 = OUTFIT_BODY off, V2 = 897dfaf's realism LoRAs, V3 = no realism LoRAs. The static table (`audit.md`), the per-picture read (`table.md`, visual only) and the sheets are on `face-candidates` runs/2026-10-11-body-audit/ (commit 7a25297). No body setting changed; the bench does not isolate `DRESSED_BOTTOM`.
+
 ## 2026-10-11 (thirty-fourth session, Haiku 5.5): WORKPLAN Step 7
 - The studio (worker.js block "The prompt studio", studio.js): the owner's signed link (`/studio`; `/studio reset` ends old links), the
   cookie, the log from D1 `pictures` (30 a page, source filter), the editor (compose from /pic words through the bot's own plan; Generate =
