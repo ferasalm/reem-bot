@@ -137,6 +137,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
   harness; variants set BODY_PARTIAL, PARTIAL_WEIGHTS, CLOSE_SHAPE, CLOSE_FACE; `--framing`, `--redraw`; stops at $0.10 or `BUDGET_USD`).
   Results: `runs/2026-10-11-step5-partial-bench/` on `face-candidates`. `outfit-bench.mjs --nude-check`: the CLOTHED_BODY "nude" check
   (runs/2026-10-11-step5-nude-mode/).
+- `tools/face/body-audit.mjs` (fix round, 2026-10-11): the body audit: five cases (a mirror selfie in a fitted black tank and high-waisted jeans, the olive cardigan and camel coat outfits, row 13's words, a naked mirror selfie) x seeds 101 and 202 through the bot's own picture code; V0 = HEAD, V1 = OUTFIT_BODY false (outfit cases), V2 = the 897dfaf realism LoRAs, V3 = no realism LoRAs. `--dry` = plans with no network, `--run <dir>` = paid (klein 9B on Runware, stops at $0.12). Results: `runs/2026-10-11-body-audit/` on `face-candidates` (audit.md = the static table, table.md = the pictures).
 - `tools/face/anal-bench.mjs` (Step 6, 2026-10-11): anal positions through the bot's own picture code (the same harness; variants set
   ANAL_LORAS and ALONE_LORAS per position; 4 cases x 2 variants x seeds 101-303; `--extend` with `PICKS=` = seeds 404, 505 on the picked
   variants; stops at `BUDGET_USD`, default $0.09). Results: `runs/2026-10-11-step6-anal-bench/` on `face-candidates`.
