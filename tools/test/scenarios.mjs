@@ -836,12 +836,16 @@ section("pictures: his photos (Workers AI vision)");
     setLevel("off");
     r = await turn("/pic naked on the bed", [], {});
     yes(r.photos.length === 0 && (r.texts.at(-1) || "").includes("/nsfw nude") && (r.texts.at(-1) || "").includes("it's Off now"), "Off: /pic naked → not drawn, the level it needs is named", r.texts.at(-1));
+    const rwBefore = runware.calls.length, aiBefore = ai.length;
     r = await turn("/pic red dress", [], {});
     let t = runware.calls.at(-1);
-    yes(r.photos.length === 1 && t.safety.checkContent === true && !t.positivePrompt.includes(P.RUNWARE.NAKED) && !t.lora.some((l) => /unchained|snofs|nsfwunlock/i.test(l.model)), "Off: a clothed picture, Runware's content check on, no nude LoRA", t && t.positivePrompt.slice(0, 120));
+    const k = ai.at(-1); // Off draws on Cloudflare klein (NSFW.OFF_ROUTE), never on Runware (2026-10-11)
+    yes(r.photos.length === 1 && runware.calls.length === rwBefore && ai.length === aiBefore + 1 && !!k && k.fields.prompt.includes(P.SAFE) && !/\bnaked\b/i.test(k.fields.prompt), "Off: a clothed picture is drawn on Cloudflare klein (no Runware call), SAFE in the prompt", k && k.fields.prompt.slice(0, 120));
+    const rwBefore2 = runware.calls.length;
     r = await turn("send me a pic", ["Sure, here you go. [selfie: naked on the bed, black satin sheets]"], { history: APART });
     t = runware.calls.at(-1);
-    yes(r.photos.length === 1 && !t.positivePrompt.includes(P.RUNWARE.NAKED) && t.safety.checkContent === true, "Off: her own [selfie: naked ...] is not drawn nude", t && t.positivePrompt.slice(0, 160));
+    const k2 = ai.at(-1);
+    yes(r.photos.length === 1 && runware.calls.length === rwBefore2 && !!k2 && k2.fields.prompt.includes(P.SAFE) && !/\bnaked\b/i.test(k2.fields.prompt), "Off: her own [selfie: naked ...] is not drawn nude (Cloudflare klein, SAFE, no Runware call)", k2 && k2.fields.prompt.slice(0, 160));
     setLevel("nude");
     r = await turn("/pic blowjob", [], {});
     yes(r.photos.length === 0 && (r.texts.at(-1) || "").includes("/nsfw on"), "Nude: a blowjob picture needs On", r.texts.at(-1));
@@ -853,10 +857,12 @@ section("pictures: his photos (Workers AI vision)");
     const ACT_SCENE = [{ role: "assistant", content: "*She kneels on the rug, her dark hair falling over one shoulder, a slow smile on her lips.* *She wraps her lips around your cock, slow.* \"like that?\"" }];
     for (const [level, drawn] of [["off", false], ["nude", false], [undefined, true]]) {
       setLevel(level);
+      const rw0 = runware.calls.length, ai0 = ai.length;
       r = await turn("/look", [], { history: ACT_SCENE });
-      t = runware.calls.at(-1);
+      t = runware.calls.length > rw0 ? runware.calls.at(-1) : { positivePrompt: "", lora: [] }; // Off draws on Cloudflare (2026-10-11): no Runware call
+      const kleinSex = ai.slice(ai0).filter((a) => a.model === P.MODEL).some((a) => /\bcock\b|blowjob|lips around/i.test(a.fields.prompt || ""));
       const actLoRA = (t.lora || []).some((l) => /povbj|povdt|unchained/i.test(l.model));
-      yes(r.photos.length === 1 && t.positivePrompt.includes("Sex act: a blowjob.") === drawn && actLoRA === drawn, `/look in person at ${level || "the default (On)"}: ${drawn ? "the blowjob is drawn with its LoRA" : "no sex act, no act LoRA"}`, `${JSON.stringify(t.lora.map((l) => l.model))} | ${t.positivePrompt.slice(0, 200)}`);
+      yes(r.photos.length === 1 && (drawn ? t.positivePrompt.includes("Sex act: a blowjob.") && actLoRA : !actLoRA && !t.positivePrompt.includes("Sex act: a blowjob.") && !kleinSex), `/look in person at ${level || "the default (On)"}: ${drawn ? "the blowjob is drawn with its LoRA" : "no sex act, no act LoRA"}`, `${JSON.stringify((t.lora || []).map((l) => l.model))} | ${t.positivePrompt.slice(0, 200)}`);
     }
     setLevel(undefined);
     r = await turn("/pic blowjob", [], {});

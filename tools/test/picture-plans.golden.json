@@ -46,7 +46,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid first-person photo from where he stands in front of her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: pulled up in a messy bun and a few loose strands framing her face. She sits on his couch in her old cardigan, laughing. Lit by dappled sunlight through the leaves outside the window. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid first-person photo from where he stands in front of her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: pulled up in a messy bun and a few loose strands framing her face. She sits on his couch in her old cardigan, laughing. Lit by dappled sunlight through the leaves outside the window. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10",
@@ -212,6 +212,36 @@
         }
       ]
     },
+    "/pic cardigan over a cami, kitchen (On, Task C)": {
+      "cloudflare": [],
+      "drawn": true,
+      "runware": [
+        {
+          "CFGScale": 1,
+          "acceleration": "none",
+          "height": 1344,
+          "lora": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "model": "runware:400@2",
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a sleepy half smile, her eyes closed. Her hair: in a loose side braid over one shoulder. her father's old gray cardigan over a black cami, in the kitchen. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "place:kitchen~1"
+          ],
+          "steps": 5,
+          "width": 768
+        }
+      ]
+    },
     "/pic close-up of her pussy, white t-shirt": {
       "cloudflare": [],
       "drawn": true,
@@ -365,7 +395,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a thoughtful look, lips pressed together, looking straight into the lens. messy bun, red lipstick, black turtleneck, on the porch. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a thoughtful look, lips pressed together, looking straight into the lens. messy bun, red lipstick, black turtleneck, on the porch. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10",
@@ -762,7 +792,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: blown out straight and glossy. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, an unimpressed deadpan look, in the kitchen, gray cardigan, bright afternoon daylight. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: blown out straight and glossy. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, an unimpressed deadpan look, in the kitchen, gray cardigan, bright afternoon daylight. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10",
@@ -786,7 +816,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: blown out straight and glossy. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, an unimpressed deadpan look, in the kitchen, gray cardigan, bright afternoon daylight. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: blown out straight and glossy. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, an unimpressed deadpan look, in the kitchen, gray cardigan, bright afternoon daylight. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10",
@@ -905,7 +935,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera a little below her chin, tilted up, a slow, knowing smile, in a cream sweater, smiling, soft window light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera a little below her chin, tilted up, a slow, knowing smile, in a cream sweater, smiling, soft window light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10"
@@ -1070,35 +1100,16 @@
       ]
     },
     "nsfw Off: naked on the bed (no nudity, checkContent on)": {
-      "cloudflare": [],
-      "drawn": true,
-      "runware": [
+      "cloudflare": [
         {
-          "CFGScale": 1,
-          "acceleration": "none",
-          "checkContent": true,
-          "height": 1344,
-          "lora": [
-            {
-              "model": "ferasalm:instapic@1",
-              "weight": 0.6
-            },
-            {
-              "model": "ferasalm:realhd2kc@1",
-              "weight": 0.5
-            }
-          ],
-          "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a cheeky grin with the tip of her tongue out, looking off to the side, out of the frame. Her hair: in a high ponytail. naked on the bed. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
-          "refs": [
-            "face-2x",
-            "body-v10",
-            "place:bedroom~2"
-          ],
-          "steps": 5,
-          "width": 768
+          "height": 1024,
+          "model": "@cf/black-forest-labs/flux-2-klein-4b",
+          "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0), and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Her hair often sits in a messy bun, sometimes with wispy bangs. naked on the bed. Behind her is the part of her room shown in image 2, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp on a small wooden nightstand with books, a tall arched black floor mirror leaning on the wall, sheer white curtains on a wide old wooden sash window, a white radiator, a jute rug on dark worn wood floors. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain.",
+          "width": 576
         }
-      ]
+      ],
+      "drawn": true,
+      "runware": []
     },
     "selfie act words: no clothes added": {
       "cloudflare": [],
@@ -1178,7 +1189,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, a raised-eyebrow smirk, making coffee in her kitchen, gray cardigan, dappled sunlight through the leaves outside the window. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, camera held a little above her eyes, tilted down, a raised-eyebrow smirk, making coffee in her kitchen, gray cardigan, dappled sunlight through the leaves outside the window. Behind her, her room as in image 2, in this picture's own light. Natural skin texture, slight grain. She is dressed as described, not naked. She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10",

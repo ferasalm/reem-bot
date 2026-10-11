@@ -169,6 +169,8 @@ const cases = (W) => {
     { name: "/pic anal doggy style", run: pic("anal doggy style") },
     { name: "/pic anal riding the man", run: pic("anal riding the man") },
     { name: "/pic riding, hands on her ass (not anal)", run: pic("riding the man, his hands on her ass") },
+    // Task C (2026-10-11, owner's row 13): a cardigan over a cami and no bottom named: the bottom line is added
+    { name: "/pic cardigan over a cami, kitchen (On, Task C)", run: picAt("her father's old gray cardigan over a black cami, in the kitchen", "on") },
   ];
 };
 

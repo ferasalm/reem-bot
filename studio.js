@@ -112,6 +112,8 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
 <script>
 (function () {
   "use strict";
+  // The link's ?t= leaves the address bar at once: the cookie from the first visit keeps the page open (no redirect, 2026-10-11)
+  if (new URLSearchParams(location.search).has("t")) history.replaceState(null, "", "/studio");
   var opts = null; // /studio/api/options
   var logNext = null; // the id to pass as before= for the next page of the log
   function $(id) { return document.getElementById(id); }

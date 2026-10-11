@@ -701,5 +701,109 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   } finally { globalThis.fetch = realFetch; [P.ROUTE, R.BODY_PARTIAL, P.HAIR_CHANCE] = keep; Math.random = r0; }
 }
 
+// /nsfw Off on Cloudflare (2026-10-11, owner: "when /nsfw off, we reroute image generation to cloudflare as it has a built in safety
+// filter. Keep nsfw nudity and sex on runware."): Off draws klein on Workers AI with her face, body and place, the filter words and
+// SAFE; no Runware request and no OpenRouter call (Nano Banana is never at Off); the log row says the Cloudflare model and nsfw "off"
+{
+  const P = W.CONFIG.PICTURE;
+  const FAKE = Buffer.from("fake jpeg").toString("base64");
+  const realFetch = globalThis.fetch;
+  const urls = [];
+  const runware = [];
+  const klein = [];
+  const rows = [];
+  globalThis.fetch = async (url, init = {}) => {
+    urls.push(String(url));
+    if (String(url) === "https://api.runware.ai/v1") {
+      runware.push(JSON.parse(init.body));
+      return new Response(JSON.stringify({ data: [], errors: [] }), { headers: { "content-type": "application/json" } });
+    }
+    throw new Error(`unit (Off): unexpected request to ${url}`);
+  };
+  const db = {
+    prepare(sql) {
+      let args = [];
+      const s = {
+        bind(...a) {
+          args = a;
+          return s;
+        },
+        async run() {
+          if (/^INSERT INTO pictures/.test(sql)) {
+            const cols = sql.match(/\(([^)]*)\)/)[1].split(",").map((c) => c.trim());
+            rows.push(Object.fromEntries(cols.map((c, i) => [c, args[i]])));
+          }
+          return { results: [], meta: { last_row_id: rows.length } };
+        },
+        async all() {
+          return { results: [] };
+        },
+        async first() {
+          return null;
+        },
+      };
+      return s;
+    },
+    async batch(list) {
+      const out = [];
+      for (const s of list) out.push(await s.run());
+      return out;
+    },
+  };
+  const kleinPrompts = () => klein.map((k) => k.prompt);
+  const env = {
+    RUNWARE_API_KEY: "test-key",
+    REEM_KV: { get: async () => null, put: async () => {}, delete: async () => {}, list: async () => ({ keys: [] }) },
+    AI: {
+      run: async (model, input) => {
+        if (input && input.multipart) {
+          const form = await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData();
+          klein.push({ model, prompt: form.get("prompt"), images: [...form.keys()].filter((k) => k.startsWith("input_image_")) });
+        }
+        return { image: FAKE };
+      },
+    },
+    STUDIO_DB: db,
+  };
+  try {
+    const onRunware = /^runware/.test(P.ROUTE);
+    eq([W.runwareRoute("off"), W.runwareRoute("nude"), W.runwareRoute("on")], [P.NSFW.OFF_ROUTE === "cloudflare" ? false : onRunware, onRunware, onRunware], "the route: Off on Cloudflare (NSFW.OFF_ROUTE), Nude and On as before");
+    eq([W.safeLine("on"), W.safeLine("off")], [onRunware ? "" : P.SAFE, P.SAFE], "SAFE at Off on Cloudflare, not on Runware");
+    eq(/\bbra\b|\bpanties\b/i.test(W.filterSafe("a black lace bra and panties", "off")), false, "filterSafe at Off: the lingerie words are filter-safe");
+    const ledger = { rwUsd: 0, rwFailed: 0, usd: 0, recent: [], shots: [] };
+    const c = W.customPicture("a black lace bra and panties, in the kitchen", undefined, null, "off");
+    const drawn = await W.drawPicture(env, c.prompt, { custom: true, ledger, nsfw: "off", location: c.location, night: c.night });
+    eq(runware.length, 0, "Off: no Runware request");
+    eq(klein.length, 1, "Off: one klein picture on Workers AI");
+    eq(klein[0] && klein[0].model === P.MODEL, true, "Off: the Cloudflare model is P.MODEL");
+    eq(klein[0] && klein[0].images.length >= 2 && klein[0].images.length <= 3, true, "Off: her face and body (and the place) as input images");
+    eq(/\b(?:bra|panties)\b/i.test(kleinPrompts().join(" ")), false, "Off: the klein prompt has the filter words, not bra or panties");
+    eq(kleinPrompts()[0] && kleinPrompts()[0].includes(P.SAFE), true, "Off: SAFE is in the klein prompt");
+    eq(urls.some((u) => u.includes("openrouter.ai")), false, "Off: no OpenRouter call");
+    eq(drawn.model === P.MODEL, true, "Off: the picture is klein's");
+    eq(rows.map((r) => [String(r.model).startsWith("@cf/"), r.nsfw]), [[true, "off"]], "Off: the log row is the Cloudflare model at nsfw off");
+    const before = urls.length;
+    const lingerie = await W.startPicture(env, { rwUsd: 0, rwFailed: 0, usd: 0, recent: [], shots: [] }, "selfie", "a black lace bra and panties", { nsfw: "off", asked: "send me a pic in the lace bra and panties", said: "sending you one now" });
+    eq(!!(lingerie && lingerie.bytes), true, "Off: a lingerie selfie is drawn (klein)");
+    eq(urls.slice(before).some((u) => u.includes("openrouter.ai")) || runware.length > 0, false, "Off: a lingerie selfie makes no OpenRouter (Nano Banana) and no Runware call");
+    eq(kleinPrompts().slice(1).some((p) => /\b(?:bra|panties)\b/i.test(p)), false, "Off: the lingerie selfie's klein prompts are filter-safe");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+}
+// Task C (2026-10-11, the owner's row 13: "her father's old gray cardigan over a black cami, in the kitchen" came out naked below the
+// waist): clothed on the nude body with a top and no bottom or one-piece: the bottom line; nothing else changes
+{
+  const R = W.CONFIG.PICTURE.RUNWARE;
+  const FAKE = W.fromBase64(Buffer.from("fake jpeg").toString("base64"));
+  const tryOf = (words) => W.runwarePlan(words, { herself: true, kind: "selfie", ref: FAKE, rwFace: FAKE, faceName: "face-2x", width: 576, height: 1024, who: (w) => w, level: "on" }).tries[0];
+  const row13 = tryOf("her father's old gray cardigan over a black cami, in the kitchen");
+  eq(row13.text.includes(R.DRESSED_BOTTOM), true, "row 13: a cardigan over a cami, no bottom: the bottom line is in the prompt");
+  eq(row13.refs.map((r) => r.name), ["face-2x", "body-v10"], "row 13: her face and the nude body as image 1 (no outfit picture)");
+  eq(tryOf("a fitted black tank top and high-waisted jeans, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "a bottom named: no bottom line");
+  eq(tryOf("a black cami under a long dress, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "a one-piece named (a dress): no bottom line");
+  eq(tryOf("sitting on top of the bed in a black dress, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "\"on top\" is no top: no bottom line");
+}
+
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);

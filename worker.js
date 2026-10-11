@@ -809,6 +809,8 @@ Changing the story
     // no sex acts. On: everything (today). SELF_NUDE is added to her SELF_CHOICE at Nude and On only.
     NSFW: {
       DEFAULT: "on",
+      // /nsfw Off draws on this route (owner 2026-10-11): "cloudflare" = Cloudflare klein (her face, body and place; lingerie with FILTER_WORDS; SAFE), so Cloudflare's safety filter applies; "" = Runware as at Off before. Nude and On stay on Runware
+      OFF_ROUTE: "cloudflare",
       SELF_NUDE: " When things are hot between you, you may send one naked or topless: say plainly what's bare.",
     },
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
@@ -949,6 +951,8 @@ Changing the story
       // Step 4 review: CLOTHED_BODY "nude" sends BODY with this line; "neutral" sends BODY_NEUTRAL (tools/face/body-neutral.jpg, seed 402)
       BODY_NEUTRAL: "v10-neutral",
       DRESSED_FULL: "She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape.",
+      // Task C (owner's row 13, 2026-10-11: a cardigan over a cami came out naked below the waist): a top named and no bottom or one-piece
+      DRESSED_BOTTOM: "Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare.",
       REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
       REFERENCE_OUTFIT: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), with exactly the body of image 1 and wearing exactly image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
       REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult.",
@@ -1189,6 +1193,8 @@ Changing the story
       // "topless" (or "bottomless") in the words beats a top (or bottom) word
       TOP_WORDS: ["bra", "bralette", "sports bra", "top", "crop top", "tank top", "camisole", "t-shirt", "tee", "shirt", "blouse", "sweater", "hoodie", "sweatshirt", "cardigan", "corset", "turtleneck", "covered breasts", "breasts covered", "covered chest", "chest covered"],
       BOTTOM_WORDS: ["panties", "underwear", "thong", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "skirt"],
+      // a top and a bottom in one piece: named with no BOTTOM_WORDS, no DRESSED_BOTTOM line (Task C)
+      ONE_PIECE_WORDS: ["dress", "jumpsuit", "romper", "robe", "nightgown", "bodysuit", "overalls", "onesie", "long coat"],
       PARTIAL_TOP: "She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing.",
       PARTIAL_BOTTOM: "She is topless: only the clothes described below her waist stay on; her breasts are bare.",
       // Step 5: a crotch close-up (nude, not a sex act): CROTCH_FRAMING, no NAKED_BREASTS, no place picture. A bare "between her legs"
@@ -3277,7 +3283,7 @@ async function noteMinor(env, chatId, settings, heard) {
 // within the day's budget and with enough outside calls left
 function picturesAllowed(env, { ooc, settings, ledger }) {
   // Runware (PICTURE.ROUTE) has its own money cap; otherwise Workers AI's neurons decide
-  return !!CONFIG.PICTURE.ENABLED && !ooc && !settings.minor && (runwareAffordable(env, ledger) || (!!env.AI && aiAffordable(ledger, "picture"))) &&
+  return !!CONFIG.PICTURE.ENABLED && !ooc && !settings.minor && (runwareAffordable(env, ledger, nsfwLevel(settings)) || (!!env.AI && aiAffordable(ledger, "picture"))) &&
     budget.left() >= CONFIG.LIMITS.SUBREQUEST_RESERVE + 4;
 }
 
@@ -3320,11 +3326,11 @@ const actsOff = (level) => level === "off" || level === "nude";
 // A sex act (a RUNWARE.NOT_DRAWN word) in words drawn on Runware with SEX_ACTS on; not at Off or Nude
 function sexAct(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  return !actsOff(level) && runwareRoute() && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
+  return !actsOff(level) && runwareRoute(level) && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
 }
 
 // Nude or a sex act on Runware (NUDE_WORDS, or sexAct)
-const explicitWords = (text, level = CONFIG.PICTURE.NSFW.DEFAULT) => sexAct(text, level) || (runwareRoute() && nudeWords(text));
+const explicitWords = (text, level = CONFIG.PICTURE.NSFW.DEFAULT) => sexAct(text, level) || (runwareRoute(level) && nudeWords(text));
 
 // In a sex-act picture he is "the man" (POV_MAN): /pic's me/my/I, a scene's you/he/his become him before aboutHer
 const theMan = (t) => String(t || "").replace(/\bi(?:'|’)m\b/gi, "the man is").replace(/\b(?:my|your|his)\b/gi, "the man's").replace(/\b(?:me|you|him|i|he)\b/gi, "the man").replace(/\bthe man's own\b/gi, "the man's");
@@ -3333,10 +3339,10 @@ const theMan = (t) => String(t || "").replace(/\bi(?:'|’)m\b/gi, "the man is")
 // (no sex acts, even with SEX_ACTS on); Off refuses nude words too (lingerie stays)
 function mayDraw(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  if (!actsOff(level) && runwareRoute() && R.SEX_ACTS === true) return true;
-  const list = runwareRoute() ? R.NOT_DRAWN : CONFIG.PICTURE.NOT_DRAWN;
+  if (!actsOff(level) && runwareRoute(level) && R.SEX_ACTS === true) return true;
+  const list = runwareRoute(level) || level === "off" ? R.NOT_DRAWN : CONFIG.PICTURE.NOT_DRAWN; // Off keeps sex acts and nudity out on any route (2026-10-11)
   if ((list || []).some((w) => String(w).trim() && hasWord(text, w))) return false;
-  return !(level === "off" && runwareRoute() && nudeWords(text));
+  return !(level === "off" && nudeWords(text)); // Off refuses nude words on every route (2026-10-11)
 }
 
 const pickOne = (list) => (Array.isArray(list) && list.length ? list[Math.floor(Math.random() * list.length)] : "");
@@ -3391,7 +3397,7 @@ function chatHeat(history = [], said = "", hour = herHour()) {
 // Step 2 (2026-10-11): the nude tier only at /nsfw Nude or On and on Runware (Cloudflare draws nothing nude); with NUDE_ASK
 // ("send nudes") it is the tier, else boudoir
 // The nude tier is allowed: /nsfw Nude or On, and a Runware route (Cloudflare draws nothing nude)
-const nudeTierOk = (level) => (level === "nude" || level === "on") && runwareRoute();
+const nudeTierOk = (level) => (level === "nude" || level === "on") && runwareRoute(level);
 
 function pickTier({ asked = "", heat = 0, shot = null, level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const P = CONFIG.PICTURE;
@@ -3490,12 +3496,12 @@ function selfieSubject(want, recent = [], said = "", level = CONFIG.PICTURE.NSFW
 // (`words`) replace wardrobe and place, `doing` comes before the wardrobe. {who} is left for drawPicture.
 // Returns { prompt, shot, tier, angle, what } (what: "type, her words or the wardrobe and place", for history).
 // `lingerie`: for PICTURE.LINGERIE (Nano Banana): her words as she wrote them and its WARDROBE for the clothes
-function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [], lingerie = false, wardrobeList = null, dayWear = null } = {}) {
+function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [], lingerie = false, wardrobeList = null, dayWear = null, level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const P = CONFIG.PICTURE;
   const args = { tier, shot, words, doing, hour, recentShots };
   if (!lingerie) {
-    words = filterSafe(words);
-    doing = filterSafe(doing);
+    words = filterSafe(words, level);
+    doing = filterSafe(doing, level);
   }
   const T = String(tier).toUpperCase();
   const template = P.SHOTS[shot] || P.SHOTS.selfie || Object.values(P.SHOTS)[0] || "{selfie} {wearing}{where}, {light}.";
@@ -3525,7 +3531,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
     angle: angle ? (P.ANGLES || {})[angle] || "" : "",
     expression: pickOne((P.EXPRESSIONS || {})[T]),
     wearing, where,
-    light: lightFor(`${words} ${doing}`, pickOne((P.LIGHT || {})[time.toUpperCase()])),
+    light: lightFor(`${words} ${doing}`, pickOne((P.LIGHT || {})[time.toUpperCase()]), level),
   };
   const night = isDark(hour, vars.light);
   const filled = chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k] || "") : m));
@@ -3539,7 +3545,7 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const shown = named(words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", "));
   // In history and her recent pictures as "type, what" (just "what" when it already names the type)
   const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
-  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, safeLine()].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args };
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", P.CRAFT, safeLine(level)].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args };
 }
 
 // Her time of day (PICTURE.TIMES) at this hour
@@ -3557,9 +3563,9 @@ function isDark(hour = herHour(), light = "") {
 }
 
 // Her words, worded so Cloudflare's prompt filter lets them through (PICTURE.FILTER_WORDS, whole words, any case)
-function filterSafe(text) {
+function filterSafe(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   let t = String(text || "");
-  if (runwareRoute()) return t.trim(); // Runware has no prompt filter: her words as they are
+  if (runwareRoute(level)) return t.trim(); // Runware has no prompt filter: her words as they are
   for (const [w, to] of Object.entries(CONFIG.PICTURE.FILTER_WORDS || {})) t = t.replace(new RegExp(`\\b${escapeRegex(w)}\\b`, "gi"), to);
   // a dropped word leaves "... and a matching" behind
   return t.replace(/\s+and\s+(?:an?\s+)?(?:matching\s+)?(?=[,.;]|$)/gi, "").replace(/\s{2,}/g, " ").trim();
@@ -3592,7 +3598,7 @@ function selfiePicture({ want = null, said = "", plan = null, history = [], aske
   if (!shot) shot = plan && plan.tier === tier && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : pickShot(tier, recentShots, hour);
   // Step 2: a nude-tier picture whose own words name no nudity says so ("completely naked" from the wardrobe when she named none)
   const words = tier === "nude" && s.words && !nudeWords(s.words) ? `${s.words}, completely naked` : s.words;
-  return { ...composePicture({ tier, shot, words, doing: s.doing, hour, recentShots, dayWear }), asked, explicit: !!s.explicit };
+  return { ...composePicture({ tier, shot, words, doing: s.doing, hour, recentShots, dayWear, level }), asked, explicit: !!s.explicit };
 }
 
 // A spicier selfie (PICTURE.LINGERIE.SPICY_PATTERN in his ask or her words, or explicit words): Nano Banana's job
@@ -3606,7 +3612,7 @@ function isSpicy(pic) {
 // The act her narration shows (SEX_CUES, first match) as the words ACT_WORDS/ACT_SCENES know, or ""; Runware with SEX_ACTS on only
 function sexCue(sceneText, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  if (actsOff(level) || !runwareRoute() || R.SEX_ACTS !== true) return "";
+  if (actsOff(level) || !runwareRoute(level) || R.SEX_ACTS !== true) return "";
   const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
   try {
     if (CONFIG.PICTURE.SEX_CONTEXT && !new RegExp(CONFIG.PICTURE.SEX_CONTEXT, "i").test(narration)) return "";
@@ -3673,13 +3679,13 @@ function sceneWearing(sceneText, history = [], level = CONFIG.PICTURE.NSFW.DEFAU
       for (const list of about) {
         const m = list.map((x) => x.match(re)).find((x) => x && !(/^his\b/i.test(x[x.length - 1]) && !/^(?:wearing|into|pulls on|has on)$/i.test(x[1])));
         const what = m && m[m.length - 1].replace(/^the\s+/i, "her ").trim();
-        if (what && mayDraw(what, level)) return underLayers(filterSafe(what).replace(/\b(\w+)\s+\1\b/gi, "$1"));
+        if (what && mayDraw(what, level)) return underLayers(filterSafe(what, level).replace(/\b(\w+)\s+\1\b/gi, "$1"));
       }
     }
   }
   // Step 4: the day's outfit (OUT when the scene is outside), else the fixed cardigan
-  if (dayWear) return filterSafe((P.OUTSIDE_WORDS || []).some((w) => String(w).trim() && hasWord(sceneText, w)) ? dayWear.out : dayWear.home);
-  return filterSafe(P.SCENE_WEARING || "");
+  if (dayWear) return filterSafe((P.OUTSIDE_WORDS || []).some((w) => String(w).trim() && hasWord(sceneText, w)) ? dayWear.out : dayWear.home, level);
+  return filterSafe(P.SCENE_WEARING || "", level);
 }
 
 /* --- her reference face --- */
@@ -3691,8 +3697,9 @@ const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null)
 
 // PICTURE.ROUTE "runware-klein" / "runware-twinflow": her words are drawn as she wrote them (no FILTER_WORDS, only
 // RUNWARE.NOT_DRAWN, no SAFE), nudity included (owner 2026-10-06)
-const runwareRoute = () => /^runware/.test(String(CONFIG.PICTURE.ROUTE || ""));
-const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
+// /nsfw Off draws on Cloudflare when NSFW.OFF_ROUTE is "cloudflare" (2026-10-11); with no level it is the route as configured
+const runwareRoute = (level) => /^runware/.test(String(CONFIG.PICTURE.ROUTE || "")) && !(level === "off" && CONFIG.PICTURE.NSFW.OFF_ROUTE === "cloudflare");
+const safeLine = (level = CONFIG.PICTURE.NSFW.DEFAULT) => (runwareRoute(level) ? "" : CONFIG.PICTURE.SAFE);
 
 // Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): the owner's 2026-10-10 set (v10 nude front, v10-back, v10-clothed)
 // `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08); "back": BODY_BACK
@@ -3714,9 +3721,9 @@ function runwareBodyBytes(name) {
 }
 
 // May Runware draw today (its key is set and RUNWARE.DAILY_USD isn't spent)?
-function runwareAffordable(env, ledger) {
+function runwareAffordable(env, ledger, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  if (!runwareRoute() || !env.RUNWARE_API_KEY) return false;
+  if (!runwareRoute(level) || !env.RUNWARE_API_KEY) return false;
   return !ledger || (ledger.rwUsd || 0) + (Number(R.USD_PER_PICTURE) || 0) <= (Number(R.DAILY_USD) || 0);
 }
 
@@ -3729,9 +3736,9 @@ function runwareAffordable(env, ledger) {
 // WITH_LORAS and NUDE_LORAS (penetration: Unchained put the penis below an empty vulva, round 6); an ALONE_LORAS one stays alone
 function runwareLoras(opts = {}) {
   if (typeof opts === "boolean") opts = { explicit: opts };
-  const { kind = "", explicit = false, text = "", partial = false, anal = "" } = opts;
+  const { kind = "", explicit = false, text = "", partial = false, anal = "", level = CONFIG.PICTURE.NSFW.DEFAULT } = opts;
   const R = CONFIG.PICTURE.RUNWARE || {};
-  const flash = flashAsked(text);
+  const flash = flashAsked(text, level);
   const own = { selfie: R.SELFIE_LORAS, scene: R.SCENE_LORAS, pic: R.PIC_LORAS }[kind] || {};
   const words = R.ACT_WORDS || {};
   // only on nude or sex-act pictures, except ACT_ANY (his hand can be on her waist in a clothed picture)
@@ -3759,9 +3766,9 @@ function runwareLoras(opts = {}) {
 }
 
 // The words ask for a camera-flash picture (RUNWARE.FLASH_WORDS, Runware routes only; FLASH_LORAS set)
-function flashAsked(text) {
+function flashAsked(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  return !!(runwareRoute() && Object.keys(R.FLASH_LORAS || {}).length && (R.FLASH_WORDS || []).some((w) => String(w).trim() && hasWord(text, w)));
+  return !!(runwareRoute(level) && Object.keys(R.FLASH_LORAS || {}).length && (R.FLASH_WORDS || []).some((w) => String(w).trim() && hasWord(text, w)));
 }
 
 // RUNWARE.STYLE_PICTURES: the outfit whose text is in the picture's words (outfits first), else the hairstyle picked for it.
@@ -3818,8 +3825,8 @@ function pickHair(text) {
 }
 
 // The light of a picture: FLASH_LIGHT when a flash is asked, none when the words already name a light (LIGHT_WORDS), else `light`
-function lightFor(words, light) {
-  if (flashAsked(words)) return (CONFIG.PICTURE.RUNWARE || {}).FLASH_LIGHT || light;
+function lightFor(words, light, level = CONFIG.PICTURE.NSFW.DEFAULT) {
+  if (flashAsked(words, level)) return (CONFIG.PICTURE.RUNWARE || {}).FLASH_LIGHT || light;
   return (CONFIG.PICTURE.LIGHT_WORDS || []).some((w) => String(w).trim() && hasWord(words, w)) ? "" : light;
 }
 
@@ -3939,7 +3946,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const tries = [];
     for (const model of P.ROUTE === "runware-klein" ? [R.MODEL, R.BACKUP_MODEL] : [R.BACKUP_MODEL]) {
       if (!model) continue;
-      const loras = model === R.MODEL ? runwareLoras({ kind, explicit: false, text: "" }) : [];
+      const loras = model === R.MODEL ? runwareLoras({ kind, explicit: false, text: "", level }) : [];
       const triggers = loraWords(loras);
       const text = [triggers && `${triggers}.`, who("", false, true), R.PHOTO].filter(Boolean).join(" ");
       tries.push(tryOf(model, text, [], loras, Number(R.WIDTH) || width, Number(R.HEIGHT) || height));
@@ -3968,7 +3975,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
   const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
   // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08); nor a crotch
   // close-up (Step 5: a room picture pulls the camera back, as it did on blowjobs)
-  const shownPlace = close || crotch || flashAsked(prompt) ? null : place;
+  const shownPlace = close || crotch || flashAsked(prompt, level) ? null : place;
   // her expression and gaze when the words name none (MOODS, GAZES; a sex act's scene may already name her gaze)
   const named = (t) => (R.FACE_WORDS || []).some((w) => String(w).trim() && hasWord(t, w));
   const k = oral && (R.MOODS || {}).ORAL ? "ORAL" : act ? "ACT" : naked ? "HEATED" : "EVERYDAY";
@@ -4016,13 +4023,17 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const styleLine = extra ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
     // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
     // the LoRAs' own trigger words (LORA_WORDS) go first
-    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt, partial, anal: analAt }) : [];
-    const flash = model === R.MODEL && flashAsked(prompt);
+    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt, partial, anal: analAt, level }) : [];
+    const flash = model === R.MODEL && flashAsked(prompt, level);
     const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
     const alone = loras.length === 1 && (analAt ? (R.ANAL_ALONE || []).includes(analAt) : Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model));
     // Step 3: the prefix only when LORA_PREFIX_WITH (phone2025) is one of the LoRAs
     const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
-    const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "");
+    // Task C: clothed on the nude body, a top named and no bottom or one-piece: the bottom is her outfit's own, never bare ("on top" is no top)
+    const worn = String(prompt).replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
+    const namedIn = (list) => (list || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
+    const topOnly = !!clothedBody && R.CLOTHED_BODY === "nude" && namedIn(R.TOP_WORDS) && !namedIn(R.BOTTOM_WORDS) && !namedIn(R.ONE_PIECE_WORDS);
+    const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "") + (topOnly && R.DRESSED_BOTTOM ? ` ${R.DRESSED_BOTTOM}` : "");
     const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
     const herLine = faceless ? who(lead(R.REFERENCE_CLOSE || R.LOOKS), false, true) : withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true, [rwFace, rwBody].filter(Boolean).length) : who(R.LOOKS + early + hairLine, false, true);
     const text = (triggers ? `${triggers}. ` : "") + herLine + naked + pov + late + dressed + wide + photoLine + styleLine;
@@ -4211,10 +4222,13 @@ async function studioRoute(request, env, url, now = Date.now()) {
   const notFound = () => new Response("not found", { status: 404, headers: STUDIO_HEADERS });
   if (!env.REEM_KV || !env.TELEGRAM_BOT_TOKEN) return notFound();
   const token = url.searchParams.get("t");
-  if (url.pathname === "/studio" && token) {
+  // The first visit answers the page itself, no redirect: a SameSite=Strict cookie set on a redirect from a link opened in
+  // another app (Telegram) is not sent on the redirected request, so the page was 404 (2026-10-11). Lax is sent on the page's
+  // own navigations (a reload, a bookmark); the page drops ?t= from the address bar (studio.js)
+  if (url.pathname === "/studio" && token && request.method === "GET") {
     if (!(await studioCheck(env, token, now))) return notFound();
     const maxAge = CONFIG.STUDIO.LINK_DAYS * 86400;
-    return new Response(null, { status: 302, headers: { ...STUDIO_HEADERS, Location: "/studio", "Set-Cookie": `studio=${token}; Path=/studio; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}` } });
+    return new Response(STUDIO_HTML, { headers: { ...STUDIO_HEADERS, "Content-Type": "text/html; charset=utf-8", "Set-Cookie": `studio=${token}; Path=/studio; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}` } });
   }
   const cookie = (request.headers.get("cookie") || "").split(";").map((c) => c.trim()).find((c) => c.startsWith("studio="));
   if (!cookie || !(await studioCheck(env, cookie.slice("studio=".length), now))) return notFound();
@@ -4289,10 +4303,10 @@ const planLine = (t) => ({ model: t.model, prompt: t.text, refs: t.refs.map((r) 
 // nothing logged). Only /pic words compose for now; the first try is the one the editor starts from.
 async function studioCompose(env, body, dayWear = null) {
   if (body.source !== "pic") return { ok: false, error: "Only /pic words compose for now (scene, look and selfie are not in the studio yet)." };
-  const words = picWords(String(body.words || "").slice(0, 1000));
-  if (!words) return { ok: false, error: "Type the words first, as you would after /pic." };
   const level = NSFW_LEVELS.includes(body.level) ? body.level : CONFIG.PICTURE.NSFW.DEFAULT;
-  const c = customPicture(words, undefined, dayWear);
+  const words = picWords(String(body.words || "").slice(0, 1000), level);
+  if (!words) return { ok: false, error: "Type the words first, as you would after /pic." };
+  const c = customPicture(words, undefined, dayWear, level);
   const out = await drawPicture(env, c.prompt, { location: c.location, night: c.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: level, planOnly: true });
   return { ok: true, level, tries: (out.plan || []).map(planLine), location: c.location || null };
 }
@@ -4456,7 +4470,7 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
   // Runware (PICTURE.ROUTE): the plan's tries in order, each drawn with the same seed. Its spend goes in ledger.rwUsd; when
   // every try fails, Cloudflare draws it. (no ledger: /face's portrait and /health stay on Cloudflare)
   // /look without her (`herself` false): klein 9B from words, then TwinFlow; her pictures: klein with her face, body and place
-  if (ledger && runwareAffordable(env, ledger)) {
+  if (ledger && runwareAffordable(env, ledger, nsfw)) {
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
     const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who, level: nsfw });
@@ -4540,6 +4554,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE || {};
   const level = nsfw || P.NSFW.DEFAULT; // /nsfw (Step 2): Off and Nude keep sex acts out of scenes and selfies
+  const nanoBanana = level !== "off"; // Nano Banana (OpenRouter) is never drawn at /nsfw Off (2026-10-11)
   const log = { source, chat, asked, herWords: kind === "scene" ? want : said }; // the studio's log (drawPicture)
   let pic;
   let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
@@ -4552,10 +4567,10 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const wearing = act ? "" : sceneWearing(want, history, level, dayWear);
     const night = timeOfDay() === "night";
     // her narration's own light (candles, golden hour: LIGHT_WORDS) or a flash beats the time's light
-    const lightText = lightFor(what, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]));
+    const lightText = lightFor(what, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]), level);
     const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
-    const wornSafe = filterSafe(wearing);
-    pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, safeLine()].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
+    const wornSafe = filterSafe(wearing, level);
+    pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what, level).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", P.CRAFT, safeLine(level)].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
     if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
       pic.lingerie = true;
       pic.spicy = spicyWords(`${asked} ${wearing}`);
@@ -4573,22 +4588,22 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       // tamer; then klein's tamer picture; klein's filter-safe chain last
       // Runware draws lingerie and nudity itself (PICTURE.ROUTE): a lingerie or spicier selfie in the real lingerie
       // wardrobe, no klein check, no Nano Banana
-      const open = runwareAffordable(env, ledger);
+      const open = runwareAffordable(env, ledger, level);
       if (open && kind === "selfie" && pic.args && L.ENABLED && (isSpicy(pic) || (L.TIERS || []).includes(pic.tier))) {
-        pic = { ...composePicture({ ...lingerieArgs(pic), lingerie: true, wardrobeList: isSpicy(pic) && !lingerieWords(pic.args.words) ? L.SPICY_WARDROBE : null }), asked: pic.asked };
+        pic = { ...composePicture({ ...lingerieArgs(pic), lingerie: true, level, wardrobeList: isSpicy(pic) && !lingerieWords(pic.args.words) ? L.SPICY_WARDROBE : null }), asked: pic.asked };
       }
-      const spicy = !open && L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
+      const spicy = !open && nanoBanana && L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
       const lingerie = !open && L.ENABLED && (kind === "selfie" ? !!pic.args && (L.TIERS || []).includes(pic.tier) : !!pic.lingerie);
       let kleinPic = null;
       let kleinRefused = null;
       if (lingerie && L.KLEIN_FIRST && !spicy) {
-        const kp = kind === "scene" ? pic : { ...composePicture({ ...lingerieArgs(pic), wardrobeList: L.KLEIN_WARDROBE }), asked: pic.asked };
+        const kp = kind === "scene" ? pic : { ...composePicture({ ...lingerieArgs(pic), wardrobeList: L.KLEIN_WARDROBE, level }), asked: pic.asked };
         try {
           const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger, kind, log, nsfw: level });
           aiSpent(ledger, drawn.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, null);
-          const seen = await lingerieSeen(env, ledger, drawn.bytes);
+          const seen = nanoBanana ? await lingerieSeen(env, ledger, drawn.bytes) : { ok: true, text: "" }; // at Off no vision check: the picture is klein's (2026-10-11)
           kleinPic = { ...kp, bytes: drawn.bytes, kind, logId: drawn.logId };
-          if (seen.ok || !wantsLingerie(env, ledger, pic, spicy)) {
+          if (seen.ok || !wantsLingerie(env, ledger, pic, spicy, level)) {
             model = null;
             return kleinPic;
           }
@@ -4596,14 +4611,14 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
         } catch (e) {
           kleinRefused = e;
           aiSpent(ledger, CONFIG.AI_BUDGET.PICTURE_NEURONS, e); // a refused picture was still drawn
-          await aiFailed(env, `drawing lingerie with ${P.MODEL}: ${aiText_(e)}; ${wantsLingerie(env, ledger, pic) ? `asked ${L.MODEL}` : "drew it in klein's own wardrobe"}`);
+          await aiFailed(env, `drawing lingerie with ${P.MODEL}: ${aiText_(e)}; ${wantsLingerie(env, ledger, pic, false, level) ? `asked ${L.MODEL}` : "drew it in klein's own wardrobe"}`);
         }
       }
-      if ((spicy || lingerie) && (kind === "selfie" ? !!pic.args : !!nanoScene)) {
+      if (nanoBanana && (spicy || lingerie) && (kind === "selfie" ? !!pic.args : !!nanoScene)) {
         // a spicier selfie Google refuses (an outfit with no top, seen in SPICY_WARDROBE) gets one more try in a two-piece set
-        const tries = kind === "scene" ? [nanoScene] : spicy ? [spicyPicture(pic), spicyPicture(pic, pickOne(L.WARDROBE))] : [composePicture({ ...lingerieArgs(pic), lingerie: true })];
+        const tries = kind === "scene" ? [nanoScene] : spicy ? [spicyPicture(pic), spicyPicture(pic, pickOne(L.WARDROBE))] : [composePicture({ ...lingerieArgs(pic), lingerie: true, level })];
         for (const [i, lp] of tries.entries()) {
-          if (!wantsLingerie(env, ledger, pic, spicy || kind === "scene")) break;
+          if (!wantsLingerie(env, ledger, pic, spicy || kind === "scene", level)) break;
           try {
             const bytes = await drawLingerie(env, lp);
             ledger.usd = (ledger.usd || 0) + (Number(L.USD_PER_PICTURE) || 0);
@@ -4635,7 +4650,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
         const tiers = pic.tier === "boudoir" || pic.tier === "nude" ? ["boudoir", "flirty"] : ["everyday"];
         for (const [i, tier] of tiers.entries()) {
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
-          pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots, dayWear });
+          pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots, dayWear, level });
           try {
             drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level });
             break;
@@ -4697,8 +4712,9 @@ async function lingerieSeen(env, ledger, bytes) {
 }
 
 // May this picture go to PICTURE.LINGERIE (Nano Banana) today?
-function wantsLingerie(env, ledger, pic, spicy = false) {
+function wantsLingerie(env, ledger, pic, spicy = false, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const L = CONFIG.PICTURE.LINGERIE || {};
+  if (level === "off") return false; // Nano Banana is never drawn at /nsfw Off (2026-10-11): Off's lingerie is Cloudflare klein
   if (!L.ENABLED || !L.MODEL || !env.OPENROUTER_API_KEY || !pic || !(pic.args || pic.lingerie)) return false;
   if (!spicy && !pic.lingerie && !(L.TIERS || []).includes(pic.tier)) return false;
   if (budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) return false;
@@ -4913,11 +4929,11 @@ function lookPicture(env, ledger, text, withHer, log = null, level = CONFIG.PICT
     try {
       const location = withHer ? locationOf(text) : null;
       const night = timeOfDay() === "night";
-      const lightText = lightFor(text, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]));
+      const lightText = lightFor(text, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]), level);
       const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
       const style = withHer ? (sexAct(text, level) && P.SCENE_ACT_STYLE) || P.SCENE_STYLE : (P.LOOK || {}).ALONE_STYLE;
-      const body = withHer ? filterSafe(text) : text;
-      const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), light, location && "{room}", P.CRAFT, withHer ? safeLine() : ""].filter(Boolean).join(" ");
+      const body = withHer ? filterSafe(text, level) : text;
+      const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), light, location && "{room}", P.CRAFT, withHer ? safeLine(level) : ""].filter(Boolean).join(" ");
       const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" }, nsfw: level });
       model = drawn.model;
       return { bytes: drawn.bytes, kind: "scene", logId: drawn.logId };
@@ -4933,20 +4949,20 @@ function lookPicture(env, ledger, text, withHer, log = null, level = CONFIG.PICT
 }
 
 // /pic's words about her; in a sex act (sexAct) or with "my hand", his me/my/I are "the man" (POV_MAN), "you" is still her
-const picWords = (args) => aboutHer(sexAct(args) || /\bmy hands?\b/i.test(String(args)) ? String(args).replace(/\bi(?:'|’)m\b/gi, "the man is").replace(/\bmy\b/gi, "the man's").replace(/\b(?:me|i)\b/gi, "the man") : args).replace(/[.\s]+$/, "");
+const picWords = (args, level = CONFIG.PICTURE.NSFW.DEFAULT) => aboutHer(sexAct(args, level) || /\bmy hands?\b/i.test(String(args)) ? String(args).replace(/\bi(?:'|’)m\b/gi, "the man is").replace(/\bmy\b/gi, "the man's").replace(/\b(?:me|i)\b/gi, "the man") : args).replace(/[.\s]+$/, "");
 
 // /pic <words>: a picture of her as he describes it (hair, makeup, clothes, pose, framing, angle, place); her face from
 // the reference, drawn on PICTURE.ROUTE like her other pictures; never stored in the history
 async function picCommand(env, chatId, args) {
   const P = CONFIG.PICTURE;
   const M = CONFIG.MESSAGES;
-  const words = picWords(args);
-  if (!words) return notice(env, chatId, M.PIC_HELP);
   const [settings, ledger] = await Promise.all([getSettings(env.REEM_KV, chatId), loadLedger(env)]);
-  if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
   const level = nsfwLevel(settings); // /nsfw (Step 2)
+  const words = picWords(args, level);
+  if (!words) return notice(env, chatId, M.PIC_HELP);
+  if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
   if (!mayDraw(words, level)) return nsfwRefusal(env, chatId, words, level);
-  const { prompt, location, night } = customPicture(words, undefined, await dayOutfits(env));
+  const { prompt, location, night } = customPicture(words, undefined, await dayOutfits(env), level);
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const drawing = (async () => {
     let model = null;
@@ -4970,14 +4986,14 @@ async function picCommand(env, chatId, args) {
 
 // /pic's prompt from his words (already about her): CUSTOM.STYLE, {who}, his words, the place ({room}) they name, the
 // light of her hour, CRAFT and (on Cloudflare) SAFE. { prompt, location, night }
-function customPicture(words, hour = herHour(), dayWear = null) {
+function customPicture(words, hour = herHour(), dayWear = null, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const P = CONFIG.PICTURE;
-  const light = lightFor(words, pickOne((P.LIGHT || {})[timeOfDay(hour).toUpperCase()]));
+  const light = lightFor(words, pickOne((P.LIGHT || {})[timeOfDay(hour).toUpperCase()]), level);
   const location = locationOf(words);
   // Step 4: his words name no clothes → the day's outfit (OUT when the words are outside); never for nudity or a sex act
   const outside = (P.OUTSIDE_WORDS || []).some((w) => String(w).trim() && hasWord(words, w));
-  const wear = dayWear && !namesClothes(words) && !nudeWords(words) && !pictureFlags(words, true, "on").act ? (outside ? dayWear.out : dayWear.home) : "";
-  const prompt = [(P.CUSTOM || {}).STYLE, "{who}", `${filterSafe(words)}.`, wear && `She is wearing ${wear}.`, location && "{room}", light && `Lit by ${light}.`, P.CRAFT, safeLine()].filter(Boolean).join(" ");
+  const wear = dayWear && !namesClothes(words) && !nudeWords(words) && !pictureFlags(words, true, level).act ? (outside ? dayWear.out : dayWear.home) : "";
+  const prompt = [(P.CUSTOM || {}).STYLE, "{who}", `${filterSafe(words, level)}.`, wear && `She is wearing ${wear}.`, location && "{room}", light && `Lit by ${light}.`, P.CRAFT, safeLine(level)].filter(Boolean).join(" ");
   return { prompt, location, night: isDark(hour, light || "") };
 }
 
@@ -6374,7 +6390,7 @@ async function setup(url, env) {
     // the picture route (PICTURE.ROUTE): Runware needs its key; no test picture here (it would cost on every reload)
     if (runwareRoute()) {
       const R = PIC.RUNWARE || {};
-      add(!!env.RUNWARE_API_KEY, `Pictures: Runware (${PIC.ROUTE})`, env.RUNWARE_API_KEY ? `${PIC.ROUTE === "runware-klein" ? `${R.MODEL} with her face, retried, then Cloudflare klein` : R.BACKUP_MODEL}; nudity allowed. Today about ${usd(ledger.rwUsd)} of ${usd(R.DAILY_USD)}; past it Cloudflare draws.` : "The Worker secret RUNWARE_API_KEY is missing: Cloudflare draws every picture (never nude).");
+      add(!!env.RUNWARE_API_KEY, `Pictures: Runware (${PIC.ROUTE})`, env.RUNWARE_API_KEY ? `${PIC.ROUTE === "runware-klein" ? `${R.MODEL} with her face, retried, then Cloudflare klein` : R.BACKUP_MODEL}; nudity allowed${PIC.NSFW.OFF_ROUTE === "cloudflare" ? "; at /nsfw Off: Cloudflare klein" : ""}. Today about ${usd(ledger.rwUsd)} of ${usd(R.DAILY_USD)}; past it Cloudflare draws.` : "The Worker secret RUNWARE_API_KEY is missing: Cloudflare draws every picture (never nude).");
     } else add(null, "Pictures: Cloudflare", "klein on Workers AI, lingerie on Nano Banana; never nude. Switch PICTURE.ROUTE to a Runware route on the settings panel.");
     if (L.ENABLED && env.OPENROUTER_API_KEY && !runwareRoute()) {
       // a real picture would cost USD_PER_PICTURE on every reload: only that the model is there

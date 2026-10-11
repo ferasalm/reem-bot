@@ -170,7 +170,9 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("after /studio reset an old link is refused, a new one works", (await W.studioCheck(env, link, NOW)) === null && (await W.studioCheck(env, await W.studioToken(env, "42", NOW), NOW)) !== null);
 }
 
-// 7-11. The routes: a bad token is 404; the link sets the cookie and redirects; every /studio route needs the cookie
+// 7-11. The routes: a bad token is 404; the link's first visit is the page itself (no redirect) and sets the cookie; every
+// /studio route needs the cookie. 2026-10-11: a redirect let a SameSite=Strict cookie miss the redirected request (a 404 from
+// a link opened in Telegram), so the first visit answers 200 with SameSite=Lax
 {
   const env = studioEnv();
   const link = await W.studioToken(env, "42", NOW);
@@ -179,10 +181,12 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   const first = await route(env, `/studio?t=${link}`);
   const cookie = first.headers.get("set-cookie") || "";
   check(
-    "the link sets the cookie (Path=/studio, HttpOnly, Secure, SameSite=Strict, 30 days) and redirects to /studio",
-    first.status === 302 && first.headers.get("location") === "/studio" && /^studio=/.test(cookie) && /Path=\/studio/.test(cookie) && /HttpOnly/.test(cookie) && /Secure/.test(cookie) && /SameSite=Strict/.test(cookie) && /Max-Age=2592000/.test(cookie),
+    "the link's first visit answers the page (200, text/html, no Location) and sets the cookie (Path=/studio, HttpOnly, Secure, SameSite=Lax, 30 days)",
+    first.status === 200 && !first.headers.get("location") && /text\/html/.test(first.headers.get("content-type")) && (await first.clone().text()).includes("Picture studio") && /^studio=/.test(cookie) && /Path=\/studio/.test(cookie) && /HttpOnly/.test(cookie) && /Secure/.test(cookie) && /SameSite=Lax/.test(cookie) && !/SameSite=Strict/.test(cookie) && /Max-Age=2592000/.test(cookie),
     cookie,
   );
+  const posted = await W.studioRoute(new Request(`https://x.test/studio?t=${link}`, { method: "POST" }), env, new URL(`https://x.test/studio?t=${link}`), NOW);
+  check("the token on a POST is 404 (the link is a GET, no cookie set)", posted.status === 404 && !posted.headers.get("set-cookie"));
   const jar = cookie.split(";")[0];
   const page = await route(env, "/studio", jar);
   const html = await page.text();
@@ -230,6 +234,8 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
     JSON.stringify({ got: { model: t.model, w: t.width, h: t.height, loras: t.loras, refs: t.refs }, want: { model: want.model, w: want.width, h: want.height, lora: want.lora, refs: want.refs } }),
   );
   const none = await W.studioCompose(studioEnv(), { source: "scene", words: "x" });
+  const offCompose = await W.studioCompose(studioEnv(), { source: "pic", words: "messy bun, red lipstick, black turtleneck, on the porch", level: "off" });
+  check("compose at Off: no Runware plan (tries []), the level is kept", offCompose.ok === true && offCompose.level === "off" && Array.isArray(offCompose.tries) && offCompose.tries.length === 0, JSON.stringify(offCompose).slice(0, 200));
   check("compose takes /pic words only", none.ok === false);
 }
 

@@ -4,7 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
-## 2026-10-11 (thirty-fourth session, Haiku 5.5): WORKPLAN Step 7, the prompt studio at /studio, built; one real draw read; dev only
+## 2026-10-11 (thirty-fifth session, Haiku 5.5): the fix round (studio link, /nsfw Off on Cloudflare, a top and no bottom); dev only
+- The /studio link from another app answered 404: the first visit was a 302 with a SameSite=Strict cookie, which the redirected request did not send (reproduced in Chromium over https, `tools/test/studio-browser.mjs`, before the fix). Now the first visit is the page with a SameSite=Lax cookie; `studio.js` drops `?t=` from the address bar.
+- /nsfw Off draws on Cloudflare klein (`NSFW.OFF_ROUTE`), never Runware or Nano Banana; Off refuses nudity and sex acts on every route (a route-dependent list let "blowjob" through at Off, caught by the unit tests before the push).
+- The owner's row 13 (a cardigan over a cami, naked below the waist): `RUNWARE.DRESSED_BOTTOM` when a top is named and no bottom or one-piece (`ONE_PIECE_WORDS`).
+- Checks: unit 312 ok (new rows: the Off route, Task C); scenarios 1241 ok (three Off rows now assert the Cloudflare call); studio 32 ok; e2e exit 0; golden 39 cases (changed: the Off naked case, the day's-outfit and turtleneck cases with a top and no bottom, the new row 13 case; each changed value checked to differ only by the new sentence)., the prompt studio at /studio, built; one real draw read; dev only
+## 2026-10-11 (thirty-fourth session, Haiku 5.5): WORKPLAN Step 7
 - The studio (worker.js block "The prompt studio", studio.js): the owner's signed link (`/studio`; `/studio reset` ends old links), the
   cookie, the log from D1 `pictures` (30 a page, source filter), the editor (compose from /pic words through the bot's own plan; Generate =
   one Runware task with 1-4 pictures, LoRAs, references, sampler; the money in ledger `studioUsd` at STUDIO.DAILY_USD $1), presets.

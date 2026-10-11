@@ -54,7 +54,13 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 
 - Skills/agents go in the repo's `.claude/` (`~/.claude` is wiped; personal skills don't load in cloud chats); a new agents folder needs a new chat (2026-10-11).
 
+- Browser checks here (2026-10-11): global Playwright (`createRequire` on `/opt/node22/lib/node_modules/playwright`) with `executablePath: "/opt/pw-browsers/chromium"`; `response.headers()` hides Set-Cookie (use `allHeaders()`); the browser's own `/favicon.ico` 404 is not the page's (the CSP refuses a `data:` icon).
+- Voice and API facts (2026-10-04): Qwen3-TTS voices are lowercase (`serena`); MiniMax Speech 2.8 on Runware needs `speech.voice`; Cloudflare's third-party models need AI Gateway credits (402); OpenRouter image-only models answer on `POST /api/v1/images` (`input_references`, `data[0].b64_json`), not chat completions.
+
 ## 2. Known traps
+- A link opened from another app (2026-10-11): a 302 that sets `SameSite=Strict` loses the cookie on the redirected request (the owner's /studio was 404 though the cookie was stored): answer the page itself with `SameSite=Lax`. Plain http hid it (Secure); reproduce over https with a different-site page (`tools/test/studio-browser.mjs`).
+- Off on Runware (2026-10-11): `checkContent` on did not stop a naked lower half: the nude front as image 1 with only a top named (row 13, "a cardigan over a black cami") drew the bottom naked → `RUNWARE.DRESSED_BOTTOM`; Off now draws on Cloudflare (its filter).
+- A route-dependent gate at a level change (2026-10-11): with Off on Cloudflare, `mayDraw` used Cloudflare's NOT_DRAWN (no sex-act words), so "blowjob" passed at Off; the unit `levelFor` row caught it. Gate by the level's rule, not the route's list, and re-run `levelFor` and `mayDraw` after any route change.
 - A head too large for the body (nude mirror, Step 3, seed 101) came from the camera, not the face reference: the random gaze "looking up at
   the camera through her lashes" put the camera above her (a level gaze drew it in scale; the 1x face drew the same head) → gaze removed.
   A gaze or expression is camera words too. Test a lead by changing one thing at the same seed, after redrawing the original once. (2026-10-11)
@@ -77,9 +83,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   texts are "I"), but an OOC answer may name her.
 - Reactions only when apart, never OOC or when she texts first; stored on her entry (`react`, `reactTo`) so /retry,
   /rewind and his edits clear them.
-- Free plan limits still coded (Workers Paid since 2026-10-03 lifts them; not yet changed in code): at most 50
-  outside calls per run (`budget`, `SUBREQUEST_RESERVE`); about 1000 KV writes per day; 10 ms CPU.
-  A reply can take up to 4 OpenRouter calls (2 attempts + backup, then one retry).
+- Free-plan limits still in code (Workers Paid since 2026-10-03 lifts them): 50 outside calls per run (`budget`, `SUBREQUEST_RESERVE`), about 1000 KV writes a day, 10 ms CPU. A reply can take up to 4 OpenRouter calls (2 attempts, the backup, one retry).
 - Context: `LLM.CONTEXT_TOKENS` 32768 for DeepSeek; the Lunaris backup gets older chat cut to 8192
   (`fitMessages`). History folds into notes at 40 messages, keeping 24 (PR #6 had cut this to 24/14 for Lunaris).
 - Tests: `CONFIG_OVERRIDES` is cached once per run, so tests set `W.CONFIG` directly. Voice chances are 0 in e2e and
@@ -88,13 +92,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Pictures stopped, /setup showed `5006 '/seed'` → the real cause was out of neurons (4006, whose text says
   "upgrade") read as "model unavailable", and face.yml runs bypassing the bot's ledger → when an AI error looks odd,
   run the AI diagnosis workflow (`ai-diag.yml`) and read Cloudflare's analytics before fixing the error shown. (2026-10-03)
-- Lingerie on other routes (image bench 2026-10-04, `docs/QUALITY.md`): Cloudflare's 3030 is an *output* filter
-  ("Your output has been flagged"); klein via OpenRouter is refused by Black Forest Labs even with `safety_tolerance` 5;
-  Seedream 4.5 (OpenRouter $0.04, also on Cloudflare as `bytedance/seedream-4.5`) drew 5/9, bra + panties included,
-  random like 3030 (same words passed once, failed once); Grok Imagine 2.0 refused 2/2 with her face attached. Runware with `safety.checkContent: false` (2026-10-06): TwinFlow Z-Image-Turbo drew lingerie, see-through and full nudity 3/3 at $0.0006 (text only, slim body, no face reference); klein needs more than $0.05 balance, Z-Image-Turbo and Fish Audio a $5 balance; a small balance stays reserved ~40 s after a call (`concurrentRequestLimitExceeded`); TwinFlow puts an iPhone in any "selfie" (2/2) and keeps the same face without a reference (6/6). Fuller arms on TwinFlow: only naming the arms first and again with a weight ("Photo of a woman with full soft chubby arms: ... 75 kg ... with full soft chubby arms") worked 2/2; "soft, full, fleshy" alone stayed slim (run 37404957788). A nude body picture as klein's image 1 made 6/6 pictures that named no clothes nude, even with a "she is dressed" line → nude body only on nude/sex pictures (`BODY_CLOTHED`; 2026-10-08). Fuller bodies shrank the head (owner) → "her head is naturally sized for her body, about one seventh of her height, with full soft cheeks..." put it back in scale (run 37406592599); a 50 mm lens line didn't help. Runware once answered HTTP 200 "{}" after 28 s: retried now. klein 9B on Runware (safety off) keeps her face and draws nude 8/8, but only when the prompt says "completely naked: no tank top, no leggings...": with "naked" alone the body picture's clothes leaked (4B 4/4 dressed; runs 37434273611, 37434510898). The same klein 9B call once billed $0.0907 and took 111 s (run 37437301547; cause unknown): the bench stops past 5x the list price. A clothed body picture leaks its clothes into nudes even when named (beige bodysuit 3/4) → a faceless nude body picture (TwinFlow crop): 0 leaks, natural nipples (run 37439133800). Qwen3-TTS voices are lowercase (`serena`). MiniMax Speech 2.8 on Runware (`minimax:speech@2.8`): `speech.voice` required (e.g. `English_captivating_female1`), takes `speech.emotion`, (laughs)/(sighs) in the text; ~$0.09/1k chars (run 37538682473). Cloudflare's third-party models need AI Gateway credits
-  (402 "Insufficient balance"); its Seedream 4.0 takes no reference image. OpenRouter image-only models answer on
-  `POST /api/v1/images` (`input_references`, `data[0].b64_json`), not chat completions (404). (2026-10-04)
-- Lingerie on Cloudflare klein (past-cap route only): two-pieces covered up 3/16, one-pieces and layers 4/12 (runs 37263536954, 37266040257).
+- Lingerie on other routes (image bench 2026-10-04; numbers in `docs/QUALITY.md`): Cloudflare's 3030 is an output filter and random (never conclude from one); klein via OpenRouter, Grok and Seedream were refused or drew 5/9; Runware with `safety.checkContent: false` drew lingerie, see-through and nudity 3/3 with TwinFlow (no face reference, a slim body); klein 9B needs a balance over $0.05 (a small one stays reserved ~40 s after a call).
+  A nude body picture as klein's image 1 made clothed pictures nude 6/6, even when named (nude body only on nude pictures, `BODY_CLOTHED`); klein 9B draws nude 8/8 only with "completely naked: no tank top, no leggings" (with "naked" alone the clothes leaked); "her head is naturally sized for her body, about one seventh of her height" keeps the head in scale (run 37406592599); fuller arms on TwinFlow: name them first and again with a weight (2/2), "soft, full, fleshy" alone stayed slim (run 37404957788). (2026-10-04, 2026-10-08)
 - bench-models.mjs reads `prompt_sets[job.family_of[route] || route.family]`: a route without a family crashes the run
   (run 37172077483). face.yml, image-bench and tts-bench share one queue that keeps one waiting run: a third push
   cancels the waiting one (2026-10-05) → push one job, wait, then the next; tts `max_chars` counts instructions too.

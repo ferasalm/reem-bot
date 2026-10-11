@@ -743,3 +743,33 @@ TASK E: records and push
 Stop and report (do not improvise) if: the studio bug does not reproduce; the golden diff shows changes outside the cases named;
 Cloudflare klein is the wrong route for some Off picture you find; the bench would pass $0.12.
 ```
+
+### Decided in review, for the fix round and Later (Opus's Step 7 review, 2026-10-11)
+- The four Step 7 deviations are accepted for now and go to Later (owner, 2026-10-11; not owner decisions, so not in DECISIONS):
+  (1) compose takes /pic words only (scene, look and selfie are not in the editor); (2) no Cloudflare klein in the studio (klein 9B and
+  TwinFlow on Runware only); (3) the editor's place is a place's first crop, the bot picks at random, and compose names the place, not
+  the crop; (4) studio draws send `checkContent` false (the owner's own tool).
+- The owner's decisions of the fix round are in DECISIONS (2026-10-11: "/nsfw Off draws on Cloudflare ..."; lingerie stays at Off).
+
+### Fix round (Haiku 5.5, 2026-10-11): what was built
+- A. The /studio link: the first visit is the page with `SameSite=Lax` (no 302; `studio.js` drops `?t=`). The 404 was reproduced first in
+  Chromium over https (`tools/test/studio-browser.mjs`): the 302's Strict cookie was stored, not sent on the redirected request.
+- B. /nsfw Off on Cloudflare (`NSFW.OFF_ROUTE` "cloudflare"; see MAP): Off pictures are Cloudflare klein with her face, the clothed body
+  and the place; lingerie at Off is klein with the filter words; Nano Banana, Runware and TwinFlow never at Off; Off refuses nudity and sex
+  acts on every route.
+- C. A top and no bottom on the nude body (the owner's row 13): `RUNWARE.DRESSED_BOTTOM`; `ONE_PIECE_WORDS` (a dress, a robe) leave it out.
+- D. The body audit (Opus decides any body change): `runs/2026-10-11-body-audit/` on `face-candidates`, see QUALITY.
+- E. Records: DECISIONS, CHANGELOG, LESSONS (three traps), MAP, QUALITY, HANDOFF.
+
+### Fix round review prompt (paste into a new chat, pick Opus, effort high)
+Review the fix round of reem-bot (branch `claude/step-7-haiku-audit-fmac61`, built by Haiku 5.5). Read `HANDOFF.md`, then the fix round
+entries: DECISIONS (2026-10-11 "/nsfw Off draws on Cloudflare"), CHANGELOG (thirty-fifth session), LESSONS (the three 2026-10-11 traps),
+and QUALITY (fix round). Check, and say what you found at each step:
+1. The studio link: the browser run (`tools/test/studio-browser.mjs`, before and after): the first visit 200 with SameSite=Lax, the page,
+   the reload, a fresh browser 404. Read the screenshot.
+2. Off: the unit rows (Off route, lingerie, Task C) and the three scenario rows that now assert the Cloudflare call. Is each Off rule right?
+3. The golden diff: the case list in CHANGELOG; decide whether any changed prompt is wrong for its words.
+4. The body audit: `runs/2026-10-11-body-audit/` (audit.md and table.md): decide which body settings, if any, Opus changes (a CONFIG
+   change is Opus's call), and what to do with each finding.
+5. Then the owner decides on "deploy". Report anything stuck first.
+Effort: high. Model: Opus. Do not push to `main`.
