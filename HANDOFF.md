@@ -36,9 +36,9 @@ out of the word lists, `tools/options.mjs` category and spare list, `tools/face/
 - The review session's commits carry its own Claude-Session link, which opens its session page.
 
 ## Waiting on the owner
-- **Model names in the records (the early open question).** The owner asked for the build to be logged as Haiku and the review as Opus. The
+- **Model names in the records (the early open question).** The owner asked for the build and the review to be logged by model name. The
   system rules for this session bar model identifiers in anything pushed to a repository, so the records name no model: the Claude-Session
-  link opens the session, whose page shows the model. The process terms (the Opus review, the Haiku step) stay as WORKPLAN uses them.
+  link opens the session, whose page shows the model. The model is named in chat.
   Recommended: keep it this way. Writing model names into the records needs a change to the session setup; I won't add them without it.
 - **Your Telegram test of the belly fix**, and the 01:31:44 UTC picture of 2026-10-10 (a Runware "no picture" that Cloudflare redrew).
 - **Do not send `/restart`**, though `/setup` says to: it wipes her memory.

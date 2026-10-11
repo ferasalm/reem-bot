@@ -432,22 +432,33 @@ The root causes are the review's to find (DECISIONS 2026-10-11). The build's lea
 3. **Doggy, seed 202: no anus visible** above the entry in any variant. The target is "her anus above it closed and untouched". No lead yet.
 4. **Doggy hands, seeds 101 and 202: correct, no change.** The hand-word cause is withdrawn.
 5. Not checked by the owner: riding seed 202 V0 (his hands at the bottom of the frame); the second head behind her in riding (both seeds).
-Fix each confirmed cause at its root: the reference, the body or the camera. No new size, arm or anus words in the prompt: they leak.
+The owner asked for root-cause fixes (the reference, the body or the camera), not prompt words, which leak (DECISIONS 2026-10-11).
 
 ### Step 3 review prompt (paste into a new chat, pick Opus, effort high)
-> Continue reem-bot. Follow CLAUDE.md. Review WORKPLAN Step 3, built and benched in an earlier session (the session link is in HANDOFF).
-> Read in this order: HANDOFF.md; the 2026-10-11 entries of docs/DECISIONS.md; docs/LESSONS.md; WORKPLAN's Step 3 section, its
-> "Decided in review, for Step 3" notes and "Step 3 corrections and the review" (this section). Then the bench on GitHub branch
-> `face-candidates`, folder `runs/2026-10-11-step3-lora-bench/`: table.md (the owner's reads override the bench read), reads-raw.md,
-> plan.txt, results.json, and the pictures you need at full size.
-> Your first job is the root causes, and you find them: (1) the nude mirror at seed 101 has a head too large for the body; (2) the blowjob
-> at seed 101 has upper arms slimmer than they should be, though the prompt says "full upper arms"; (3) the doggy at seed 202 shows no anus
-> above the entry. The build's leads (BIG_FACE; the head-size line only in LOOKS; image 1's arms in body-v10; the camera) are for you to
-> double-check, not findings. Test each lead with real pictures through the bot's own code (`tools/face/lora-bench.mjs` is the harness),
-> keep the Runware spend under $0.10 (Claude's value; the owner can change it), then report what you confirm and what you rule out.
-> Fix each confirmed cause at its root: the reference, the body or the camera. Do not add prompt words for size, arms or the anus: they
-> leak (DECISIONS 2026-10-11, "Root causes, not words"). The doggy hands are correct: no change for them.
-> Then decide the realism LoRA set (V0 four LoRAs, V2, V3, V5) from the reads, and write "Decided in review, for Step 4" at the end of
-> WORKPLAN.md. If the golden plans change, the change must be intended: run `--write` and call it out. Finish with `node tools/check.mjs`
-> (read it in full), then /handoff. Log the review in the records without a model name (the system rules bar it); your session link in
-> the commit trailer identifies you. No deploy; never push to main.
+> Continue reem-bot. Follow CLAUDE.md. You are reviewing WORKPLAN Step 3. The build session that made it is linked in HANDOFF
+> (https://claude.ai/code/session_01RoSzs9sjxYEF75N7tTu8Nt). It built the LoRA catalog, the smartphone-prefix change, the options script,
+> the bench script, and the 72-picture bench. The review is yours.
+>
+> Read first: HANDOFF.md; the 2026-10-11 entries of docs/DECISIONS.md; docs/LESSONS.md; docs/WORKPLAN.md (Step 3, "Decided in review,
+> for Step 3", and "Step 3 corrections and the review"). Then the bench on GitHub branch `face-candidates` (commit 5fba51a), folder
+> `runs/2026-10-11-step3-lora-bench/`: table.md (the owner's reads there override the bench read), reads-raw.md, plan.txt (every
+> prompt sent), results.json, the zoom sheets, and the pictures you need at full size.
+>
+> The owner's findings, to verify and fix:
+> 1. Nude mirror, seed 101 (all four variants): her head is disproportionately large for the body. Seed 202 is fine.
+> 2. Blowjob, seed 101: her upper arms are slimmer than they should be. The sent prompt already says "full upper arms" (REFERENCE).
+> 3. Doggy, seed 202: no anus is visible above the entry in any variant.
+> Doggy hands at seeds 101 and 202 are correct (his hands on her buttocks, no deformation): the bench's hand-word finding is withdrawn.
+>
+> The build's leads, for you to double-check (not findings): BIG_FACE sends the 2x face on every face picture; the head-size sentence
+> ("her head is naturally sized for her body, about one seventh of her height") lives only in LOOKS, which face pictures never use;
+> image 1 (body-v10) may be slim in the arms (the owner's picture 6 is in tools/face/originals/); the camera. Test them with real pictures
+> through the bot's own code (tools/face/lora-bench.mjs is the harness). Report what you confirm and what you rule out.
+>
+> The owner's decision (DECISIONS 2026-10-11): fix the root causes, not with prompt words, which leak. Find each cause and fix it where it
+> lives: the reference, the body, or the camera.
+>
+> Also decide the realism LoRA set (V0 with four LoRAs; V2, V3 and V5 are the reduced sets) from the reads, and write "Decided in review,
+> for Step 4" at the end of docs/WORKPLAN.md. Report the Runware spend against the step's $0.25 budget. If the golden plans change, run
+> `--write` and say why. Finish with `node tools/check.mjs` (read it in full), then /handoff. CLAUDE.md covers pushes and deploys.
+> The repo records name no model (the session rule); say who did the review in chat.
