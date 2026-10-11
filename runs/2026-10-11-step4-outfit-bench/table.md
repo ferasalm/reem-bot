@@ -50,4 +50,4 @@ Name note: the rust body and the rust outfit picture are the same bytes, so the 
 
 Checks: `zoom-doggy-s202.jpg` (crop 340x300 at +440+540, doubled): anus above the entry, shaft in the vulva. Sheets: `sheet-outfits.png` (24 outfits), `sheet-rest.png` (15 others), each tile labelled.
 
-Not measured: likeness (judged by eye, same face in all 39), build vs v10 (judged by eye: no slimmer picture), CLOTHED_BODY pick (the bench gives the reads; Opus decides).
+Not measured: likeness (judged by eye, same face in all 39), build vs v10 (not measured: an earlier 'not slimmer' read was an overclaim; the owner saw slimmer rust-mode pictures at seed 101, turtleneck-rust-s101 and linen-rust-s101), CLOTHED_BODY pick (the bench gives the reads; Opus decides).
