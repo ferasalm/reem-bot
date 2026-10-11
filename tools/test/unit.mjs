@@ -468,13 +468,20 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     sentTasks.push(...tasks);
     return new Response(JSON.stringify({ data: tasks.map((t) => ({ taskUUID: t.taskUUID, imageBase64Data: TINY, cost: 0.0025 })), errors: [] }), { status: 200 });
   };
-  // a fake D1: exec counts, prepare().bind().run() records the INSERTs and UPDATEs (or throws)
+  // a fake D1: batch() counts (the schema; each statement prepared alone), prepare().bind().run() records the INSERTs and
+  // UPDATEs (or throws); exec() fails like D1's on a statement that spans lines
   const studio = (failWrites = false) => {
-    const db = { execs: 0, inserts: [], updates: [] };
-    db.exec = async () => {
+    const db = { execs: 0, inserts: [], updates: [], schema: [] };
+    db.exec = async (sql) => {
+      if (sql.split("\n").some((l) => l.trim() && !l.trim().endsWith(";"))) throw new Error("unit: D1_EXEC_ERROR: incomplete input");
+    };
+    db.batch = async (stmts) => {
       db.execs++;
+      db.schema.push(...stmts.map((st) => st.sql));
+      return stmts.map(() => ({ success: true }));
     };
     db.prepare = (sql) => ({
+      sql,
       bind: (...args) => ({
         run: async () => {
           if (failWrites) throw new Error("unit: D1 is down");
@@ -495,6 +502,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const second = await W.drawPicture(env, "{who} selfie in her kitchen, gray cardigan.", { ledger, kind: "selfie", log: { source: "selfie" } });
     const row = columns(db.inserts[0]);
     eq([db.execs, db.inserts.length], [1, 2], "studio: schema applied once, one row per picture");
+    eq([db.schema.length, db.schema.every((q) => /^CREATE (TABLE|INDEX) IF NOT EXISTS/.test(q) && !q.includes(";"))], [3, true], "studio: the schema as three single statements");
     eq([first.logId, second.logId], [1, 2], "studio: drawPicture returns the row id");
     eq([row.ok, row.source, row.chat, row.asked, row.model, row.kind], [1, "selfie", "7", "send a pic", "runware:400@2", "clothed"], "studio row: ok, source, chat, his words, model, kind");
     eq([row.seed === sentTasks[0].seed, typeof row.seed === "number" && row.seed >= 1], [true, true], "studio row: the seed sent to Runware");
@@ -511,12 +519,25 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const R = W.CONFIG.PICTURE.RUNWARE;
     eq([plan.tries.length, plan.tries.every((t) => t.model === R.MODEL), plan.tries[0].steps === Number(R.STEPS), plan.tries[0].refs[0].name], [2, true, true, "face-2x"], "plan: klein twice (KLEIN_TRIES), sampler from RUNWARE, the 2x face first");
     eq(W.pictureFlags("a black lace bodysuit", false).kind, "alone", "plan flags: /look without her is alone");
+    // klein's retry: the next seed, and the log row names the one that drew
+    const okFetch = globalThis.fetch;
+    let calls = 0;
+    const seeds = [];
+    globalThis.fetch = async (url, init) => {
+      const tasks = JSON.parse(init.body);
+      seeds.push(tasks[0].seed);
+      if (calls++ === 0) return new Response(JSON.stringify({ data: [], errors: [{ message: "unit: no picture" }] }), { status: 200 });
+      return okFetch(url, init);
+    };
+    const rdb = studio();
+    const again = await W.drawPicture({ RUNWARE_API_KEY: "unit-key", STUDIO_DB: rdb }, "{who} photo of her", { ledger: { rwUsd: 0, rwFailed: 0 }, kind: "selfie", seed: 41 });
+    const rrow = columns(rdb.inserts[0]);
+    eq([seeds, rrow.attempts, rrow.seed, again.logId], [[41, 42], 2, 42, 1], "klein's retry sends the next seed; the row keeps the one that drew");
+    globalThis.fetch = okFetch;
   } finally {
     globalThis.fetch = realFetch;
   }
 }
-console.log(fails ? `${fails} FAILED` : "all passed");
-process.exit(fails ? 1 : 0);
 
 // Gemini TTS answers raw 24 kHz 16-bit mono PCM; pcmToMp3 makes a real MP3 of it (frame sync 0xFFE, much smaller)
 {
@@ -524,3 +545,6 @@ process.exit(fails ? 1 : 0);
   const mp3 = new Uint8Array(W.pcmToMp3(pcm));
   eq([mp3[0] === 0xff && (mp3[1] & 0xe0) === 0xe0, mp3.length > 1000 && mp3.length < pcm.byteLength / 5], [true, true], "pcmToMp3 gives an MP3 frame stream");
 }
+
+console.log(fails ? `${fails} FAILED` : "all passed");
+process.exit(fails ? 1 : 0);

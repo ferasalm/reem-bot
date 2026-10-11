@@ -3746,7 +3746,9 @@ let studioSchema = null;
 function ensureStudioSchema(env) {
   if (!env.STUDIO_DB) return Promise.resolve(false);
   if (!studioSchema) {
-    studioSchema = env.STUDIO_DB.exec(STUDIO_SCHEMA).then(
+    // one prepared statement each in a batch: D1's exec() reads one statement per line, and CREATE TABLE spans three
+    const sqls = STUDIO_SCHEMA.split(";").map((q) => q.trim()).filter(Boolean);
+    studioSchema = env.STUDIO_DB.batch(sqls.map((q) => env.STUDIO_DB.prepare(q))).then(
       () => true,
       (e) => {
         studioSchema = null; // try again next time
@@ -3868,7 +3870,10 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
       rec.attempts++;
       Object.assign(rec, { model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || null, cfg: t.cfg || null });
       try {
-        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration });
+        // a retry gets the next seed (the same seed could fail the same way); the log keeps the one last sent
+        const trySeed = ((seed - 1 + rec.attempts - 1) % 2147483646) + 1;
+        rec.seed = trySeed;
+        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration });
         const cost = out.cost || Number(R.USD_PER_PICTURE) || 0;
         ledger.rwUsd = (ledger.rwUsd || 0) + cost;
         rec.cost = cost;
@@ -3935,10 +3940,10 @@ async function sendPhoto(env, chatId, bytes, caption = "", sent = null) {
 // Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
 // or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
 // `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
-function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null } = {}) {
+function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null, source = kind } = {}) {
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE || {};
-  const log = { source: kind, chat, asked, herWords: kind === "scene" ? want : said }; // the studio's log (drawPicture)
+  const log = { source, chat, asked, herWords: kind === "scene" ? want : said }; // the studio's log (drawPicture)
   let pic;
   let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
   if (kind === "scene") {
@@ -4268,7 +4273,7 @@ async function lookCommand(env, chatId, args = "") {
   const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-3).map((m) => m.content).filter(inPerson);
   const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t));
   if (!text) return notice(env, chatId, M.LOOK_NONE);
-  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history, chat: chatId, asked: args }));
+  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history, chat: chatId, asked: args, source: "look" }));
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
 }
 

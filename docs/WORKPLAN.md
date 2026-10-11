@@ -360,3 +360,32 @@ level), a hot chat until she sends one of her own, /pic with no clothes named (t
 
 ## Decided in review
 (Opus writes here, per step, after each review.)
+
+### Step 1 review (Opus, 2026-10-11)
+Step 1 matches its spec, and the golden diff is empty. Haiku's four calls stand: the `kind` order (alone > act > partial > nude >
+clothed); a seed sent to Runware; both klein tries planned before the first send; the LoRA unit test reading `runwarePlan`.
+Opus fixed three slips (the golden is still unchanged, `node tools/check.mjs` 7/7):
+- **The schema would have failed live.** `ensureStudioSchema` used `env.STUDIO_DB.exec(STUDIO_SCHEMA)`, but D1's `exec()` reads one
+  statement per line, and `CREATE TABLE pictures` spans three lines. Every picture would have logged nothing, with only a
+  `console.error`. Now it splits on ";" and sends `batch()` with one prepared statement each (checked in node:sqlite: all 3 run).
+  The unit fake D1 now fails like D1 does on a statement split across lines.
+- **A klein retry used the same seed.** A seed that drew "no picture" might fail the same way again. Each try now sends the next
+  seed (`seed + attempt - 1`), and the row keeps the seed actually sent (unit: 41, then 42).
+- **/look's in-person fallback logged `source` "scene".** `startPicture` now takes a `source` option, and that call passes "look".
+- Pre-existing: `unit.mjs` called `process.exit` before its last test. The exit is now at the end, and `pcmToMp3` runs and passes.
+
+### Decided in review, for Step 2 (apply these first)
+- Put the sender's settings in the plan: `runwarePlan` gets `level` and adds `checkContent` (true at Off) to each try, and
+  `drawRunware` takes it as an argument (`safety: { checkContent }`). No NSFW logic goes in `drawRunware`. `picture-plans.mjs`
+  records `checkContent` only when it is true, so the 25 On cases stay as they are.
+- `pictureFlags(prompt, herself, level)`: at Off, `nude` and `act` are false (so `partial` is too), and the log's `kind` matches
+  what was drawn. The row's `nsfw` = the level (never null after Step 2).
+- Golden: any changed line in the 25 existing cases is a bug (default On). Add these cases with `--write`: Off "naked on the bed"
+  through `drawPicture` opts `nsfw: "off"` (expect no NAKED, `body-v10-clothed`, `checkContent` true, no NUDE LoRAs), Nude "naked
+  on the bed" (expect the same plan as On), and Nude "topless, jeans on, mirror selfie". The refusals (/pic at Off or Nude) are
+  unit and scenario rows, not golden cases.
+- Before you finish, grep every prompt string in worker.js for `never` near `naked|nude|topless` (LESSONS §2). Only the SELF_CHOICE
+  line should have been there. List what the grep found in HANDOFF.
+- `picCommand` and `lookCommand` load the chat's settings (`s:<chat>`) themselves; `respond` already has them. A missing or
+  unknown value = `CONFIG.PICTURE.NSFW.DEFAULT`.
+- Leave alone: the seed logic, the studio log (except `nsfw`), and `tools/face/bench.json`.

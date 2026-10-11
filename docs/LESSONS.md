@@ -54,7 +54,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 
 ## 2. Known traps
 - A superseded rule can live on in a prompt string: her own pictures were never nude because `PICTURE.SELF_CHOICE` still said "Your pictures never show you fully naked." (2026-10-02 rule, dropped 2026-10-06) → when a decision supersedes a rule, grep every prompt string for it. (2026-10-11)
-- Picture prompts go to the D1 table `pictures` (`reem-studio`) from the first deploy after Step 1 (2026-10-11; not deployed yet): check that table, not the Worker log; /look's DeepSeek text is `llm_text`. R2 is off on the account (403 10042). POV hand sits in `ACT_WORDS` but not `ACT_LORAS`, so it never loads: read `runwareLoras` before blaming a LoRA. (2026-10-11)
+- Picture prompts go to the D1 table `pictures` (`reem-studio`) from the first deploy after Step 1 (2026-10-11; not deployed yet): check that table, not the Worker log; /look's DeepSeek text is `llm_text`. D1's Worker `exec()` reads one statement per line (a multi-line CREATE TABLE fails; the MCP's `d1_database_query` doesn't, and a fake D1 hides it) → `batch()` of prepared statements; check SQL in `node:sqlite`. R2 is off on the account (403 10042). POV hand sits in `ACT_WORDS` but not `ACT_LORAS`, so it never loads: read `runwareLoras` before blaming a LoRA. (2026-10-11)
 - History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either. Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.
 - A `VOICE_ID` Worker secret, if set, overrides `VOICE.ID`: remove it.
 - Cron runs (every 15 min) must finish within 30 s, so `scheduled` only queues a task.
