@@ -12,7 +12,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   GitHub Actions; read their logs with the GitHub MCP (`actions_list` / `get_job_logs`).
 - The ElevenLabs MCP needs any voice description and sample line to come from the owner. Transcribing a TTS node
   in a flow only echoes its prompt: upload the MP3 as an asset to really transcribe it.
-- Read the live Worker after a deploy: the deploy log's Version ID, `/health` and `/setup` (run 37860789952). `workers_get_worker_code` returns the whole bundle (~5 MB on 2026-10-08), so no full code read-back; `cf-resources.sh`'s Vectorize "already exists" errors (3002, 40004) are normal.
+- Read the live Worker after a deploy: the deploy log's Version ID, `/health` and `/setup` (run 37860789952). `workers_get_worker_code` returns the whole bundle (~5 MB on 2026-10-08), so no full code read-back; `cf-resources.sh`'s Vectorize "already exists" errors (3002, 40004) are normal. D1 the same way: `d1_databases_list`, `d1_database_create` and `d1_database_query` (several statements in one call) on the Cloudflare MCP make and check a database (2026-10-11).
 - Prices and limits: the Cloudflare MCP's `search_cloudflare_documentation` answers from the current docs (klein
   4B: 26.05 neurons per 512x512 output tile, rounded up, so 768x1024 costs the same as 640x640). Other providers'
   sites (runware.ai, fal.ai) are blocked from the container: WebSearch still finds their prices. (2026-10-03)
@@ -54,7 +54,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 
 ## 2. Known traps
 - A superseded rule can live on in a prompt string: her own pictures were never nude because `PICTURE.SELF_CHOICE` still said "Your pictures never show you fully naked." (2026-10-02 rule, dropped 2026-10-06) → when a decision supersedes a rule, grep every prompt string for it. (2026-10-11)
-- Nothing logs picture prompts or /look's DeepSeek text, and wrangler.toml had no `[observability]`: a "read it in the Worker log" step can't work → check a log exists before planning to read it (WORKPLAN Step 1 adds the D1 log). R2 is off on the account (403 10042); D1 works through the Cloudflare MCP. POV hand sits in `ACT_WORDS` but not `ACT_LORAS`, so it never loads: read `runwareLoras` before blaming a LoRA. (2026-10-11)
+- Picture prompts go to the D1 table `pictures` (`reem-studio`) from the first deploy after Step 1 (2026-10-11; not deployed yet): check that table, not the Worker log; /look's DeepSeek text is `llm_text`. R2 is off on the account (403 10042). POV hand sits in `ACT_WORDS` but not `ACT_LORAS`, so it never loads: read `runwareLoras` before blaming a LoRA. (2026-10-11)
 - History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either. Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.
 - A `VOICE_ID` Worker secret, if set, overrides `VOICE.ID`: remove it.
 - Cron runs (every 15 min) must finish within 30 s, so `scheduled` only queues a task.
@@ -133,6 +133,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 ## 4. What works
 - `node tools/check.mjs` before every push; a commit message with `[live]` runs the real-model check on Actions.  Its live job once
   showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); watch the run with a Monitor loop on `curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id>` (anonymous 200; the JSON is pretty-printed, `"status": "in_progress"`, so grep the value; poll every 30 s, emit once on `completed`). (2026-10-06, 2026-10-08)
+- Refactoring a sender (2026-10-11): capture golden plans first (`tools/test/picture-plans.mjs`: the bot's own picture code, network stubbed, $0), keep every `Math.random` pick in its order, and the golden diff must be empty; a unit test that checked LoRAs through `drawRunware` moved to `runwarePlan` (the sender now only sends).
 - Before writing "deployed" or "not deployed" in HANDOFF, read the remote: `git ls-remote origin main` and the Deploy to Cloudflare runs for `main` (2026-10-09: remote main was 9309e8e, deployed 03:13 UTC, while the draft said 9803e28).
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)

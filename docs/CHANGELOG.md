@@ -4,6 +4,20 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (twenty-third session): WORKPLAN Step 1 (golden picture plans, plan/draw split, studio log in D1); dev only
+- Golden first (`ccf298d`): `tools/test/picture-plans.mjs`, 25 cases of the bot's own picture code, the network stubbed (Runware
+  requests recorded as sent, Workers AI stubbed, clock frozen, Math.random seeded); `picture-plans.golden.json`. In check.mjs and the
+  mocked CI job.
+- Split (`c7ef727`): `runwarePlan` (no network), `pictureFlags`, `drawRunware` (sends only; a seed per picture), `drawPicture` = plan →
+  draw → log. The golden did not change (`--check`: ok 25 before and after). `e142e68`: the check's console kept quiet.
+- Studio log: D1 `reem-studio` (uuid ee34d51e-36b8-43f4-8c53-cdc4282cb93a, ENAM), created with the Cloudflare MCP 2026-10-11 01:07 UTC;
+  tables `pictures` (+ `pictures_at`) and `presets` from `STUDIO_SCHEMA`. wrangler: `STUDIO_DB`, `[observability]`. `cf-resources.sh`
+  runs `wrangler d1 info reem-studio`.
+- Actions on dev (`e142e68`): Cloudflare resources run 38100867556 success (`d1 info`: binding, num_tables 2); Tests run 38100865365
+  success (sync, mocked incl. picture plans and the wrangler dry-run; live skipped).
+- Runware balance $14.92535 before and after; no paid call. Not deployed: `main` = 897dfaf.
+- Open, not changed: `tools/test/unit.mjs` runs `process.exit` before the `pcmToMp3` test, so that test never runs.
+
 ## 2026-10-11 (twenty-second session): picture diagnosis and the work plan; no code change
 - Owner's report: no /nsfw switch, bare breasts on "covered" close-ups, ghost hands, her own pictures never NSFW, monotone anal,
   the rust halter on every clothed picture, the front body on back views, too many LoRAs, and a prompt studio with a full log.
