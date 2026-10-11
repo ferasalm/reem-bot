@@ -4,6 +4,11 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (thirty-second session, Opus): the opus-haiku-orchestrator skill and haiku-worker; Step 5 not reviewed (owner); dev
+- `.claude/skills/opus-haiku-orchestrator/` + `.claude/agents/haiku-worker.md` (Haiku 5.5, effort max), tested on the 14 workflows
+  (14/14 rows right). Owner: no Step 5 review; Step 6 in one Opus chat with the skill (WORKPLAN "Step 6 with the orchestrator");
+  the "raw model ID strings stay out" clause withdrawn (not the owner's rule).
+
 ## 2026-10-11 (thirty-first session, Opus): CLOTHED_BODY "nude" (owner); Step 5 built and benched; dev
 - The chat was meant for Haiku's Step 5; `get_session` said Opus, so Opus built it (the records say so).
 - Owner's yes to the fuller build: `CLOTHED_BODY` "nude" after an 18-picture check ($0.04628, runs/2026-10-11-step5-nude-mode/).

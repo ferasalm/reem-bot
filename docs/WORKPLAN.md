@@ -9,6 +9,8 @@ step at the end of this file; that step applies them first. Never two steps (or 
 1. New chat, pick **Haiku 5.5** in the model menu, paste the prompt below with N (and the budget) filled in.
 2. When it says "Step N done, waiting on review", new chat, pick **Opus**, paste the review prompt.
 3. Then the next step. Deploy only when you say "deploy" (suggested after Steps 2, 6 and 7).
+4. **From Step 6 (owner, 2026-10-11):** one chat, pick **Opus**, paste the prompt in "Step 6 with the orchestrator" (end of this
+   file). Opus runs `/opus-haiku-orchestrator`: it hands the well-defined parts to `haiku-worker` (Haiku 5.5) and checks them itself.
 
 **Haiku prompt (Step N):**
 > Continue reem-bot. Follow CLAUDE.md: run `git fetch --unshallow origin`, then the sync report; stop and ask me if it lists work
@@ -555,3 +557,37 @@ nude = none when a garment is named; "clothed" is the rust halter, which leaks i
 face and body pictures: is the skin and build close enough?); nipple points through thin tops (every mode, all three steps); P3
 "legs apart" draws no vulva (not a PussyDiffusion word: LoRA routing was off-limits); close-ups never reach navel-to-thighs (the
 breasts stay in, covered).
+
+### Step 5: no review (owner, 2026-10-11)
+Step 5 stands as built (above). `BODY_PARTIAL` stays "clothed". Its open questions go to HANDOFF's Later: BODY_PARTIAL "none", the
+faceless 1:1 close-up, nipple points through thin tops, P3 "legs apart" (no vulva), close-ups that never reach navel-to-thighs.
+
+### Step 6 with the orchestrator (owner, 2026-10-11; apply these first)
+The chat is Opus and runs `/opus-haiku-orchestrator` (`.claude/skills/opus-haiku-orchestrator/`); `haiku-worker` loads from
+`.claude/agents/` when the chat starts (if "Agent type not found", the skill's fallback). Split (Claude's plan; the chat may change it
+and says so in HANDOFF):
+- **Opus:** the sync report; the Runware balance before and after (MCP `account`: workers have no MCP); the anal-first routing in
+  `runwarePlan` (before ACT_SCENES; body per position; povanal alone on doggy); reading the golden diff case by case; every picture at
+  full size and every zoom crop, the picks and root causes (owner, 2026-10-11); the push to `face-candidates`; check.mjs read in full;
+  /handoff.
+- **Haiku, one brief each:** (1) the CONFIG keys ANAL_WORDS, ANAL_POSITION_WORDS, ANAL_POSITIONS, ANAL_SCENES, ANAL_LORAS with the
+  spec's values pasted into the brief word for word, their settings-panel rows, `node tools/build-panel.mjs`, `node tools/options.mjs`;
+  (2) unit rows and golden cases from a list Opus writes (cases at the end of the list), then `picture-plans.mjs --write`;
+  (3) the bench: one worker, calls in sequence about 4 s apart (never two bench workers at once), the dollar cap Opus gives it, the
+  crops and sheets, a first "Haiku's read" line per picture in table.md; (4) the Civitai report (`api.civitai.com`, report only, a
+  fixed table: name, version, downloads, rating, file type).
+- Every brief carries the repo rules, since Haiku sees nothing else: grep `worker.js`, never read it whole; never open `face.js`,
+  `places.js`, `mp3.js` or `tools/settings-panel.html` whole; don't touch `tools/face/bench.json`; no git push, no deploy;
+  LIMITS & OOC untouched; the spend cap in dollars.
+- Leave alone (Step 5 stands): BODY_PARTIAL, CLOTHED_BODY, the close-up settings, the day outfits. Also check riding for the second
+  head and his hands (HANDOFF Later), only if the budget allows.
+- Done: Step 6's acceptance, then HANDOFF "Step 6 done" (no separate review chat), naming which parts Haiku did and the workers'
+  model (the subagent transcripts: `grep -rhoE '"model":"claude-haiku[a-z0-9-]*"' ~/.claude/projects | sort | uniq -c`).
+
+**Prompt for the Step 6 chat (pick Opus, effort high):**
+> Continue reem-bot. Follow CLAUDE.md: run `git fetch --unshallow origin`, then the sync report; stop and ask me if it lists work
+> really missing. Your task is docs/WORKPLAN.md Step 6 only: read its section and "Step 6 with the orchestrator" at the end of the
+> file, then run /opus-haiku-orchestrator for it: show me the plan, then go. Spend at most $0.12 on Runware (read the balance before
+> and after with the Runware MCP `account`). No deploy, never push to main. Finish with /handoff: HANDOFF says "Step 6 done", with
+> every check you ran and read, the golden-plan diff summary, where the pictures are, and which parts Haiku did. Name the model of
+> this chat (`get_session`) and of the workers in the records.

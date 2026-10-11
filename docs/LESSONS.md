@@ -52,6 +52,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - /setup is a web page, not a Telegram command (owner, 2026-10-06): never tell him to send it; deploy.yml opens it. Its last line says "send /restart", and /restart wipes her memory (`docs/OPTIONS.md`): don't repeat it (2026-10-08).
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
+- Skills/agents go in the repo's `.claude/` (`~/.claude` is wiped; personal skills don't load in cloud chats); a new agents folder needs a new chat (2026-10-11).
+
 ## 2. Known traps
 - A head too large for the body (nude mirror, Step 3, seed 101) came from the camera, not the face reference: the random gaze "looking up at
   the camera through her lashes" put the camera above her (a level gaze drew it in scale; the 1x face drew the same head) → gaze removed.

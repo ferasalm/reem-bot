@@ -61,7 +61,7 @@ depend on the results.
 If `haiku-worker` isn't available ("Agent type not found": `~/.claude/agents/` didn't exist when the
 session started; a restart fixes it for next time), use
 `subagent_type: "general-purpose"` with `model: "haiku"` and `effort: "max"`, and put the body of
-`~/.claude/agents/haiku-worker.md` at the top of the brief. The Agent tool takes only the `haiku`
+`haiku-worker.md` (the project's `.claude/agents/`, else `~/.claude/agents/`) at the top of the brief. The Agent tool takes only the `haiku`
 alias, so after the run confirm it was Haiku 5.5:
 `grep -rhoE '"model":"claude-haiku[a-z0-9-]*"' ~/.claude/projects | sort | uniq -c` must show only
 `claude-haiku-5-5`. If not, do those steps on Opus and tell the user.

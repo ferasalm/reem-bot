@@ -4,12 +4,12 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
 **Work plan: `docs/WORKPLAN.md`** (2026-10-11): the eight steps, their specs, and the review notes at its end.
 
-**Last updated:** 2026-10-11 (thirty-first session, **Opus**: the owner's fuller clothed build on; **Step 5 done, waiting on review**. On `dev`.)
+**Last updated:** 2026-10-11 (thirty-second session, **Opus**: the opus-haiku-orchestrator skill and haiku-worker in the repo; Step 5 stands without review (owner); **Step 6 next, with the skill**. On `dev`.)
 **Deployed:** `main` = 897dfaf (deploy run 38013450881), unchanged. Rollback: push `0d2010f` or `9c1270f` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (`main`):** texts, memory, /auto on DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat; hearing Gemini; pictures Runware klein 9B with her face, body and place references, `DAILY_USD` $1.
-**On `dev`, not deployed:** Steps 1-4 (each reviewed by Opus) and Step 5 (built by Opus in this chat, not yet reviewed).
+**On `dev`, not deployed:** Steps 1-4 (each reviewed by Opus) and Step 5 (built by Opus; no review, owner 2026-10-11).
 - **Model:** this chat was opened with the Haiku prompt, but `get_session` read Opus (configured and served), so Opus built Step 5.
 - **Clothed pictures, the owner's yes:** `CLOTHED_BODY` "nude" (her nude front as image 1 + DRESSED_FULL). Checked first, 18 pictures:
   the six outfits at a second seed as named (no crop leak), lingerie 3/3 (lace stays sheer, no nipples), /nsfw Off 2/2 past Runware's
@@ -29,28 +29,26 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (
 - **Your Telegram test** of the belly fix (deployed 2026-10-10), and of /nsfw once deployed. Do not send `/restart` (it wipes her memory).
 - Steps 1-5 are not deployed. Deploy when you say "deploy" (suggested after Steps 2, 6 and 7).
 - Once deployed, Step 2 makes a chat with no `/nsfw` setting On (about 1 in 3 hot-chat pictures nude): deploy only when you say so.
-- If you want a model to build a step, check the model menu before pasting: this chat's Haiku prompt ran on Opus.
+- Pick **Opus** for the Step 6 chat: the skill needs Opus to plan and judge; it starts the Haiku 5.5 workers itself.
 
-## Verified this session (2026-10-11, thirty-first session)
-- Model read with `get_session`: Opus (configured and last served).
-- Sync report after `git fetch --unshallow origin`: "No other branch has work missing here."
-- `node tools/check.mjs` 7/7 after each commit (read in full). New unit rows: the room number (fails on the old code), the body
-  modes, each Step 5 flag, `nakedLine`, the partial LoRAs, BODY_PARTIAL "none", the faceless 1:1 close-up.
-- Golden diffs read case by case: the nude-mode commit changed only the clothed cases (body-v10 as image 1, REFERENCE_CLOTHED
-  and DRESSED_FULL, the place now image 2); Step 5 changed only the four partial and close-up cases.
-- All 58 pictures read at full size (chests and vulvas on crops). Runware: $14.50883 → $14.37077 ($0.13806; the benches' sums
-  $0.13572: nude check $0.04628, Step 5 $0.08944 of $0.10).
+## Verified this session (2026-10-11, thirty-second session)
+- Docs checked first (claude-code-guide): Haiku 5.5 supports effort `max`; a subagent's `model` takes a full ID; an agents folder made
+  mid-session needs a new chat. `.claude/agents/haiku-worker.md` (claude-haiku-5-5, effort max, Read/Write/Edit/Grep/Glob/Bash) and
+  `.claude/skills/opus-haiku-orchestrator/` (SKILL.md, brief-template.md, review-checklist.md) are in the repo.
+- Test: two Haiku workers extracted the 14 workflows in parallel, 14/14 rows matched the files (checked by script); a third run as
+  `haiku-worker` answered right; the transcripts read `claude-haiku-5-5`, effort `max`.
+- `node tools/check.mjs` 7/7, read in full, before each push.
 
-## Next steps (in order; one chat each; Opus reviews each step before the next)
-1. **Review of Step 5** (Opus): BODY_PARTIAL "none"; the faceless 1:1 close-up; nipple points through thin tops; P3 "legs apart" (no
-   PussyDiffusion, no vulva); then write "Decided in review, for Step 6". *Effort: high.*
-2. **Step 6**: anal positions, with zoom-crop bench (also riding: a second head, his hands). ≤ $0.12. *Effort: medium.*
-3. **Step 7**: the prompt studio at /studio, reading the D1 log. ≤ $0.05. *Effort: high.*
-4. **Step 8**: deploy and live checks when you say "deploy" (suggested after Steps 2, 6 and 7). *Effort: low.*
-5. **Your Telegram test** of the belly fix, and of /nsfw once deployed. *Effort: low.*
-6. **Later:** hair drifting to brown highlights (seed 101, every mode); the plain mirror belfie with no phone; the blowjob arms; the
-   riding second head; Flux 4 Play tongue weight; `/look`'s DeepSeek answers (`llm_text`); /spend vs the dashboards; a cheaper text
-   model; old session branches (`tools/retired-branches.txt`). *Effort: medium.*
+## Next steps (in order; one chat each)
+1. **Step 6** in one Opus chat with `/opus-haiku-orchestrator`: anal positions, zoom-crop bench (also riding: a second head, his
+   hands). ≤ $0.12. WORKPLAN "Step 6 with the orchestrator". *Effort: high.*
+2. **Step 7**: the prompt studio at /studio, reading the D1 log. ≤ $0.05. *Effort: high.*
+3. **Step 8**: deploy and live checks when you say "deploy" (suggested after Steps 2, 6 and 7). *Effort: low.*
+4. **Your Telegram test** of the belly fix, and of /nsfw once deployed. *Effort: low.*
+5. **Later:** Step 5's open questions (BODY_PARTIAL "none", the faceless 1:1 close-up, nipple points through thin tops, P3 "legs
+   apart", close-ups that never reach navel-to-thighs); hair drifting to brown highlights (seed 101); the plain mirror belfie with no
+   phone; the blowjob arms; the riding second head; Flux 4 Play tongue weight; `/look`'s DeepSeek answers (`llm_text`); /spend vs the
+   dashboards; a cheaper text model; old session branches (`tools/retired-branches.txt`). *Effort: medium.*
 
 ## Open questions for the owner
 - OK to press Actions > Delete retired branches for `tools/retired-branches.txt`? The sync check says no work is missing from `dev`.
@@ -58,5 +56,4 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (
 - Old session branches still hold the old Reem pictures in their history. Clear those too, or leave them?
 
 ## Prompt for the next chat
-Pick **Opus** (effort high) and paste the Opus review prompt from `docs/WORKPLAN.md` ("How to run a step") with N = 5. Note for it:
-Step 5 was built by Opus, not Haiku; read WORKPLAN "Step 5 build (Opus)" first.
+Pick **Opus** (effort high) and paste "Prompt for the Step 6 chat" from the end of `docs/WORKPLAN.md`.
