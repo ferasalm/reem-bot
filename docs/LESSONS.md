@@ -21,11 +21,9 @@ At most 150 lines (`tools/doc-check.mjs`).
   checks (face vs reference, age, outfit, phone rule, room vs reference, framing, hands and reflections).
 - Test pictures: push a `tools/face/job.json` to your own branch (not `dev`); face.yml draws and pushes them to
   `face-candidates`; `git show origin/face-candidates:<path>` + `montage` make one contact sheet to look at. (2026-10-03)
-  face.yml skips dev/main pushes and its own edits (a job pushed to `dev` drew twice, run 59, 2026-10-05). (2026-10-05)
+  face.yml skips dev/main pushes and its own edits (a job pushed to `dev` drew twice, run 59, 2026-10-05); past 7,000 neurons it refuses: set `day_neurons` in job.json. (2026-10-05)
 - The session-start sync report can list "N commits not here" for old branches when the clone is shallow (depth 50): the merge base is missing.
   Fix: `git fetch --unshallow origin`, rerun `node tools/sync-check.mjs` (2026-10-08: 25 branches listed, then "OK"); `git cherry origin/dev origin/<b>` counts what's really missing (2026-10-03). Deploy = `git push origin origin/dev:main` (fast-forward) (2026-10-05).
-- face.yml refused a job at 6,618 neurons used: draw.mjs's day cap 7,000 dates from the free plan → set
-  `day_neurons` in job.json (Workers Paid; the owner's cap is AI_BUDGET.DAILY_NEURONS 28,000). (2026-10-03)
 - No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only; Runware has no MiniMax Turbo (run 37541102035).
   Text replay on Workers AI: test.yml `model` `@cf/...` (no OpenRouter key passed); never two at once (429, 3021). Runware MCP:
   `account` = balance + today's spend. Hand-run workflows must be on `dev` (404); log blob links are blocked: `get_job_logs`.
@@ -55,6 +53,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
 ## 2. Known traps
+- A superseded rule can live on in a prompt string: her own pictures were never nude because `PICTURE.SELF_CHOICE` still said "Your pictures never show you fully naked." (2026-10-02 rule, dropped 2026-10-06) → when a decision supersedes a rule, grep every prompt string for it. (2026-10-11)
+- Nothing logs picture prompts or /look's DeepSeek text, and wrangler.toml had no `[observability]`: a "read it in the Worker log" step can't work → check a log exists before planning to read it (WORKPLAN Step 1 adds the D1 log). R2 is off on the account (403 10042); D1 works through the Cloudflare MCP. POV hand sits in `ACT_WORDS` but not `ACT_LORAS`, so it never loads: read `runwareLoras` before blaming a LoRA. (2026-10-11)
 - History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either. Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.
 - A `VOICE_ID` Worker secret, if set, overrides `VOICE.ID`: remove it.
 - Cron runs (every 15 min) must finish within 30 s, so `scheduled` only queues a task.
@@ -83,8 +83,7 @@ At most 150 lines (`tools/doc-check.mjs`).
   random like 3030 (same words passed once, failed once); Grok Imagine 2.0 refused 2/2 with her face attached. Runware with `safety.checkContent: false` (2026-10-06): TwinFlow Z-Image-Turbo drew lingerie, see-through and full nudity 3/3 at $0.0006 (text only, slim body, no face reference); klein needs more than $0.05 balance, Z-Image-Turbo and Fish Audio a $5 balance; a small balance stays reserved ~40 s after a call (`concurrentRequestLimitExceeded`); TwinFlow puts an iPhone in any "selfie" (2/2) and keeps the same face without a reference (6/6). Fuller arms on TwinFlow: only naming the arms first and again with a weight ("Photo of a woman with full soft chubby arms: ... 75 kg ... with full soft chubby arms") worked 2/2; "soft, full, fleshy" alone stayed slim (run 37404957788). A nude body picture as klein's image 1 made 6/6 pictures that named no clothes nude, even with a "she is dressed" line → nude body only on nude/sex pictures (`BODY_CLOTHED`; 2026-10-08). Fuller bodies shrank the head (owner) → "her head is naturally sized for her body, about one seventh of her height, with full soft cheeks..." put it back in scale (run 37406592599); a 50 mm lens line didn't help. Runware once answered HTTP 200 "{}" after 28 s: retried now. klein 9B on Runware (safety off) keeps her face and draws nude 8/8, but only when the prompt says "completely naked: no tank top, no leggings...": with "naked" alone the body picture's clothes leaked (4B 4/4 dressed; runs 37434273611, 37434510898). The same klein 9B call once billed $0.0907 and took 111 s (run 37437301547; cause unknown): the bench stops past 5x the list price. A clothed body picture leaks its clothes into nudes even when named (beige bodysuit 3/4) → a faceless nude body picture (TwinFlow crop): 0 leaks, natural nipples (run 37439133800). Qwen3-TTS voices are lowercase (`serena`). MiniMax Speech 2.8 on Runware (`minimax:speech@2.8`): `speech.voice` required (e.g. `English_captivating_female1`), takes `speech.emotion`, (laughs)/(sighs) in the text; ~$0.09/1k chars (run 37538682473). Cloudflare's third-party models need AI Gateway credits
   (402 "Insufficient balance"); its Seedream 4.0 takes no reference image. OpenRouter image-only models answer on
   `POST /api/v1/images` (`input_references`, `data[0].b64_json`), not chat completions (404). (2026-10-04)
-- Lingerie on Cloudflare klein (only the past-cap route now): two-piece wordings get covered up (3/16), one-pieces and layers do
-  better (4/12, bodysuit + stockings, robe or shirt open over a set); runs 37263536954, 37266040257. (2026-10-05)
+- Lingerie on Cloudflare klein (past-cap route only): two-pieces covered up 3/16, one-pieces and layers 4/12 (runs 37263536954, 37266040257).
 - bench-models.mjs reads `prompt_sets[job.family_of[route] || route.family]`: a route without a family crashes the run
   (run 37172077483). face.yml, image-bench and tts-bench share one queue that keeps one waiting run: a third push
   cancels the waiting one (2026-10-05) → push one job, wait, then the next; tts `max_chars` counts instructions too.

@@ -24,6 +24,7 @@ These rules exist because on 2026-10-01 three sessions built conflicting version
 | Where code lives, how to check, branches | `docs/MAP.md` | before code changes |
 | `[live]` run results over time | `docs/QUALITY.md` | when tuning |
 | History (run ids, versions, the 2026-10-01 incident) | `docs/CHANGELOG.md` | grep on demand |
+| The current work plan: steps, specs, paste prompts (2026-10-11) | `docs/WORKPLAN.md` | when HANDOFF names a step |
 | Process habits from portrait-frame-roller | `docs/PORTABLE-PLAYBOOK.md` (reference only; this file wins, e.g. never "merge to main every session") | no |
 `tools/doc-check.mjs` (CI) enforces the sizes, dated decisions, effort levels and the map.
 

@@ -136,6 +136,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
   `.claude/skills/handoff/SKILL.md` (end of session); `tools/check.mjs` (all local checks), `tools/doc-check.mjs`
   (docs rules); `tools/model-bench/bench.mjs` + `checks.mjs` (the bench); `.gitignore` files.
 
+- `docs/WORKPLAN.md` (2026-10-11): the step-by-step plan (pictures, /nsfw, prompt log, studio); one Haiku chat per step, each
+  reviewed by Opus; its "Decided in review" notes at the end bind the next step.
+
 ## Testing
 - Every push: `.github/workflows/test.yml` runs `sync` (sync check) and `mocked` (`node --check`, panel matches
   CONFIG, unit, scenarios, e2e). Free.

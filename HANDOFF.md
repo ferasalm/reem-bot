@@ -2,63 +2,66 @@
 
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
+**Work plan: `docs/WORKPLAN.md`** (2026-10-11): the next eight steps, their specs and the prompts to paste.
 
-**Last updated:** 2026-10-10 (twenty-first session, end: the belly fix deployed to `main`). **Deployed:** `main` = 897dfaf
-(deploy run 38013450881, success, Version 496925bf-95b1-4fd7-8a0b-e1daea3953a7). Rollback: push `0d2010f` (the reference set, before the
-belly fix) or `9c1270f` (the v9 deploy) to `main`. `dev` = this session's docs commit, on top of `897dfaf`. Deploy = a push to `main` only
-(`git push origin origin/dev:main`), and only when the owner says "deploy".
+**Last updated:** 2026-10-11 (twenty-second session: diagnosis and the work plan, docs only). **Deployed:** `main` = 897dfaf (deploy run
+38013450881, Version 496925bf-95b1-4fd7-8a0b-e1daea3953a7, the belly fix). Rollback: push `0d2010f` or `9c1270f` to `main`. `dev` = this
+session's docs commit on top of `897dfaf` (no code change). Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid, $5/month). **Live (`main`):** texts, memory and
-/auto on DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat (aura-2, then ElevenLabs); hearing Gemini 3.8 Flash (Whisper,
-then Scribe); pictures Runware klein 9B with her face (`runware:400@2`, retried once, then Cloudflare klein with her references; TwinFlow
-never draws her; `DAILY_USD` $1; nudity and sex acts on).
-**The owner's reference set (2026-10-10) is live:** face = his picture 2 (messy bun, no bangs); bodies `v10` (nude front), `v10-back`,
-`v10-clothed` (rust halter + jeans), all faceless; outfits and hairstyles first in `WARDROBE`/`HAIRSTYLES`, with a picture sent as the next image.
-**The belly fix is live too (2026-10-10):** the body words said "softly rounded belly, wide hips, full thighs" on top of a body picture that
-already has a belly, and the TwinFlow fallback drew her from hourglass words with no reference. Both are gone from her descriptions.
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid). **Live (`main`):** texts, memory and /auto on
+DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat; hearing Gemini 3.8 Flash; pictures Runware klein 9B with her face,
+body and place references (retried once, then Cloudflare klein), the owner's reference set of 2026-10-10, `DAILY_USD` $1.
+**Diagnosed this session (code read; WORKPLAN has the detail and the fixes):**
+- No user NSFW switch; only the global `RUNWARE.SEX_ACTS` (on).
+- Her own pictures are never nude: `PICTURE.SELF_CHOICE` still ends "Your pictures never show you fully naked." (a 2026-10-02 rule).
+- The rust halter everywhere: it *is* image 1 of every clothed picture, the Runware REFERENCE never says "not its clothes", and no
+  outfit is added when her or his words name none; an outfit picture is sent next to it (two clothed bodies blend); nude back views
+  use the front body.
+- Bare breasts on "covered" close-ups: "covered breasts", "top", "sports bra" don't count as clothes, NAKED names her breasts, and
+  Unchained XXX + PussyDiffusion still load on partly dressed pictures.
+- Ghost hands: POV hand is *not* loaded (in ACT_WORDS, not ACT_LORAS). Suspects: four realism LoRAs stacked (2.3 total) plus act
+  LoRAs (5-6 per picture), and the hands named twice in the sex prompts. Step 3 benches it.
+- Anal: one camera (all fours) with POV Doggy Anal alone at 1.0; "missionary anal" gets the *vaginal* missionary text.
+- Prompts are not logged anywhere (no console.log, no observability): step 8 of the old list ("read /look answers in the log")
+  couldn't work. Step 1 adds a D1 log; D1 is reachable through the Cloudflare MCP, R2 is not enabled on the account.
 
 ## Waiting on the owner
-- **Your Telegram test** of the belly fix: /pic in a fitted top and jeans (is the lower belly flatter?), /pic with an outfit and without, a
-  hairstyle picture for face drift.
-- **The picture at 01:31:44 UTC** (09/10 21:31 Boston): a Runware "no picture" that the new fallback redrew on Cloudflare. Tell me if it
-  looks wrong; `/spend` now shows the failed Runware attempts today (`rwFailed`).
-- **Bare-words clothed pictures** take the rust halter from the body picture (2026-10-10 bench). The real flow names an outfit, so rare.
-- **Do not send `/restart`**, though the `/setup` page says to: it wipes her memory (`docs/OPTIONS.md`).
-- **`tools/face/bench.json`** still names the deleted `body-hourglass.jpg`. Changing it starts the paid image bench on push (`image-bench.yml`).
+- **Start Step 1** in a new chat with **Haiku 5.5** (prompt in `docs/WORKPLAN.md`, "How to run a step"; budget $0).
+- **Your Telegram test of the belly fix** and the 01:31:44 UTC picture of 2026-10-10 (a Runware "no picture" that Cloudflare redrew).
+- **Do not send `/restart`**, though `/setup` says to: it wipes her memory.
+- `tools/face/bench.json` still names the deleted `body-hourglass.jpg`; changing it starts the paid image bench (`image-bench.yml`).
 
-## Verified this session (2026-10-10, twenty-first session)
-- Sync report: OK after `git fetch --unshallow origin`; no other branch has work missing here.
-- Reference set: deploy run 38011331407 (`0d2010f`), success, Version 8a4778e1; `/health` ok; `/setup` all ✅.
-- Belly fix: `node tools/check.mjs` 6/6 ok (read in full); free captures (klein working: 3 refs, 0 belly words; klein failing: 2 klein
-  tries with the refs, then Cloudflare, 0 TwinFlow, `rwFailed` 2); a 12-picture sheet read at full size (`docs/QUALITY.md`): a modest,
-  consistent flattening at the lower belly, bust and arms as full.
-- Belly deploy: run 38013450881 (`897dfaf`), success, Version 496925bf-95b1-4fd7-8a0b-e1daea3953a7; Tests run 38013450919 success;
-  `/health` ok (Cloudflare klein, 55,092 bytes); `/setup` all ✅ and its Pictures line shows the new fallback.
-- Not checked: Telegram, a live chat, `/look`, the belly on the deployed Worker (the owner's test is the check).
+## Verified this session (2026-10-11)
+- Sync report: OK after `git fetch --unshallow origin` (the shallow-clone warning again).
+- Every diagnosis above read in `worker.js` (`drawPicture`, `runwareLoras`, `runwareBody`, `composePicture`, `selfiePicture`,
+  `customPicture`, `lookWrite`, CONFIG.PICTURE); the five body/outfit references viewed (same framing, faceless).
+- Cloudflare MCP: `d1_databases_list` answers (none yet); `r2_buckets_list` 403 10042 (R2 off). `node tools/check.mjs` (below).
+- Not done: no picture drawn, no code changed, nothing deployed.
 
-## Next steps (in order)
+## Next steps (in order; one chat each; Opus reviews each Haiku step before the next)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Your Telegram test** of the belly fix and the 01:31:44 UTC picture (above). *Effort: low*
-2. **If the belly is still big:** the clothed reference (picture 9, `v10-clothed`) has its own soft lower belly; a flatter reference is your call, then an 8-vs-8 bench. *Effort: medium*
-3. **Runware "no picture" recurring?** Read `/spend` (`failed today`) for a few days; if it's often, look at the klein LoRA stack that triggers it. *Effort: low*
-4. **`bench.json`** → `body-nude.jpg`, when you want an image bench run (it spends Runware money). *Effort: low*
-5. **Missionary/riding penetration** shown more often (wording or LoRA weight bench, zoom crops). *Effort: medium*
-6. **Flux 4 Play tongue:** bench its weight 0.5-0.8, and check the tongue in the clothed pictures. *Effort: medium*
-7. **Seated clothed pose:** a pose wording that keeps the belly flat (owner's note on the seated olive picture). *Effort: medium*
-8. **/look's DeepSeek answers:** read a few in the Worker log after real /look calls, then tune `PICTURE.LOOK.PROMPT`. *Effort: medium*
-9. **After a day live:** /spend vs the dashboards (Runware, Workers AI, OpenRouter). *Effort: low*
-10. **Text model** (owner's direction): bench cheaper or better Workers AI models with `OWNER_CHAT`. *Effort: high*
-11. **Old session branches:** `tools/retired-branches.txt`; the owner presses Actions > Delete retired branches when he agrees. *Effort: low*
+1. **WORKPLAN Step 1** (Haiku): plan/draw split, seeds, golden plans, the D1 prompt log, observability. $0. *Effort: medium*
+2. **Opus review of Step 1**, then **Step 2** (Haiku): /nsfw Off/Nude/On, her own nudes, the SELF_CHOICE line. $0. *Effort: medium*
+3. **Step 3** (Haiku runs, Opus judges): LoRA catalog, realism diet and ghost-hands bench, 72 pictures. ≤ $0.25. *Effort: medium*
+4. **Step 4** (Haiku): outfits, the daily outfit, image 1 by outfit, nude back views, with a bench. ≤ $0.20. *Effort: high*
+5. **Step 5** (Haiku): partly dressed and close-ups, with a bench. ≤ $0.10. *Effort: medium*
+6. **Step 6** (Haiku runs, Opus judges): anal positions, with zoom-crop bench. ≤ $0.12. *Effort: medium*
+7. **Step 7** (Haiku): the prompt studio at /studio. ≤ $0.05. *Effort: high*
+8. **Step 8**: deploy and live checks when you say "deploy" (suggested after Steps 2, 6 and 7). *Effort: low*
+9. **Your Telegram test** of the belly fix (any time). *Effort: low*
+10. **Runware "no picture" recurring?** `/spend` (`failed today`) for a few days; Step 1's log will show which picture. *Effort: low*
+11. **Later, from before the plan:** Flux 4 Play tongue weight bench; a seated clothed pose that keeps the belly flat; `/look`'s
+    DeepSeek answers (readable once Step 1 logs them); /spend vs the dashboards; a cheaper or better text model; `bench.json` →
+    `body-nude.jpg`; old session branches (`tools/retired-branches.txt`, Actions > Delete retired branches). *Effort: medium*
 
 ## Open questions for the owner
-- Should clothed pictures use a flatter seated pose (the seated olive picture's belly)?
-- OK to press Actions > Delete retired branches for the list in `tools/retired-branches.txt`? The sync check says no work is missing from `dev`.
-- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? The warning came again this session.
-- Commit trailers: the attribution reminder asks for a Co-Authored-By line naming the model, but the system rules bar model names in commit messages. Commits this session carry only the Claude-Session line. Which do you want?
-- The old session branches still hold the old Reem pictures in their history (not on `dev`). Clear those too, or leave them to the retired list?
-- The deploy log warns that GitHub will run `actions/checkout`, `setup-node` and `wrangler-action` on Node 24 (they target Node 20). No action yet; check the next deploy.
+- OK to press Actions > Delete retired branches for `tools/retired-branches.txt`? The sync check says no work is missing from `dev`.
+- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? The warning came again (the plan's
+  prompts run it by hand for now).
+- Commit trailers: the attribution reminder asks for a Co-Authored-By line naming the model; the system rules bar model names in
+  commit messages. Commits carry only the Claude-Session line. Which do you want?
+- The old session branches still hold the old Reem pictures in their history (not on `dev`). Clear those too, or leave them?
+- Step 1 may find the deploy token can't use D1: then add "Account, D1, Edit" to the `CLOUDFLARE_API_TOKEN` secret before a deploy.
 
-## Prompt for the next chat (paste as-is)
-> Continue reem-bot. Follow CLAUDE.md (the sync report first; if it lists other branches with work, stop and ask
-> me). My Telegram test of the belly fix: <...>. The 01:31 UTC picture: <...>. Then HANDOFF next step 2 (or 3 if the test is clean).
+## Prompt for the next chat (pick Haiku 5.5, then paste the Step 1 prompt from `docs/WORKPLAN.md` with N = 1 and $X = 0)

@@ -4,6 +4,21 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (twenty-second session): picture diagnosis and the work plan; no code change
+- Owner's report: no /nsfw switch, bare breasts on "covered" close-ups, ghost hands, her own pictures never NSFW, monotone anal,
+  the rust halter on every clothed picture, the front body on back views, too many LoRAs, and a prompt studio with a full log.
+  Diagnosis (code read, no pictures drawn) and the eight-step plan in `docs/WORKPLAN.md`; decisions logged 2026-10-11. Sync report
+  OK after `git fetch --unshallow origin`. D1 reachable through the Cloudflare MCP (no databases yet); R2 not enabled (403 10042).
+
+## 2026-10-10 (twenty-first session): reference set and belly fix, both deployed
+- Sync report: OK after `git fetch --unshallow origin`. Reference set: deploy run 38011331407 (`0d2010f`), success, Version 8a4778e1;
+  `/health` ok; `/setup` all ✅.
+- Belly fix: `node tools/check.mjs` 6/6 ok; free captures (klein working: 3 refs, 0 belly words; klein failing: 2 klein tries with the
+  refs, then Cloudflare, 0 TwinFlow, `rwFailed` 2); a 12-picture sheet read at full size (`docs/QUALITY.md`): a modest, consistent
+  flattening at the lower belly, bust and arms as full. Deploy run 38013450881 (`897dfaf`), success, Version
+  496925bf-95b1-4fd7-8a0b-e1daea3953a7; Tests run 38013450919 success; `/health` ok (Cloudflare klein, 55,092 bytes); `/setup` all ✅.
+- Not checked then: Telegram, a live chat, `/look`, the belly on the deployed Worker (the owner's test).
+
 ## 2026-10-09 (twentieth session, deploy): clothed body v9 to main
 - Owner: "Deploy v9-clothed". `dev` 9c1270f fast-forwarded into `main` (was 9309e8e). Deploy to Cloudflare run 37944915522 (job 113868585857) success: Deploy Worker uploaded `reem-bot` (6998.61 KiB, gzip 4677.58 KiB), Current Version ID 04777c05-d54f-4dd8-874c-60dd2809b204; `/health` ok (klein 60,126 bytes; vision model described it); `/setup` all ✅. Leak check before the deploy (`drawPicture`, 2 pictures, black ribbed tank + jeans and olive ribbed top + gray yoga pants): no white set. The seated olive picture showed a rounded lower belly (pose).
 
