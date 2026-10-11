@@ -979,7 +979,7 @@ Changing the story
         "myaiprojectsqqq:3@2": { name: "Anatomy Quality Fixer", category: "anatomy", civitai: null, trigger: "", note: "spare" },
         "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl (ACT_SCENES)", note: "ACT_LORAS (riding, cowgirl); off doggy since the Step 3 review" },
         "ferasalm:missionary@1": { name: "Missionary POV K3NK", category: "act", civitai: 2699087, trigger: "", note: "ACT_LORAS (missionary)" },
-        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ALONE_LORAS (anal, alone at 1.0)" },
+        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ANAL_LORAS doggy, alone at 1.0 (ALONE_LORAS)" },
         "ferasalm:povdt@1": { name: "Holding Deepthroat POV", category: "act", civitai: 2779637, trigger: "POV deepthroat scene", note: "ACT_LORAS (blowjob, deepthroat)" },
         "ferasalm:povbj@1": { name: "POV Blowjob", category: "act", civitai: null, trigger: "", note: "spare" },
         "ferasalm:povhandc@1": { name: "POV hand (converted)", category: "act", civitai: 2640656, trigger: "", note: "spare (not loaded since round 5)" },
@@ -1035,7 +1035,8 @@ Changing the story
         "ferasalm:flux4play@1": "riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man",
         "ferasalm:povdt@1": "blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth",
         "ferasalm:missionary@1": "missionary",
-        "ferasalm:povanal@1": "anal, ass fucking, in her ass, in the ass, her ass, anally",
+        // Step 6: the same words as ANAL_WORDS (an anal act takes ANAL_LORAS; "her ass" on riding or doggy loaded POV Doggy Anal alone)
+        "ferasalm:povanal@1": "anal, anally, ass fucking, in her ass, in the ass, up her ass, fucks her ass, fucking her ass, fucked her ass, in her anus",
         "ferasalm:penis@1": "penis, cock, dick, erection, erect",
         "ferasalm:pussyd@1": "pussy, vagina, spread legs, legs spread",
       },
@@ -1073,8 +1074,32 @@ Changing the story
         // 0.6-1.0, Flux 4 Play, anatomy words); on her back, legs raised, the vulva above and the penis below it 3/3
         // owner 2026-10-08 ("Ensure overall anatomical correctness"): the vulva-for-anus of round 5 came with Unchained; without it, from
         // behind 2/3 (POV Doggy Anal alone 3/3), while on her back POV Doggy Anal fused her front and her spread bottom into one pose
-        "anal, ass fucking, in her ass, in the ass, her ass, anally": "{pov} She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. {close}",
+        // Step 6: the anal camera is ANAL_SCENES' now (doggy = this text); its "her ass" here caught vaginal doggy words first
         "doggy, doggystyle, doggy style, on all fours": "{pov} Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. {close}",
+      },
+      // Step 6 (WORKPLAN, 2026-10-11): anal first. When ANAL_WORDS match a sex act, the position comes from ANAL_POSITION_WORDS (first
+      // match), else by ANAL_POSITIONS; its camera from ANAL_SCENES ({pov} = POV_MAN) and its LoRAs from ANAL_LORAS (in place of ACT_WORDS
+      // matching). Body: missionary the front, the others BODY_BACK
+      ANAL_WORDS: "anal, anally, ass fucking, in her ass, in the ass, up her ass, fucks her ass, fucking her ass, fucked her ass, in her anus",
+      ANAL_POSITION_WORDS: {
+        missionary: "missionary, on her back, legs up, knees to her chest",
+        // "on top" only as hers: "he's on top of her" is missionary or prone
+        "reverse cowgirl": "reverse cowgirl, riding, rides, cowgirl, on top of him, on top of the man, she's on top, she is on top",
+        prone: "prone, lying flat, on her stomach, prone bone",
+        doggy: "doggy, doggystyle, doggy style, all fours, from behind, bent over",
+      },
+      ANAL_POSITIONS: { doggy: 0.45, missionary: 0.3, "reverse cowgirl": 0.15, prone: 0.1 },
+      ANAL_SCENES: {
+        missionary: "{pov} She lies on her back with her knees pulled up to her chest and her legs held wide, her round bottom lifted toward the man kneeling between them; his penis inside her anus, low between her buttocks, and above it her vulva closed and untouched. She looks up at him. {close}",
+        "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, his penis inside her anus between her spread buttocks; below it her vulva closed and untouched; she glances back over her shoulder. {close}",
+        prone: "{pov} She lies flat on her stomach on the bed, legs together, the man on top of her from behind; his penis inside her anus between her round buttocks; she looks back over her shoulder, her cheek on the pillow. {close}",
+        doggy: "{pov} She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. {close}",
+      },
+      ANAL_LORAS: {
+        doggy: { "ferasalm:povanal@1": 1 },
+        missionary: { "ferasalm:missionary@1": 0.8, "ferasalm:penis@1": 0.6 },
+        "reverse cowgirl": { "ferasalm:flux4play@1": 0.8, "ferasalm:penis@1": 0.6 },
+        prone: { "ferasalm:penis@1": 0.6 },
       },
       TIMEOUT_MS: 60000,
       // round 4: the room on Runware, short (the room's LOOK words drowned the act and the LoRAs); {n} = its image number
@@ -3666,22 +3691,24 @@ function runwareAffordable(env, ledger) {
 // according to situations instead of dumping them all together"): LORAS on every picture, then the kind's own (SELFIE_LORAS her
 // selfies, SCENE_LORAS /look and in-person scenes, PIC_LORAS /pic), NUDE_LORAS when nude or a sex act, and each ACT_LORAS LoRA
 // whose ACT_WORDS are in the words. A later set wins a LoRA's weight; weight 0 or not a number = left out.
-// `opts`: { kind, explicit, text, partial } (a bare boolean = explicit). Partly naked (Step 5): PARTIAL_LORAS_OFF left out,
-// PARTIAL_WEIGHTS for the others (0 = left out)
+// `opts`: { kind, explicit, text, partial, anal } (a bare boolean = explicit). Partly naked (Step 5): PARTIAL_LORAS_OFF left out,
+// PARTIAL_WEIGHTS for the others (0 = left out). Step 6: `anal` = the anal position: its ANAL_LORAS replace the ACT_WORDS LoRAs,
+// WITH_LORAS and NUDE_LORAS (penetration: Unchained put the penis below an empty vulva, round 6); an ALONE_LORAS one stays alone
 function runwareLoras(opts = {}) {
   if (typeof opts === "boolean") opts = { explicit: opts };
-  const { kind = "", explicit = false, text = "", partial = false } = opts;
+  const { kind = "", explicit = false, text = "", partial = false, anal = "" } = opts;
   const R = CONFIG.PICTURE.RUNWARE || {};
   const flash = flashAsked(text);
   const own = { selfie: R.SELFIE_LORAS, scene: R.SCENE_LORAS, pic: R.PIC_LORAS }[kind] || {};
   const words = R.ACT_WORDS || {};
   // only on nude or sex-act pictures, except ACT_ANY (his hand can be on her waist in a clothed picture)
-  let acts = Object.entries(R.ACT_LORAS || {}).filter(([air]) => (explicit || (R.ACT_ANY || []).includes(air)) && String(words[air] || "").split(",").some((w) => w.trim() && hasWord(text, w.trim())));
+  const analSet = explicit && anal ? (R.ANAL_LORAS || {})[anal] : null;
+  let acts = analSet ? Object.entries(analSet) : Object.entries(R.ACT_LORAS || {}).filter(([air]) => (explicit || (R.ACT_ANY || []).includes(air)) && String(words[air] || "").split(",").some((w) => w.trim() && hasWord(text, w.trim())));
   // SOLO_LORAS (penis, pussy) only when no act LoRA (neither SOLO_LORAS nor ACT_ANY) is in: the act LoRA draws them already
   const solo = R.SOLO_LORAS || [];
-  if (acts.some(([air]) => !solo.includes(air) && !(R.ACT_ANY || []).includes(air))) acts = acts.filter(([air]) => !solo.includes(air));
+  if (!analSet && acts.some(([air]) => !solo.includes(air) && !(R.ACT_ANY || []).includes(air))) acts = acts.filter(([air]) => !solo.includes(air));
   // WITH_LORAS: a LoRA added to a sex act by its own words (General Penis on missionary and doggy), at its ACT_LORAS weight
-  for (const [air, withs] of Object.entries(R.WITH_LORAS || {})) {
+  for (const [air, withs] of Object.entries(analSet ? {} : R.WITH_LORAS || {})) {
     if (explicit && !acts.some(([a]) => a === air) && Object.hasOwn(R.ACT_LORAS || {}, air) && String(withs).split(",").some((w) => w.trim() && hasWord(text, w.trim()))) acts.push([air, R.ACT_LORAS[air]]);
   }
   // an ALONE_LORAS LoRA draws alone (ALONE_WORDS: only when one of its words is in the text)
@@ -3689,7 +3716,7 @@ function runwareLoras(opts = {}) {
   const alone = acts.map(([air]) => air).find((air) => Object.hasOwn(R.ALONE_LORAS || {}, air) && (!aloneWords[air] || String(aloneWords[air]).split(",").some((w) => w.trim() && hasWord(text, w.trim()))));
   const list = alone
     ? [{ model: alone, weight: Number(R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0)
-    : Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
+    : Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !analSet && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
   if (!partial) return list;
   const off = R.PARTIAL_LORAS_OFF || [];
   const weights = R.PARTIAL_WEIGHTS || {};
@@ -3761,10 +3788,12 @@ function lightFor(words, light) {
   return (CONFIG.PICTURE.LIGHT_WORDS || []).some((w) => String(w).trim() && hasWord(words, w)) ? "" : light;
 }
 
-// The camera and his hands for a sex act (ACT_SCENES, first match; {pov} = POV_MAN), else POV_MAN
-function actScene(text) {
+// The camera and his hands for a sex act (ACT_SCENES, first match; {pov} = POV_MAN), else POV_MAN. Step 6: an anal act's
+// position (`analAt`) takes its ANAL_SCENES text first
+function actScene(text, analAt = "") {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  const hit = Object.entries(R.ACT_SCENES || {}).find(([words]) => String(words).split(",").some((w) => w.trim() && hasWord(text, w.trim())));
+  const anal = analAt && (R.ANAL_SCENES || {})[analAt];
+  const hit = anal ? [analAt, anal] : Object.entries(R.ACT_SCENES || {}).find(([words]) => String(words).split(",").some((w) => w.trim() && hasWord(text, w.trim())));
   return (hit ? String(hit[1]).replace("{pov}", R.POV_MAN || "") : R.POV_MAN || "").replace(/\s{2,}/g, " ").trim();
 }
 
@@ -3819,11 +3848,15 @@ function pictureFlags(prompt, herself = true, level = CONFIG.PICTURE.NSFW.DEFAUL
   const partial = (nude || act) && named([...(P.WEARING_WORDS || []), ...(R.PARTIAL_WORDS || [])]);
   const top = partial && named(R.TOP_WORDS) && !hasWord(prompt, "topless");
   const bottom = partial && named(R.BOTTOM_WORDS) && !hasWord(prompt, "bottomless");
-  const back = (act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()))) || (nude && String(R.NUDE_BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim())));
+  // Step 6: an anal act (ANAL_WORDS) and the position its words name (ANAL_POSITION_WORDS, first match; "" = runwarePlan picks one
+  // by ANAL_POSITIONS); seen from behind unless missionary
+  const anal = act && String(R.ANAL_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()));
+  const analAt = anal ? Object.keys(R.ANAL_POSITION_WORDS || {}).find((k) => String(R.ANAL_POSITION_WORDS[k]).split(",").some((w) => w.trim() && hasWord(prompt, w.trim()))) || "" : "";
+  const back = analAt ? analAt !== "missionary" : (act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()))) || (nude && String(R.NUDE_BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim())));
   // Step 5: a crotch close-up (CLOSE_WORDS), nude and not a sex act or a back view
   const close = nude && !act && !back && (R.CLOSE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
   const kind = !herself ? "alone" : act ? "act" : partial ? "partial" : nude ? "nude" : "clothed";
-  return { act, oral: !!oral, nude, partial: !!partial, back: !!back, top: !!top, bottom: !!bottom, close: !!close, kind };
+  return { act, oral: !!oral, nude, partial: !!partial, back: !!back, top: !!top, bottom: !!bottom, close: !!close, anal: !!anal, analAt, kind };
 }
 
 // The nudity line of a nude, partly naked or sex-act picture (Step 5): NAKED NAKED_BREASTS NAKED_BUSH (the same text as before the
@@ -3877,7 +3910,12 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     }
     return { tries, flags };
   }
-  const { act, oral, nude, partial, back, close: crotch } = flags;
+  // Step 6: an anal act with no position named gets one by ANAL_POSITIONS (a random pick only on anal acts: the others keep theirs)
+  if (flags.anal && !flags.analAt) {
+    flags.analAt = pickWeighted(R.ANAL_POSITIONS || {}) || Object.keys(R.ANAL_SCENES || {})[0] || "";
+    if (flags.analAt) flags.back = flags.analAt !== "missionary";
+  }
+  const { act, oral, nude, partial, back, close: crotch, analAt } = flags;
   const explicit = nude || act;
   // partly naked = PARTIAL_TOP / PARTIAL_BOTTOM / PARTIAL, not NAKED; a back view = NAKED_BACK; a crotch close-up (Step 5: nakedLine)
   const naked = !explicit ? "" : ` ${nakedLine(flags)}`.trimEnd();
@@ -3889,7 +3927,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
   const [rwW, rwH] = size || !(ow > 0 && oh > 0) ? [width, height] : [ow, oh];
   const wide = rwW > rwH && R.WIDE ? ` ${R.WIDE}` : "";
   // "{close}" in its ACT_SCENES text: no place picture (it pulled blowjobs into a wide room shot 4/4); the room stays in words
-  const scene = act ? actScene(prompt) : "";
+  const scene = act ? actScene(prompt, analAt) : "";
   const close = scene.includes("{close}");
   const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
   // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08); nor a crotch
@@ -3942,7 +3980,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const styleLine = extra ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
     // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
     // the LoRAs' own trigger words (LORA_WORDS) go first
-    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt, partial }) : [];
+    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt, partial, anal: analAt }) : [];
     const flash = model === R.MODEL && flashAsked(prompt);
     const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
     const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);

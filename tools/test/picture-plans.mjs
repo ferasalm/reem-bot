@@ -163,6 +163,12 @@ const cases = (W) => {
     { name: "day outfit with a picture: image 1 is the outfit", run: (env, ledger) => W.startPicture(env, ledger, "selfie", null, { dayWear: { ...DAY, home: W.CONFIG.PICTURE.RUNWARE.STYLE_PICTURES["outfit-rust-halter"] } }) },
     // Step 4 review: her own sex-act words get no wardrobe added (a boudoir pick made it "partly naked")
     { name: "selfie act words: no clothes added", run: selfieDay("riding him on the bed").run },
+    // Step 6: anal positions (new cases at the end: cases are seeded by index)
+    { name: "/pic anal reverse cowgirl", run: pic("anal reverse cowgirl") },
+    { name: "/pic prone bone anal", run: pic("prone bone anal") },
+    { name: "/pic anal doggy style", run: pic("anal doggy style") },
+    { name: "/pic anal riding the man", run: pic("anal riding the man") },
+    { name: "/pic riding, hands on her ass (not anal)", run: pic("riding the man, his hands on her ass") },
   ];
 };
 
