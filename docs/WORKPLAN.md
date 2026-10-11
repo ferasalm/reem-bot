@@ -19,12 +19,12 @@ step at the end of this file; that step applies them first. Never two steps (or 
 > $X on Runware (read the balance before and after with the Runware MCP `account`). Don't touch tools/face/bench.json. LIMITS & OOC
 > stays word for word. If the spec is unclear, contradicts the code, or a check fails twice, stop and write it under "Waiting on the
 > owner" in HANDOFF instead of guessing. Finish with /handoff: HANDOFF says "Step N done, waiting on review", with every check you
-> ran and read, the golden-plan diff summary, and where the pictures are. Name your model (read it with `get_session`) in HANDOFF and the commits.
+> ran and read, the golden-plan diff summary, and where the pictures are. Name your model and its raw model ID (`get_session`) in HANDOFF and the commits.
 
 **Opus review prompt (Step N):**
 > Continue reem-bot. Follow CLAUDE.md. Review docs/WORKPLAN.md Step N (done by Haiku): read HANDOFF, the step's commits on dev
 > (the diff, the golden-plan diff), its check output and its bench pictures on face-candidates at full size. Fix any slip, decide
-> what the step left to Opus, write the notes for Step N+1 under "Decided in review" at the end of WORKPLAN.md, then /handoff. Name your model (`get_session`) in the records.
+> what the step left to Opus, write the notes for Step N+1 under "Decided in review" at the end of WORKPLAN.md, then /handoff. Name your model and its raw model ID (`get_session`) in the records.
 
 ## Rules every step follows
 - Start from `dev`; push your branch, then `dev` (CLAUDE.md). Never `main`. Code changes only in the files the step names.
@@ -581,8 +581,8 @@ and says so in HANDOFF):
   LIMITS & OOC untouched; the spend cap in dollars.
 - Leave alone (Step 5 stands): BODY_PARTIAL, CLOTHED_BODY, the close-up settings, the day outfits. Also check riding for the second
   head and his hands (HANDOFF Later), only if the budget allows.
-- Done: Step 6's acceptance, then HANDOFF "Step 6 done" (no separate review chat), naming which parts Haiku did and the workers'
-  model (the subagent transcripts: `grep -rhoE '"model":"claude-haiku[a-z0-9-]*"' ~/.claude/projects | sort | uniq -c`).
+- Done: Step 6's acceptance, then HANDOFF "Step 6 done" (no separate review chat), naming which parts Haiku did, by name and raw model ID: the
+  chat's from `get_session`, each worker's from its subagent transcript (`grep -rhoE '"model":"claude-haiku[a-z0-9-]*"' ~/.claude/projects | sort | uniq -c`).
 
 **Prompt for the Step 6 chat (pick Opus, effort high):**
 > Continue reem-bot. Follow CLAUDE.md: run `git fetch --unshallow origin`, then the sync report; stop and ask me if it lists work
@@ -590,4 +590,4 @@ and says so in HANDOFF):
 > file, then run /opus-haiku-orchestrator for it: show me the plan, then go. Spend at most $0.12 on Runware (read the balance before
 > and after with the Runware MCP `account`). No deploy, never push to main. Finish with /handoff: HANDOFF says "Step 6 done", with
 > every check you ran and read, the golden-plan diff summary, where the pictures are, and which parts Haiku did. Name the model of
-> this chat (`get_session`) and of the workers in the records.
+> this chat (`get_session`) and of each worker (its subagent transcript) by name and raw model ID in the records.

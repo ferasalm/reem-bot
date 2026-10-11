@@ -80,9 +80,12 @@ Do the final synthesis on Opus: merge the results, resolve conflicts between the
 whole answers the user's request, and deliver the finished output (files written, or the text).
 
 ### g. REPORT
-End with exactly two lines, no recap:
-`Delegated to Haiku: <steps, n of m passed first time, k retried, j taken back>.`
-`Kept on Opus: <planning, the judgment steps by name, review, assembly>.`
+End with exactly two lines, no recap. Each names the model that did the work by its raw model ID, read, never
+assumed: the workers' from their transcripts (`grep -rhoE '"model":"claude-[a-z0-9-]*"'` on
+`~/.claude/projects/*/<session>/subagents/agent-*.jsonl`), yours from `get_session` when the session has it
+(else the model the session reports). Write the same IDs into any records the project keeps.
+`Delegated to Haiku (<worker model ID>): <steps, n of m passed first time, k retried, j taken back>.`
+`Kept on Opus (<orchestrator model ID>): <planning, the judgment steps by name, review, assembly>.`
 
 ## Supporting files (read only when needed)
 - `brief-template.md`: the brief skeleton with a filled example. Read at step c.

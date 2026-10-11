@@ -20,6 +20,9 @@ Do these in order. HANDOFF, DECISIONS and LESSONS load at every session start, s
    on `main`, what's on `dev` and not deployed); Waiting on the owner; Verified this session; Next steps in order,
    each ending `*Effort: low|medium|high*`; Open questions. Move finished detail (run ids, versions) to the top of
    `docs/CHANGELOG.md` instead of keeping it.
+   Name who did what by model name and raw model ID (owner, 2026-10-11) in HANDOFF, CHANGELOG and the commit: this
+   chat's from `get_session` (`session_context.model`, `external_metadata.last_served_model`), each subagent's from
+   its transcript (`~/.claude/projects/*/<session>/subagents/agent-*.jsonl`, the `"model"` field). Never from memory.
 7. **Commit and push:** `git fetch origin dev && git merge origin/dev` if the sync report said work is missing,
    then `node tools/check.mjs` again, commit, `git push -u origin <branch>`, `git push origin HEAD:dev`.
    Never push to `main` unless the owner asked to deploy in this session.
