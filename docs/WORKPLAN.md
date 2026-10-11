@@ -419,3 +419,17 @@ Opus fixed two slips (golden still unchanged, `node tools/check.mjs` 7/7; each n
 - Stop at $0.25 by the Runware MCP `account` (read before and after; 72 pictures at about $0.0034 is about $0.25, so stop early and
   say so rather than go over).
 - Leave alone: /nsfw, the seed logic, the studio log, `tools/face/bench.json`.
+
+### Step 3 corrections (owner, 2026-10-11, for the Opus review)
+The owner's reads override the bench read in `table.md` (face-candidates runs/2026-10-11-step3-lora-bench). Fix each at its root, in code
+(the reference, the body or the camera), not with new prompt words: those leak (owner, DECISIONS 2026-10-11).
+1. **Nude mirror, seed 101: the head is disproportionately large** for the body (all four variants; seed 202 fine). Candidates: `BIG_FACE`
+   (the 2x face, 896x960, as image 0 on every face picture); the head-size line ("her head is naturally sized for her body, about one seventh
+   of her height") is only in LOOKS, which her face pictures never use. Test face-1x against face-2x at this seed and measure head to body.
+2. **Blowjob, seed 101: the upper arms are slimmer than they should be.** The sent prompt already says "full upper arms" (REFERENCE), so the
+   words do not hold them. Candidate: image 1 (`body-v10`, the owner's nude front); compare it with the owner's picture 6 in `tools/face/originals/`.
+3. **Doggy, seeds 101 and 202: no ghost hands.** His hands on her buttocks at V0 are correct. Withdrawn: the hand-word cause. No change needed here.
+4. **Doggy, seed 202: no anus visible** above the entry in any variant. The target wording is "her anus above it closed and untouched". Decide
+   whether the camera or the reference hides it, and fix that at the root. Vaginal vs anal is still unresolved on the zoom crops.
+5. Not checked by the owner: riding seed 202 V0 (his hands at the bottom of the frame, bench read); the second head behind her in riding (both seeds).
+Then the "Decided in review, for Step 4" notes, as the step asks.

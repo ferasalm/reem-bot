@@ -7,8 +7,8 @@ New entries: when a session's HANDOFF "Where we are" item is finished, move its 
 ## 2026-10-11 (twenty-seventh session): WORKPLAN Step 3 built and benched (72 pictures, $0.20397 of $0.25); waiting on Opus review; dev only
 - Built: `RUNWARE.LORA_INFO` (18 LoRAs), `LORA_PREFIX_WITH` (the smartphone prefix only with phone2025), `povhandc` out of ACT_WORDS and
   LORA_WORDS, options.mjs category and spare list, `tools/face/lora-bench.mjs`. Golden unchanged (28 cases); check.mjs 7/7; doc-check 144.
-- Bench: runs/2026-10-11-step3-lora-bench on `face-candidates` (pictures, table.md, results.json, zoom sheets). Haiku's read in table.md.
-- Findings: his hands on her butt (doggy) and hips (riding, one seed) came from the hand words; V1 removed them in every case. One clothed
+- Bench: runs/2026-10-11-step3-lora-bench on `face-candidates` (pictures, table.md, results.json, zoom sheets, reads-raw.md). The bench read, corrected by the owner.
+- Findings (owner-corrected): the nude head is too large at seed 101; the blowjob arms are slim at seed 101; doggy hands are fine (ghost hands withdrawn); no anus visible at doggy seed 202. One clothed
   picture with a bare nipple under the full realism stack (V0, seed 202). A second head in every riding variant. Doggy anatomy unresolved on zoom.
 
 ## 2026-10-11 (twenty-sixth session): Opus review of Step 2; LESSONS cap 180; dev only

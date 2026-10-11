@@ -496,11 +496,12 @@ check 0/5 (~20 s a call). → her replies stay "none" (+ retries), tasks (memory
 
 
 ## LoRA set and ghost hands (2026-10-11, WORKPLAN Step 3; bench `tools/face/lora-bench.mjs`, run `face-candidates` runs/2026-10-11-step3-lora-bench)
-72 pictures through the bot's own picture code (klein 9B, Runware, 5 steps, CFG 1), seeds 101 and 202, $0.20397 (balance read before and after). Haiku's read at full size, every picture; Opus checks it. Variants: V0 today, V1 no hand words, V2 V1 + instapic + realhd2kc, V3 V1 + phone2025 + ultrareal5, V4 V1 + ultrareal5 0.7, V5 V1 + no realism LoRA.
-- **Ghost hands (doggy, both seeds; riding, seed 202):** his hands on her butt/hips at V0 only. V1-V5 none. Cause: the hand words (POV_MAN, doggy/anal ACT_SCENES).
-- **Missionary:** his hands on her thighs at V0, V3, V4, V5 (seed 101): a pose, not the words.
-- **Riding:** a second head behind her shoulder in all six (seed 101): a POV defect, unchanged by any variant.
-- **Blowjob:** POV right in all six, both seeds; the penis reads long in all six (POV_MAN's "average-sized" not honoured).
-- **Clothed bedroom, seed 202:** a bare nipple above the sheer slip at V0 only (four realism LoRAs, 2.3 total); V2, V3, V5 covered.
-- **Nude mirror, clothed kitchen:** two hands, no extra limbs, the face close to the reference in all (likeness by eye, not measured).
-- **Doggy anatomy:** unresolved on 260 px zooms (`doggy-zoom-s101/s202.png`); needs Opus at full size.
+72 pictures through the bot's own picture code (klein 9B, Runware, 5 steps, CFG 1), seeds 101 and 202, $0.20397 (balance read before and after). Bench read at full size; the owner's reads override it where noted. Opus checks it. Variants: V0 today, V1 no hand words, V2 V1 + instapic + realhd2kc, V3 V1 + phone2025 + ultrareal5, V4 V1 + ultrareal5 0.7, V5 V1 + no realism LoRA.
+- **Nude mirror, seed 101 (owner):** the head is disproportionately large for the body, in all four variants; seed 202 is fine. The bench read had missed it.
+- **Blowjob, seed 101 (owner):** the upper arms are slimmer than they should be. The sent prompt says "full upper arms" (REFERENCE), so the words do not hold them.
+- **Doggy, seeds 101 and 202 (owner):** no ghost hands, no deformation. His hands on her buttocks at V0 are correct. The earlier "ghost hands = hand words" reading is withdrawn.
+- **Doggy, seed 202 (owner):** no anus visible above the entry in any variant. Vaginal vs anal stays unresolved on the zoom crops.
+- **Riding, seed 202 V0:** his hands at the bottom of the frame (bench read; not checked by the owner). **Riding, both seeds:** a second head behind her in all six (POV defect).
+- **Missionary:** his hands on her thighs at V0, V3, V4, V5 (seed 101): a pose.
+- **Clothed bedroom, seed 202:** a bare nipple above the sheer slip at V0 only (four realism LoRAs, 2.3 total); V2, V3, V5 covered. One case.
+- **Blowjob penis:** reads long in all six (POV_MAN's "average-sized" not honoured).

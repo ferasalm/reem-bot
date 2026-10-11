@@ -53,9 +53,11 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
 ## 2. Known traps
-- Ghost hands in POV sex pictures (Step 3 bench, 2026-10-11): his hands drawn on her hips and butt (doggy both seeds, riding seed 202) at V0,
-  none in V1-V5 → cause: POV_MAN "only his hands, belly, hips and thighs may show" and ACT_SCENES "his hands on her butt" name hands; klein draws
-  what the words name → hand words out. Missionary's hands on her thighs (V0, V3-V5) are a pose, not the words.
+- Head size and arm slimness (Step 3 bench, 2026-10-11; the owner saw them, the bench read missed them): a nude picture at seed 101 had a
+  head too large for the body in all four variants, and the blowjob at the same seed slim arms, though the sent prompt said "full upper arms".
+  Cause (candidates, to test): the 2x face on every face picture (BIG_FACE), the head-size line that is in LOOKS only (no-face pictures), and
+  image 1's arms. Fix the reference or the body, not the words. A reader's full-size pass is not a proportion check: check head-to-body against the reference.
+- Withdrawn (2026-10-11, owner): the "ghost hands" in doggy (his hands on her buttocks at V0) were correct and undeformed. No hand-word change is needed for them.
 - Vaginal vs anal on a 260 px crop at the entry (doggy, 12 pictures): the anus shows above the entry in some frames and not in others → the crop
   can't decide; judge genitals on the full frame, or a larger crop with the anus in it. Undecided (Opus).
 - Four realism LoRAs (phone2025 0.6, ultrareal5 0.6, instapic 0.6, realhd2kc 0.5 = 2.3) on a clothed picture showed a bare nipple once (clothed
