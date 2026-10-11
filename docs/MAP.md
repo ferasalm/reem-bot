@@ -65,6 +65,13 @@ Read before any code change: where each thing lives and how to check it. Not loa
     (klein 9B with face/body/place, KLEIN_TRIES times, then Cloudflare klein with the same references; TwinFlow from LOOKS only without her face: 2026-10-10, TwinFlow drew her from words and the belly), adds RUNWARE.NAKED on NUDE_WORDS; `startPicture` skips the klein
     check and Nano Banana on Runware. The deploy copies the GitHub secret RUNWARE_API_KEY to the Worker; /setup shows the route.
   - studio log (Step 1, 2026-10-11): `drawPicture(env, prompt, { ..., log: { source, chat, asked, herWords, llmText, nsfw } })` = `drawPictureNow` (her face/body/place, `runwarePlan`, `drawRunware` tries, then Cloudflare klein; `rec` keeps what was sent) → `logPicture` (one row per call, `pictureRow`; drawn or not) → one JSON line printed; returns `logId`. `STUDIO_SCHEMA` (tables `pictures`, `presets`) applied once per isolate by `ensureStudioSchema(env)` (a `batch()` of one prepared statement each: D1's `exec()` reads one statement per line); a klein retry sends the next seed; no binding = no log. `logSent` (from `deliverPicture`) stores Telegram's copies: `tg_thumb` (largest at most 400 px), `tg_full`. Sources: selfie, scene (`startPicture`; its `source` option: /look's in-person fallback passes look), look (`lookPicture`; `lookWrite` returns `raw`), pic (`picCommand`), health, face. D1 `reem-studio` (binding `STUDIO_DB`, id in `wrangler.toml`): created with the Cloudflare MCP; `tools/cf-resources.sh` checks it with `wrangler d1 info`.
+  - /nsfw (Step 2, 2026-10-11): `CONFIG.PICTURE.NSFW` (DEFAULT "on", SELF_NUDE); the chat's level `nsfwLevel(settings)` (`s:<chat>`.nsfw),
+    set by `nsfwCommand` (QUICK_ACTIONS) or `nsfwButton` (`nsfw:` taps, before the auto: check); `levelFor` and `nsfwRefusal` answer a
+    picture the level doesn't allow (PIC_NSFW names the level it needs). Every picture function takes the level (default On):
+    `mayDraw` (NOT_DRAWN kept at Nude; NUDE_WORDS refused at Off), `actsOff` + `sexAct`/`sexCue` (no sex acts below On), `pickTier`
+    (nude tier: TIER_WEIGHTS, NUDE_ASK_PATTERN, Runware only), `selfieSubject`/`selfiePicture`, `scenePicturePrompt`/`sceneWearing`,
+    `startPicture` (`nsfw`), `lookPicture`, `picCommand`, `pictureFlags` (Off = clothed), `runwarePlan` (`level`: checkContent on every
+    try at Off), `drawRunware` (`checkContent`), `drawPicture` (`nsfw`; the log row's `nsfw`).
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,
     `photoLine`); ledger `loadLedger`/`saveLedger`/`aiAffordable`/`aiSpent` (KV `pics`); `picturesAllowed`,
     `pictureMode`; `takeSelfie` (in `shapeReply`); `startPicture` (`selfieSubject` or `scenePicturePrompt` →

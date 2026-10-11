@@ -542,6 +542,7 @@ const CONFIG = {
     { command: "pics", aliases: ["selfie", "selfies"], action: "pics", description: "Ask {name} to send pictures more often (on/off)" },
     { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now (words after it steer it)" },
     { command: "pic", aliases: ["photo", "custom"], action: "pic", description: "A picture of {name} as you describe it: /pic <hair, makeup, clothes, pose, framing, angle>" },
+    { command: "nsfw", aliases: [], action: "nsfw", description: "Nudity and sex in {name}'s pictures: /nsfw off, nude or on" },
     { command: "spend", aliases: ["cost", "costs"], action: "spend", description: "What {name} cost today, and what's left on each account" },
     { command: "album", aliases: ["gallery"], action: "album", description: "Every picture {name} has sent you, 10 at a time: /album [page]" },
     { command: "face", aliases: [], action: "face", description: "{name}'s face in her pictures: /face draws new ones to pick from" },
@@ -599,6 +600,11 @@ Changing the story
     // /pic: a picture of her as he describes it (PICTURE.CUSTOM)
     PIC_HELP: "Describe the picture of {name} you want after /pic: her hair, makeup, clothes, pose, framing and camera angle, and where. She keeps her face. For example:\n/pic hair in a high ponytail, red lipstick, black satin slip dress, leaning on the kitchen counter, full body, low angle\n/pic messy bun, no makeup, oversized gray hoodie, curled up on the couch with tea, close-up from above",
     PIC_NOT_DRAWN: "That one can't be drawn. Try other words.",
+    // Step 2 (2026-10-11): /nsfw. Labels: Off, Nude, On. {need} = off | nude | on (the level the picture needs)
+    NSFW_SHOW: "Pictures are set to {level}. Off: no nudity or sex. Nude: nudity, no sex acts. On: everything. Tap one, or send /nsfw off, /nsfw nude or /nsfw on.",
+    NSFW_SET: "Pictures set to {level}.",
+    PIC_NSFW: "That picture needs /nsfw {need} (it's {level} now).",
+    NSFW_LABELS: { off: "Off", nude: "Nude", on: "On" },
     // /face: the reference portrait every picture of her is drawn from (PICTURE)
     FACE_NOW: "{name}'s face in her pictures ({source}). {cmd} draws {count} new ones to pick from.", // {source} {cmd} {count}
     FACE_NONE: "{name} has no reference face yet, so her pictures don't all look like the same woman. {cmd} draws {count} to pick from.", // {cmd} {count}
@@ -763,7 +769,8 @@ Changing the story
    * Pictures v3 (shot catalog): a selfie is one of SHOTS (a camera + framing), in a tier (everyday, flirty,
    * boudoir) picked by the code from the chat (TIER_WEIGHTS, heat, late hours, what he asks for); the angle,
    * expression, wardrobe, place and light are picked by the code too (models don't roll dice). May be sexy by
-   * pose or wardrobe, never nude (SAFE; descriptions or scene sentences with NOT_DRAWN words aren't drawn).
+   * pose or wardrobe; nude only at /nsfw Nude or On on Runware (Step 2; on Cloudflare, SAFE: never nude). Descriptions or
+   * scene sentences with NOT_DRAWN words aren't drawn.
    */
   PICTURE: {
     ENABLED: true,
@@ -789,7 +796,16 @@ Changing the story
     SCENE_ASK_PATTERN: "\\blet me see (?:you|it|that)\\b|\\bshow me\\b|\\bi (?:wanna|want to|need to) see (?:you|it)\\b|\\b(?:take|snap) a (?:pic|picture|photo)\\b",
     // ...and he asks for a sexy one: never an everyday picture. BOUDOIR_ASK_PATTERN: lingerie, satin or swimwear.
     SEXY_ASK_PATTERN: "\\b(?:sexy|sexier|hot|hotter|spicy|spicier|naughty|naughtier|belfie|booty|butt|ass|cleavage|legs|thighs|curves|body|lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|what (?:are )?(?:you|u) wearing|wyw)\\b",
-    BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|nudes?|naked|topless|in bed|in your bed|robe|negligee)\\b",
+    BOUDOIR_ASK_PATTERN: "\\b(?:lingerie|bikini|swimsuit|bra|panties|underwear|in bed|in your bed|robe|negligee)\\b",
+    // Step 2 (2026-10-11): nudes are their own ask. At /nsfw Nude or On it is the nude tier; at Off, boudoir (lingerie stays)
+    NUDE_ASK_PATTERN: "\\b(?:nudes?|naked|topless|nothing on|no clothes|without (?:any |your )?clothes)\\b",
+    // Step 2 (2026-10-11): /nsfw Off / Nude / On, per chat (s:<chat>.nsfw); a chat that has never set it is On (DEFAULT).
+    // Off: no nudity, no sex acts, no NUDE or ACT LoRAs, Runware's content check on (lingerie still allowed). Nude: nudity,
+    // no sex acts. On: everything (today). SELF_NUDE is added to her SELF_CHOICE at Nude and On only.
+    NSFW: {
+      DEFAULT: "on",
+      SELF_NUDE: " When things are hot between you, you may send one naked or topless: say plainly what's bare.",
+    },
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body shape of the woman in image 1 (but not its clothes, pose or room): a 29-year-old woman in her late twenties, clearly an adult, with an average-to-full figure, about 165 cm and 71 kg, not slim and not obese: soft feminine curves; a full bust; a soft, defined waist; soft, narrow, rounded shoulders that slope gently down from her neck (not square or angular); and soft, full upper arms with no muscle definition and no visible muscle or tone. Her hair often sits in a messy bun, sometimes with wispy bangs.",
     LOOKS: "A 29-year-old Lebanese woman: soft rounded face, fair olive skin, thick dark softly arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs, an average-to-full figure, about 165 cm and 71 kg, not slim and not obese, with soft feminine curves, a full bust, a soft defined waist, soft, narrow, rounded shoulders that slope gently down from her neck and soft, full upper arms with no muscle definition, thin gold rings.",
@@ -1175,12 +1191,15 @@ Changing the story
       EVERYDAY: ["close", "selfie", "mirror", "cozy", "detail", "golden", "floor-sit", "counter-sit", "window-lean"],
       FLIRTY: ["mirror-back", "neckline", "legs", "waist", "belly-down", "stretch-mirror", "window-lean"],
       BOUDOIR: ["selfie", "mirror", "neckline", "waist", "cozy", "belly-down", "overhead", "kneel-mirror"], // refused by the filter (3030): legs twice (2026-10-02), mirror-back 4/4 (2026-10-03)
+      // Step 2 (2026-10-11): her own nudes, only at /nsfw Nude or On and on Runware (Cloudflare draws nothing nude)
+      NUDE: ["selfie", "mirror", "mirror-back", "waist", "belly-down", "overhead", "kneel-mirror", "cozy"],
     },
-    // How likely each tier is when the code picks, by how hot the chat is (HEAT_WORDS, late hours)
+    // How likely each tier is when the code picks, by how hot the chat is (HEAT_WORDS, late hours). nude: Step 2, owner's
+    // "about 1 in 3 when hot, a few when warm, never when calm" (2026-10-11); 0 at /nsfw Off (pickTier)
     TIER_WEIGHTS: {
-      CALM: { everyday: 0.85, flirty: 0.13, boudoir: 0.02 },
-      WARM: { everyday: 0.5, flirty: 0.38, boudoir: 0.12 },
-      HOT: { everyday: 0.15, flirty: 0.45, boudoir: 0.4 },
+      CALM: { everyday: 0.85, flirty: 0.13, boudoir: 0.02, nude: 0 },
+      WARM: { everyday: 0.48, flirty: 0.36, boudoir: 0.11, nude: 0.05 },
+      HOT: { everyday: 0.1, flirty: 0.27, boudoir: 0.3, nude: 0.33 },
     },
     HEAT_WORDS: ["kiss", "kissing", "bed", "sexy", "hot", "naked", "touch", "lingerie", "horny", "fuck", "want you", "need you", "turn me on", "body", "lips", "moan", "moans", "undress", "tease", "come over", "thighs", "wet", "hard", "bite", "taste"],
     HEAT_MESSAGES: 6,                  // how many recent messages (his and hers) are read for HEAT_WORDS
@@ -1188,7 +1207,7 @@ Changing the story
     LATE_FROM_HOUR: 22,                // late at night (her time) the chat counts one step hotter
     LATE_TO_HOUR: 3,
     // Told to her with the picture's shot: {hint} in FORMAT, FORMAT_ASKED and REMINDER
-    TIER_HINTS: { everyday: "", flirty: " Make it a little flirty.", boudoir: " You're in lingerie, satin or swimwear." },
+    TIER_HINTS: { everyday: "", flirty: " Make it a little flirty.", boudoir: " You're in lingerie, satin or swimwear.", nude: " You're naked or topless in it: say plainly what's bare." },
     // Words in his ask or her [selfie: ...] that name a shot (the longest match counts)
     SHOT_WORDS: { "close-up": "close", "close up": "close", face: "close", "mirror selfie": "mirror", mirror: "mirror", "full body": "mirror", outfit: "mirror", fit: "mirror", ootd: "mirror", belfie: "mirror-back", booty: "mirror-back", butt: "mirror-back", ass: "mirror-back", "from behind": "mirror-back", "over the shoulder": "mirror-back", cleavage: "neckline", neckline: "neckline", chest: "neckline", legs: "legs", thighs: "legs", waist: "waist", curves: "waist", cozy: "cozy", couch: "cozy", "lying down": "belly-down", "on your stomach": "belly-down", "on my stomach": "belly-down", "on the floor": "floor-sit", "on the counter": "counter-sit", stretching: "stretch-mirror", kneeling: "kneel-mirror", "golden hour": "golden", sunset: "golden", detail: "detail" },
     SHOT_HOURS: { golden: "15-19" },   // shots only picked by the code in these hours (her time)
@@ -1199,6 +1218,7 @@ Changing the story
       EVERYDAY: ["a soft half smile", "laughing, eyes crinkled almost shut", "a raised-eyebrow smirk", "an unimpressed deadpan look", "biting back a smile", "a sleepy, lazy smile"],
       FLIRTY: ["a slow, knowing smile", "a teasing smirk", "lips slightly parted, eyes on the camera", "a daring look straight into the camera", "biting her lower lip"],
       BOUDOIR: ["heavy-lidded eyes, lips slightly parted", "a slow, knowing smile", "a soft, inviting look", "a teasing half smile, chin lowered", "a daring look straight into the camera"],
+      NUDE: ["heavy-lidded eyes, lips slightly parted", "a slow, knowing smile", "a daring look straight into the camera", "a shy, flushed smile", "biting her lower lip"],
     },
     // From her persona. "clothes | place" brings its own place (only for shots with {where})
     WARDROBE: {
@@ -1210,12 +1230,14 @@ Changing the story
         "a tight ribbed white tank top and tiny gray sleep shorts", "a red satin cami and black satin shorts", "a fitted black corset top and high-waisted jeans", "his oversized flannel shirt, unbuttoned low, and bare legs", "a short emerald satin wrap dress", "a cropped white tee with no bra and low-rise sweatpants", "a backless black knit top and a fitted midi skirt", "a sheer black mesh top over a black bralette and jeans"],
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
       BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a red lace bodysuit", "a white lace bodysuit", "a burgundy velvet slip with thin straps", "a black mesh bodysuit", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
+      NUDE: ["completely naked", "topless, in only black lace panties", "naked except for her thin gold rings", "completely naked, her hair still damp from the shower", "topless, in only his oversized gray sweatpants", "naked on rumpled white sheets"],
     },
     // @name = one of her fixed places (LOCATIONS): the same room in every picture
     PLACES: {
       EVERYDAY: ["on @porch", "in @kitchen", "at a bakery café on Mount Auburn Street with a coffee", "at her table in @living, laptop open, shoeboxes of receipts around her", "in @living", "by the radiator under the window in @living", "in @hallway, by her door"],
       FLIRTY: ["in @bedroom", "in @living", "on @porch", "in @hallway, leaning on her doorframe"],
       BOUDOIR: ["on the bed in @bedroom, rumpled white sheets", "by the window in @bedroom", "sitting on the edge of the bed in @bedroom", "in @bedroom"],
+      NUDE: ["on the bed in @bedroom, rumpled white sheets", "by the window in @bedroom", "sitting on the edge of the bed in @bedroom", "in @bedroom"],
     },
     // Fixed places (owner 2026-10-03), the same in every picture and scene: NAME goes in the prompt where @key
     // is; LOOK is added once, and with a reference picture (places.js, drawn by tools/face) the room is drawn
@@ -1255,7 +1277,8 @@ Changing the story
     // Sent right before she writes (like NUDGES.FORMAT_*), where the model pays the most attention
     REMINDER: "[This reply comes with a picture of you: put [selfie: {shot}, what it shows] on its own line, in a few words about you (\"she\", never \"you\").]",
     // While apart, when a picture is possible. {everyday}, {flirty}: the TIERS' shot types
-    SELF_CHOICE: " Now and then you may send him a picture of yourself instead of describing it: [selfie: type, what it shows] on its own line. Types: {everyday}. When you feel like it, pick a sexier one: {flirty}, or any of them in lingerie, satin or swimwear. Your pictures never show you fully naked.",
+    // Step 2 (2026-10-11): the old "Your pictures never show you fully naked." is gone; {nude} = NSFW.SELF_NUDE at Nude and On only
+    SELF_CHOICE: " Now and then you may send him a picture of yourself instead of describing it: [selfie: type, what it shows] on its own line. Types: {everyday}. When you feel like it, pick a sexier one: {flirty}, or any of them in lingerie, satin or swimwear.{nude}",
     RECENT: " Your last pictures showed: {list}. Show something different this time.", // {list}
     SIMILAR: 0.6,                      // word overlap with a recent picture that counts as the same picture
     REMEMBER: 8,                       // how many recent picture descriptions she's reminded of
@@ -1587,7 +1610,7 @@ async function handleBatch(updates, env, ctx, deadline) {
 const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit", "look", "pic"]);
 
 // Commands answered straight from the webhook, never queued: they only show or change his settings
-const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "face", "album", "spend"]);
+const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "nsfw", "face", "album", "spend"]);
 
 function isQuickCommand(update) {
   const m = update && update.message;
@@ -1651,6 +1674,7 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
   if (action === "name") return nameCommand(env, chatId, args, msg);
   if (action === "about") return aboutCommand(env, chatId, args);
   if (action === "pics") return picsCommand(env, chatId);
+  if (action === "nsfw") return nsfwCommand(env, chatId, args);
   if (action === "face") return faceCommand(env, chatId, args, msg);
   if (action === "album") return albumCommand(env, chatId, args);
   if (action === "spend") return spendCommand(env, chatId);
@@ -1991,6 +2015,7 @@ async function onButton(env, ctx, cq, deadline) {
   const A = CONFIG.AUTO;
   const chatId = cq.message.chat.id;
   const id = cq.message.message_id;
+  if (kv && /^nsfw:/.test(cq.data || "")) return nsfwButton(env, cq); // /nsfw's buttons (Step 2), before the auto: check
   if (!kv || !/^auto:/.test(cq.data || "")) return;
   const draft = await kv.get(`a:${chatId}`, "json");
   if (!draft || draft.id !== id) {
@@ -2078,6 +2103,7 @@ async function reply(env, ctx, convo, deadline) {
 // `userParts` are his Telegram messages behind it. Saved once it's delivered, with the message ids.
 async function respond(env, ctx, chatId, state, { heard, userParts = null, cameAsVoice = false, waitUntil, proactive = false, reactTo }, deadline) {
   const { settings, history, notes } = state;
+  const level = nsfwLevel(settings); // /nsfw (Step 2): Off, Nude or On for this chat's pictures
   const ooc = !proactive && isOoc(heard);
   const scene = proactive ? "apart" : sceneOf(history, heard);
   const R = CONFIG.REACTIONS;
@@ -2093,7 +2119,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   const picture = canPicture ? pictureMode({ scene, said, proactive, cameAsPhoto: !!(userParts && userParts.some((p) => p.photo)), morePics: !!settings.morePics }) : null;
   // A selfie the code decided: its shot and tier are picked now, so she's told which one she sends
   const asked = picture && picture.asked ? said : "";
-  if (picture && picture.kind === "selfie") picture.plan = planShot({ asked, history, recentShots: ledger.shots });
+  if (picture && picture.kind === "selfie") picture.plan = planShot({ asked, history, recentShots: ledger.shots, level });
 
   // She starts thinking now, but only answers at waitUntil
   const sceneVoice = (mode === "scene" || mode === "visit") && (asksToHear(heard) || Math.random() < (Number(CONFIG.VOICE.SCENE_CHANCE) || 0));
@@ -2110,9 +2136,9 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   // [selfie] out) or she wrote one herself; in person, the moment from the scene
   let drawing = null;
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
-    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked, chat: chatId });
+    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked, chat: chatId, nsfw: level });
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
-    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history, asked, chat: chatId });
+    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history, asked, chat: chatId, nsfw: level });
   }
   if (out.reaction) {
     const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
@@ -2504,7 +2530,7 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
     // Pictures: told when this reply comes with one (like FORMAT_VOICE); otherwise, apart, she may choose one
     const PIC = CONFIG.PICTURE;
     if (picture && picture.kind === "selfie") extra += fill(picture.asked ? PIC.FORMAT_ASKED : PIC.FORMAT, shotVars(picture.plan));
-    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE, { everyday: tierShots("everyday").join(", "), flirty: tierShots("flirty").join(", ") });
+    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE, { everyday: tierShots("everyday").join(", "), flirty: tierShots("flirty").join(", "), nude: nsfwLevel(settings) !== "off" && runwareRoute() ? PIC.NSFW.SELF_NUDE : "" });
     if (((picture && picture.kind === "selfie") || (canPicture && apart)) && recentPictures.length) {
       extra += fill(PIC.RECENT, { list: recentPictures.slice(-(Number(PIC.REMEMBER) || 8)).map((r) => `"${r}"`).join(", ") });
     }
@@ -3130,24 +3156,32 @@ function overlap(a, b) {
 // A whole word or phrase in a text, any case ("see-through", "in bed")
 const hasWord = (text, w) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegex(String(w).toLowerCase())}(?![\\p{L}\\p{N}])`, "u").test(String(text || "").toLowerCase());
 
-// A sex act (a RUNWARE.NOT_DRAWN word) in words drawn on Runware with SEX_ACTS on
-function sexAct(text) {
+// A nude word (PICTURE.RUNWARE.NUDE_WORDS) in the text
+const nudeWords = (text) => ((CONFIG.PICTURE.RUNWARE || {}).NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(text, w));
+
+// /nsfw Off and Nude keep sex acts out (Step 2); any other level (On, the default) is today's behavior
+const actsOff = (level) => level === "off" || level === "nude";
+
+// A sex act (a RUNWARE.NOT_DRAWN word) in words drawn on Runware with SEX_ACTS on; not at Off or Nude
+function sexAct(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  return runwareRoute() && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
+  return !actsOff(level) && runwareRoute() && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
 }
 
 // Nude or a sex act on Runware (NUDE_WORDS, or sexAct)
-const explicitWords = (text) => sexAct(text) || (runwareRoute() && ((CONFIG.PICTURE.RUNWARE || {}).NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(text, w)));
+const explicitWords = (text, level = CONFIG.PICTURE.NSFW.DEFAULT) => sexAct(text, level) || (runwareRoute() && nudeWords(text));
 
 // In a sex-act picture he is "the man" (POV_MAN): /pic's me/my/I, a scene's you/he/his become him before aboutHer
 const theMan = (t) => String(t || "").replace(/\bi(?:'|’)m\b/gi, "the man is").replace(/\b(?:my|your|his)\b/gi, "the man's").replace(/\b(?:me|you|him|i|he)\b/gi, "the man").replace(/\bthe man's own\b/gi, "the man's");
 
-// A description with a PICTURE.NOT_DRAWN word or phrase is never drawn
-function mayDraw(text) {
+// A description with a PICTURE.NOT_DRAWN word or phrase is never drawn. Step 2 (/nsfw): Nude and Off keep NOT_DRAWN
+// (no sex acts, even with SEX_ACTS on); Off refuses nude words too (lingerie stays)
+function mayDraw(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  if (runwareRoute() && R.SEX_ACTS === true) return true;
+  if (!actsOff(level) && runwareRoute() && R.SEX_ACTS === true) return true;
   const list = runwareRoute() ? R.NOT_DRAWN : CONFIG.PICTURE.NOT_DRAWN;
-  return !(list || []).some((w) => String(w).trim() && hasWord(text, w));
+  if ((list || []).some((w) => String(w).trim() && hasWord(text, w))) return false;
+  return !(level === "off" && runwareRoute() && nudeWords(text));
 }
 
 const pickOne = (list) => (Array.isArray(list) && list.length ? list[Math.floor(Math.random() * list.length)] : "");
@@ -3199,10 +3233,15 @@ function chatHeat(history = [], said = "", hour = herHour()) {
 
 // The tier of a picture: he asks for lingerie/swimwear (BOUDOIR_ASK_PATTERN) → boudoir, for something sexy
 // (SEXY_ASK_PATTERN) → never everyday; otherwise by TIER_WEIGHTS for the chat's heat. Only tiers with `shot`.
-function pickTier({ asked = "", heat = 0, shot = null } = {}) {
+// Step 2 (2026-10-11): the nude tier only at /nsfw Nude or On and on Runware (Cloudflare draws nothing nude); with NUDE_ASK
+// ("send nudes") it is the tier, else boudoir
+function pickTier({ asked = "", heat = 0, shot = null, level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const P = CONFIG.PICTURE;
   let weights = { ...((P.TIER_WEIGHTS || {})[["CALM", "WARM", "HOT"][heat] || "CALM"] || {}) };
-  if (testPattern("BOUDOIR_ASK_PATTERN", asked)) weights = { boudoir: 1 };
+  const nudeOk = (level === "nude" || level === "on") && runwareRoute();
+  if (!nudeOk) weights.nude = 0;
+  if (testPattern("NUDE_ASK_PATTERN", asked)) weights = nudeOk ? { nude: 1 } : { boudoir: 1 };
+  else if (testPattern("BOUDOIR_ASK_PATTERN", asked)) weights = { boudoir: 1 };
   else if (testPattern("SEXY_ASK_PATTERN", asked)) weights.everyday = 0;
   if (shot) for (const t of Object.keys(weights)) if (!tierShots(t).includes(shot)) weights[t] = 0;
   return pickWeighted(weights) || (shot && TIER_NAMES.find((t) => tierShots(t).includes(shot))) || "everyday";
@@ -3220,9 +3259,9 @@ function pickShot(tier, recentShots = [], hour = herHour()) {
 
 // The picture the code decided for this reply (she's told its shot in FORMAT): { tier, shot }. `asked` is his
 // message when he asked for a picture: a shot he names ("belfie", "your legs") is the one he gets.
-function planShot({ asked = "", history = [], recentShots = [], hour = herHour() } = {}) {
+function planShot({ asked = "", history = [], recentShots = [], hour = herHour(), level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const named = shotNamed(asked);
-  const tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot: named });
+  const tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot: named, level });
   const his = !!named && tierShots(tier).includes(named);
   return { tier, shot: his ? named : pickShot(tier, recentShots, hour), named: his };
 }
@@ -3243,7 +3282,7 @@ const aboutHer = (t) => String(t || "").replace(/\byou(?:'|’)re\b/gi, "she is"
 // She may name the shot first ("mirror-back, black leggings"). Words with a NOT_DRAWN word aren't drawn
 // (explicit: the sexiest allowed picture instead); words too close to a recent picture aren't either.
 // No [selfie] at all: `doing` is what she just said she's doing ("just finished dinner"), if drawable.
-function selfieSubject(want, recent = [], said = "") {
+function selfieSubject(want, recent = [], said = "", level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const P = CONFIG.PICTURE;
   // Seen live: "[Now, I'm supposed to reply to you with a picture...]" is the model talking about the task
   if (want && SELFIE_META.test(want)) want = "";
@@ -3272,7 +3311,7 @@ function selfieSubject(want, recent = [], said = "") {
   if (shot) words = words.split(",").filter((seg) => !(shotNamed(seg) === shot && wordsOf(seg.replace(/\b(?:shot|pic|photo|picture|selfie)\b/gi, " ")).every((w) => Object.hasOwn(P.SHOTS, w) || w === "back"))).join(",").trim();
   words = words.replace(/^(?:an?\s+)?selfie\b[\s,:-]*/i, "").replace(/^(?:her|she)\s+(?=(?:in|on|at|with|wearing|by|lying|sitting)\b)/i, "");
   let explicit = false;
-  if (words && !mayDraw(words)) {
+  if (words && !mayDraw(words, level)) {
     words = "";
     explicit = true;
   }
@@ -3283,7 +3322,7 @@ function selfieSubject(want, recent = [], said = "") {
     const sentence = String(said).split(/\n+|(?<=[.!?])\s+/).map((x) => x.trim())
       .find((x) => wordsOf(x).length >= 3 && DOING.test(x)) || "";
     const d = aboutHer(sentence).replace(/[?!.,]+$/, "");
-    if (d && d.length <= 160 && mayDraw(d) && !recent.some((r) => overlap(d, r) > P.SIMILAR)) doing = d;
+    if (d && d.length <= 160 && mayDraw(d, level) && !recent.some((r) => overlap(d, r) > P.SIMILAR)) doing = d;
   }
   return { shot, words: words.replace(/[.\s]+$/, ""), doing, explicit };
 }
@@ -3373,20 +3412,22 @@ function locationOf(text) {
 
 // Her selfie for this reply, from her [selfie: ...] (`want`, null when she wrote none), the code's plan (when
 // the code decided the picture) and the chat. Returns composePicture's answer.
-function selfiePicture({ want = null, said = "", plan = null, history = [], asked = "", recent = [], recentShots = [], hour = herHour() } = {}) {
+function selfiePicture({ want = null, said = "", plan = null, history = [], asked = "", recent = [], recentShots = [], hour = herHour(), level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const P = CONFIG.PICTURE;
-  const s = selfieSubject(want, recent, said);
+  const s = selfieSubject(want, recent, said, level);
   let tier = s.explicit || (s.words && testPattern("BOUDOIR_ASK_PATTERN", s.words)) ? "boudoir" : null;
   // the shot he named wins over the type she writes (seen live: a belfie asked, drawn as a plain mirror shot)
   let shot = plan && plan.named ? plan.shot : s.shot;
   if (!tier && plan && plan.named) tier = plan.tier;
   if (!tier && plan && (!shot || tierShots(plan.tier).includes(shot))) tier = plan.tier;
-  if (!tier) tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot });
+  if (!tier) tier = pickTier({ asked, heat: chatHeat(history, asked, hour), shot, level });
   // Her own description with no type: the shot she was told (plan), else a plain selfie, never a random
   // framing that contradicts it ("lying on her side in bed" drawn as a mirror shot, seen live)
   if (!shot && s.words) shot = plan && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : Object.hasOwn(P.SHOTS, "selfie") ? "selfie" : null;
   if (!shot) shot = plan && plan.tier === tier && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : pickShot(tier, recentShots, hour);
-  return { ...composePicture({ tier, shot, words: s.words, doing: s.doing, hour, recentShots }), asked, explicit: !!s.explicit };
+  // Step 2: a nude-tier picture whose own words name no nudity says so ("completely naked" from the wardrobe when she named none)
+  const words = tier === "nude" && s.words && !nudeWords(s.words) ? `${s.words}, completely naked` : s.words;
+  return { ...composePicture({ tier, shot, words, doing: s.doing, hour, recentShots }), asked, explicit: !!s.explicit };
 }
 
 // A spicier selfie (PICTURE.LINGERIE.SPICY_PATTERN in his ask or her words, or explicit words): Nano Banana's job
@@ -3398,9 +3439,9 @@ function isSpicy(pic) {
 }
 
 // The act her narration shows (SEX_CUES, first match) as the words ACT_WORDS/ACT_SCENES know, or ""; Runware with SEX_ACTS on only
-function sexCue(sceneText) {
+function sexCue(sceneText, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  if (!runwareRoute() || R.SEX_ACTS !== true) return "";
+  if (actsOff(level) || !runwareRoute() || R.SEX_ACTS !== true) return "";
   const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
   try {
     if (CONFIG.PICTURE.SEX_CONTEXT && !new RegExp(CONFIG.PICTURE.SEX_CONTEXT, "i").test(narration)) return "";
@@ -3415,18 +3456,18 @@ function sexCue(sceneText) {
 
 // The prompt for a picture of the moment in person, from the scene's narration about her: only sentences
 // about her (none about him: "you", "his"), none with a NOT_DRAWN word. "" when too little is left.
-function scenePicturePrompt(sceneText) {
+function scenePicturePrompt(sceneText, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const P = CONFIG.PICTURE;
   const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
   const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
   // a sex act in her own words (SEX_CUES): its sentences about him stay too, and the act is named first
-  const cue = sexCue(sceneText);
+  const cue = sexCue(sceneText, level);
   const kept = sentencesOf(narration)
     .map((x) => x.trim())
     // a lowercase start is a speech tag cut from its line ("she murmurs, a teasing edge to her voice")
     // with SEX_ACTS on (Runware), a nude or sex-act sentence about him stays: he is "the man" (POV_MAN)
-    .map((x) => (x && (explicitWords(x) || (cue && sexCue(`*${x}*`))) ? theMan(x.replace(/\byours\b/gi, "the man's")).replace(/^the/, "The") : x))
-    .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x))
+    .map((x) => (x && (explicitWords(x, level) || (cue && sexCue(`*${x}*`, level))) ? theMan(x.replace(/\byours\b/gi, "the man's")).replace(/^the/, "The") : x))
+    .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x, level))
     // nothing a camera sees: her voice, a pause (seen live: "Her voice drops, mock-soft.")
     .filter((x) => !/\b(?:voice|voices|pause|says|said|whispers|murmurs|tone)\b/i.test(x))
     .map((x) => x.replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "Her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
@@ -3444,7 +3485,7 @@ function underLayers(what) {
 
 // What she wears in this scene: the newest clothes her narration named (this reply, then her earlier replies of the
 // same in-person scene), else PICTURE.SCENE_WEARING. Filter-safe; "" when it can't be drawn.
-function sceneWearing(sceneText, history = []) {
+function sceneWearing(sceneText, history = [], level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const P = CONFIG.PICTURE;
   const texts = [sceneText];
   let after = Date.now();
@@ -3467,7 +3508,7 @@ function sceneWearing(sceneText, history = []) {
       for (const list of about) {
         const m = list.map((x) => x.match(re)).find((x) => x && !(/^his\b/i.test(x[x.length - 1]) && !/^(?:wearing|into|pulls on|has on)$/i.test(x[1])));
         const what = m && m[m.length - 1].replace(/^the\s+/i, "her ").trim();
-        if (what && mayDraw(what)) return underLayers(filterSafe(what).replace(/\b(\w+)\s+\1\b/gi, "$1"));
+        if (what && mayDraw(what, level)) return underLayers(filterSafe(what).replace(/\b(\w+)\s+\1\b/gi, "$1"));
       }
     }
   }
@@ -3581,9 +3622,10 @@ const loraWords = (loras) => loras.map((l) => String(((CONFIG.PICTURE.RUNWARE ||
 // One picture from Runware (POST api.runware.ai/v1, one imageInference task, its content check off): { bytes, cost }.
 // It only sends: runwarePlan decides the model, text, references, LoRAs and sampler. `refs`: JPEG bytes, the reference
 // images in order (klein: face, body, place, style); none for TwinFlow. `seed`: drawPicture's, one per picture.
-async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "" } = {}) {
+// checkContent (Step 2): Runware's own content check, on at /nsfw Off (runwarePlan sets it); off everywhere else, as before
+async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "", checkContent = false } = {}) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
+  const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: !!checkContent } };
   if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
   if (loras.length) task.lora = loras;
   if (seed > 0) task.seed = seed;
@@ -3607,12 +3649,14 @@ async function drawRunware(env, model, prompt, refs, width, height, { loras = []
 // What a picture's words ask for (no network, no random picks): a sex act (sexAct), its oral or back camera (ORAL_WORDS,
 // BACK_WORDS), nudity (NUDE_WORDS), partly naked (clothes named with nudity or an act: WEARING_WORDS). `kind` is the studio
 // log's: alone (/look without her) > act > partial > nude > clothed
-function pictureFlags(prompt, herself = true) {
+// Step 2: at /nsfw Off nothing is a sex act or nude, whatever its words say (so `partial` is false too)
+function pictureFlags(prompt, herself = true, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const P = CONFIG.PICTURE;
   const R = P.RUNWARE || {};
-  const act = !!sexAct(prompt);
+  const off = level === "off";
+  const act = !off && !!sexAct(prompt, level);
   const oral = act && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
-  const nude = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
+  const nude = !off && (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
   const partial = (nude || act) && (P.WEARING_WORDS || []).some((w) => String(w).trim() && (hasWord(prompt, w) || hasWord(prompt, `${w}s`)));
   const back = act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()));
   const kind = !herself ? "alone" : act ? "act" : partial ? "partial" : nude ? "nude" : "clothed";
@@ -3624,10 +3668,11 @@ function pictureFlags(prompt, herself = true) {
 // opts: { herself, kind (the LoRA kind: selfie, scene, pic), ref (her face bytes), rwFace (the face sent, 2x), faceName,
 // place (bytes), placeName, width, height, size, who (drawPicture's {who} filler) }. The random picks (act shape, mood,
 // hairstyle) come in the same order as before the split: tools/test/picture-plans.golden.json must not change.
-function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = null, faceName = "face-1x", place = null, placeName = "", width, height, size = 0, who }) {
+// `level` (Step 2): the chat's /nsfw level; Off sets checkContent on every try (drawRunware) and makes the flags clothed
+function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = null, faceName = "face-1x", place = null, placeName = "", width, height, size = 0, who, level = CONFIG.PICTURE.NSFW.DEFAULT }) {
   const P = CONFIG.PICTURE;
   const R = P.RUNWARE || {};
-  const flags = pictureFlags(prompt, herself);
+  const flags = pictureFlags(prompt, herself, level);
   // the sampler goes to klein 9B only (TwinFlow takes Runware's defaults)
   const tryOf = (model, text, refs, loras, w, h) => ({
     model,
@@ -3639,6 +3684,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     steps: model === R.MODEL && Number(R.STEPS) > 0 ? Number(R.STEPS) : 0,
     cfg: model === R.MODEL && Number(R.CFG) >= 1 ? Number(R.CFG) : 0,
     acceleration: model === R.MODEL && R.ACCELERATION ? String(R.ACCELERATION) : "",
+    checkContent: level === "off",
   });
   if (!herself) {
     // /look without her: klein 9B from words with the realism LoRAs, then TwinFlow; no face, body, mood or hair
@@ -3797,7 +3843,7 @@ function pictureRow(prompt, L, rec, ok) {
     her_words: L.herWords || null,
     llm_text: L.llmText || null,
     kind: rec.kind,
-    nsfw: L.nsfw || null,
+    nsfw: rec.nsfw || null,
     model: rec.model || null,
     prompt: rec.prompt || prompt,
     loras: JSON.stringify(rec.loras),
@@ -3819,13 +3865,15 @@ function pictureRow(prompt, L, rec, ok) {
 // prompt (composePicture), with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no
 // reference. `log` = { source, chat, asked, herWords, llmText, nsfw } for the log. Every call is logged, drawn or not, and
 // prints one line of JSON. Plan (runwarePlan) → draw (drawRunware, then Cloudflare) → log.
+// Step 2: `nsfw` = the chat's /nsfw level ("off" | "nude" | "on"; default PICTURE.NSFW.DEFAULT); it is the log row's nsfw
 async function drawPicture(env, prompt, opts = {}) {
   const L = opts.log || {};
-  const rec = { ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: pictureFlags(prompt, opts.herself !== false).kind, model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "" };
+  const nsfw = opts.nsfw || CONFIG.PICTURE.NSFW.DEFAULT;
+  const rec = { ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: pictureFlags(prompt, opts.herself !== false, nsfw).kind, model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "", nsfw };
   let out = null;
   let failure = null;
   try {
-    out = await drawPictureNow(env, prompt, opts, rec);
+    out = await drawPictureNow(env, prompt, { ...opts, nsfw }, rec);
   } catch (e) {
     failure = e;
     rec.error = aiText_(e);
@@ -3838,7 +3886,7 @@ async function drawPicture(env, prompt, opts = {}) {
 }
 
 // drawPicture's draw: the Runware tries (runwarePlan), then Cloudflare. `rec` keeps what was sent, for the log.
-async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0 } = {}, rec) {
+async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0, nsfw = CONFIG.PICTURE.NSFW.DEFAULT } = {}, rec) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
@@ -3865,7 +3913,7 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
   if (ledger && runwareAffordable(env, ledger)) {
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
-    const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who });
+    const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who, level: nsfw });
     for (const t of plan.tries) {
       rec.attempts++;
       Object.assign(rec, { model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || null, cfg: t.cfg || null });
@@ -3873,7 +3921,7 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
         // a retry gets the next seed (the same seed could fail the same way); the log keeps the one last sent
         const trySeed = ((seed - 1 + rec.attempts - 1) % 2147483646) + 1;
         rec.seed = trySeed;
-        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration });
+        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, checkContent: t.checkContent });
         const cost = out.cost || Number(R.USD_PER_PICTURE) || 0;
         ledger.rwUsd = (ledger.rwUsd || 0) + cost;
         rec.cost = cost;
@@ -3940,19 +3988,20 @@ async function sendPhoto(env, chatId, bytes, caption = "", sent = null) {
 // Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
 // or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
 // `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
-function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null, source = kind } = {}) {
+function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null, source = kind, nsfw = null } = {}) {
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE || {};
+  const level = nsfw || P.NSFW.DEFAULT; // /nsfw (Step 2): Off and Nude keep sex acts out of scenes and selfies
   const log = { source, chat, asked, herWords: kind === "scene" ? want : said }; // the studio's log (drawPicture)
   let pic;
   let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
   if (kind === "scene") {
-    const what = scenePicturePrompt(want);
+    const what = scenePicturePrompt(want, level);
     if (!what) return null;
     const location = locationOf(what);
     // a sex act (SEX_CUES or its words): his eyes, she is naked (no clothes from earlier in the scene or SCENE_WEARING)
-    const act = !!sexCue(want) || sexAct(what);
-    const wearing = act ? "" : sceneWearing(want, history);
+    const act = !!sexCue(want, level) || sexAct(what, level);
+    const wearing = act ? "" : sceneWearing(want, history, level);
     const night = timeOfDay() === "night";
     // her narration's own light (candles, golden hour: LIGHT_WORDS) or a flash beats the time's light
     const lightText = lightFor(what, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]));
@@ -3965,7 +4014,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       nanoScene = { prompt: [P.SCENE_STYLE, `${L.WHO}.`, what.replace(/[.\s]*$/, "."), wearing && `She is wearing ${wearing}.`, light, location && "{room}", P.CRAFT].filter(Boolean).join(" "), what, location, night: pic.night, wearing };
     }
   } else {
-    pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots });
+    pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots, level });
   }
   const drawing = (async () => {
     let error = null;
@@ -3987,7 +4036,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       if (lingerie && L.KLEIN_FIRST && !spicy) {
         const kp = kind === "scene" ? pic : { ...composePicture({ ...lingerieArgs(pic), wardrobeList: L.KLEIN_WARDROBE }), asked: pic.asked };
         try {
-          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger, kind, log });
+          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger, kind, log, nsfw: level });
           aiSpent(ledger, drawn.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, null);
           const seen = await lingerieSeen(env, ledger, drawn.bytes);
           kleinPic = { ...kp, bytes: drawn.bytes, kind, logId: drawn.logId };
@@ -4028,7 +4077,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       }
       let drawn;
       try {
-        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log });
+        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level });
       } catch (e) {
         // Cloudflare's safety filter (3030) refused it (seen on the real API: a lace bralette and briefs in a
         // mirror): a boudoir picture first again in the code's own boudoir wardrobe (it gets through; owner
@@ -4039,7 +4088,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
           pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots });
           try {
-            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log });
+            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level });
             break;
           } catch (again) {
             if (i === tiers.length - 1 || !aiFiltered(again)) throw again;
@@ -4258,22 +4307,25 @@ async function lookCommand(env, chatId, args = "") {
   const kv = env.REEM_KV;
   const [history, settings, ledger] = await Promise.all([kv.get(`h:${chatId}`, "json").then((h) => h || []), getSettings(kv, chatId), loadLedger(env)]);
   const together = sceneOf(history, "") === "together";
+  const level = nsfwLevel(settings); // /nsfw (Step 2)
   if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const seen = await lookWrite(env, history, settings, args);
+  // a description the level doesn't allow is not drawn (at On it is drawn as before)
+  if (seen && level !== "on" && !mayDraw(seen.text, level)) return nsfwRefusal(env, chatId, seen.text, level);
   if (seen && seen.withHer) {
-    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, true, { chat: chatId, asked: args, llmText: seen.raw }));
+    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, true, { chat: chatId, asked: args, llmText: seen.raw }, level));
     return sent ? undefined : notice(env, chatId, M.LOOK_FAILED);
   }
   if (seen) {
-    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, false, { chat: chatId, asked: args, llmText: seen.raw }));
+    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, false, { chat: chatId, asked: args, llmText: seen.raw }, level));
     return sent ? undefined : notice(env, chatId, M.LOOK_FAILED);
   }
   if (!together) return notice(env, chatId, M.LOOK_APART);
   const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-3).map((m) => m.content).filter(inPerson);
-  const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t));
+  const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t, level));
   if (!text) return notice(env, chatId, M.LOOK_NONE);
-  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history, chat: chatId, asked: args, source: "look" }));
+  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history, chat: chatId, asked: args, source: "look", nsfw: level }));
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
 }
 
@@ -4304,7 +4356,7 @@ async function lookWrite(env, history, settings, args = "") {
 }
 
 // Draws /look's picture: with her, a scene picture with her face (SCENE_ACT_STYLE on a sex act); without, ALONE_STYLE and no face
-function lookPicture(env, ledger, text, withHer, log = null) {
+function lookPicture(env, ledger, text, withHer, log = null, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const P = CONFIG.PICTURE;
   return (async () => {
     let model = null;
@@ -4314,10 +4366,10 @@ function lookPicture(env, ledger, text, withHer, log = null) {
       const night = timeOfDay() === "night";
       const lightText = lightFor(text, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]));
       const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
-      const style = withHer ? (sexAct(text) && P.SCENE_ACT_STYLE) || P.SCENE_STYLE : (P.LOOK || {}).ALONE_STYLE;
+      const style = withHer ? (sexAct(text, level) && P.SCENE_ACT_STYLE) || P.SCENE_STYLE : (P.LOOK || {}).ALONE_STYLE;
       const body = withHer ? filterSafe(text) : text;
       const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), light, location && "{room}", P.CRAFT, withHer ? safeLine() : ""].filter(Boolean).join(" ");
-      const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" } });
+      const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" }, nsfw: level });
       model = drawn.model;
       return { bytes: drawn.bytes, kind: "scene", logId: drawn.logId };
     } catch (e) {
@@ -4343,14 +4395,15 @@ async function picCommand(env, chatId, args) {
   if (!words) return notice(env, chatId, M.PIC_HELP);
   const [settings, ledger] = await Promise.all([getSettings(env.REEM_KV, chatId), loadLedger(env)]);
   if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
-  if (!mayDraw(words)) return notice(env, chatId, M.PIC_NOT_DRAWN);
+  const level = nsfwLevel(settings); // /nsfw (Step 2)
+  if (!mayDraw(words, level)) return nsfwRefusal(env, chatId, words, level);
   const { prompt, location, night } = customPicture(words);
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const drawing = (async () => {
     let model = null;
     let error = null;
     try {
-      const drawn = await drawPicture(env, prompt, { location, night, ledger, custom: true, log: { source: "pic", chat: chatId, asked: args } });
+      const drawn = await drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw: level, log: { source: "pic", chat: chatId, asked: args } });
       model = drawn.model;
       return { bytes: drawn.bytes, kind: "custom", logId: drawn.logId };
     } catch (e) {
@@ -4383,6 +4436,57 @@ async function picsCommand(env, chatId) {
   await kv.put(`s:${chatId}`, JSON.stringify(s));
   return notice(env, chatId, s.morePics ? CONFIG.MESSAGES.PICS_ON : CONFIG.MESSAGES.PICS_OFF);
 }
+
+// Step 2 (2026-10-11): /nsfw Off / Nude / On for this chat (s:<chat>.nsfw). Off: no nudity, no sex acts, no NUDE or ACT
+// LoRAs, Runware's content check on (lingerie and boudoir still allowed). Nude: nudity, no sex acts. On: everything (today).
+const NSFW_LEVELS = ["off", "nude", "on"];
+
+// The chat's level; a missing or unknown value is PICTURE.NSFW.DEFAULT
+function nsfwLevel(settings) {
+  const v = String((settings && settings.nsfw) || "").toLowerCase();
+  return NSFW_LEVELS.includes(v) ? v : CONFIG.PICTURE.NSFW.DEFAULT;
+}
+
+function nsfwButtons() {
+  const L = CONFIG.MESSAGES.NSFW_LABELS;
+  return { inline_keyboard: [NSFW_LEVELS.map((l) => ({ text: L[l], callback_data: `nsfw:${l}` }))] };
+}
+
+// /nsfw: no argument shows the level with its buttons; off, nude or on sets it
+async function nsfwCommand(env, chatId, args = "") {
+  const M = CONFIG.MESSAGES;
+  const kv = env.REEM_KV;
+  const want = String(args || "").trim().split(/\s+/)[0].toLowerCase();
+  const s = await getSettings(kv, chatId);
+  if (NSFW_LEVELS.includes(want)) {
+    s.nsfw = want;
+    await kv.put(`s:${chatId}`, JSON.stringify(s));
+    return notice(env, chatId, M.NSFW_SET, { level: M.NSFW_LABELS[want] });
+  }
+  return tg(env, "sendMessage", { chat_id: chatId, text: M.NOTICE_PREFIX + fill(M.NSFW_SHOW, { level: M.NSFW_LABELS[nsfwLevel(s)] }), reply_markup: nsfwButtons() });
+}
+
+// A tap on one of /nsfw's buttons: save the level, and the message says so (its buttons go)
+async function nsfwButton(env, cq) {
+  const M = CONFIG.MESSAGES;
+  const kv = env.REEM_KV;
+  const chatId = cq.message.chat.id;
+  const want = String(cq.data).slice("nsfw:".length);
+  if (!NSFW_LEVELS.includes(want)) return;
+  const s = await getSettings(kv, chatId);
+  s.nsfw = want;
+  await kv.put(`s:${chatId}`, JSON.stringify(s));
+  await tg(env, "editMessageText", { chat_id: chatId, message_id: cq.message.message_id, text: M.NOTICE_PREFIX + fill(M.NSFW_SET, { level: M.NSFW_LABELS[want] }) });
+}
+
+// The lowest level at which a picture's words may be drawn ("off", "nude", "on"), or null when none (NOT_DRAWN at On)
+const levelFor = (text) => NSFW_LEVELS.find((l) => mayDraw(text, l)) || null;
+
+// Words that can't be drawn at this level: PIC_NSFW with the level they need, or PIC_NOT_DRAWN when no level draws them
+const nsfwRefusal = (env, chatId, words, level) => {
+  const need = levelFor(words);
+  return notice(env, chatId, need ? CONFIG.MESSAGES.PIC_NSFW : CONFIG.MESSAGES.PIC_NOT_DRAWN, { need, level: CONFIG.MESSAGES.NSFW_LABELS[level] });
+};
 
 // /face: shows her face and draws FACE_DRAFTS new ones; /face keep (as a reply to a draft) uses it;
 // /face reset goes back to the face built into face.js. Drafts are kept a day (KV face_draft:<message id>).

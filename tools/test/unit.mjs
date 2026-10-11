@@ -519,6 +519,26 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const R = W.CONFIG.PICTURE.RUNWARE;
     eq([plan.tries.length, plan.tries.every((t) => t.model === R.MODEL), plan.tries[0].steps === Number(R.STEPS), plan.tries[0].refs[0].name], [2, true, true, "face-2x"], "plan: klein twice (KLEIN_TRIES), sampler from RUNWARE, the 2x face first");
     eq(W.pictureFlags("a black lace bodysuit", false).kind, "alone", "plan flags: /look without her is alone");
+    // /nsfw (Step 2, 2026-10-11): the levels, what each allows, the nude tier's odds, and her own selfies at Off
+    {
+      const P = W.CONFIG.PICTURE;
+      const saved = { route: P.ROUTE, sex: P.RUNWARE.SEX_ACTS };
+      P.ROUTE = "runware-klein"; P.RUNWARE.SEX_ACTS = true;
+      eq([W.nsfwLevel({}), W.nsfwLevel({ nsfw: "off" }), W.nsfwLevel({ nsfw: "NUDE" }), W.nsfwLevel({ nsfw: "bogus" })], ["on", "off", "nude", "on"], "/nsfw: a chat that never set it is On; off and nude read; an unknown value is the default");
+      eq([W.mayDraw("naked", "off"), W.mayDraw("naked", "nude"), W.mayDraw("naked", "on"), W.mayDraw("lingerie", "off"), W.mayDraw("blowjob", "nude"), W.mayDraw("blowjob", "on")], [false, true, true, true, false, true], "/nsfw: mayDraw by level (nudity at Nude, no sex acts at Nude, lingerie at Off)");
+      eq([W.levelFor("naked"), W.levelFor("blowjob"), W.levelFor("lingerie")], ["nude", "on", "off"], "/nsfw: the lowest level a picture's words need");
+      eq([W.sexAct("blowjob", "nude"), W.sexAct("blowjob", "on"), W.sexCue("*She wraps her lips around your cock.*", "off"), W.sexCue("*She wraps her lips around your cock.*", "on")], [false, true, "", "a blowjob"], "/nsfw: sex acts (sexAct, sexCue) only at On");
+      eq([W.pictureFlags("naked on the bed", true, "off").kind, W.pictureFlags("naked on the bed", true, "nude").kind, W.pictureFlags("blowjob", true, "nude").act], ["clothed", "nude", false], "/nsfw: a picture is clothed at Off whatever its words; nude at Nude");
+      const draws = (heat, level, n = 3000) => Array.from({ length: n }, () => W.pickTier({ heat, level })).filter((t) => t === "nude").length / n;
+      const hot = draws(2, "on"), calm = draws(0, "on"), hotOff = draws(2, "off");
+      eq([Math.abs(hot - 0.33) <= 0.03, calm, hotOff, W.pickTier({ asked: "send nudes", level: "on" }), W.pickTier({ asked: "send nudes", level: "off" })], [true, 0, 0, "nude", "boudoir"], "/nsfw: the nude tier 1 in 3 when hot (±3 points), never when calm or Off; send nudes is nude at On, boudoir at Off");
+      const selfOff = W.selfiePicture({ want: "naked on the bed", level: "off", recent: [], recentShots: [] });
+      eq([selfOff.tier, /\bnaked\b/i.test(selfOff.prompt)], ["boudoir", false], "/nsfw: her [selfie: naked ...] at Off is boudoir, with no nudity in it");
+      const selfNude = W.selfiePicture({ asked: "send nudes", level: "on", recent: [], recentShots: [] });
+      eq([selfNude.tier, /naked|topless/i.test(selfNude.prompt)], ["nude", true], "/nsfw: the nude tier names its nudity (its wardrobe, or her words)");
+      eq([/never show you fully naked/.test(P.SELF_CHOICE), P.SELF_CHOICE.endsWith("{nude}")], [false, true], "/nsfw: SELF_CHOICE has no 'never naked' rule and ends with {nude}");
+      P.ROUTE = saved.route; P.RUNWARE.SEX_ACTS = saved.sex;
+    }
     // klein's retry: the next seed, and the log row names the one that drew
     const okFetch = globalThis.fetch;
     let calls = 0;

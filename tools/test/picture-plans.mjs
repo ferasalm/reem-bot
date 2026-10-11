@@ -82,6 +82,8 @@ globalThis.fetch = async (url, init = {}) => {
         CFGScale: t.CFGScale ?? null,
         acceleration: t.acceleration ?? null,
         refs: (t.inputs?.referenceImages || []).map(nameOf),
+        // Step 2: Runware's content check, recorded only when on (the On cases keep their lines)
+        ...(t.safety?.checkContent ? { checkContent: true } : {}),
       });
     }
     if (sent.failRunware) return json({ data: [], errors: [{ code: "stub", message: "stub failure (golden case)" }] }, 500);
@@ -115,6 +117,11 @@ const cases = (W) => {
     return W.drawPicture(env, prompt, { location, night, ledger, custom: true });
   };
   const selfie = (want, at = null) => ({ at, run: (env, ledger) => W.startPicture(env, ledger, "selfie", want, { asked: want || "" }) });
+  // Step 2 (/nsfw): the words go straight to drawPicture at a level, with no refusal in front (the plan itself must hold)
+  const picAt = (args, nsfw) => async (env, ledger) => {
+    const { prompt, location, night } = W.customPicture(W.picWords(args));
+    return W.drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw });
+  };
   return [
     { name: "selfie everyday kitchen (composePicture)", run: selfie("making coffee in my kitchen, gray cardigan").run },
     { name: "selfie no words (cozy)", run: selfie(null).run },
@@ -141,6 +148,9 @@ const cases = (W) => {
     { name: "/look with her: couch, old cardigan", run: (env, ledger) => W.lookPicture(env, ledger, "She sits on his couch in her old cardigan, laughing", true) },
     { name: "/pic nude belfie in the bedroom mirror", run: pic("nude belfie in the bedroom mirror") },
     { name: "Runware fails twice: Cloudflare draws", fail: true, run: selfie("in the kitchen, gray cardigan").run },
+    { name: "nsfw Off: naked on the bed (no nudity, checkContent on)", run: picAt("naked on the bed", "off") },
+    { name: "nsfw Nude: naked on the bed (the On plan)", run: picAt("naked on the bed", "nude") },
+    { name: "nsfw Nude: topless, jeans on, mirror selfie", run: picAt("topless, jeans on, mirror selfie", "nude") },
   ];
 };
 

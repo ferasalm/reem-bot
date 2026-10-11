@@ -4,6 +4,18 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (twenty-fifth session): WORKPLAN Step 2, /nsfw built, waiting on Opus review; dev only
+- Built: `/nsfw` Off / Nude / On per chat (`s:<chat>`.nsfw, default On; buttons `nsfw:off|nude|on`); the level threaded through
+  `mayDraw`, `sexAct`/`sexCue`, `pickTier` (nude tier: 33% when hot, 0.05 warm, 0 calm; NUDE_ASK "send nudes"), `selfiePicture`,
+  `scenePicturePrompt`, `startPicture`, `lookPicture`/`lookCommand`, `picCommand`, `pictureFlags` (Off = clothed), `runwarePlan`
+  (checkContent on every try at Off), `drawRunware` (`checkContent`), `drawPicture` (`nsfw`, the log row's `nsfw`). SELF_CHOICE: the
+  2026-10-02 "never fully naked" line is gone; `{nude}` = NSFW.SELF_NUDE at Nude and On on Runware.
+- Golden: 25 existing cases unchanged (0 lines removed); 3 added (Off "naked on the bed", Nude "naked on the bed", Nude "topless, jeans
+  on, mirror selfie"). The recorder writes `checkContent` only when true.
+- Tests: unit 9 new rows (`/nsfw` block), scenarios 7 new (`/nsfw` block: Off, Nude, On, in-person act), e2e 5 new (buttons and args).
+  `node tools/check.mjs`: read in full in the HANDOFF of this session.
+- Runware: no live call (all tests stub the network). Balance read at the end: $14.93; this session's spend $0.
+
 ## 2026-10-11 (twenty-fourth session): Opus review of Step 1; dev only
 - Fixed: `ensureStudioSchema` used D1 `exec()` on a 3-line CREATE TABLE (D1 reads one statement per line: every live log row would
   have been lost) → `batch()` of prepared statements, checked in node:sqlite; a klein retry sends the next seed; /look's in-person

@@ -525,6 +525,20 @@ step("/setup: Sulafat test clip heard back by Gemini, ElevenLabs without a clip,
   V.PROVIDER = prov; gemini.mode = "fail"; delete env.AI; store.delete("ai_error"); store.delete("voice_error");
 }
 
+step("/nsfw: the level with its buttons; a tap or an argument sets it (Step 2, 2026-10-11)");
+await run(msg({ text: "/nsfw" }));
+const nsfwShown = lastSent();
+console.log("/nsfw: shows the level and Off/Nude/On buttons:", nsfwShown.b.text.includes("Pictures are set to On.") && JSON.stringify(nsfwShown.b.reply_markup.inline_keyboard[0].map((b) => b.callback_data)) === JSON.stringify(["nsfw:off", "nsfw:nude", "nsfw:on"]));
+await tap("nsfw:off", 555);
+const nsfwEdited = tgCalls("editMessageText").at(-1).b;
+console.log("a tap saves Off and edits the message (no buttons):", JSON.parse(store.get("s:7")).nsfw === "off" && nsfwEdited.text.includes("Pictures set to Off.") && !("reply_markup" in nsfwEdited));
+await run(msg({ text: "/nsfw nude" }));
+console.log("/nsfw nude sets Nude:", JSON.parse(store.get("s:7")).nsfw === "nude" && lastSent().b.text.includes("Pictures set to Nude."));
+await run(msg({ text: "/nsfw" }));
+console.log("/nsfw shows the level it has now:", lastSent().b.text.includes("Pictures are set to Nude."));
+await run(msg({ text: "/nsfw on" }));
+console.log("/nsfw on sets On:", JSON.parse(store.get("s:7")).nsfw === "on" && lastSent().b.text.includes("Pictures set to On."));
+
 step("everything down: fallback line");
 globalThis.fetch = ((f) => async (url, init) => url.includes("openrouter") ? new Response("{}", { status: 503 }) : f(url, init))(globalThis.fetch);
 await run(msg({ text: "you there?" }));

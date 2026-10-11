@@ -131,9 +131,8 @@ At most 150 lines (`tools/doc-check.mjs`).
   `shapeReply` from a scratch script with `loadWorker()` (`tools/test/load-worker.mjs`). (2026-10-05)
 
 ## 4. What works
-- `node tools/check.mjs` before every push; a commit message with `[live]` runs the real-model check on Actions.  Its live job once
-  showed "skipped" (run 37459757344) → dispatch test.yml (`actions_run_trigger`: runs, only, model); watch the run with a Monitor loop on `curl -s api.github.com/repos/ferasalm/reem-bot/actions/runs/<id>` (anonymous 200; the JSON is pretty-printed, `"status": "in_progress"`, so grep the value; poll every 30 s, emit once on `completed`). (2026-10-06, 2026-10-08)
-- Refactoring a sender (2026-10-11): capture golden plans first (`tools/test/picture-plans.mjs`: the bot's own picture code, network stubbed, $0), keep every `Math.random` pick in its order, and the golden diff must be empty; a unit test that checked LoRAs through `drawRunware` moved to `runwarePlan` (the sender now only sends).
+- `node tools/check.mjs` before every push; `[live]` in a commit runs the real-model check, and a skipped live job → dispatch test.yml (`actions_run_trigger`) and watch it (Monitor on `api.github.com/repos/ferasalm/reem-bot/actions/runs/<id>`, grep `"status"`, poll 30 s). (2026-10-06, 2026-10-08)
+- Refactoring a sender (2026-10-11): capture golden plans first (`tools/test/picture-plans.mjs`, network stubbed, $0), keep every `Math.random` pick in its order, golden diff empty; the sender only sends (LoRA unit tests read `runwarePlan`). A level added to it (/nsfw, 2026-10-11): callbacks like `.map(W.sexCue)` pass the index as the second argument, so check levels by name (`actsOff`), never `level !== "on"`; a golden case for a level matches structure (body, clause, LoRAs, sampler), since each case draws its own random picks.
 - Before writing "deployed" or "not deployed" in HANDOFF, read the remote: `git ls-remote origin main` and the Deploy to Cloudflare runs for `main` (2026-10-09: remote main was 9309e8e, deployed 03:13 UTC, while the draft said 9803e28).
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)

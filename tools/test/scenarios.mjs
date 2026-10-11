@@ -827,6 +827,47 @@ section("pictures: his photos (Workers AI vision)");
     store.set("h:7", before); store.delete("pics");
   }
 
+  section("/nsfw: a chat's picture level (Step 2, 2026-10-11)");
+  {
+    const P = W.CONFIG.PICTURE, M = W.CONFIG.MESSAGES;
+    const setLevel = (v) => store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), nsfw: v }));
+    P.ROUTE = "runware-klein"; env.RUNWARE_API_KEY = "rw";
+    store.delete("pics");
+    setLevel("off");
+    r = await turn("/pic naked on the bed", [], {});
+    yes(r.photos.length === 0 && (r.texts.at(-1) || "").includes("/nsfw nude") && (r.texts.at(-1) || "").includes("it's Off now"), "Off: /pic naked → not drawn, the level it needs is named", r.texts.at(-1));
+    r = await turn("/pic red dress", [], {});
+    let t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && t.safety.checkContent === true && !t.positivePrompt.includes(P.RUNWARE.NAKED) && !t.lora.some((l) => /unchained|snofs|nsfwunlock/i.test(l.model)), "Off: a clothed picture, Runware's content check on, no nude LoRA", t && t.positivePrompt.slice(0, 120));
+    r = await turn("send me a pic", ["Sure, here you go. [selfie: naked on the bed, black satin sheets]"], { history: APART });
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && !t.positivePrompt.includes(P.RUNWARE.NAKED) && t.safety.checkContent === true, "Off: her own [selfie: naked ...] is not drawn nude", t && t.positivePrompt.slice(0, 160));
+    setLevel("nude");
+    r = await turn("/pic blowjob", [], {});
+    yes(r.photos.length === 0 && (r.texts.at(-1) || "").includes("/nsfw on"), "Nude: a blowjob picture needs On", r.texts.at(-1));
+    r = await turn("/pic naked on the bed", [], {});
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && t.positivePrompt.includes(P.RUNWARE.NAKED) && t.safety.checkContent !== true, "Nude: naked is drawn nude, the content check stays off", t && t.positivePrompt.slice(0, 120));
+    // a sex act in person (SEX_CUES): drawn at On, left out at Off and Nude (the scene itself stays)
+    // her sentence (kneeling) stays at every level; the act's sentence is about him (your cock) and is dropped below On
+    const ACT_SCENE = [{ role: "assistant", content: "*She kneels on the rug, her dark hair falling over one shoulder, a slow smile on her lips.* *She wraps her lips around your cock, slow.* \"like that?\"" }];
+    for (const [level, drawn] of [["off", false], ["nude", false], [undefined, true]]) {
+      setLevel(level);
+      r = await turn("/look", [], { history: ACT_SCENE });
+      t = runware.calls.at(-1);
+      const actLoRA = (t.lora || []).some((l) => /povbj|povdt|unchained/i.test(l.model));
+      yes(r.photos.length === 1 && t.positivePrompt.includes("Sex act: a blowjob.") === drawn && actLoRA === drawn, `/look in person at ${level || "the default (On)"}: ${drawn ? "the blowjob is drawn with its LoRA" : "no sex act, no act LoRA"}`, `${JSON.stringify(t.lora.map((l) => l.model))} | ${t.positivePrompt.slice(0, 200)}`);
+    }
+    setLevel(undefined);
+    r = await turn("/pic blowjob", [], {});
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && t.lora.some((l) => /unchained/i.test(l.model)), "On (the default): a blowjob is drawn, the act LoRA on");
+    setLevel(undefined);
+    P.ROUTE = "cloudflare"; delete env.RUNWARE_API_KEY;
+    store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), nsfw: undefined }));
+    store.delete("pics");
+  }
+
   section("pictures: in person");
   r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\" *Her eyes move over you.*"], { history: SCENE });
   eq(r.order, ["sendMessage", "sendPhoto"], "he asks to see her (SCENE_ASK_PATTERN): the scene, then a picture of the moment");

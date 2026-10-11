@@ -906,6 +906,129 @@
         }
       ]
     },
+    "nsfw Nude: naked on the bed (the On plan)": {
+      "cloudflare": [],
+      "drawn": true,
+      "runware": [
+        {
+          "CFGScale": 1,
+          "acceleration": "none",
+          "height": 1344,
+          "lora": [
+            {
+              "model": "ferasalm:phone2025@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:ultrareal5@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:unchained@2",
+              "weight": 0.8
+            }
+          ],
+          "model": "runware:400@2",
+          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a sultry look with her lips parted, her eyes closed, head tilted back. Her hair: in a loose low ponytail with a silk scrunchie. naked on the bed. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "place:bedroom~2"
+          ],
+          "steps": 5,
+          "width": 768
+        }
+      ]
+    },
+    "nsfw Nude: topless, jeans on, mirror selfie": {
+      "cloudflare": [],
+      "drawn": true,
+      "runware": [
+        {
+          "CFGScale": 1,
+          "acceleration": "none",
+          "height": 1344,
+          "lora": [
+            {
+              "model": "ferasalm:phone2025@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:ultrareal5@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:unchained@2",
+              "weight": 0.8
+            }
+          ],
+          "model": "runware:400@2",
+          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a sultry look with her lips parted, looking straight into the lens. Her hair: long, loose dark waves with a center part and no bangs, falling over her shoulders. topless, jeans on, mirror selfie. Lit by soft window light. Natural skin texture, slight grain. She is only partly naked: the clothes named stay on, in place, and cover what they cover (a bra or top keeps her breasts fully covered, no nipples showing); only the rest of her is bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's.",
+          "refs": [
+            "face-2x",
+            "body-v10-clothed",
+            "style:hair-long-waves"
+          ],
+          "steps": 5,
+          "width": 768
+        }
+      ]
+    },
+    "nsfw Off: naked on the bed (no nudity, checkContent on)": {
+      "cloudflare": [],
+      "drawn": true,
+      "runware": [
+        {
+          "CFGScale": 1,
+          "acceleration": "none",
+          "checkContent": true,
+          "height": 1344,
+          "lora": [
+            {
+              "model": "ferasalm:phone2025@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:ultrareal5@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "model": "runware:400@2",
+          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a cheeky grin with the tip of her tongue out, looking off to the side, out of the frame. Her hair: in a high ponytail. naked on the bed. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "refs": [
+            "face-2x",
+            "body-v10-clothed",
+            "place:bedroom~2"
+          ],
+          "steps": 5,
+          "width": 768
+        }
+      ]
+    },
     "selfie camera flash in the bedroom mirror": {
       "cloudflare": [],
       "drawn": true,
