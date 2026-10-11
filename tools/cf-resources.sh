@@ -12,3 +12,6 @@ for p in chat who; do
   echo "$out" | grep -qiE "created|already exists|duplicate|success" || exit 1
 done
 $W vectorize info reem-memory
+# The studio's log (STUDIO_DB, wrangler.toml; created with the Cloudflare MCP): a deploy binds it, so it must be visible here.
+# Not created here: the schema is worker.js's STUDIO_SCHEMA, applied by the Worker on its first picture.
+$W d1 info reem-studio || exit 1

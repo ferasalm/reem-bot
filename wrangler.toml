@@ -35,3 +35,13 @@ binding = "AI"
 [[vectorize]]
 binding = "MEMORY_INDEX"
 index_name = "reem-memory"
+
+# The studio's log (worker.js STUDIO_SCHEMA, logPicture): every picture's prompt, LoRAs, references, seed and cost. Created by
+# hand with the Cloudflare MCP (2026-10-11) and checked by tools/cf-resources.sh (deploy.yml runs it first).
+[[d1_databases]]
+binding = "STUDIO_DB"
+database_name = "reem-studio"
+database_id = "ee34d51e-36b8-43f4-8c53-cdc4282cb93a"
+
+[observability]
+enabled = true

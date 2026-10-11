@@ -2110,9 +2110,9 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   // [selfie] out) or she wrote one herself; in person, the moment from the scene
   let drawing = null;
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
-    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked });
+    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked, chat: chatId });
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
-    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history, asked });
+    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history, asked, chat: chatId });
   }
   if (out.reaction) {
     const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
@@ -3488,9 +3488,14 @@ const safeLine = () => (runwareRoute() ? "" : CONFIG.PICTURE.SAFE);
 
 // Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): the owner's 2026-10-10 set (v10 nude front, v10-back, v10-clothed)
 // `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08); "back": BODY_BACK
-function runwareBody(explicit = true) {
+// The RUNWARE.BODY* key of a picture's body reference ("v10", "v10-back", "v10-clothed"); explicit = "back" | nude | clothed
+function runwareBodyName(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  const b = explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
+  return explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
+}
+
+function runwareBody(explicit = true) {
+  const b = runwareBodyName(explicit);
   const pics = { "v10": BODY_NUDE_JPEG_BASE64, "v10-back": BODY_BACK_JPEG_BASE64, "v10-clothed": BODY_CLOTHED_JPEG_BASE64 };
   const b64 = pics[b] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
@@ -3573,18 +3578,19 @@ const loraWords = (loras) => loras.map((l) => String(((CONFIG.PICTURE.RUNWARE ||
 
 // One picture from Runware (POST api.runware.ai/v1, one imageInference task, its content check off): { bytes, cost }.
 // `refs`: JPEG bytes sent as reference images (klein: face, body, place); none for TwinFlow.
-async function drawRunware(env, model, prompt, refs, width, height, loraOpts = false) {
+// One picture from Runware (POST api.runware.ai/v1, one imageInference task, its content check off): { bytes, cost }.
+// It only sends: runwarePlan decides the model, text, references, LoRAs and sampler. `refs`: JPEG bytes, the reference
+// images in order (klein: face, body, place, style); none for TwinFlow. `seed`: drawPicture's, one per picture.
+async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "" } = {}) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: false } };
   if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
-  const loras = model === R.MODEL ? runwareLoras(loraOpts) : [];
   if (loras.length) task.lora = loras;
-  // klein 9B's sampler (STEPS, CFG, ACCELERATION; unset = Runware's default)
-  if (model === R.MODEL) {
-    if (Number(R.STEPS) > 0) task.steps = Number(R.STEPS);
-    if (Number(R.CFG) >= 1) task.CFGScale = Number(R.CFG);
-    if (R.ACCELERATION) task.acceleration = String(R.ACCELERATION);
-  }
+  if (seed > 0) task.seed = seed;
+  // klein 9B's sampler (STEPS, CFG, ACCELERATION): runwarePlan sets them for klein only; 0 or "" = Runware's default
+  if (steps > 0) task.steps = steps;
+  if (cfg >= 1) task.CFGScale = cfg;
+  if (acceleration) task.acceleration = String(acceleration);
   budget.used++;
   let res;
   try {
@@ -3596,6 +3602,116 @@ async function drawRunware(env, model, prompt, refs, width, height, loraOpts = f
   const d = (data.data || [])[0];
   if (!res.ok || (data.errors || []).length || !d?.imageBase64Data) throw new Error(`Runware ${res.status}: ${(data.errors || []).map((x) => x.code || x.message).join(", ") || "no picture"}`);
   return { bytes: fromBase64(d.imageBase64Data), cost: Number(d.cost) || 0 };
+}
+
+// What a picture's words ask for (no network, no random picks): a sex act (sexAct), its oral or back camera (ORAL_WORDS,
+// BACK_WORDS), nudity (NUDE_WORDS), partly naked (clothes named with nudity or an act: WEARING_WORDS). `kind` is the studio
+// log's: alone (/look without her) > act > partial > nude > clothed
+function pictureFlags(prompt, herself = true) {
+  const P = CONFIG.PICTURE;
+  const R = P.RUNWARE || {};
+  const act = !!sexAct(prompt);
+  const oral = act && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
+  const nude = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
+  const partial = (nude || act) && (P.WEARING_WORDS || []).some((w) => String(w).trim() && (hasWord(prompt, w) || hasWord(prompt, `${w}s`)));
+  const back = act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()));
+  const kind = !herself ? "alone" : act ? "act" : partial ? "partial" : nude ? "nude" : "clothed";
+  return { act, oral: !!oral, nude, partial: !!partial, back: !!back, kind };
+}
+
+// The Runware plan of one picture, with no network: `tries` in order, each { model, text, refs: [{ name, bytes }], loras,
+// width, height, steps, cfg, acceleration }, and `flags` (pictureFlags). drawPicture sends the tries until one draws.
+// opts: { herself, kind (the LoRA kind: selfie, scene, pic), ref (her face bytes), rwFace (the face sent, 2x), faceName,
+// place (bytes), placeName, width, height, size, who (drawPicture's {who} filler) }. The random picks (act shape, mood,
+// hairstyle) come in the same order as before the split: tools/test/picture-plans.golden.json must not change.
+function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = null, faceName = "face-1x", place = null, placeName = "", width, height, size = 0, who }) {
+  const P = CONFIG.PICTURE;
+  const R = P.RUNWARE || {};
+  const flags = pictureFlags(prompt, herself);
+  // the sampler goes to klein 9B only (TwinFlow takes Runware's defaults)
+  const tryOf = (model, text, refs, loras, w, h) => ({
+    model,
+    text,
+    refs,
+    loras,
+    width: w,
+    height: h,
+    steps: model === R.MODEL && Number(R.STEPS) > 0 ? Number(R.STEPS) : 0,
+    cfg: model === R.MODEL && Number(R.CFG) >= 1 ? Number(R.CFG) : 0,
+    acceleration: model === R.MODEL && R.ACCELERATION ? String(R.ACCELERATION) : "",
+  });
+  if (!herself) {
+    // /look without her: klein 9B from words with the realism LoRAs, then TwinFlow; no face, body, mood or hair
+    const tries = [];
+    for (const model of P.ROUTE === "runware-klein" ? [R.MODEL, R.BACKUP_MODEL] : [R.BACKUP_MODEL]) {
+      if (!model) continue;
+      const loras = model === R.MODEL ? runwareLoras({ kind, explicit: false, text: "" }) : [];
+      const triggers = loraWords(loras);
+      const text = [triggers && `${triggers}.`, who("", false, true), R.PHOTO].filter(Boolean).join(" ");
+      tries.push(tryOf(model, text, [], loras, Number(R.WIDTH) || width, Number(R.HEIGHT) || height));
+    }
+    return { tries, flags };
+  }
+  const { act, oral, nude, partial, back } = flags;
+  const explicit = nude || act;
+  // partly naked (WEARING_WORDS) = PARTIAL, not NAKED; a sex act's back view = NAKED_BACK
+  const naked = !explicit ? "" : ` ${partial ? R.PARTIAL : back ? R.NAKED_BACK || R.NAKED : R.NAKED}`.trimEnd();
+  // its own size (RUNWARE.WIDTH/HEIGHT, a sex act's shape by ASPECTS) unless the caller asked for one
+  const shape = act ? pickWeighted((R.ASPECTS || {})[oral ? "ORAL" : "ACT"] || {}) : "";
+  const sized = String((shape && (R.SIZES || {})[shape]) || "").split("x").map(Number);
+  const [ow, oh] = sized.length === 2 && sized[0] > 0 && sized[1] > 0 ? sized : [Number(R.WIDTH), Number(R.HEIGHT)];
+  const [rwW, rwH] = size || !(ow > 0 && oh > 0) ? [width, height] : [ow, oh];
+  const wide = rwW > rwH && R.WIDE ? ` ${R.WIDE}` : "";
+  // "{close}" in its ACT_SCENES text: no place picture (it pulled blowjobs into a wide room shot 4/4); the room stays in words
+  const scene = act ? actScene(prompt) : "";
+  const close = scene.includes("{close}");
+  const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
+  // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08)
+  const shownPlace = close || flashAsked(prompt) ? null : place;
+  // her expression and gaze when the words name none (MOODS, GAZES; a sex act's scene may already name her gaze)
+  const named = (t) => (R.FACE_WORDS || []).some((w) => String(w).trim() && hasWord(t, w));
+  const k = oral && (R.MOODS || {}).ORAL ? "ORAL" : act ? "ACT" : naked ? "HEATED" : "EVERYDAY";
+  const look = named(prompt) ? "" : [pickOne((R.MOODS || {})[k]), named(scene) ? "" : pickOne((R.GAZES || {})[k])].filter(Boolean).join(", ");
+  // right after who she is (at the end klein kept image 0's smile, round 4 bench), but after a sex act's camera words: early, it
+  // turned her face to the lens in doggy 3/3 (without it 1/1 from behind)
+  const mood = look ? ` Her face: ${look}.` : "";
+  // a hairstyle (HAIRSTYLES): her hair color stays image 0's, the style changes
+  const hair = pickHair(prompt);
+  const style = stylePicture(prompt, hair);
+  const hairLine = hair ? ` Her hair: ${hair}.` : "";
+  const [early, late] = act ? ["", mood] : [mood, ""];
+  const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
+  // partly naked: BODY_PARTIAL (the clothed body leaked its tank top, the nude one bared what her clothes cover)
+  const bodyArg = back ? "back" : partial ? R.BODY_PARTIAL === "nude" : explicit;
+  const rwBody = ref ? runwareBody(bodyArg) : null;
+  const bodyName = `body-${runwareBodyName(bodyArg)}`;
+  // her pictures: klein again (KLEIN_TRIES), then Cloudflare klein with the same references (drawPicture). Never TwinFlow for
+  // her: it has no reference and its words drew the big belly (2026-10-10). Without her face, TwinFlow as before.
+  const tries = P.ROUTE === "runware-klein" && ref ? Array.from({ length: Math.max(1, Number(R.KLEIN_TRIES) || 1) }, () => [R.MODEL, true]) : [[R.BACKUP_MODEL, false]];
+  // with a sex act's back view, REFERENCE_BACK names the view; a hairstyle changes her hair, not its color
+  const ref1 = (back && R.REFERENCE_BACK) || R.REFERENCE;
+  const ref0 = hair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color") : ref1;
+  const out = [];
+  for (const [model, withFace] of tries) {
+    if (!model) continue;
+    // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
+    const base = withFace ? [rwFace && { name: faceName, bytes: rwFace }, rwBody && { name: bodyName, bytes: rwBody }, shownPlace && { name: placeName, bytes: shownPlace }].filter(Boolean) : [];
+    // the style picture comes after them: its image number is base.length
+    const refs = withFace && style ? [...base, { name: `style:${style.key}`, bytes: style.bytes }] : base;
+    const styleLine = withFace && style ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
+    // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
+    // the LoRAs' own trigger words (LORA_WORDS) go first
+    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt }) : [];
+    const flash = model === R.MODEL && flashAsked(prompt);
+    const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
+    const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);
+    const lead = (w) => (loras.length && R.LORA_PREFIX && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
+    const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
+    const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
+    const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
+    out.push(tryOf(model, text, refs, loras, rwW, rwH));
+  }
+  return { tries: out, flags };
 }
 
 // `big`: the 2x reference (Runware, RUNWARE.BIG_FACE) unless /face stored another face
@@ -3616,15 +3732,117 @@ async function imageBytes(out) {
   throw new Error("the image model returned no image");
 }
 
-// A new picture: JPEG/PNG bytes and the model that drew it. `prompt` is the whole prompt (composePicture),
-// with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no reference.
-// FLUX.2 klein takes multipart form data (with the reference as input_image_0); when it's unavailable,
-// FLUX.1 schnell draws from LOOKS instead.
-async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true } = {}) {
+// The studio's log (D1, binding STUDIO_DB; Step 1 of docs/WORKPLAN.md): every picture's prompt, LoRAs, references, settings,
+// seed and cost. The schema is applied once per isolate; no binding = no log, and nothing else changes.
+const STUDIO_SCHEMA = `
+CREATE TABLE IF NOT EXISTS pictures (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, chat TEXT, source TEXT NOT NULL,
+  asked TEXT, her_words TEXT, llm_text TEXT, kind TEXT, nsfw TEXT, model TEXT, prompt TEXT NOT NULL, loras TEXT, refs TEXT,
+  width INTEGER, height INTEGER, steps INTEGER, cfg REAL, seed INTEGER, cost REAL, ms INTEGER, attempts INTEGER, ok INTEGER NOT NULL,
+  error TEXT, tg_thumb TEXT, tg_full TEXT);
+CREATE INDEX IF NOT EXISTS pictures_at ON pictures(at);
+CREATE TABLE IF NOT EXISTS presets (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, author TEXT, name TEXT, body TEXT NOT NULL);
+`;
+let studioSchema = null;
+function ensureStudioSchema(env) {
+  if (!env.STUDIO_DB) return Promise.resolve(false);
+  if (!studioSchema) {
+    studioSchema = env.STUDIO_DB.exec(STUDIO_SCHEMA).then(
+      () => true,
+      (e) => {
+        studioSchema = null; // try again next time
+        console.error("studio schema", e);
+        return false;
+      },
+    );
+  }
+  return studioSchema;
+}
+
+// One row in the studio's log: its id, or null (no binding, or the write failed). Never throws: a failed write costs the log
+// a row, never the picture.
+async function logPicture(env, row) {
+  try {
+    if (!(await ensureStudioSchema(env))) return null;
+    const cols = Object.keys(row);
+    const res = await env.STUDIO_DB.prepare(`INSERT INTO pictures (${cols.join(", ")}) VALUES (${cols.map(() => "?").join(", ")})`).bind(...cols.map((c) => row[c] ?? null)).run();
+    return res?.meta?.last_row_id ?? null;
+  } catch (e) {
+    console.error("logPicture failed", e);
+    return null;
+  }
+}
+
+// Telegram's own copies of a logged picture (free, no re-upload): tg_thumb = the largest PhotoSize at most 400 px wide,
+// tg_full = the last (largest) one
+async function logSent(env, id, photo) {
+  try {
+    if (!env.STUDIO_DB || !id || !Array.isArray(photo) || !photo.length) return;
+    const small = [...photo].filter((p) => p.width <= 400).sort((a, b) => a.width - b.width);
+    const thumb = (small.length ? small : [...photo].sort((a, b) => a.width - b.width)).at(-1);
+    await env.STUDIO_DB.prepare("UPDATE pictures SET tg_thumb = ?, tg_full = ? WHERE id = ?").bind(thumb.file_id, photo.at(-1).file_id, id).run();
+  } catch (e) {
+    console.error("logSent failed", e);
+  }
+}
+
+// The row for one drawPicture call: what was finally sent (or tried last) and what it cost
+function pictureRow(prompt, L, rec, ok) {
+  return {
+    at: new Date().toISOString(),
+    chat: L.chat == null ? null : String(L.chat),
+    source: L.source || "other",
+    asked: L.asked || null,
+    her_words: L.herWords || null,
+    llm_text: L.llmText || null,
+    kind: rec.kind,
+    nsfw: L.nsfw || null,
+    model: rec.model || null,
+    prompt: rec.prompt || prompt,
+    loras: JSON.stringify(rec.loras),
+    refs: JSON.stringify(rec.refs),
+    width: rec.width,
+    height: rec.height,
+    steps: rec.steps,
+    cfg: rec.cfg,
+    seed: rec.seed || null,
+    cost: rec.cost || 0,
+    ms: Date.now() - rec.ms0,
+    attempts: rec.attempts,
+    ok: ok ? 1 : 0,
+    error: ok ? null : rec.error || null,
+  };
+}
+
+// A new picture: { bytes, model, logId } (logId: its row in the studio's log, null without STUDIO_DB). `prompt` is the whole
+// prompt (composePicture), with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no
+// reference. `log` = { source, chat, asked, herWords, llmText, nsfw } for the log. Every call is logged, drawn or not, and
+// prints one line of JSON. Plan (runwarePlan) → draw (drawRunware, then Cloudflare) → log.
+async function drawPicture(env, prompt, opts = {}) {
+  const L = opts.log || {};
+  const rec = { ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: pictureFlags(prompt, opts.herself !== false).kind, model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "" };
+  let out = null;
+  let failure = null;
+  try {
+    out = await drawPictureNow(env, prompt, opts, rec);
+  } catch (e) {
+    failure = e;
+    rec.error = aiText_(e);
+  }
+  const logId = await logPicture(env, pictureRow(prompt, L, rec, !failure));
+  console.log(JSON.stringify({ picture: logId, source: L.source || "other", model: rec.model || null, kind: rec.kind, loras: rec.loras.length, cost: rec.cost, ms: Date.now() - rec.ms0, ok: !failure }));
+  if (failure) throw failure;
+  out.logId = logId;
+  return out;
+}
+
+// drawPicture's draw: the Runware tries (runwarePlan), then Cloudflare. `rec` keeps what was sent, for the log.
+async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0 } = {}, rec) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
-  const seed = Math.floor(Math.random() * 2147483647);
+  // one seed per picture, sent to Runware and to klein on Cloudflare (a seed in the call: the same plan, another picture)
+  const seed = Number(wantedSeed) || 1 + Math.floor(Math.random() * 2147483646);
+  rec.seed = seed;
   // a fixed place: its reference picture (places.js; its night picture when dark) as the next image, and its LOOK
   // in words ({room})
   const L = location && (P.LOCATIONS || {})[location];
@@ -3639,104 +3857,35 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     const p = String(prompt).replace("{room}", room(withImage, rw));
     return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
   };
-  // Runware (PICTURE.ROUTE): klein 9B with her face, RUNWARE.BODY and the place, then TwinFlow from words; NAKED added
-  // when the words say she's naked. Its spend goes in ledger.rwUsd; when both fail, Cloudflare draws it.
-  // (no ledger: /face's portrait and /health stay on Cloudflare)
-  // /look without her (`herself` false): klein 9B from words with the realism LoRAs, then TwinFlow; no face, body, mood or hair
-  if (!herself && ledger && runwareAffordable(env, ledger)) {
-    const R = P.RUNWARE;
-    for (const model of P.ROUTE === "runware-klein" ? [R.MODEL, R.BACKUP_MODEL] : [R.BACKUP_MODEL]) {
-      if (!model) continue;
-      try {
-        const loras = model === R.MODEL ? runwareLoras({ kind, explicit: false, text: "" }) : [];
-        const triggers = loraWords(loras);
-        const text = [triggers && `${triggers}.`, who("", false, true), R.PHOTO].filter(Boolean).join(" ");
-        const out = await drawRunware(env, model, text, [], Number(R.WIDTH) || width, Number(R.HEIGHT) || height, { kind, explicit: false, text: "" });
-        ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
-        return { bytes: out.bytes, model };
-      } catch (e) {
-        if (ledger) ledger.rwFailed = (ledger.rwFailed || 0) + 1; // failed Runware attempts today (/spend)
-        await aiFailed(env, `drawing with ${model} (Runware): ${aiText_(e)}`);
-      }
-    }
-  }
-  if (ledger && herself && runwareAffordable(env, ledger)) {
+  // Runware (PICTURE.ROUTE): the plan's tries in order, each drawn with the same seed. Its spend goes in ledger.rwUsd; when
+  // every try fails, Cloudflare draws it. (no ledger: /face's portrait and /health stay on Cloudflare)
+  // /look without her (`herself` false): klein 9B from words, then TwinFlow; her pictures: klein with her face, body and place
+  if (ledger && runwareAffordable(env, ledger)) {
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
-    // three kinds of picture (owner, round 7: "a switch for normal vs nudity only vs sex scenes, prompting them differently"): clothed
-    // (BODY_CLOTHED, DRESSED), nude (BODY, NAKED) and a sex act (BODY or BODY_BACK, NAKED or NAKED_BACK, the act's camera and LoRAs).
-    // Clothes named in a nude or sex-act picture (WEARING_WORDS: "in her bra", "only stockings") = partly naked: PARTIAL, no NAKED
-    const act = sexAct(prompt);
-    const oralAct = act && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
-    const nude = (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
-    const partial = (nude || act) && (P.WEARING_WORDS || []).some((w) => String(w).trim() && (hasWord(prompt, w) || hasWord(prompt, `${w}s`)));
-    const back = act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()));
-    const naked = !(nude || act) ? "" : ` ${partial ? R.PARTIAL : back ? R.NAKED_BACK || R.NAKED : R.NAKED}`.trimEnd();
-    // its own size (RUNWARE.WIDTH/HEIGHT, a sex act's shape by ASPECTS) unless the caller asked for one
-    const shape = act ? pickWeighted((R.ASPECTS || {})[oralAct ? "ORAL" : "ACT"] || {}) : "";
-    const sized = String((shape && (R.SIZES || {})[shape]) || "").split("x").map(Number);
-    const [ow, oh] = sized.length === 2 && sized[0] > 0 && sized[1] > 0 ? sized : [Number(R.WIDTH), Number(R.HEIGHT)];
-    const [rwW, rwH] = size || !(ow > 0 && oh > 0) ? [width, height] : [ow, oh];
-    const wide = rwW > rwH && R.WIDE ? ` ${R.WIDE}` : "";
-    // "{close}" in its ACT_SCENES text: no place picture (it pulled blowjobs into a wide room shot 4/4); the room stays in words
-    const scene = act ? actScene(prompt) : "";
-    const close = scene.includes("{close}");
-    const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
-    // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08)
-    const shownPlace = close || flashAsked(prompt) ? null : place;
-    const explicit = nude || act;
-    // her expression and gaze when the words name none (MOODS, GAZES; a sex act's scene may already name her gaze)
-    const named = (t) => (R.FACE_WORDS || []).some((w) => String(w).trim() && hasWord(t, w));
-    const k = oralAct && (R.MOODS || {}).ORAL ? "ORAL" : act ? "ACT" : naked ? "HEATED" : "EVERYDAY";
-    const look = named(prompt) ? "" : [pickOne((R.MOODS || {})[k]), named(scene) ? "" : pickOne((R.GAZES || {})[k])].filter(Boolean).join(", ");
-    // right after who she is (at the end klein kept image 0's smile, round 4 bench), but after a sex act's camera words: early, it
-    // turned her face to the lens in doggy 3/3 (without it 1/1 from behind)
-    const mood = look ? ` Her face: ${look}.` : "";
-    const hair = pickHair(prompt);
-    const style = stylePicture(prompt, hair);
-    const hairLine = hair ? ` Her hair: ${hair}.` : "";
-    const [early, late] = act ? ["", mood] : [mood, ""];
-    const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
-    // partly naked: BODY_PARTIAL (the clothed body leaked its tank top, the nude one bared what her clothes cover)
-    const rwBody = ref ? runwareBody(back ? "back" : partial ? R.BODY_PARTIAL === "nude" : explicit) : null;
-    // her pictures: klein again (KLEIN_TRIES), then Cloudflare klein with the same references below. Never TwinFlow for her: it has no
-    // reference and its words drew the big belly (2026-10-10). Without her face, TwinFlow as before.
-    const tries = P.ROUTE === "runware-klein" && ref ? Array.from({ length: Math.max(1, Number(R.KLEIN_TRIES) || 1) }, () => [R.MODEL, true]) : [[R.BACKUP_MODEL, false]];
-    for (const [model, withFace] of tries) {
-      if (!model) continue;
+    const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who });
+    for (const t of plan.tries) {
+      rec.attempts++;
+      Object.assign(rec, { model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || null, cfg: t.cfg || null });
       try {
-        // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
-        const base = withFace ? [rwFace, rwBody, shownPlace].filter(Boolean) : [];
-        // the style picture comes after them: its image number is base.length
-        const refs = withFace && style ? [...base, style.bytes] : base;
-        const styleLine = withFace && style ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
-        // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
-        // the LoRAs' own trigger words (LORA_WORDS) go first
-        const loraOpts = { kind, explicit, text: prompt };
-        const loras = model === R.MODEL ? runwareLoras(loraOpts) : [];
-        const flash = model === R.MODEL && flashAsked(prompt);
-        const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
-        const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);
-        const lead = (w) => (loras.length && R.LORA_PREFIX && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
-        const dressed = !explicit && R.DRESSED ? ` ${R.DRESSED}` : "";
-        // the trigger words open the whole prompt (inside {who} they ran into the style line: "...photo of instapic. This is...")
-        // a hairstyle (HAIRSTYLES): her hair color stays image 0's, the style changes
-        const ref1 = (back && R.REFERENCE_BACK) || R.REFERENCE;
-        const ref0 = hair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color") : ref1;
-        const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
-        const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
-        const out = await drawRunware(env, model, text, refs, rwW, rwH, loraOpts);
-        if (ledger) ledger.rwUsd = (ledger.rwUsd || 0) + (out.cost || Number(R.USD_PER_PICTURE) || 0);
-        return { bytes: out.bytes, model };
+        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration });
+        const cost = out.cost || Number(R.USD_PER_PICTURE) || 0;
+        ledger.rwUsd = (ledger.rwUsd || 0) + cost;
+        rec.cost = cost;
+        return { bytes: out.bytes, model: t.model };
       } catch (e) {
-        if (ledger) ledger.rwFailed = (ledger.rwFailed || 0) + 1; // failed Runware attempts today (/spend)
-        await aiFailed(env, `drawing with ${model} (Runware): ${aiText_(e)}`);
+        ledger.rwFailed = (ledger.rwFailed || 0) + 1; // failed Runware attempts today (/spend)
+        await aiFailed(env, `drawing with ${t.model} (Runware): ${aiText_(e)}`);
       }
     }
   }
+  // Cloudflare: FLUX.2 klein with her references (face, body, place); FLUX.1 schnell from words when klein is unavailable
+  const text = who(ref ? P.REFERENCE : P.LOOKS, true);
+  rec.attempts++;
+  Object.assign(rec, { model: P.MODEL, prompt: text, refs: [ref && "face-1x", body && "body-cloudflare", place && placeKey && `place:${placeKey}`].filter(Boolean), loras: [], width, height, steps: null, cfg: null });
   try {
     const form = new FormData();
-    form.append("prompt", who(ref ? P.REFERENCE : P.LOOKS, true));
+    form.append("prompt", text);
     form.append("width", String(width));
     form.append("height", String(height));
     form.append("seed", String(seed)); // klein takes a seed; schnell doesn't (5006)
@@ -3750,7 +3899,10 @@ async function drawPicture(env, prompt, { size = 0, width = size || CONFIG.PICTU
     // a 3030 refusal stands: never redrawn by the backup
     if (!P.BACKUP_MODEL || aiFiltered(e) || !aiUnavailable(e)) throw e;
     await aiFailed(env, `drawing with ${P.MODEL}: ${aiText_(e)}; used ${P.BACKUP_MODEL}`);
-    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: who(P.LOOKS, false), steps: P.BACKUP_STEPS }, P.TIMEOUT_MS);
+    const backupText = who(P.LOOKS, false);
+    rec.attempts++;
+    Object.assign(rec, { model: P.BACKUP_MODEL, prompt: backupText, refs: [], width, height, steps: null, cfg: null });
+    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: backupText, steps: P.BACKUP_STEPS }, P.TIMEOUT_MS);
     return { bytes: await imageBytes(out), model: P.BACKUP_MODEL };
   }
 }
@@ -3783,9 +3935,10 @@ async function sendPhoto(env, chatId, bytes, caption = "", sent = null) {
 // Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
 // or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
 // `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
-function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "" } = {}) {
+function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null } = {}) {
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE || {};
+  const log = { source: kind, chat, asked, herWords: kind === "scene" ? want : said }; // the studio's log (drawPicture)
   let pic;
   let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
   if (kind === "scene") {
@@ -3829,10 +3982,10 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       if (lingerie && L.KLEIN_FIRST && !spicy) {
         const kp = kind === "scene" ? pic : { ...composePicture({ ...lingerieArgs(pic), wardrobeList: L.KLEIN_WARDROBE }), asked: pic.asked };
         try {
-          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger, kind });
+          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger, kind, log });
           aiSpent(ledger, drawn.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, null);
           const seen = await lingerieSeen(env, ledger, drawn.bytes);
-          kleinPic = { ...kp, bytes: drawn.bytes, kind };
+          kleinPic = { ...kp, bytes: drawn.bytes, kind, logId: drawn.logId };
           if (seen.ok || !wantsLingerie(env, ledger, pic, spicy)) {
             model = null;
             return kleinPic;
@@ -3870,7 +4023,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       }
       let drawn;
       try {
-        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind });
+        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log });
       } catch (e) {
         // Cloudflare's safety filter (3030) refused it (seen on the real API: a lace bralette and briefs in a
         // mirror): a boudoir picture first again in the code's own boudoir wardrobe (it gets through; owner
@@ -3881,7 +4034,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
           pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots });
           try {
-            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind });
+            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log });
             break;
           } catch (again) {
             if (i === tiers.length - 1 || !aiFiltered(again)) throw again;
@@ -3889,7 +4042,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
         }
       }
       model = drawn.model;
-      return { ...pic, bytes: drawn.bytes, kind };
+      return { ...pic, bytes: drawn.bytes, kind, logId: drawn.logId };
     } catch (e) {
       error = e;
       await aiFailed(env, `drawing a picture: ${aiText_(e)}`);
@@ -4014,6 +4167,7 @@ async function deliverPicture(env, chatId, ledger, drawing) {
     const sent = {};
     const id = await sendPhoto(env, chatId, pic.bytes, "", sent);
     if (id == null) return null;
+    await logSent(env, pic.logId, sent.photo);
     await albumAdd(env, chatId, sent).catch((e) => console.error("album: couldn't save", e));
     ledger.hashes.push(hash);
     if (pic.kind === "selfie") {
@@ -4103,18 +4257,18 @@ async function lookCommand(env, chatId, args = "") {
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const seen = await lookWrite(env, history, settings, args);
   if (seen && seen.withHer) {
-    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, true));
+    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, true, { chat: chatId, asked: args, llmText: seen.raw }));
     return sent ? undefined : notice(env, chatId, M.LOOK_FAILED);
   }
   if (seen) {
-    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, false));
+    const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, false, { chat: chatId, asked: args, llmText: seen.raw }));
     return sent ? undefined : notice(env, chatId, M.LOOK_FAILED);
   }
   if (!together) return notice(env, chatId, M.LOOK_APART);
   const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-3).map((m) => m.content).filter(inPerson);
   const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t));
   if (!text) return notice(env, chatId, M.LOOK_NONE);
-  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history }));
+  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history, chat: chatId, asked: args }));
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
 }
 
@@ -4141,11 +4295,11 @@ async function lookWrite(env, history, settings, args = "") {
   const first = lines[0].replace(/^(?:WITH[_ ]HER|ALONE)\b[:.\s-]*/i, "");
   const names = CONFIG.CHARACTER.NAME_PREFIXES.map(escapeRegex).join("|");
   const text = [first, ...lines.slice(1)].filter(Boolean).join(" ").replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "she").replace(/^she\b/, "She").trim();
-  return wordsOf(text).length >= 4 ? { withHer, text } : null;
+  return wordsOf(text).length >= 4 ? { withHer, text, raw: String(out || "") } : null;
 }
 
 // Draws /look's picture: with her, a scene picture with her face (SCENE_ACT_STYLE on a sex act); without, ALONE_STYLE and no face
-function lookPicture(env, ledger, text, withHer) {
+function lookPicture(env, ledger, text, withHer, log = null) {
   const P = CONFIG.PICTURE;
   return (async () => {
     let model = null;
@@ -4158,9 +4312,9 @@ function lookPicture(env, ledger, text, withHer) {
       const style = withHer ? (sexAct(text) && P.SCENE_ACT_STYLE) || P.SCENE_STYLE : (P.LOOK || {}).ALONE_STYLE;
       const body = withHer ? filterSafe(text) : text;
       const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), light, location && "{room}", P.CRAFT, withHer ? safeLine() : ""].filter(Boolean).join(" ");
-      const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer });
+      const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" } });
       model = drawn.model;
-      return { bytes: drawn.bytes, kind: "scene" };
+      return { bytes: drawn.bytes, kind: "scene", logId: drawn.logId };
     } catch (e) {
       error = e;
       model = P.MODEL;
@@ -4191,9 +4345,9 @@ async function picCommand(env, chatId, args) {
     let model = null;
     let error = null;
     try {
-      const drawn = await drawPicture(env, prompt, { location, night, ledger, custom: true });
+      const drawn = await drawPicture(env, prompt, { location, night, ledger, custom: true, log: { source: "pic", chat: chatId, asked: args } });
       model = drawn.model;
-      return { bytes: drawn.bytes, kind: "custom" };
+      return { bytes: drawn.bytes, kind: "custom", logId: drawn.logId };
     } catch (e) {
       error = e;
       model = P.MODEL;
@@ -4257,7 +4411,7 @@ async function faceCommand(env, chatId, args, msg = {}) {
       await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
       let drawn;
       try {
-        drawn = await drawPicture(env, `{who} ${P.PORTRAIT} ${P.SAFE}`, { size: 480, face: false });
+        drawn = await drawPicture(env, `{who} ${P.PORTRAIT} ${P.SAFE}`, { size: 480, face: false, log: { source: "face" } });
         aiSpent(ledger, CONFIG.AI_BUDGET.PICTURE_NEURONS);
       } catch (e) {
         aiSpent(ledger, 0, e);
@@ -4290,7 +4444,7 @@ async function health(env) {
   try {
     const t0 = Date.now();
     const pic = composePicture({ tier: "everyday", shot: "selfie", words: "smiling at the camera in her living room" });
-    const drawn = await drawPicture(env, pic.prompt, { size: 256, location: pic.location });
+    const drawn = await drawPicture(env, pic.prompt, { size: 256, location: pic.location, log: { source: "health" } });
     result.draw = { ok: true, model: drawn.model, bytes: drawn.bytes.length, ms: Date.now() - t0 };
     const t1 = Date.now();
     const out = await aiRun(env, CONFIG.VISION.MODEL, {

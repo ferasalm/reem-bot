@@ -265,8 +265,9 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   R.LORAS = { "ferasalm:phone2025@1": "0.8", "ferasalm:realhd2k@1": 0 }; R.LORA_PREFIX = "Candid phone photo of";
   globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
   try {
-    await W.drawRunware({ RUNWARE_API_KEY: "k" }, R.MODEL, "words", [], 576, 1024);
-    await W.drawRunware({ RUNWARE_API_KEY: "k" }, R.BACKUP_MODEL, "words", [], 576, 1024);
+    // runwarePlan chooses the LoRAs (Step 1b: drawRunware only sends what it is given); the plan's tries are sent as drawPicture does
+    const plan = W.runwarePlan("words", { herself: false, width: 576, height: 1024, who: (w) => w });
+    for (const t of plan.tries) await W.drawRunware({ RUNWARE_API_KEY: "k" }, t.model, t.text, [], t.width, t.height, { loras: t.loras, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration });
   } finally { globalThis.fetch = realFetch; [R.LORAS, R.LORA_PREFIX] = keep; }
   eq(sent.map((t) => t.lora || null), [[{ model: "ferasalm:phone2025@1", weight: 0.8 }], null], "LoRAs go with klein 9B only, weight 0 left out");
 }
@@ -454,6 +455,65 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   for (const [name, text] of Object.entries(bodyWords)) eq(/belly|hourglass|wide hips|rounded hips|full thighs|round full bottom/i.test(String(text)), false, `${name}: no belly, hip or thigh words (2026-10-10)`);
   eq(typeof JSON.parse(P.LINGERIE.SPICY_PROMPT), "object", "LINGERIE SPICY_PROMPT: still valid JSON after the cut");
   eq(R.KLEIN_TRIES, 2, "her pictures: klein tried twice, then Cloudflare klein (no TwinFlow)");
+}
+// The studio's log (Step 1c, docs/WORKPLAN.md): one D1 row per picture with the prompt, LoRAs and seed that were sent; no
+// binding, or a failed write: the picture still comes back. Runware is stubbed here (nothing is paid).
+{
+  const TINY = "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q==";
+  const realFetch = globalThis.fetch;
+  const sentTasks = [];
+  globalThis.fetch = async (url, init) => {
+    if (String(url) !== "https://api.runware.ai/v1") throw new Error(`unit: unexpected request to ${url}`);
+    const tasks = JSON.parse(init.body);
+    sentTasks.push(...tasks);
+    return new Response(JSON.stringify({ data: tasks.map((t) => ({ taskUUID: t.taskUUID, imageBase64Data: TINY, cost: 0.0025 })), errors: [] }), { status: 200 });
+  };
+  // a fake D1: exec counts, prepare().bind().run() records the INSERTs and UPDATEs (or throws)
+  const studio = (failWrites = false) => {
+    const db = { execs: 0, inserts: [], updates: [] };
+    db.exec = async () => {
+      db.execs++;
+    };
+    db.prepare = (sql) => ({
+      bind: (...args) => ({
+        run: async () => {
+          if (failWrites) throw new Error("unit: D1 is down");
+          if (sql.startsWith("INSERT")) db.inserts.push({ sql, args });
+          else db.updates.push({ sql, args });
+          return { meta: { last_row_id: db.inserts.length } };
+        },
+      }),
+    });
+    return db;
+  };
+  const columns = (row) => Object.fromEntries(row.sql.match(/\((.*?)\) VALUES/)[1].split(", ").map((c, i) => [c, row.args[i]]));
+  try {
+    const db = studio();
+    const env = { RUNWARE_API_KEY: "unit-key", STUDIO_DB: db };
+    const ledger = { rwUsd: 0, rwFailed: 0 };
+    const first = await W.drawPicture(env, "{who} selfie in her kitchen, gray cardigan.", { ledger, kind: "selfie", log: { source: "selfie", chat: 7, asked: "send a pic", herWords: "here" } });
+    const second = await W.drawPicture(env, "{who} selfie in her kitchen, gray cardigan.", { ledger, kind: "selfie", log: { source: "selfie" } });
+    const row = columns(db.inserts[0]);
+    eq([db.execs, db.inserts.length], [1, 2], "studio: schema applied once, one row per picture");
+    eq([first.logId, second.logId], [1, 2], "studio: drawPicture returns the row id");
+    eq([row.ok, row.source, row.chat, row.asked, row.model, row.kind], [1, "selfie", "7", "send a pic", "runware:400@2", "clothed"], "studio row: ok, source, chat, his words, model, kind");
+    eq([row.seed === sentTasks[0].seed, typeof row.seed === "number" && row.seed >= 1], [true, true], "studio row: the seed sent to Runware");
+    eq([row.prompt === sentTasks[0].positivePrompt, JSON.parse(row.loras)], [true, sentTasks[0].lora], "studio row: the prompt and LoRAs sent");
+    eq(JSON.parse(row.refs).length > 0 && JSON.parse(row.refs)[0] === "face-2x", true, "studio row: the references by name (the 2x face first)");
+    eq(sentTasks[0].seed !== sentTasks[1].seed, true, "each picture gets its own seed");
+    await W.logSent(env, first.logId, [{ file_id: "small", width: 90 }, { file_id: "mid", width: 320 }, { file_id: "big", width: 800 }]);
+    eq(db.updates[0].args, ["mid", "big", 1], "studio: Telegram thumb = the largest copy at most 400 px, full = the last");
+    const bare = await W.drawPicture({ RUNWARE_API_KEY: "unit-key" }, "{who} photo of her", { ledger: { rwUsd: 0, rwFailed: 0 }, kind: "selfie" });
+    eq([bare.bytes instanceof Uint8Array && bare.bytes.length > 0, bare.logId], [true, null], "studio: no binding, the picture still comes back");
+    const broken = await W.drawPicture({ RUNWARE_API_KEY: "unit-key", STUDIO_DB: studio(true) }, "{who} photo of her", { ledger: { rwUsd: 0, rwFailed: 0 }, kind: "selfie" });
+    eq([broken.bytes instanceof Uint8Array && broken.bytes.length > 0, broken.logId], [true, null], "studio: a failed write costs the row, not the picture");
+    const plan = W.runwarePlan("{who} photo of her in the kitchen", { herself: true, kind: "selfie", ref: W.fromBase64(TINY), rwFace: W.fromBase64(TINY), faceName: "face-2x", width: 576, height: 1024, who: (w) => w });
+    const R = W.CONFIG.PICTURE.RUNWARE;
+    eq([plan.tries.length, plan.tries.every((t) => t.model === R.MODEL), plan.tries[0].steps === Number(R.STEPS), plan.tries[0].refs[0].name], [2, true, true, "face-2x"], "plan: klein twice (KLEIN_TRIES), sampler from RUNWARE, the 2x face first");
+    eq(W.pictureFlags("a black lace bodysuit", false).kind, "alone", "plan flags: /look without her is alone");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 }
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);
