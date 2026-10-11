@@ -160,7 +160,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
   owner's button: deletes the branches in `tools/retired-branches.txt`, lines marked `# keep` stay);
   `.github/workflows/deploy.yml` (deploy on push to `main`, then /health and /setup printed to the log), `test.yml` (sync, mocked, docs, `[live]`);
   `.claude/settings.json` + `.claude/hooks/session-start.sh` (sync report at session start);
-  `.claude/skills/handoff/SKILL.md` (end of session); `tools/check.mjs` (all local checks), `tools/doc-check.mjs`
+  `.claude/skills/handoff/SKILL.md` (end of session); `.claude/skills/opus-haiku-orchestrator/SKILL.md` + `brief-template.md`
+  + `review-checklist.md` and `.claude/agents/haiku-worker.md` (Opus plans and reviews, Haiku 5.5 at max effort does the
+  well-defined bulk work; 2026-10-11); `tools/check.mjs` (all local checks), `tools/doc-check.mjs`
   (docs rules); `tools/model-bench/bench.mjs` + `checks.mjs` (the bench); `.gitignore` files.
 
 - `docs/WORKPLAN.md` (2026-10-11): the step-by-step plan (pictures, /nsfw, prompt log, studio); one Haiku chat per step, each
