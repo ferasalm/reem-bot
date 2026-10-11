@@ -15,6 +15,7 @@
 - /look (also /see, /view): A picture of what you see right now (words after it steer it)
 - /pic (also /photo, /custom): A picture of Reem as you describe it: /pic <hair, makeup, clothes, pose, framing, angle>
 - /nsfw: Nudity and sex in Reem's pictures: /nsfw off, nude or on
+- /studio: Your private picture studio link (for you only)
 - /spend (also /cost, /costs): What Reem cost today, and what's left on each account
 - /album (also /gallery): Every picture Reem has sent you, 10 at a time: /album [page]
 - /face: Reem's face in her pictures: /face draws new ones to pick from

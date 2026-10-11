@@ -4,52 +4,63 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. **Work plan: `docs/WORKPLAN.md`** (2026-10-11): the eight steps, their specs, and the notes at its end.
 
-**Last updated:** 2026-10-11 (thirty-third session: **Opus** `claude-opus-5-5` with **haiku-worker** `claude-haiku-5-5`; Step 6 done;
-the owner's "spend less" applied. On `dev`.)
-**Deployed:** `main` = 897dfaf (deploy run 38013450881), unchanged. Rollback: push `0d2010f` or `9c1270f` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**Last updated:** 2026-10-11 (thirty-fourth session: **Haiku 5.5**, effort max per the session record; Step 7 done, waiting on review. On `dev`.)
+**Deployed:** `main` = 897dfaf (unchanged; read with `git ls-remote origin main`). Rollback: push `0d2010f` or `9c1270f` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (`main`):** texts, memory, /auto on DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat; hearing Gemini; pictures Runware klein 9B with her face, body and place references, `DAILY_USD` $1.
-**On `dev`, not deployed:** Steps 1-4 (reviewed by Opus), Step 5 (Opus, no review: owner), **Step 6 done** (no separate review chat: owner).
-- **Step 6 anal positions:** anal is routed first (ANAL_WORDS), so "missionary anal" and "anal riding" no longer get the vaginal text, and "her
-  ass" on riding or doggy no longer loads POV Doggy Anal. Position from his words, else doggy 0.6 / prone 0.3 / reverse cowgirl 0.1 /
-  missionary 0. Body: the front for missionary, else the back.
-- **Bench (32 pictures, $0.0936, every one read by Opus):** only POV Doggy Anal draws anal: doggy alone 5/5, prone 0.8 5/5 (flat 4/5),
-  reverse cowgirl 0.8 2/2 (two heads 1/2), missionary 0.8 2/2 but her legs gone. The spec's Flux 4 Play / Missionary POV / General Penis
-  drew vaginal or no penetration 0/18 (vaginal-trained LoRAs). So ANAL_LORAS = POV Doggy Anal everywhere; `ANAL_ALONE` doggy is new.
-- Pictures: `face-candidates` runs/2026-10-11-step6-anal-bench/ (table.md one line per picture, `sheets/` one per position, `crops/`).
-- Who did what: haiku-worker the CONFIG keys + panel rows, unit rows + golden cases, `anal-bench.mjs`, pass 1 of the bench, the Civitai
-  report; Opus the routing, the golden diff, every picture, the picks, the docs. WORKPLAN "Step 6 build" has the deviations.
-- **Spend less (owner):** DECISIONS.md loaded at start 77 KB → 30 KB (74 older entries word for word in DECISIONS-ARCHIVE.md); haiku-worker
-  effort max → medium; the orchestrator skill delegates only token-heavy steps; HANDOFF names the cheapest model per next step.
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (`main`):** texts, memory, /auto on DeepSeek V4 Flash; voice Sulafat; hearing Gemini; pictures Runware klein 9B with her face, body and place references, `DAILY_USD` $1.
+**On `dev`, not deployed:** Steps 1-7. **Step 7 done, waiting on review:** the prompt studio at /studio, built and tested.
+- Built: `studio.js` (the page, vanilla, inline); the worker.js block "The prompt studio": the owner's signed link (`/studio`; `/studio reset`
+  ends old links), the cookie, the log from D1 `pictures` (30 a page, source filter), compose (the bot's own plan for /pic words, through
+  `drawPicture` with `planOnly`: nothing drawn or logged), Generate (one Runware task, 1-4 pictures, LoRAs, references, sampler), presets
+  (D1 `presets`), pictures from KV `simg:<id>` (30 days) or Telegram's copy. Money: ledger `studioUsd` at `STUDIO.DAILY_USD` $1, separate
+  from the bot's $1. CONFIG.STUDIO, MESSAGES.STUDIO_*, the `studio` command, panel rows.
+- Deviations from the Step 7 spec (Opus to decide): (1) compose takes /pic words only: scene, look and selfie are not in the editor;
+  (2) no Cloudflare klein in the studio: klein 9B and TwinFlow (Runware) only; (3) the editor's place is a place's first crop, the bot
+  picks at random; compose names the place, not the crop; (4) draws send `checkContent` false (the owner's own tool).
+
+## Checks run and read (2026-10-11, Step 7)
+- `node tools/check.mjs`: all 8 ok, read in full (panel, worker parses, unit, scenarios, e2e, studio, golden plans, docs).
+- `tools/test/studio.mjs`: 30 ok, read in full: token (tamper, other chat, expiry, epoch), routes (bad token 404, cookie and headers,
+  no cookie 404, reset), `/studio` owner-only, compose = golden "/pic messy bun on the porch" (prompt, model, size, sampler, LoRAs, refs
+  up to the crop suffix), draw (one task, two pictures, settings, log rows, KV, studioUsd), the cap (refused before Runware), log paging
+  (30/30/5), source filter, pictures, options, the page's script parses.
+- Golden plans: 38 cases match (no Runware request changed). Unit: all passed (the new MESSAGES keys got panel rows).
+- **One real draw from the container** (`studioCompose`, then `studioDraw`): 1 picture, $0.00247, 9.4 s, 768x1344; klein 9B with face-2x,
+  body-v10, place:porch_night, InstaPic 0.6, Real HD 2K 0.5; 5 steps, CFG 1. **Read at full size (Haiku's read):** messy bun, red lipstick
+  and black turtleneck as asked; **not a porch**: an indoor bedroom with a bed and lamp. Opus to check the porch_night crop.
+- **Money:** Runware `balance` 14.27379 before and after (the field lagged); usage total 5.77868 → 5.78115: the draw's $0.00247.
+- **Page in Chromium** (390x844; `/studio/api/*` answered by fixtures, no Worker): 15 checks ok, no console errors; log and editor
+  screenshots read (LESSONS and MAP have the method; not in check.mjs).
+- Pictures: `face-candidates` `runs/2026-10-11-step7-studio/` (studio-draw-1.jpg, table.md with the read), commit 02d32d5.
 
 ## Waiting on the owner
-- **Your Telegram test** of the belly fix (deployed 2026-10-10), and of /nsfw once deployed. Do not send `/restart` (it wipes her memory).
-- Steps 1-6 are not deployed. Deploy when you say "deploy" (suggested after Steps 6 and 7).
-- Once deployed, Step 2 makes a chat with no `/nsfw` setting On (about 1 in 3 hot-chat pictures nude): deploy only when you say so.
-
-## Verified this session (2026-10-11, thirty-third session)
-- Sync: OK after `git fetch --unshallow origin` (nothing missing from `dev`). Runware $14.36739 → $14.27379 (MCP `account`).
-- Golden diff read case by case: only the anal cases changed (/pic anal, /pic missionary anal, prone, reverse cowgirl, anal riding), 5 new
-  cases at the end; anal doggy unchanged. Unit rows for each position, "her ass" without anal, and the position pick.
-- `node tools/check.mjs` 7/7, read in full, before each push. Workers' model read from their transcripts: 302 lines, all `claude-haiku-5-5`.
+- **Opus review of Step 7** (new chat, Opus, the review prompt in WORKPLAN): the deviations above and the porch picture.
+- **Deploy** when you say "deploy" (suggested after Steps 2, 6 and 7). `main` = 897dfaf until then.
+- **Your Telegram test:** the belly fix (deployed 2026-10-10), /nsfw and anal pictures after a deploy, and `/studio` once deployed: send
+  `/studio` in your chat, open the link, make one picture. Do not send `/restart` (it wipes her memory).
+- **Model and effort:** Step 7 ran in Haiku 5.5 as you asked; HANDOFF had recommended Sonnet 5.5 at high effort for it.
+- **Records rule vs system rule:** your 2026-10-11 rule asks each record to name the raw model ID too; this session's instructions forbid
+  model IDs in pushed artifacts. Records here name the model only ("Haiku 5.5"). Tell me which wins.
 
 ## Next steps (in order; one chat each)
-1. **Step 7**: the prompt studio at /studio, reading the D1 log. ≤ $0.05. Model: **Sonnet 5.5** (a well-specified build; WORKPLAN "Step 7:
-   how to run it cheaply"). *Effort: high.*
-2. **Step 8**: deploy and live checks when you say "deploy". Model: **Haiku 5.5** or Sonnet (commands and log reads). *Effort: low.*
-3. **Your Telegram test** of the belly fix, and of /nsfw and anal pictures once deployed. *Effort: low.*
-4. **Later** (Opus to diagnose, Haiku to draw): a frontal anal LoRA for missionary (True-Anal Frontal view, Piledriver anal: WORKPLAN's
-   Civitai table); the second head on riding and two women at 16:9; Step 5's open questions (BODY_PARTIAL "none", the faceless 1:1
-   close-up, nipple points, P3 "legs apart", close-ups never navel-to-thighs); hair drifting to brown highlights; the mirror belfie with
-   no phone; the blowjob arms; Flux 4 Play tongue weight; `/look`'s DeepSeek answers (`llm_text`); /spend vs the dashboards; a cheaper
-   text model; old session branches (`tools/retired-branches.txt`). *Effort: medium.*
+1. **Step 7 review** (Opus): read this HANDOFF, the Step 7 commits on dev, the golden check and the face-candidates picture; decide the
+   deviations; write "Decided in review, for Step 8" in WORKPLAN. *Effort: high.* Model: Opus.
+2. **Step 8: deploy and live checks** when you say "deploy": `git push origin origin/dev:main`, watch Deploy and Tests, read `/health`
+   and `/setup`, confirm the D1 binding (a new `pictures` row after your first picture, read with `d1_database_query`), open `/studio`.
+   Model: Haiku 5.5 or Sonnet (commands and log reads). *Effort: low.*
+3. **Your Telegram test** of the belly fix, /nsfw, anal pictures and /studio once deployed. *Effort: low.*
+4. **Later** (Opus to diagnose, Haiku to draw): the porch_night crop (a bedroom came out); the studio's scene, look and selfie sources and
+   Cloudflare klein; a frontal anal LoRA for missionary; the second head on riding; Step 5's open questions; hair drifting to brown
+   highlights; the blowjob arms; Flux 4 Play tongue weight; `/look`'s DeepSeek answers (`llm_text`); /spend vs the dashboards; a cheaper
+   text model; old session branches. *Effort: medium.*
 
 ## Open questions for the owner
-- OK to press Actions > Delete retired branches for `tools/retired-branches.txt`? The sync check says no work is missing from `dev`.
-- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (Done by hand again this session.)
-- Old session branches still hold the old Reem pictures in their history. Clear those too, or leave them?
-- LESSONS.md is at 179 of 180 lines: the next session that adds one summarizes it back to about 150 (your rule). OK to do that on Haiku?
+- Records: the raw model ID (your rule) or no model IDs in pushed files (the session's instructions)? Which wins?
+- OK to press Actions > Delete retired branches for `tools/retired-branches.txt`? (The sync check says no work is missing from `dev`.)
+- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (Done by hand again; then the report said OK.)
+- Old session branches still hold the old Reem pictures in their history. Clear them, or leave them?
+- LESSONS.md is at 179 lines (the limit is 180). OK for the next session to summarize it to about 150 on Haiku (your rule)?
 
 ## Prompt for the next chat
-Pick **Sonnet 5.5** (effort high) and paste the "Haiku prompt (Step N)" from `docs/WORKPLAN.md` with N = 7 and $0.05.
+Pick **Opus** (effort high) and paste the "Opus review prompt (Step N)" from `docs/WORKPLAN.md` with N = 7.

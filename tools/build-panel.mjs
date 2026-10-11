@@ -12,6 +12,7 @@ writeFileSync(copy, `${source}\nexport { CONFIG };\n`);
 copyFileSync(join(root, "face.js"), join(dirname(copy), "face.js")); // worker.js imports it
 copyFileSync(join(root, "places.js"), join(dirname(copy), "places.js"));
 copyFileSync(join(root, "mp3.js"), join(dirname(copy), "mp3.js"));
+copyFileSync(join(root, "studio.js"), join(dirname(copy), "studio.js")); // worker.js imports it (Step 7)
 const { CONFIG } = await import(pathToFileURL(copy).href);
 
 const panel = join(root, "tools", "settings-panel.html");

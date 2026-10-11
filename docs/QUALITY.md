@@ -559,3 +559,15 @@ balance $14.56408 → $14.50883 ($0.05525). Step 4 in all: $0.15691 of $0.20.
   on one body 1/2), missionary 2/2 (her legs gone 2/2). Flux 4 Play + General Penis: doggy 0/3, reverse cowgirl 0/3 (her anus visible
   above the entry: vaginal); Missionary POV + General Penis 0/3 (vaginal; one with two women at 16:9); General Penis alone 0/9 (no
   penetration, a scrotum, or vaginal). → ANAL_LORAS POV Doggy Anal everywhere, ANAL_ALONE doggy, ANAL_POSITIONS missionary 0.
+
+## Step 7 studio: one real draw and the page check (2026-10-11, Haiku 5.5; `studio-draw.mjs` through `studioCompose` and `studioDraw`; `face-candidates` runs/2026-10-11-step7-studio)
+Haiku's read, one picture at full size (768x1344, the container's proxy, Runware spend $0.00247, 9.4 s; Runware usage +$0.00247, the balance field stayed 14.27379):
+
+| Picture | Settings sent | Read |
+|---|---|---|
+| `studio-draw-1.jpg` (log row 1, seed 4242) | the bot's plan for "messy bun, red lipstick, black turtleneck, on the porch" (first try): klein 9B; face-2x, body-v10 (nude front), place:porch_night; InstaPic 0.6 + Real HD 2K 0.5; 5 steps, CFG 1, acceleration none | Words: messy top bun, red lipstick and black turtleneck are all there. Place: NOT a porch: an indoor bedroom (bed, lamp, warm light). Likeness to her face picture not measured. Hands and reflections not visible. Opus to check the porch_night crop and why the room came out a bedroom. |
+
+Page (`studio.js` in Chromium at 390x844, `/studio/api/*` answered by fixtures): 15 checks ok (log renders, a failed row, the thumbnail, the
+editor's options, compose fills prompt, references and the LoRA, Generate shows the result with its id and money, presets list and load,
+no console or page errors). Screenshots read: the log at phone width (the thumbnail beside the text), the editor (references, LoRAs, estimate).
+Golden plans: 38 cases match (the Runware requests are unchanged by Step 7). `tools/test/studio.mjs`: 30 ok.

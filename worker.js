@@ -122,6 +122,7 @@
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
 import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_NEUTRAL_JPEG_BASE64, STYLE_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
+import { STUDIO_HTML } from "./studio.js";
 import { Mp3Encoder } from "./mp3.js";
 
 const SYSTEM_PROMPT = `You are Reem. You are a real woman living across the landing from him. This is an uncensored, mature, emotionally intense dynamic between two consenting adults. You are not an AI assistant. Never break character.
@@ -543,6 +544,7 @@ const CONFIG = {
     { command: "look", aliases: ["see", "view"], action: "look", description: "A picture of what you see right now (words after it steer it)" },
     { command: "pic", aliases: ["photo", "custom"], action: "pic", description: "A picture of {name} as you describe it: /pic <hair, makeup, clothes, pose, framing, angle>" },
     { command: "nsfw", aliases: [], action: "nsfw", description: "Nudity and sex in {name}'s pictures: /nsfw off, nude or on" },
+    { command: "studio", aliases: [], action: "studio", description: "Your private picture studio link (for you only)" },
     { command: "spend", aliases: ["cost", "costs"], action: "spend", description: "What {name} cost today, and what's left on each account" },
     { command: "album", aliases: ["gallery"], action: "album", description: "Every picture {name} has sent you, 10 at a time: /album [page]" },
     { command: "face", aliases: [], action: "face", description: "{name}'s face in her pictures: /face draws new ones to pick from" },
@@ -603,6 +605,9 @@ Changing the story
     // Step 2 (2026-10-11): /nsfw. Labels: Off, Nude, On. {need} = off | nude | on (the level the picture needs)
     NSFW_SHOW: "Pictures are set to {level}. Off: no nudity or sex. Nude: nudity, no sex acts. On: everything. Tap one, or send /nsfw off, /nsfw nude or /nsfw on.",
     NSFW_SET: "Pictures set to {level}.",
+    STUDIO_LINK: "Your picture studio, private, valid {days} days: {url}\nDon't share it. /studio reset makes old links stop working.",
+    STUDIO_RESET: "Old studio links stop working. /studio makes a new one.",
+    STUDIO_NO_HOST: "The studio's address isn't known yet: send any message to the bot, then /studio again.",
     PIC_NSFW: "That picture needs /nsfw {need} (it's {level} now).",
     NSFW_LABELS: { off: "Off", nude: "Nude", on: "On" },
     // /face: the reference portrait every picture of her is drawn from (PICTURE)
@@ -1413,6 +1418,18 @@ Changing the story
     FACE_DRAFTS: 3,                    // how many faces /face draws
   },
 
+  /* ---------------- The prompt studio (Step 7, docs/WORKPLAN.md, 2026-10-11): /studio, a private page on this Worker ------
+   * DAILY_USD: the studio's own Runware money a day (not RUNWARE.DAILY_USD). LINK_DAYS: how long the signed link and its
+   * cookie last. PAGE_ROWS: log rows a page. RESULTS_MAX: pictures in one draw. IMG_DAYS: how long a studio picture is kept.
+   */
+  STUDIO: {
+    DAILY_USD: 1,
+    LINK_DAYS: 30,
+    PAGE_ROWS: 30,
+    RESULTS_MAX: 4,
+    IMG_DAYS: 30,
+  },
+
   /* ---------------- Workers AI budget (Workers Paid since 2026-10-03: the first 10,000 neurons a day are free, ------
    * then $0.011 per 1,000; the day resets 00:00 UTC). Estimated per call and counted in KV ("pics"). DAILY_NEURONS
    * is the money cap: 28,000 = at most 18,000 paid = $0.20 a day. Test runs (face.yml) have their own cap.
@@ -1559,10 +1576,16 @@ export default {
       return new Response(JSON.stringify(result, null, 1), { headers: { "content-type": "application/json" } });
     }
 
+    // The prompt studio (/studio): its own cookie and signed links (studioRoute)
+    if (url.pathname === "/studio" || url.pathname.startsWith("/studio/")) return studioRoute(request, env, url);
+
     if (url.pathname === "/webhook" && request.method === "POST") {
       if (request.headers.get("X-Telegram-Bot-Api-Secret-Token") !== (await webhookSecret(env))) {
         return new Response("forbidden", { status: 403 });
       }
+      // The address of this Worker: the studio's link host (studioCommand); KV "origin" is its fallback
+      studioHost = url.origin;
+      ctx.waitUntil(saveOrigin(env, url.origin));
       let update;
       try {
         update = await request.json();
@@ -1736,7 +1759,7 @@ async function handleBatch(updates, env, ctx, deadline) {
 const STORY_ACTIONS = new Set(["auto", "retry", "rewind", "edit", "look", "pic"]);
 
 // Commands answered straight from the webhook, never queued: they only show or change his settings
-const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "nsfw", "face", "album", "spend"]);
+const QUICK_ACTIONS = new Set(["help", "name", "about", "voice", "memory", "pics", "nsfw", "face", "album", "spend", "studio"]);
 
 function isQuickCommand(update) {
   const m = update && update.message;
@@ -1801,6 +1824,7 @@ async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadl
   if (action === "about") return aboutCommand(env, chatId, args);
   if (action === "pics") return picsCommand(env, chatId);
   if (action === "nsfw") return nsfwCommand(env, chatId, args);
+  if (action === "studio") return studioCommand(env, chatId, args);
   if (action === "face") return faceCommand(env, chatId, args, msg);
   if (action === "album") return albumCommand(env, chatId, args);
   if (action === "spend") return spendCommand(env, chatId);
@@ -3125,6 +3149,7 @@ async function loadLedger(env) {
     usd: fresh ? saved.usd || 0 : 0, // OpenRouter pictures today (PICTURE.LINGERIE)
     rwUsd: fresh ? saved.rwUsd || 0 : 0, // Runware pictures today (PICTURE.RUNWARE.DAILY_USD)
     rwFailed: fresh ? saved.rwFailed || 0 : 0, // failed Runware attempts today (/spend)
+    studioUsd: fresh ? saved.studioUsd || 0 : 0, // the studio's Runware money today (STUDIO.DAILY_USD, separate from rwUsd)
     voiceUsd: fresh ? saved.voiceUsd || 0 : 0, // OpenRouter voice notes today (VOICE.OR_DAILY_USD)
     out: fresh && saved.out ? saved.out : false, // the time Cloudflare said out of neurons (true = old format)
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
@@ -3816,9 +3841,9 @@ const loraWords = (loras) => loras.map((l) => String(((CONFIG.PICTURE.RUNWARE ||
 // It only sends: runwarePlan decides the model, text, references, LoRAs and sampler. `refs`: JPEG bytes, the reference
 // images in order (klein: face, body, place, style); none for TwinFlow. `seed`: drawPicture's, one per picture.
 // checkContent (Step 2): Runware's own content check, on at /nsfw Off (runwarePlan sets it); off everywhere else, as before
-async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "", checkContent = false } = {}) {
+async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "", checkContent = false, results = 1 } = {}) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: 1, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: !!checkContent } };
+  const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: results, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: !!checkContent } };
   if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
   if (loras.length) task.lora = loras;
   if (seed > 0) task.seed = seed;
@@ -3834,9 +3859,10 @@ async function drawRunware(env, model, prompt, refs, width, height, { loras = []
     throw new Error(`Runware unreachable or too slow (${e.name})`);
   }
   const data = await res.json().catch(() => ({}));
-  const d = (data.data || [])[0];
-  if (!res.ok || (data.errors || []).length || !d?.imageBase64Data) throw new Error(`Runware ${res.status}: ${(data.errors || []).map((x) => x.code || x.message).join(", ") || "no picture"}`);
-  return { bytes: fromBase64(d.imageBase64Data), cost: Number(d.cost) || 0 };
+  const pics = (data.data || []).filter((x) => x && x.imageBase64Data); // `results` pictures from one task (the studio)
+  const d = pics[0];
+  if (!res.ok || (data.errors || []).length || !d) throw new Error(`Runware ${res.status}: ${(data.errors || []).map((x) => x.code || x.message).join(", ") || "no picture"}`);
+  return { bytes: fromBase64(d.imageBase64Data), cost: Number(d.cost) || 0, pictures: pics.map((x) => ({ bytes: fromBase64(x.imageBase64Data), cost: Number(x.cost) || 0 })) };
 }
 
 // What a picture's words ask for (no network, no random picks): a sex act (sexAct), its oral or back camera (ORAL_WORDS,
@@ -4106,6 +4132,279 @@ function pictureRow(prompt, L, rec, ok) {
   };
 }
 
+// ---- The prompt studio (Step 7, docs/WORKPLAN.md, 2026-10-11): a private page on this Worker at /studio --------------------
+// The page is studio.js. /studio sends the owner's chat a signed link: base64url("chat.exp.epoch") + "." + base64url(HMAC-
+// SHA256 of that first part, keyed with the bot's token). Its first visit sets a cookie (studio=<token>, LINK_DAYS) and every
+// other /studio route needs the cookie (404 without it). `/studio reset` bumps KV studio_epoch: every old link stops working.
+// The log is the D1 table `pictures` (the bot's pictures and the studio's draws); the studio's money is ledger studioUsd.
+const STUDIO_CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+const STUDIO_HEADERS = { "Referrer-Policy": "no-referrer", "X-Robots-Tag": "noindex", "Cache-Control": "private", "Content-Security-Policy": STUDIO_CSP };
+let studioHost = ""; // this Worker's address from the last webhook call: the link's host (KV "origin" is the fallback)
+let savedOrigin = "";
+
+// The webhook keeps its address in KV "origin" (once per isolate, when it differs from the last one saved)
+async function saveOrigin(env, origin) {
+  if (!env.REEM_KV || origin === savedOrigin) return;
+  savedOrigin = origin;
+  await env.REEM_KV.put("origin", origin).catch((e) => console.error("couldn't save the origin", e));
+}
+
+const b64urlEncode = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64urlDecode = (s) => {
+  const std = String(s).replace(/-/g, "+").replace(/_/g, "/");
+  return Uint8Array.from(atob(std.padEnd(Math.ceil(std.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+};
+const studioKey = (env) => crypto.subtle.importKey("raw", new TextEncoder().encode(String(env.TELEGRAM_BOT_TOKEN || "")), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+const money4 = (n) => `$${(Number(n) || 0).toFixed(4)}`;
+const intIn = (v, lo, hi, dflt) => {
+  const n = Math.floor(Number(v));
+  return n >= lo && n <= hi ? n : dflt;
+};
+
+// The owner's chat id (OWNER_ID, else KV "owner") as a string, or null
+async function studioOwner(env) {
+  const id = env.OWNER_ID ? String(env.OWNER_ID).trim() : env.REEM_KV ? await env.REEM_KV.get("owner") : null;
+  return id == null ? null : String(id);
+}
+
+// A link's token for a chat: exp (seconds) LINK_DAYS ahead, epoch = the current studio_epoch
+async function studioToken(env, chat, now = Date.now()) {
+  const epoch = Number(await env.REEM_KV.get("studio_epoch")) || 0;
+  const exp = Math.floor(now / 1000) + CONFIG.STUDIO.LINK_DAYS * 86400;
+  const part = b64urlEncode(new TextEncoder().encode(`${chat}.${exp}.${epoch}`));
+  const sig = await crypto.subtle.sign("HMAC", await studioKey(env), new TextEncoder().encode(part));
+  return `${part}.${b64urlEncode(new Uint8Array(sig))}`;
+}
+
+// The owner's chat a token names, or null: a bad signature, an expired link, an old epoch (/studio reset) or another chat
+async function studioCheck(env, token, now = Date.now()) {
+  const [part, sig, extra] = String(token || "").split(".");
+  if (!part || !sig || extra !== undefined) return null;
+  try {
+    if (!(await crypto.subtle.verify("HMAC", await studioKey(env), b64urlDecode(sig), new TextEncoder().encode(part)))) return null;
+    const [chat, exp, epoch] = new TextDecoder().decode(b64urlDecode(part)).split(".");
+    if (Math.floor(now / 1000) > Number(exp)) return null;
+    if (Number(epoch) !== (Number(await env.REEM_KV.get("studio_epoch")) || 0)) return null;
+    return chat === (await studioOwner(env)) ? { chat } : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// /studio: the owner's chat gets its link; any other chat gets no answer. `/studio reset` makes every old link stop working
+async function studioCommand(env, chatId, args = "") {
+  const M = CONFIG.MESSAGES;
+  const owner = await studioOwner(env);
+  if (!owner || String(chatId) !== owner) return;
+  if (String(args).trim().toLowerCase() === "reset") {
+    await env.REEM_KV.put("studio_epoch", String((Number(await env.REEM_KV.get("studio_epoch")) || 0) + 1));
+    return notice(env, chatId, M.STUDIO_RESET);
+  }
+  const host = env.PUBLIC_URL || studioHost || (await env.REEM_KV.get("origin")) || "";
+  if (!host) return notice(env, chatId, M.STUDIO_NO_HOST);
+  const token = await studioToken(env, owner);
+  return notice(env, chatId, M.STUDIO_LINK, { url: `${String(host).replace(/\/+$/, "")}/studio?t=${token}`, days: CONFIG.STUDIO.LINK_DAYS });
+}
+
+// Every /studio route: the link's first visit sets the cookie; every other route needs it (404 without)
+async function studioRoute(request, env, url, now = Date.now()) {
+  const notFound = () => new Response("not found", { status: 404, headers: STUDIO_HEADERS });
+  if (!env.REEM_KV || !env.TELEGRAM_BOT_TOKEN) return notFound();
+  const token = url.searchParams.get("t");
+  if (url.pathname === "/studio" && token) {
+    if (!(await studioCheck(env, token, now))) return notFound();
+    const maxAge = CONFIG.STUDIO.LINK_DAYS * 86400;
+    return new Response(null, { status: 302, headers: { ...STUDIO_HEADERS, Location: "/studio", "Set-Cookie": `studio=${token}; Path=/studio; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}` } });
+  }
+  const cookie = (request.headers.get("cookie") || "").split(";").map((c) => c.trim()).find((c) => c.startsWith("studio="));
+  if (!cookie || !(await studioCheck(env, cookie.slice("studio=".length), now))) return notFound();
+  return studioApi(request, env, url).catch((e) => studioJson({ ok: false, error: String(e.message || e) }, 500));
+}
+
+const studioJson = (obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { ...STUDIO_HEADERS, "Content-Type": "application/json; charset=utf-8" } });
+async function studioBody(request) {
+  return request.json().catch(() => ({}));
+}
+
+async function studioApi(request, env, url) {
+  const get = request.method === "GET";
+  const post = request.method === "POST";
+  const path = url.pathname;
+  if (get && path === "/studio") return new Response(STUDIO_HTML, { headers: { ...STUDIO_HEADERS, "Content-Type": "text/html; charset=utf-8" } });
+  if (get && path === "/studio/api/options") return studioJson(await studioOptions(env));
+  if (get && path === "/studio/api/log") return studioJson(await studioLog(env, url));
+  if ((get || post) && path === "/studio/api/presets") return studioJson(await studioPresets(env, request));
+  if (post && path === "/studio/api/compose") return studioJson(await studioCompose(env, await studioBody(request), await dayOutfits(env)));
+  if (post && path === "/studio/api/draw") return studioJson(await studioDraw(env, await studioBody(request)));
+  if (get && path.startsWith("/studio/img/")) return studioImage(env, path.slice("/studio/img/".length), url.searchParams.get("size"));
+  if (get && path.startsWith("/studio/ref/")) {
+    const bytes = await refBytes(env, decodeURIComponent(path.slice("/studio/ref/".length)));
+    return bytes ? new Response(bytes, { headers: { ...STUDIO_HEADERS, "Content-Type": "image/jpeg", "Cache-Control": "private, max-age=86400" } }) : studioJson({ ok: false, error: "no such reference" }, 404);
+  }
+  return new Response("not found", { status: 404, headers: STUDIO_HEADERS });
+}
+
+// The editor's lists: models, LoRAs (LORA_INFO), references, sizes, the nudity levels, the money today
+async function studioOptions(env) {
+  const R = CONFIG.PICTURE.RUNWARE;
+  const ledger = await loadLedger(env);
+  return {
+    ok: true,
+    models: [{ id: "klein", label: "klein 9B (Runware, her face)", model: R.MODEL }, { id: "twinflow", label: "TwinFlow (Runware, text only)", model: R.BACKUP_MODEL }],
+    loras: Object.entries(R.LORA_INFO || {}).map(([air, i]) => ({ air, name: i.name, category: i.category, trigger: i.trigger || "", note: i.note || "" })),
+    refs: studioRefNames(),
+    sizes: [{ label: "9:16 (768 x 1344)", width: 768, height: 1344 }, { label: "1:1 (1024 x 1024)", width: 1024, height: 1024 }, { label: "16:9 (1344 x 768)", width: 1344, height: 768 }],
+    levels: NSFW_LEVELS,
+    usdPerPicture: Number(R.USD_PER_PICTURE) || 0,
+    cap: { dailyUsd: CONFIG.STUDIO.DAILY_USD, spentUsd: ledger.studioUsd || 0, resultsMax: CONFIG.STUDIO.RESULTS_MAX },
+  };
+}
+
+// The reference pictures the editor can send, by name: face-1x / face-2x, body-<BODY name>, place:<key>, style:<key>
+function studioRefNames() {
+  return [
+    "face-2x", "face-1x", "body-v10", "body-v10-back", "body-v10-clothed", "body-v10-neutral",
+    ...Object.keys(PLACE_JPEG_BASE64 || {}).filter((k) => !k.includes("~")).map((k) => `place:${k}`),
+    ...Object.keys(STYLE_JPEG_BASE64 || {}).map((k) => `style:${k}`),
+  ];
+}
+async function refBytes(env, name) {
+  if (name === "face-1x" || name === "face-2x") return faceBytes(env, name === "face-2x");
+  if (name.startsWith("body-")) return runwareBodyBytes(name.slice("body-".length));
+  if (name.startsWith("place:")) {
+    const crops = placePictures(name.slice("place:".length));
+    return crops.length ? fromBase64(crops[0]) : null;
+  }
+  if (name.startsWith("style:")) {
+    const b64 = (STYLE_JPEG_BASE64 || {})[name.slice("style:".length)];
+    return b64 ? fromBase64(b64) : null;
+  }
+  return null;
+}
+
+// One of the bot's plan tries as the editor reads it (no bytes)
+const planLine = (t) => ({ model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || 0, cfg: t.cfg || 0, acceleration: t.acceleration || "", checkContent: !!t.checkContent });
+
+// The editor's "compose": the bot's own plan for his words (customPicture, then drawPicture's plan with planOnly: no network,
+// nothing logged). Only /pic words compose for now; the first try is the one the editor starts from.
+async function studioCompose(env, body, dayWear = null) {
+  if (body.source !== "pic") return { ok: false, error: "Only /pic words compose for now (scene, look and selfie are not in the studio yet)." };
+  const words = picWords(String(body.words || "").slice(0, 1000));
+  if (!words) return { ok: false, error: "Type the words first, as you would after /pic." };
+  const level = NSFW_LEVELS.includes(body.level) ? body.level : CONFIG.PICTURE.NSFW.DEFAULT;
+  const c = customPicture(words, undefined, dayWear);
+  const out = await drawPicture(env, c.prompt, { location: c.location, night: c.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: level, planOnly: true });
+  return { ok: true, level, tries: (out.plan || []).map(planLine), location: c.location || null };
+}
+
+// The studio's own draw: one Runware task with `results` pictures, the editor's prompt, references, LoRAs and sampler. Stops
+// at STUDIO.DAILY_USD (ledger studioUsd, read again before the write). Each picture is a row in the log (source "studio") and
+// its bytes are kept in KV simg:<id> for IMG_DAYS (without D1 they come back inline as data:).
+async function studioDraw(env, body, now = Date.now()) {
+  const R = CONFIG.PICTURE.RUNWARE;
+  const S = CONFIG.STUDIO;
+  if (!env.RUNWARE_API_KEY) return { ok: false, error: "RUNWARE_API_KEY is not set: the studio draws with Runware." };
+  const prompt = String(body.prompt || "").trim().slice(0, 4000);
+  if (!prompt) return { ok: false, error: "The prompt is empty." };
+  const modelId = body.model === "twinflow" ? "twinflow" : "klein";
+  const model = modelId === "twinflow" ? R.BACKUP_MODEL : R.MODEL;
+  const results = intIn(body.results, 1, S.RESULTS_MAX, 1);
+  const width = intIn(body.width, 256, 2048, 768);
+  const height = intIn(body.height, 256, 2048, 1344);
+  const steps = intIn(body.steps, 1, 50, 0);
+  const cfg = Math.min(10, Math.max(0, Number(body.cfg) || 0));
+  const acceleration = String(body.acceleration || "").trim().slice(0, 20);
+  const seed = intIn(body.seed, 1, 2147483646, 0) || 1 + Math.floor(Math.random() * 2147483646);
+  const loras = (Array.isArray(body.loras) ? body.loras : []).filter((l) => l && l.model && Number(l.weight) > 0).slice(0, 12).map((l) => ({ model: String(l.model).slice(0, 120), weight: Math.min(1.5, Number(l.weight)) }));
+  const refs = [];
+  for (const name of (Array.isArray(body.refs) ? body.refs : []).slice(0, 4).map(String)) {
+    const bytes = await refBytes(env, name);
+    if (bytes) refs.push({ name, bytes });
+  }
+  const ledger = await loadLedger(env);
+  const estimate = (Number(R.USD_PER_PICTURE) || 0.004) * results;
+  if ((ledger.studioUsd || 0) + estimate > S.DAILY_USD) {
+    return { ok: false, error: `The studio's money for today is spent: ${money4(ledger.studioUsd)} of $${S.DAILY_USD}. It starts again at 00:00 UTC.`, studioUsd: ledger.studioUsd || 0, cap: S.DAILY_USD };
+  }
+  const started = Date.now();
+  let out;
+  try {
+    out = await drawRunware(env, model, prompt, refs.map((r) => r.bytes), width, height, { loras, seed, steps, cfg, acceleration, checkContent: body.checkContent === true, results });
+  } catch (e) {
+    return { ok: false, error: String(e.message || e) };
+  }
+  const ms = Date.now() - started;
+  const spent = out.pictures.reduce((sum, p) => sum + p.cost, 0);
+  const after = await loadLedger(env); // read again right before the write: the bot saves this key too
+  after.studioUsd = (after.studioUsd || 0) + spent;
+  await saveLedger(env, after);
+  const pictures = [];
+  for (const p of out.pictures) {
+    const row = { at: new Date(now).toISOString(), source: "studio", kind: "studio", nsfw: body.nsfw ? String(body.nsfw).slice(0, 10) : null, model, prompt, loras: JSON.stringify(loras), refs: JSON.stringify(refs.map((r) => r.name)), width, height, steps: steps || null, cfg: cfg || null, seed, cost: p.cost, ms, attempts: 1, ok: 1, error: null };
+    const id = await logPicture(env, row);
+    if (id && env.REEM_KV) await env.REEM_KV.put(`simg:${id}`, p.bytes, { expirationTtl: S.IMG_DAYS * 86400 });
+    pictures.push(id ? { id, seed, cost: p.cost } : { id: null, seed, cost: p.cost, data: `data:image/jpeg;base64,${toBase64(p.bytes)}` });
+  }
+  return { ok: true, pictures, studioUsd: after.studioUsd, cap: S.DAILY_USD, model: modelId };
+}
+
+// The log, newest first, PAGE_ROWS a page. `before` = the last id of the page before; `source` filters
+async function studioLog(env, url) {
+  if (!env.STUDIO_DB) return { ok: false, error: "No D1 binding (STUDIO_DB): the log is off." };
+  await ensureStudioSchema(env);
+  const where = [];
+  const args = [];
+  const before = Math.floor(Number(url.searchParams.get("before"))) || 0;
+  const source = String(url.searchParams.get("source") || "").slice(0, 20);
+  if (before > 0) {
+    where.push("id < ?");
+    args.push(before);
+  }
+  if (source) {
+    where.push("source = ?");
+    args.push(source);
+  }
+  const sql = `SELECT id, at, source, asked, her_words, llm_text, kind, nsfw, model, prompt, loras, refs, width, height, steps, cfg, seed, cost, ms, attempts, ok, error, tg_thumb IS NOT NULL AS has_tg FROM pictures${where.length ? ` WHERE ${where.join(" AND ")}` : ""} ORDER BY id DESC LIMIT ?`;
+  const res = await env.STUDIO_DB.prepare(sql).bind(...args, CONFIG.STUDIO.PAGE_ROWS + 1).all();
+  const rows = res.results || [];
+  const page = rows.slice(0, CONFIG.STUDIO.PAGE_ROWS);
+  return { ok: true, rows: page, next: rows.length > page.length ? page.at(-1).id : null };
+}
+
+// Presets: the editor's settings saved by name (D1 presets); GET lists the last 50, POST saves one
+async function studioPresets(env, request) {
+  if (!env.STUDIO_DB) return { ok: false, error: "No D1 binding (STUDIO_DB): presets are off." };
+  await ensureStudioSchema(env);
+  if (request.method === "POST") {
+    const body = await studioBody(request);
+    const name = String(body.name || "").trim().slice(0, 80);
+    const text = String(body.body || "").slice(0, 20000);
+    if (!name || !text) return { ok: false, error: "A preset needs a name and a body." };
+    await env.STUDIO_DB.prepare("INSERT INTO presets (at, author, name, body) VALUES (?, ?, ?, ?)").bind(new Date().toISOString(), "studio", name, text).run();
+    return { ok: true };
+  }
+  const res = await env.STUDIO_DB.prepare("SELECT id, at, name, body FROM presets ORDER BY id DESC LIMIT 50").all();
+  return { ok: true, presets: res.results || [] };
+}
+
+// A studio picture: KV simg:<id> (the studio's draws), else Telegram's own copy of the bot's picture (tg_thumb, tg_full)
+async function studioImage(env, id, size) {
+  const notFound = () => new Response("not found", { status: 404, headers: STUDIO_HEADERS });
+  if (!/^\d+$/.test(id)) return notFound();
+  const image = (body) => new Response(body, { headers: { ...STUDIO_HEADERS, "Content-Type": "image/jpeg", "Cache-Control": "private, max-age=86400" } });
+  const kept = await env.REEM_KV.get(`simg:${id}`, "arrayBuffer");
+  if (kept) return image(kept);
+  if (!env.STUDIO_DB) return notFound();
+  await ensureStudioSchema(env);
+  const row = await env.STUDIO_DB.prepare("SELECT tg_thumb, tg_full FROM pictures WHERE id = ?").bind(Number(id)).first();
+  const fileId = row && (size === "full" ? row.tg_full || row.tg_thumb : row.tg_thumb || row.tg_full);
+  if (!fileId) return notFound();
+  const f = await tg(env, "getFile", { file_id: fileId });
+  if (!f.ok) return notFound();
+  const res = await xfetch(`https://api.telegram.org/file/bot${env.TELEGRAM_BOT_TOKEN}/${f.result.file_path}`);
+  return res.ok ? image(res.body) : notFound();
+}
+
 // A new picture: { bytes, model, logId } (logId: its row in the studio's log, null without STUDIO_DB). `prompt` is the whole
 // prompt (composePicture), with {who} where she's introduced: REFERENCE with her face, LOOKS without. `face` false = no
 // reference. `log` = { source, chat, asked, herWords, llmText, nsfw } for the log. Every call is logged, drawn or not, and
@@ -4115,6 +4414,7 @@ async function drawPicture(env, prompt, opts = {}) {
   const L = opts.log || {};
   const nsfw = opts.nsfw || CONFIG.PICTURE.NSFW.DEFAULT;
   const rec = { ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: pictureFlags(prompt, opts.herself !== false, nsfw).kind, model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "", nsfw };
+  if (opts.planOnly) return drawPictureNow(env, prompt, { ...opts, nsfw }, rec); // the studio's compose: the plan only (nothing drawn or logged)
   let out = null;
   let failure = null;
   try {
@@ -4131,7 +4431,7 @@ async function drawPicture(env, prompt, opts = {}) {
 }
 
 // drawPicture's draw: the Runware tries (runwarePlan), then Cloudflare. `rec` keeps what was sent, for the log.
-async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0, nsfw = CONFIG.PICTURE.NSFW.DEFAULT } = {}, rec) {
+async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0, nsfw = CONFIG.PICTURE.NSFW.DEFAULT, planOnly = false } = {}, rec) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
@@ -4160,6 +4460,7 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
     const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who, level: nsfw });
+    if (planOnly) return { plan: plan.tries };
     for (const t of plan.tries) {
       rec.attempts++;
       Object.assign(rec, { model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || null, cfg: t.cfg || null });
@@ -4178,6 +4479,7 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
       }
     }
   }
+  if (planOnly) return { plan: [] }; // the studio's compose with Runware not affordable: nothing is drawn
   // Cloudflare: FLUX.2 klein with her references (face, body, place); FLUX.1 schnell from words when klein is unavailable
   const text = who(ref ? P.REFERENCE : P.LOOKS, true);
   rec.attempts++;

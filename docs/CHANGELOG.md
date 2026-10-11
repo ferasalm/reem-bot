@@ -4,6 +4,16 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (thirty-fourth session, Haiku 5.5): WORKPLAN Step 7, the prompt studio at /studio, built; one real draw read; dev only
+- The studio (worker.js block "The prompt studio", studio.js): the owner's signed link (`/studio`; `/studio reset` ends old links), the
+  cookie, the log from D1 `pictures` (30 a page, source filter), the editor (compose from /pic words through the bot's own plan; Generate =
+  one Runware task with 1-4 pictures, LoRAs, references, sampler; the money in ledger `studioUsd` at STUDIO.DAILY_USD $1), presets.
+- Checks: `tools/test/studio.mjs` 30 ok (new, in check.mjs); golden plans unchanged (38 cases match); unit all passed; the page in Chromium
+  at 390 px (15 checks, no console errors); one real draw from the container: $0.00247, 768x1344, klein 9B with the face, body and porch-night
+  references and two LoRAs, read at full size.
+- Not built (the Step 7 spec's deviations, listed in HANDOFF): scene, look and selfie in the editor's compose; Cloudflare klein as a studio model.
+- Model: Haiku 5.5 (from the session record). HANDOFF recommends Sonnet 5.5 at high effort for this step, the owner picked Haiku.
+
 ## 2026-10-11 (thirty-third session, Opus + haiku-worker): Step 6 anal positions; spend less (owner); dev
 - Anal first (`pictureFlags` anal/analAt, `runwarePlan` position pick, ANAL_SCENES/ANAL_LORAS/ANAL_ALONE); "missionary anal" and "anal
   riding" no longer get the vaginal text; "her ass" on riding or doggy no longer loads POV Doggy Anal. Bench 32 pictures $0.0936.

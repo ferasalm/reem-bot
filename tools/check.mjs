@@ -10,6 +10,7 @@ const steps = [
   ["unit", "node tools/test/unit.mjs"],
   ["scenarios", "node tools/test/scenarios.mjs"],
   ["e2e", "node tools/test/e2e.mjs"],
+  ["studio (link, log, compose, draw)", "node tools/test/studio.mjs"],
   ["picture plans match golden", "node tools/test/picture-plans.mjs --check"],
   ["docs", "node tools/doc-check.mjs"],
 ];

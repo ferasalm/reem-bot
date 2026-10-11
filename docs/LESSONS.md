@@ -26,7 +26,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   Fix: `git fetch --unshallow origin`, rerun `node tools/sync-check.mjs` (2026-10-08: 25 branches listed, then "OK"); `git cherry origin/dev origin/<b>` counts what's really missing (2026-10-03). Deploy = `git push origin origin/dev:main` (fast-forward) (2026-10-05).
 - No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only; Runware has no MiniMax Turbo (run 37541102035).
   Text replay on Workers AI: test.yml `model` `@cf/...` (no OpenRouter key passed); never two at once (429, 3021). Runware MCP:
-  `account` = balance + today's spend. Hand-run workflows must be on `dev` (404); log blob links are blocked: `get_job_logs`.
+  `account`: the spend is `usage` (`total`, `today` credits), read before and after; the `balance` field lagged a $0.00247 draw (2026-10-11). Hand-run workflows must be on `dev` (404); log blob links are blocked: `get_job_logs`.
 - Civitai → Runware LoRAs (2026-10-08): the proxy allows `api.civitai.com` (not civitai.com); `/api/download/models/<v>` answers a
   307 to a signed link (24 h) Runware fetches (REST `modelUpload` + `uniqueIdentifier` = sha256; give Actions that link: it has no key).
   "failed to load": DoRA or OneTrainer LoRA (`transformer.` keys, POV hand) → `dora-to-lora.py`, LoKR → `lokr-to-lora.py --rank 128`; custom klein checkpoints: "internalError".

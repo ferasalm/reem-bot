@@ -1,0 +1,315 @@
+// Step 7 tests (docs/WORKPLAN.md): the /studio link and cookie, the owner-only /studio command, the editor's compose (the golden
+// "/pic messy bun on the porch" case: the same clock and seeded Math.random as picture-plans.mjs), the studio's draw with
+// Runware stubbed (a log row and a kept picture per picture; the money cap), the log's paging and source filter, the pictures,
+// the editor's lists, and the page's script. Run: node tools/test/studio.mjs (exits 1 on any failure).
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { loadWorker } from "./load-worker.mjs";
+
+// The clock and Math.random as tools/test/picture-plans.mjs sets them (the golden case below depends on both)
+const FROZEN = Date.parse("2026-10-11T18:00:00Z"); // 14:00 in Boston
+let frozen = FROZEN;
+const RealDate = Date;
+class FrozenDate extends RealDate {
+  constructor(...args) {
+    if (args.length) super(...args);
+    else super(frozen);
+  }
+  static now() {
+    return frozen;
+  }
+}
+globalThis.Date = FrozenDate;
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const W = await loadWorker();
+const TOKEN = "123456:studio-test";
+const NOW = FROZEN;
+const TINY = Buffer.from("fake jpeg bytes").toString("base64");
+
+// The fetch stub: Runware answers `numberResults` pictures per task; Telegram answers getFile and file downloads
+const calls = [];
+globalThis.fetch = async (url, init = {}) => {
+  const u = String(url);
+  calls.push({ url: u, body: init.body });
+  const json = (body) => new Response(JSON.stringify(body), { headers: { "content-type": "application/json" } });
+  if (u === "https://api.runware.ai/v1") {
+    const tasks = JSON.parse(init.body);
+    const data = tasks.flatMap((t) => Array.from({ length: t.numberResults || 1 }, () => ({ taskUUID: t.taskUUID, imageBase64Data: TINY, cost: 0.0025 })));
+    return json({ data, errors: [] });
+  }
+  if (u.includes("/getFile")) return json({ ok: true, result: { file_path: "photos/file_1.jpg" } });
+  if (u.startsWith(`https://api.telegram.org/file/bot${TOKEN}/`)) return new Response(new Uint8Array([255, 216, 255]));
+  if (u.includes("api.telegram.org/bot")) return json({ ok: true, result: { message_id: 1 } });
+  throw new Error(`studio test: unexpected request to ${u}`);
+};
+
+let failed = 0;
+const check = (name, cond, detail = "") => {
+  if (cond) console.log(`ok   ${name}`);
+  else {
+    failed++;
+    console.log(`FAIL ${name}${detail ? `\n     ${detail}` : ""}`);
+  }
+};
+
+// A key-value stub with the get and put the studio uses
+function fakeKV(init = {}) {
+  const store = new Map(Object.entries(init));
+  return {
+    store,
+    async get(key, type) {
+      if (!store.has(key)) return null;
+      const v = store.get(key);
+      if (type === "json") return JSON.parse(v);
+      if (type === "arrayBuffer") return v instanceof Uint8Array ? v.slice().buffer : v;
+      return v;
+    },
+    async put(key, value) {
+      store.set(key, value);
+    },
+  };
+}
+
+// A D1 stub for the statements the studio runs: the schema, INSERT and UPDATE of pictures, the paged SELECT, presets
+function fakeD1() {
+  const pictures = [];
+  const presets = [];
+  function exec(sql, args) {
+    if (/^\s*CREATE/i.test(sql)) return { results: [], meta: {} };
+    if (/^INSERT INTO pictures/.test(sql)) {
+      const cols = sql.match(/\(([^)]*)\)/)[1].split(",").map((c) => c.trim());
+      const row = Object.fromEntries(cols.map((c, i) => [c, args[i]]));
+      row.id = pictures.length + 1;
+      pictures.push(row);
+      return { results: [], meta: { last_row_id: row.id } };
+    }
+    if (/^UPDATE pictures/.test(sql)) {
+      const row = pictures.find((r) => r.id === args[2]);
+      if (row) Object.assign(row, { tg_thumb: args[0], tg_full: args[1] });
+      return { results: [], meta: {} };
+    }
+    if (/^INSERT INTO presets/.test(sql)) {
+      presets.push({ id: presets.length + 1, at: args[0], author: args[1], name: args[2], body: args[3] });
+      return { results: [], meta: {} };
+    }
+    if (/FROM presets/.test(sql)) return { results: [...presets].sort((a, b) => b.id - a.id).slice(0, 50) };
+    if (/FROM pictures/.test(sql)) {
+      if (/WHERE id = \?/.test(sql)) return { results: pictures.filter((r) => r.id === args[0]).map((r) => ({ tg_thumb: r.tg_thumb ?? null, tg_full: r.tg_full ?? null })) };
+      let rows = [...pictures];
+      let i = 0;
+      if (sql.includes("id < ?")) {
+        const before = args[i++];
+        rows = rows.filter((r) => r.id < before);
+      }
+      if (sql.includes("source = ?")) {
+        const source = args[i++];
+        rows = rows.filter((r) => r.source === source);
+      }
+      rows.sort((a, b) => b.id - a.id);
+      const limit = args[i];
+      return { results: rows.slice(0, limit).map((r) => ({ ...r, has_tg: r.tg_thumb != null ? 1 : 0 })) };
+    }
+    throw new Error(`fake D1: unknown statement ${sql.slice(0, 80)}`);
+  }
+  return {
+    pictures,
+    presets,
+    prepare(sql) {
+      let args = [];
+      const stmt = {
+        bind(...a) {
+          args = a;
+          return stmt;
+        },
+        async run() {
+          return exec(sql, args);
+        },
+        async all() {
+          return exec(sql, args);
+        },
+        async first() {
+          return exec(sql, args).results[0] || null;
+        },
+      };
+      return stmt;
+    },
+    async batch(stmts) {
+      const out = [];
+      for (const s of stmts) out.push(await s.run());
+      return out;
+    },
+  };
+}
+
+const studioEnv = (extra = {}) => ({ TELEGRAM_BOT_TOKEN: TOKEN, OWNER_ID: "42", REEM_KV: fakeKV(), STUDIO_DB: fakeD1(), RUNWARE_API_KEY: "test-key", PUBLIC_URL: "https://reem.example.test", ...extra });
+const req = (path, cookie = "") => new Request(`https://x.test${path}`, cookie ? { headers: { cookie } } : {});
+const route = (env, path, cookie = "", now = NOW) => W.studioRoute(req(path, cookie), env, new URL(`https://x.test${path}`), now);
+const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, chat, NOW)}`;
+
+// 1-6. The link: a token opens for the owner's chat only, for LINK_DAYS, until /studio reset
+{
+  const env = studioEnv();
+  const link = await W.studioToken(env, "42", NOW);
+  check("a link checks back to the owner's chat", JSON.stringify(await W.studioCheck(env, link, NOW)) === JSON.stringify({ chat: "42" }));
+  const flipped = link.slice(0, -2) + (link.slice(-2) === "AA" ? "BB" : "AA");
+  check("a tampered signature is refused", (await W.studioCheck(env, flipped, NOW)) === null);
+  check("a link for another chat is refused", (await W.studioCheck(env, await W.studioToken(env, "7", NOW), NOW)) === null);
+  check("a link older than LINK_DAYS is refused", (await W.studioCheck(env, link, NOW + 31 * 86400e3)) === null);
+  check("a link that isn't a token is refused", (await W.studioCheck(env, "nonsense", NOW)) === null);
+  env.REEM_KV.store.set("studio_epoch", "1"); // what /studio reset does
+  check("after /studio reset an old link is refused, a new one works", (await W.studioCheck(env, link, NOW)) === null && (await W.studioCheck(env, await W.studioToken(env, "42", NOW), NOW)) !== null);
+}
+
+// 7-11. The routes: a bad token is 404; the link sets the cookie and redirects; every /studio route needs the cookie
+{
+  const env = studioEnv();
+  const link = await W.studioToken(env, "42", NOW);
+  check("a bad token is 404", (await route(env, "/studio?t=bad")).status === 404);
+  check("a token for another chat is 404", (await route(env, `/studio?t=${await W.studioToken(env, "7", NOW)}`)).status === 404);
+  const first = await route(env, `/studio?t=${link}`);
+  const cookie = first.headers.get("set-cookie") || "";
+  check(
+    "the link sets the cookie (Path=/studio, HttpOnly, Secure, SameSite=Strict, 30 days) and redirects to /studio",
+    first.status === 302 && first.headers.get("location") === "/studio" && /^studio=/.test(cookie) && /Path=\/studio/.test(cookie) && /HttpOnly/.test(cookie) && /Secure/.test(cookie) && /SameSite=Strict/.test(cookie) && /Max-Age=2592000/.test(cookie),
+    cookie,
+  );
+  const jar = cookie.split(";")[0];
+  const page = await route(env, "/studio", jar);
+  const html = await page.text();
+  check(
+    "with the cookie the page loads, with its security headers",
+    page.status === 200 && /text\/html/.test(page.headers.get("content-type")) && html.includes("Picture studio") && /default-src 'none'/.test(page.headers.get("content-security-policy")) && page.headers.get("x-robots-tag") === "noindex" && page.headers.get("referrer-policy") === "no-referrer",
+  );
+  const bare = await route(env, "/studio/api/log");
+  check("without the cookie every /studio route is 404", bare.status === 404 && (await bare.text()) === "not found");
+  const log = await route(env, "/studio/api/log", jar);
+  check("with the cookie the log answers JSON", log.status === 200 && (await log.json()).ok === true);
+  check("with an old epoch the cookie is 404", (await route(env, "/studio", jar)).status === 200 && (env.REEM_KV.store.set("studio_epoch", "2"), (await route(env, "/studio", jar)).status === 404));
+}
+
+// 12-14. /studio in chats: the owner gets the link; another chat gets no answer; /studio reset ends the old links
+{
+  const env = studioEnv();
+  const sends = () => calls.filter((c) => c.url.includes("/sendMessage")).length;
+  const before = sends();
+  await W.runCommand(env, "7", "studio", {});
+  check("/studio from another chat gets no answer", sends() === before);
+  await W.runCommand(env, "42", "studio", {});
+  const last = calls.filter((c) => c.url.includes("/sendMessage")).at(-1);
+  const text = last ? String(last.body) : "";
+  const match = text.match(/valid 30 days: https:\/\/reem\.example\.test\/studio\?t=([A-Za-z0-9_.-]+)/);
+  check("/studio from the owner's chat sends its private link", sends() === before + 1 && match !== null, text.slice(0, 200));
+  await W.runCommand(env, "42", "studio", { args: "reset" });
+  check("/studio reset: the link sent before no longer works", match !== null && (await route(env, `/studio?t=${match[1]}`)).status === 404);
+}
+
+// 15. The editor's compose is the bot's own plan: the golden case "/pic messy bun on the porch" (case index 5, seeded random)
+{
+  const golden = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "picture-plans.golden.json"), "utf8")).cases["/pic messy bun on the porch"];
+  const want = golden.runware[0];
+  Math.random = mulberry32(5);
+  frozen = FROZEN;
+  const out = await W.studioCompose(studioEnv(), { source: "pic", words: "messy bun, red lipstick, black turtleneck, on the porch", level: "on" });
+  const t = out.tries[0] || {};
+  check("compose: the golden /pic case gives the same prompt", t.prompt === want.positivePrompt, `want ${JSON.stringify(want.positivePrompt).slice(0, 200)}\n     got  ${JSON.stringify(t.prompt || "").slice(0, 200)}`);
+  check(
+    "compose: the same model, size, sampler, LoRAs and references as the golden case",
+    // the golden names a place by its picture ("place:porch~1", one of its crops); the plan names the place ("place:porch"),
+    // and the editor's place takes the same crop, so the crop suffix is dropped before comparing
+    t.model === want.model && t.width === want.width && t.height === want.height && (want.steps ?? 0) === t.steps && (want.CFGScale ?? 0) === t.cfg && (want.acceleration || "") === t.acceleration && JSON.stringify(t.loras) === JSON.stringify(want.lora) && JSON.stringify([...t.refs].sort()) === JSON.stringify(want.refs.map((r) => r.replace(/~\d+$/, "")).sort()),
+    JSON.stringify({ got: { model: t.model, w: t.width, h: t.height, loras: t.loras, refs: t.refs }, want: { model: want.model, w: want.width, h: want.height, lora: want.lora, refs: want.refs } }),
+  );
+  const none = await W.studioCompose(studioEnv(), { source: "scene", words: "x" });
+  check("compose takes /pic words only", none.ok === false);
+}
+
+// 16. The studio's draw: one Runware task with two pictures and the editor's settings; a log row and a kept picture for each
+{
+  const env = studioEnv();
+  const before = calls.length;
+  const out = await W.studioDraw(env, { model: "klein", prompt: "a woman in her kitchen, gray cardigan", width: 768, height: 1344, results: 2, refs: ["face-2x", "body-v10-clothed", "place:nope"], loras: [{ model: "ferasalm:instapic@1", weight: 0.6 }, { model: "ferasalm:phone2025@1", weight: 0 }], seed: 77, steps: 5, cfg: 1 }, NOW);
+  const sent = calls.slice(before).find((c) => c.url === "https://api.runware.ai/v1");
+  const task = sent ? JSON.parse(sent.body)[0] : {};
+  check(
+    "draw: one Runware task, two pictures, the editor's settings (a LoRA at 0 is left out, a missing place is skipped)",
+    out.ok === true && out.pictures.length === 2 && task.numberResults === 2 && task.seed === 77 && task.steps === 5 && task.CFGScale === 1 && task.lora.length === 1 && task.lora[0].weight === 0.6 && task.inputs.referenceImages.length === 2,
+    JSON.stringify({ ok: out.ok, n: out.pictures && out.pictures.length, task: { numberResults: task.numberResults, lora: task.lora, refs: task.inputs && task.inputs.referenceImages.length } }),
+  );
+  const rows = env.STUDIO_DB.pictures;
+  check("draw: a log row per picture, source studio", rows.length === 2 && rows.every((r) => r.source === "studio" && r.ok === 1 && r.seed === 77 && r.model === "runware:400@2"), JSON.stringify(rows.map((r) => [r.source, r.ok, r.seed])));
+  check("draw: each picture is kept for the studio (KV simg:<id>)", out.pictures.every((p) => env.REEM_KV.store.get(`simg:${p.id}`) instanceof Uint8Array));
+  const ledger = JSON.parse(env.REEM_KV.store.get("pics"));
+  check("draw: the money counts in studioUsd, not in the bot's rwUsd", Math.abs(ledger.studioUsd - 0.005) < 1e-9 && !ledger.rwUsd, JSON.stringify(ledger));
+}
+
+// 17. The cap: at STUDIO.DAILY_USD a draw stops before Runware is called
+{
+  const env = studioEnv();
+  env.REEM_KV.store.set("pics", JSON.stringify({ day: "2026-10-11", studioUsd: 0.999 }));
+  const before = calls.length;
+  const out = await W.studioDraw(env, { prompt: "over the cap", results: 1 }, NOW);
+  check("draw stops at the studio's cap, with Runware not called", out.ok === false && /spent/.test(out.error) && !calls.slice(before).some((c) => c.url === "https://api.runware.ai/v1"), JSON.stringify(out));
+}
+
+// 18-19. The log: 30 a page, newest first, `before` pages on; the source filter
+{
+  const env = studioEnv();
+  for (let i = 1; i <= 65; i++) env.STUDIO_DB.pictures.push({ id: i, at: new Date(NOW + i * 1000).toISOString(), source: i % 2 ? "pic" : "studio", kind: "clothed", prompt: `p${i}`, loras: "[]", refs: "[]", ok: 1, cost: 0.003, seed: i });
+  const page1 = await W.studioLog(env, new URL("https://x.test/studio/api/log"));
+  const page2 = await W.studioLog(env, new URL(`https://x.test/studio/api/log?before=${page1.next}`));
+  const page3 = await W.studioLog(env, new URL(`https://x.test/studio/api/log?before=${page2.next}`));
+  check(
+    "log: 30 a page, newest first, then the next page, then the rest",
+    page1.rows.length === 30 && page1.rows[0].id === 65 && page1.next === 36 && page2.rows.length === 30 && page2.rows[0].id === 35 && page2.next === 6 && page3.rows.length === 5 && page3.next === null,
+    JSON.stringify([page1.rows.length, page1.next, page2.rows.length, page2.next, page3.rows.length, page3.next]),
+  );
+  const pics = await W.studioLog(env, new URL("https://x.test/studio/api/log?source=pic"));
+  check("log: the source filter keeps that source only", pics.rows.length === 30 && pics.rows.every((r) => r.source === "pic") && pics.next !== null);
+}
+
+// 20. A picture: the studio's copy in KV, else Telegram's copy of the bot's picture (tg_thumb); a non-number id is 404
+{
+  const env = studioEnv();
+  env.STUDIO_DB.pictures.push({ id: 1, source: "pic", ok: 1, tg_thumb: "FILE_THUMB", tg_full: "FILE_FULL" });
+  env.REEM_KV.store.set("simg:2", new Uint8Array([1, 2, 3, 4]));
+  const jar = await jarOf(env);
+  const kept = await route(env, "/studio/img/2", jar);
+  const telegram = await route(env, "/studio/img/1?size=thumb", jar);
+  check("pictures: KV for the studio's draws, Telegram's copy for the bot's", kept.status === 200 && kept.headers.get("content-type") === "image/jpeg" && telegram.status === 200 && (await telegram.arrayBuffer()).byteLength === 3);
+  check("a picture id must be a number", (await route(env, "/studio/img/x", jar)).status === 404);
+}
+
+// 21. The editor's lists: LoRAs, references (every body and face name resolves), two models
+{
+  const env = studioEnv();
+  const o = await W.studioOptions(env);
+  const bytes = await Promise.all(["face-2x", "face-1x", "body-v10", "body-v10-back", "body-v10-clothed", "body-v10-neutral"].map((n) => W.refBytes(env, n)));
+  check("options: LoRAs, references and two models; every face and body name resolves", o.loras.length > 0 && o.refs.includes("face-2x") && o.models.length === 2 && bytes.every((b) => b && b.length > 1000), JSON.stringify({ loras: o.loras.length, models: o.models.length }));
+}
+
+// 22. The page's script parses (the page's behaviour was read in a browser: see docs/QUALITY.md)
+{
+  const { STUDIO_HTML } = await import("../../studio.js");
+  const script = STUDIO_HTML.match(/<script>([\s\S]*)<\/script>/);
+  let parsed = false;
+  try {
+    new Function(script[1]);
+    parsed = true;
+  } catch (e) {
+    console.log(e.message);
+  }
+  check("the page's script parses", parsed && script !== null);
+}
+
+console.log(failed ? `${failed} FAILED` : "all passed");
+process.exit(failed ? 1 : 0);
