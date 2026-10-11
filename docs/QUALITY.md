@@ -571,3 +571,11 @@ Page (`studio.js` in Chromium at 390x844, `/studio/api/*` answered by fixtures):
 editor's options, compose fills prompt, references and the LoRA, Generate shows the result with its id and money, presets list and load,
 no console or page errors). Screenshots read: the log at phone width (the thumbnail beside the text), the editor (references, LoRAs, estimate).
 Golden plans: 38 cases match (the Runware requests are unchanged by Step 7). `tools/test/studio.mjs`: 30 ok.
+
+## Deploy d21c4b3 live checks (2026-10-11, owner's "Also deploy"; Deploy to Cloudflare run 38115691263; Version ID d000a6a5-c932-49b4-b326-37552a825c6d; Haiku 5.5's read of the log)
+| What (read in the deploy job's log, job 114400019419) | Result | Read |
+|---|---|---|
+| `/health` draw: Cloudflare klein 4B, 256x256, row 1 in D1 `pictures` (source health, ok 1) | ok, 59,218 bytes, 12,967 ms | The vision model (llama-4-scout) said: a young woman with dark hair pulled back, taking a selfie, beige top and pants, a cream-walled room, a green couch with a green plaid blanket, a window with trees. The prompt's room (the triple-decker front room, olive sofa, green plaid blanket) is the one it describes. |
+| `/setup` | all ✅ | Telegram @reem_nabot; DeepSeek on Workers AI; OpenRouter backup; her voice Sulafat (test clip 24 KB MP3); hearing: "Hey you. I was hoping you'd text."; ElevenLabs key; Workers AI bound; face built in; Runware runware:400@2 with her face, retried, then Cloudflare klein, about $0.03 of $1.00 today. Its last failed call: "Runware 200: no picture" of 09/10/2026 22:04:02 Boston time (before this deploy). |
+| `tools/cf-resources.sh` | reem-memory 3002 and metadata 40004 "already exists" (normal); `reem-studio` read: 2 tables, 28.7 kB | The binding is there; the D1 row above shows it writes. |
+| Not checked here | `/studio`, `/nsfw`, a Runware picture of hers after the deploy | The container cannot reach workers.dev (proxy 403); the owner's Telegram test does these. |

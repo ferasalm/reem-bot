@@ -13,6 +13,8 @@ New entries: when a session's HANDOFF "Where we are" item is finished, move its 
   references and two LoRAs, read at full size.
 - Not built (the Step 7 spec's deviations, listed in HANDOFF): scene, look and selfie in the editor's compose; Cloudflare klein as a studio model.
 - Model: Haiku 5.5 (from the session record). HANDOFF recommends Sonnet 5.5 at high effort for this step, the owner picked Haiku.
+- Deployed to main (owner: "Also deploy"): d21c4b3 (Steps 1-7), Deploy to Cloudflare run 38115691263 and Tests run 38115691254 both success;
+  Version ID d000a6a5-c932-49b4-b326-37552a825c6d; /health and /setup read; the /health draw is D1 row 1 (source health). Rollback 897dfaf.
 
 ## 2026-10-11 (thirty-third session, Opus + haiku-worker): Step 6 anal positions; spend less (owner); dev
 - Anal first (`pictureFlags` anal/analAt, `runwarePlan` position pick, ANAL_SCENES/ANAL_LORAS/ANAL_ALONE); "missionary anal" and "anal
