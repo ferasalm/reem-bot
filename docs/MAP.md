@@ -120,7 +120,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
 - `tools/ai-diag.mjs` + `.github/workflows/ai-diag.yml`: Workers AI diagnosis (token, model schemas, neuron usage
   by hour and model from GraphQL analytics, tiny test calls, full answers). Runs when either file changes or by hand.
 - `tools/sync-check.mjs` + `tools/retired-branches.txt`: the sync report (session start, CI `sync` job).
-- Tests (`tools/test/`): `unit.mjs`; `scenarios.mjs` (model outputs → delivery table, properties, scene state,
+- Tests (`tools/test/`): `unit.mjs`;- Tests (`tools/test/`): `picture-plans.mjs` + `picture-plans.golden.json` (Step 1: the bot's picture code with the network stubbed, every Runware request as sent; `--write` only for an intended change, `--check` in check.mjs and test.yml); `unit.mjs`; `scenarios.mjs` (model outputs → delivery table, properties, scene state,
   mocked conversations; add a row for every new slip seen); `e2e.mjs` (whole flows, exits 1 on any false check);
   `live.mjs` (real model, see Testing); `load-worker.mjs` (exports internals; add new ones to `EXPORTS`).
 - `tools/model-bench/` + `.github/workflows/model-bench.yml`: the budget-capped model bench (results never

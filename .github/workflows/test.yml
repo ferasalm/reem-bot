@@ -50,6 +50,7 @@ jobs:
       - run: node tools/test/unit.mjs
       - run: node tools/test/scenarios.mjs
       - run: node tools/test/e2e.mjs > /dev/null   # exits 1 on any false check
+      - run: node tools/test/picture-plans.mjs --check   # the golden picture plans: every Runware request as sent, nothing paid
       - name: Docs rules (HANDOFF/LESSONS size, dated decisions, effort per next step, every file in docs/MAP.md)
         run: node tools/doc-check.mjs
       - name: The Worker builds (wrangler bundles face.js; the AI binding parses). Nothing is deployed.
