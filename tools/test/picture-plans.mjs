@@ -183,7 +183,14 @@ function differences(a, b, path, out) {
 
 const mode = process.argv.includes("--write") ? "write" : "check";
 const W = await loadWorker();
+// the bot logs each picture as one line of JSON and the failed tries as errors: not wanted in this check's output
+const say = console.log;
+const complain = console.error;
+console.log = () => {};
+console.error = () => {};
 const actual = stable(await runAll(W));
+console.log = say;
+console.error = complain;
 const text = JSON.stringify({ _note: "Golden picture plans (tools/test/picture-plans.mjs). Regenerate with --write only for an intended change.", cases: actual }, null, 2) + "\n";
 
 if (mode === "write") {
