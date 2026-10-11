@@ -841,7 +841,7 @@ Changing the story
     // Step 4: an everyday picture (or /pic) whose words say she is out takes the day's OUT outfit, else HOME. Not a bare "out", "rain"
     // or "snow" (review: "stretched out", "lights out", "rain on the window" put her in a coat at home)
     OUTSIDE_WORDS: ["outside", "going out", "out for", "out with", "night out", "walk", "walking", "street", "park", "cafe", "café", "coffee shop", "store", "grocery", "market", "work", "office", "car", "train", "bus", "subway", "beach", "restaurant", "bar", "date", "campus", "sidewalk", "in the snow", "in the rain"],
-    WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
+    WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "satin slip", "silk slip", "lace slip", "velvet slip", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
     // owner 2026-10-05: "90% from the same angle as the location pictures ... included as is": klein copies the place
@@ -936,7 +936,10 @@ Changing the story
       // OUTFIT_BODY: an outfit with a picture (STYLE_PICTURES) is image 1 itself, with REFERENCE_OUTFIT, and no fourth image.
       // Step 4 review (Opus, 2026-10-11): "none". Klein copies the garment of a clothed image 1: the rust halter cropped other tops
       // (Breton s101 and s303, silk s101) and the neutral tank turned necklines into its scoop (Breton s101/s303, linen); none: 0 of 18
-      CLOTHED_BODY: "none",
+      // "nude" (owner, 2026-10-11: yes to the fuller build, v10's): the nude front + DRESSED_FULL. Checked (Opus): 12/12 outfits as
+      // named at seeds 101 and 202 (no crop leak), lingerie 3/3 (lace stays sheer, no nipples), /nsfw Off 2/2 past Runware's check,
+      // scenes 2/2 dressed; a lace cami came out a short bralette once
+      CLOTHED_BODY: "nude",
       OUTFIT_BODY: true,
       // Step 4 review: CLOTHED_BODY "nude" sends BODY with this line; "neutral" sends BODY_NEUTRAL (tools/face/body-neutral.jpg, seed 402)
       BODY_NEUTRAL: "v10-neutral",
@@ -3880,7 +3883,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
     const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "");
     const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
-    const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
+    const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true, [rwFace, rwBody].filter(Boolean).length) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
     out.push(tryOf(model, text, refs, loras, rwW, rwH));
   }
   return { tries: out, flags };
@@ -4025,12 +4028,13 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
   const placeKey = night && placePictures(`${location}_night`).length ? `${location}_night` : location;
   const shown = L ? pickOne(placePictures(placeKey)) : "";
   const place = shown ? fromBase64(shown) : null;
-  const room = (withImage, rw = false) => (!L ? "" : (withImage && place ? (rw && P.RUNWARE.ROOM != null ? P.RUNWARE.ROOM : P.ROOM) : rw && P.RUNWARE.ROOM_TEXT != null ? P.RUNWARE.ROOM_TEXT : P.ROOM_TEXT) || "").replaceAll("{n}", String(ref ? (body ? 2 : 1) : 0)).replace("{look}", (L && L.LOOK) || "");
-  const who = (w, withImage, rw = false) => {
+  // `n`: the place picture's image number when the caller knows it (Runware: 1 when no body picture is sent, Step 5)
+  const room = (withImage, rw = false, n = null) => (!L ? "" : (withImage && place ? (rw && P.RUNWARE.ROOM != null ? P.RUNWARE.ROOM : P.ROOM) : rw && P.RUNWARE.ROOM_TEXT != null ? P.RUNWARE.ROOM_TEXT : P.ROOM_TEXT) || "").replaceAll("{n}", String(n ?? (ref ? (body ? 2 : 1) : 0))).replace("{look}", (L && L.LOOK) || "");
+  const who = (w, withImage, rw = false, n = null) => {
     if (!herself) w = ""; // /look without her: nobody's description
     // /pic: her face, but the hair (and the rest) he describes
     if (custom) w = String(w).replace("with exactly the same face and hair", (P.CUSTOM || {}).SAME_PERSON || "with exactly the same face");
-    const p = String(prompt).replace("{room}", room(withImage, rw));
+    const p = String(prompt).replace("{room}", room(withImage, rw, n));
     return (p.includes("{who}") ? p.replace("{who}", w) : `${w} ${p}`).replace(/\s{2,}/g, " ").trim();
   };
   // Runware (PICTURE.ROUTE): the plan's tries in order, each drawn with the same seed. Its spend goes in ledger.rwUsd; when

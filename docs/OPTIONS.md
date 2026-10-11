@@ -24,7 +24,7 @@
 - **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v10-clothed`), the room picture when a place is named.
 - **Nude** (a nude word, below): 9:16, her nude body (`v10`), the nude LoRAs.
 - **Sex act** (a sex word, below): from his eyes, no room picture; shape picked at random: oral 1:1 80%, 16:9 20%; the rest 9:16 40%, 1:1 40%, 16:9 20% (sizes: 9:16 768x1344, 1:1 1024x1024, 16:9 1344x768). From behind (doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind): her body from behind, no breasts named.
-- **Partly naked**: a nude or sex picture that also names clothes (cardigan, sweater, hoodie, sweatshirt, t-shirt, tee, shirt, blouse, tank top, camisole, slip dress, dress...): those clothes stay on.
+- **Partly naked**: a nude or sex picture that also names clothes (cardigan, sweater, hoodie, sweatshirt, t-shirt, tee, shirt, blouse, tank top, camisole, slip dress, satin slip...): those clothes stay on.
 - **Flash**: "camera flash", "flash on", "with flash", "with the flash", "with a flash", "flash photo", "flash pic", "flash picture", "flash selfie", "use flash", "using flash", "using the flash", "harsh flash", "direct flash", "flash photography".
 
 ## Nude words

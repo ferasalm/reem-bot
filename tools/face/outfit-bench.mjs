@@ -1,6 +1,7 @@
 // Step 4 (docs/WORKPLAN.md): outfits, image 1 by outfit, nude back views, through the bot's own picture code (Step 3's harness).
 //   node tools/face/outfit-bench.mjs --dry               no network, $0: every run's LoRAs, size and prompt
 //   NODE_USE_ENV_PROXY=1 node tools/face/outfit-bench.mjs --run <outdir>   paid: klein 9B on Runware, stops at $0.20
+//   --review: the Step 4 review's set; --nude-check: CLOTHED_BODY "nude" on a second seed, lingerie, /nsfw Off, scenes (Opus, Step 5 chat)
 // Cases: 6 outfits with no picture x (CLOTHED_BODY rust, none) x seeds 101, 202 = 24; 4 outfits with a picture as image 1 x 2 seeds
 // = 8; 4 nude back views (seed 101) = 4; 3 regression pictures (the nude mirror x2, doggy seed 202) = 3. 39 pictures.
 // Each run seeds Math.random by (seed, case), so the variants of a case make the same random picks.
@@ -109,6 +110,27 @@ if (process.argv.includes("--review")) {
   const repeat = CASES.filter((c) => c.id === "outfit-breton" || c.id === "outfit-silk");
   CASES.splice(0, CASES.length, ...six.map((c) => ({ ...c, variants: ["nude", "neutral"], seeds: [101] })), ...repeat.map((c) => ({ ...c, id: `${c.id}-again`, variants: ["rust", "none", "neutral"], seeds: [303] })));
   SEEDS.push(303);
+}
+
+// --nude-check (owner's yes to the fuller build, 2026-10-11): CLOTHED_BODY "nude" where the Step 4 review had not tried it. The six
+// outfits at seed 202 (same case index and seed as Haiku's rust and none pictures at 202: the same random picks), lingerie (her
+// selfie asking for it), /nsfw Off (Runware's content check on: a thin white day top, a lace bodysuit) and two in-person scenes whose
+// narration names no clothes (the day's home outfit). nude and none side by side at seed 101; Off in nude only. 18 pictures.
+if (process.argv.includes("--nude-check")) {
+  const WARM = { day: "2026-10-11", band: "WARM", home: "a tight ribbed white tank top and soft gray cotton shorts", out: "a fitted black ribbed tank top and high-waisted jeans" };
+  const MILD = { day: "2026-10-11", band: "MILD", home: "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", out: "a black leather jacket over a fitted gray tee and jeans" };
+  const selfie = (want, opts = {}) => (env, ledger) => W.startPicture(env, ledger, "selfie", want, { asked: "", ...opts });
+  const scene = (text, dayWear) => (env, ledger) => W.startPicture(env, ledger, "scene", text, { dayWear });
+  const six = CASES.slice(0, 6).map((c) => ({ ...c, variants: ["nude"], seeds: [202] }));
+  CASES.splice(0, CASES.length, ...six,
+    { id: "lingerie-lace-bodysuit", variants: ["nude", "none"], seeds: [101], run: selfie("in my black lace bodysuit, sitting on my bed", { asked: "send me a lingerie pic" }) },
+    { id: "lingerie-satin-slip", variants: ["nude", "none"], seeds: [101], run: selfie("in my black satin slip with thin straps, by the bedroom mirror", { asked: "send me a lingerie pic" }) },
+    { id: "lingerie-cami-shorts", variants: ["nude", "none"], seeds: [101], run: selfie("in a black lace cami and matching silk shorts, lying on my bed", { asked: "send me a lingerie pic" }) },
+    { id: "off-day-white-tank", variants: ["nude"], seeds: [101], run: selfie(null, { dayWear: WARM, nsfw: "off" }) },
+    { id: "off-lace-bodysuit", variants: ["nude"], seeds: [101], run: selfie("in my black lace bodysuit, sitting on my bed", { asked: "send me a lingerie pic", nsfw: "off" }) },
+    { id: "scene-couch-mild", variants: ["nude", "none"], seeds: [101], run: scene("*She curls up on the couch under the soft throw blanket, knees tucked to her chest, laughing at the movie on the television, a bowl of popcorn balanced on her lap.* That's the worst movie ever made.", MILD) },
+    { id: "scene-bed-warm", variants: ["nude", "none"], seeds: [101], run: scene("*She sits on the edge of her bed in the lamplight, brushing out her long hair, and smiles slowly.* Come here.", WARM) },
+  );
 }
 
 // Runs: seed-major (101 first), then case, then variant

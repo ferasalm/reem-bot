@@ -296,15 +296,24 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
 }
 {
   // owner 2026-10-10: an outfit or a hairstyle with a picture (RUNWARE.STYLE_PICTURES) sends that picture as the next image, after face, body and place, and names it
-  const P = W.CONFIG.PICTURE, R = P.RUNWARE, realFetch = globalThis.fetch, keep = [P.ROUTE, P.HAIR_CHANCE], r0 = Math.random;
+  const P = W.CONFIG.PICTURE, R = P.RUNWARE, realFetch = globalThis.fetch, keep = [P.ROUTE, P.HAIR_CHANCE, R.CLOTHED_BODY], r0 = Math.random;
   let sent = [];
   globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
-  const draw = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0]; };
+  const draw = async (words, opts = {}) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {}, ...opts }); return sent[0]; };
   try {
     P.ROUTE = "runware-klein"; P.HAIR_CHANCE = 0; Math.random = () => 0;
     const plain = await draw("on the couch reading a book");
     const n0 = plain.inputs.referenceImages.length;
-    eq(n0, 1, "CLOTHED_BODY none (Step 4 review): a clothed picture with no outfit picture sends her face only");
+    // owner 2026-10-11 (yes to the fuller build): CLOTHED_BODY "nude", the nude front as image 1 with REFERENCE_CLOTHED and DRESSED_FULL
+    eq(n0, 2, "CLOTHED_BODY nude: a clothed picture with no outfit picture sends her face and the nude front body");
+    eq(!!(plain.positivePrompt.includes("not image 1's clothes") && plain.positivePrompt.includes(R.DRESSED_FULL)), true, "CLOTHED_BODY nude: REFERENCE_CLOTHED and DRESSED_FULL");
+    // the place's image number follows the pictures really sent (Step 5: "none" said "image 2" with only face and place sent)
+    const roomN = async () => ((await draw("making coffee {room}", { location: "kitchen" })).positivePrompt.match(/as in image (\d)/) || [])[1];
+    eq(await roomN(), "2", "with a body picture the place is image 2");
+    R.CLOTHED_BODY = "none";
+    eq((await draw("on the couch reading a book")).inputs.referenceImages.length, 1, "CLOTHED_BODY none: her face only");
+    eq(await roomN(), "1", "CLOTHED_BODY none: the place is image 1, and the prompt says so");
+    R.CLOTHED_BODY = keep[2];
     const camel = await draw(`on the couch in ${R.STYLE_PICTURES["outfit-camel-coat"]}`);
     // Step 4 (RUNWARE.OUTFIT_BODY): the outfit's picture is image 1 itself, so no fourth image, and REFERENCE_OUTFIT names it
     eq(camel.inputs.referenceImages.length, 2, "an outfit with a picture is image 1 itself: face + outfit, no body, no fourth image");
@@ -316,7 +325,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(hair.inputs.referenceImages.length, n0 + 1, "a hairstyle with a picture (the first one, picked at chance 1): one more image");
     eq(hair.positivePrompt.includes("styled exactly as in image"), true, "a hairstyle picture is named in the prompt");
     eq(!!W.stylePicture(`x ${R.STYLE_PICTURES["outfit-olive-cardigan"]}`, null) && W.stylePicture("nothing", null) === null, true, "stylePicture: the outfit's key, or null");
-  } finally { globalThis.fetch = realFetch; [P.ROUTE, P.HAIR_CHANCE] = keep; Math.random = r0; }
+  } finally { globalThis.fetch = realFetch; [P.ROUTE, P.HAIR_CHANCE, R.CLOTHED_BODY] = keep; Math.random = r0; }
 }
 {
   // RUNWARE.NUDE_LORAS (owner 2026-10-08: SNOFS on nude/explicit pictures only): added to LORAS on klein 9B when she's naked,
