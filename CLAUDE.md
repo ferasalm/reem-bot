@@ -20,7 +20,7 @@ These rules exist because on 2026-10-01 three sessions built conflicting version
 |---|---|---|
 | Current state, what waits on the owner, next steps + effort | `HANDOFF.md` (≤80 lines, rewritten every session) | yes |
 | The owner's decisions | `docs/DECISIONS.md` (append-only) | yes |
-| Traps, what you can do yourself, cheaper routes | `docs/LESSONS.md` (≤150 lines, curated) | yes |
+| Traps, what you can do yourself, cheaper routes | `docs/LESSONS.md` (≤180 lines; at 180, summarize back to ~150) | yes |
 | Where code lives, how to check, branches | `docs/MAP.md` | before code changes |
 | `[live]` run results over time | `docs/QUALITY.md` | when tuning |
 | History (run ids, versions, the 2026-10-01 incident) | `docs/CHANGELOG.md` | grep on demand |

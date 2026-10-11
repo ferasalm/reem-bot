@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (twenty-sixth session): Opus review of Step 2; LESSONS cap 180; dev only
+- Fixed: her own `[selfie: naked ...]` got a random tier (naked/nudes/topless had left BOUDOIR_ASK_PATTERN, which `selfiePicture`
+  also reads) → her NUDE_ASK words pick the nude tier where `nudeTierOk(level)`, else boudoir; a nude-tier picture Cloudflare refused
+  (3030) fell to everyday → boudoir, then flirty. Two scenario rows (each fails on the old code). Golden unchanged; check.mjs 7/7.
+- Owner: LESSONS.md at most 180 lines, summarized back to ~150 once it reaches 180 (doc-check, CLAUDE.md, LESSONS, the handoff skill).
+- WORKPLAN: "Step 2 review" and "Decided in review, for Step 3". No Runware call.
+
 ## 2026-10-11 (twenty-fifth session): WORKPLAN Step 2, /nsfw built, waiting on Opus review; dev only
 - Built: `/nsfw` Off / Nude / On per chat (`s:<chat>`.nsfw, default On; buttons `nsfw:off|nude|on`); the level threaded through
   `mayDraw`, `sexAct`/`sexCue`, `pickTier` (nude tier: 33% when hot, 0.05 warm, 0 calm; NUDE_ASK "send nudes"), `selfiePicture`,

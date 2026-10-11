@@ -69,7 +69,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
     set by `nsfwCommand` (QUICK_ACTIONS) or `nsfwButton` (`nsfw:` taps, before the auto: check); `levelFor` and `nsfwRefusal` answer a
     picture the level doesn't allow (PIC_NSFW names the level it needs). Every picture function takes the level (default On):
     `mayDraw` (NOT_DRAWN kept at Nude; NUDE_WORDS refused at Off), `actsOff` + `sexAct`/`sexCue` (no sex acts below On), `pickTier`
-    (nude tier: TIER_WEIGHTS, NUDE_ASK_PATTERN, Runware only), `selfieSubject`/`selfiePicture`, `scenePicturePrompt`/`sceneWearing`,
+    (nude tier: TIER_WEIGHTS, NUDE_ASK_PATTERN, `nudeTierOk` = Nude/On on Runware; her own NUDE_ASK words pick it too), `selfieSubject`/`selfiePicture`, `scenePicturePrompt`/`sceneWearing`,
     `startPicture` (`nsfw`), `lookPicture`, `picCommand`, `pictureFlags` (Off = clothed), `runwarePlan` (`level`: checkContent on every
     try at Off), `drawRunware` (`checkContent`), `drawPicture` (`nsfw`; the log row's `nsfw`).
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,

@@ -2530,7 +2530,7 @@ async function think(env, history, notes, userText, { mode = "text", scene, offe
     // Pictures: told when this reply comes with one (like FORMAT_VOICE); otherwise, apart, she may choose one
     const PIC = CONFIG.PICTURE;
     if (picture && picture.kind === "selfie") extra += fill(picture.asked ? PIC.FORMAT_ASKED : PIC.FORMAT, shotVars(picture.plan));
-    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE, { everyday: tierShots("everyday").join(", "), flirty: tierShots("flirty").join(", "), nude: nsfwLevel(settings) !== "off" && runwareRoute() ? PIC.NSFW.SELF_NUDE : "" });
+    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE, { everyday: tierShots("everyday").join(", "), flirty: tierShots("flirty").join(", "), nude: nudeTierOk(nsfwLevel(settings)) ? PIC.NSFW.SELF_NUDE : "" });
     if (((picture && picture.kind === "selfie") || (canPicture && apart)) && recentPictures.length) {
       extra += fill(PIC.RECENT, { list: recentPictures.slice(-(Number(PIC.REMEMBER) || 8)).map((r) => `"${r}"`).join(", ") });
     }
@@ -3235,10 +3235,13 @@ function chatHeat(history = [], said = "", hour = herHour()) {
 // (SEXY_ASK_PATTERN) → never everyday; otherwise by TIER_WEIGHTS for the chat's heat. Only tiers with `shot`.
 // Step 2 (2026-10-11): the nude tier only at /nsfw Nude or On and on Runware (Cloudflare draws nothing nude); with NUDE_ASK
 // ("send nudes") it is the tier, else boudoir
+// The nude tier is allowed: /nsfw Nude or On, and a Runware route (Cloudflare draws nothing nude)
+const nudeTierOk = (level) => (level === "nude" || level === "on") && runwareRoute();
+
 function pickTier({ asked = "", heat = 0, shot = null, level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const P = CONFIG.PICTURE;
   let weights = { ...((P.TIER_WEIGHTS || {})[["CALM", "WARM", "HOT"][heat] || "CALM"] || {}) };
-  const nudeOk = (level === "nude" || level === "on") && runwareRoute();
+  const nudeOk = nudeTierOk(level);
   if (!nudeOk) weights.nude = 0;
   if (testPattern("NUDE_ASK_PATTERN", asked)) weights = nudeOk ? { nude: 1 } : { boudoir: 1 };
   else if (testPattern("BOUDOIR_ASK_PATTERN", asked)) weights = { boudoir: 1 };
@@ -3415,7 +3418,9 @@ function locationOf(text) {
 function selfiePicture({ want = null, said = "", plan = null, history = [], asked = "", recent = [], recentShots = [], hour = herHour(), level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const P = CONFIG.PICTURE;
   const s = selfieSubject(want, recent, said, level);
-  let tier = s.explicit || (s.words && testPattern("BOUDOIR_ASK_PATTERN", s.words)) ? "boudoir" : null;
+  // her own nude words (NUDE_ASK_PATTERN): the nude tier where the level allows it, else boudoir (as before Step 2)
+  const nudeSaid = !!s.words && testPattern("NUDE_ASK_PATTERN", s.words);
+  let tier = nudeSaid && nudeTierOk(level) ? "nude" : s.explicit || nudeSaid || (s.words && testPattern("BOUDOIR_ASK_PATTERN", s.words)) ? "boudoir" : null;
   // the shot he named wins over the type she writes (seen live: a belfie asked, drawn as a plain mirror shot)
   let shot = plan && plan.named ? plan.shot : s.shot;
   if (!tier && plan && plan.named) tier = plan.tier;
@@ -4083,7 +4088,8 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
         // mirror): a boudoir picture first again in the code's own boudoir wardrobe (it gets through; owner
         // 2026-10-03: lingerie, not a robe or a tamer outfit), then one tier tamer, so a picture still comes
         if (kind !== "selfie" || !aiFiltered(e) || pic.tier === "everyday") throw e;
-        const tiers = pic.tier === "boudoir" ? ["boudoir", "flirty"] : ["everyday"];
+        // a nude-tier picture (Step 2) Cloudflare refused (Runware past its cap or failing): boudoir, then flirty, not everyday
+        const tiers = pic.tier === "boudoir" || pic.tier === "nude" ? ["boudoir", "flirty"] : ["everyday"];
         for (const [i, tier] of tiers.entries()) {
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
           pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots });

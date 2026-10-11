@@ -2,7 +2,7 @@
 
 Verified experience, loaded at every session start. Curate, don't just append: merge duplicates, fix entries that
 proved wrong, delete ones that no longer apply. Only verified lessons, dated. New entries: symptom → cause → fix.
-At most 150 lines (`tools/doc-check.mjs`).
+At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it back to about 150 (owner, 2026-10-11).
 
 ## 1. You can do this yourself (don't ask the owner)
 - Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` works (face.yml). Klein needs
@@ -132,7 +132,7 @@ At most 150 lines (`tools/doc-check.mjs`).
 
 ## 4. What works
 - `node tools/check.mjs` before every push; `[live]` in a commit runs the real-model check, and a skipped live job → dispatch test.yml (`actions_run_trigger`) and watch it (Monitor on `api.github.com/repos/ferasalm/reem-bot/actions/runs/<id>`, grep `"status"`, poll 30 s). (2026-10-06, 2026-10-08)
-- Refactoring a sender (2026-10-11): capture golden plans first (`tools/test/picture-plans.mjs`, network stubbed, $0), keep every `Math.random` pick in its order, golden diff empty; the sender only sends (LoRA unit tests read `runwarePlan`). A level added to it (/nsfw, 2026-10-11): callbacks like `.map(W.sexCue)` pass the index as the second argument, so check levels by name (`actsOff`), never `level !== "on"`; a golden case for a level matches structure (body, clause, LoRAs, sampler), since each case draws its own random picks.
+- Refactoring a sender (2026-10-11): capture golden plans first (`tools/test/picture-plans.mjs`, network stubbed, $0), keep every `Math.random` pick in its order, golden diff empty; the sender only sends (LoRA unit tests read `runwarePlan`). A level added to it (/nsfw, 2026-10-11): callbacks like `.map(W.sexCue)` pass the index as the second argument, so check levels by name (`actsOff`), never `level !== "on"`; a golden case for a level matches structure (body, clause, LoRAs, sampler), since each case draws its own random picks. Moving words out of a shared pattern (naked out of BOUDOIR_ASK_PATTERN, for his ask) changed a second reader too (`selfiePicture`, her own words): her naked selfie lost its tier and the golden didn't show it → `grep -n` every reader of a pattern before editing it.
 - Before writing "deployed" or "not deployed" in HANDOFF, read the remote: `git ls-remote origin main` and the Deploy to Cloudflare runs for `main` (2026-10-09: remote main was 9309e8e, deployed 03:13 UTC, while the draft said 9803e28).
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)

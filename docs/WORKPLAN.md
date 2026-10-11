@@ -389,3 +389,33 @@ Opus fixed three slips (the golden is still unchanged, `node tools/check.mjs` 7/
 - `picCommand` and `lookCommand` load the chat's settings (`s:<chat>`) themselves; `respond` already has them. A missing or
   unknown value = `CONFIG.PICTURE.NSFW.DEFAULT`.
 - Leave alone: the seed logic, the studio log (except `nsfw`), and `tools/face/bench.json`.
+
+### Step 2 review (Opus, 2026-10-11)
+Step 2 matches its spec and the Step 2 review notes. Off sends no NAKED clause, the clothed body, no NUDE or ACT LoRAs and
+`checkContent` true. Nude matches On without the sex acts. The 25 existing golden cases are unchanged (diff: 123 added, 0 removed).
+The prompt strings have no stale "never naked" line (re-grepped: only comments are left, and they say "never nude" about
+Cloudflare). Haiku's six calls stand: the nude tier is Runware-only; `PLACES.NUDE` = boudoir's places; at Off, `drawPicture` gets
+what it's given (the entry points refuse, and `checkContent` is the second guard); /look refuses below On; levels are checked by name
+(`actsOff`), so the index from `.map(W.sexCue)` reads as On, as before; a scene with nothing left about her draws nothing.
+Opus fixed two slips (golden still unchanged, `node tools/check.mjs` 7/7; each new row fails on Haiku's code):
+- **Her own nude words got a random tier, even at the default On.** "naked", "nudes" and "topless" left `BOUDOIR_ASK_PATTERN`,
+  which `selfiePicture` also reads for her `[selfie: …]` words. So "naked on the bed" could come with an everyday expression
+  ("an unimpressed deadpan look"), and the nude tier never applied to her own words. Now her NUDE_ASK words pick the nude tier where
+  the level allows it (`nudeTierOk`, shared with `pickTier` and SELF_CHOICE's `{nude}`), else boudoir, as before Step 2.
+- **A nude-tier picture that Cloudflare refused (3030) fell to everyday.** Runware past its cap or failing → Cloudflare klein
+  → 3030 → it was redrawn as an everyday picture. Now it goes to boudoir, then flirty, like a refused boudoir picture.
+- Left for later (not Step 3): at Off or Nude, `lookWrite` (DeepSeek) isn't told the level, so in a hot chat /look often answers
+  PIC_NSFW. Telling it the level would draw a picture the level allows; that's a prompt change, so it waits for the owner's Telegram test.
+
+### Decided in review, for Step 3 (apply these first)
+- The bench runs at the default level (On): `runwarePlan(prompt, { ..., level: "on" })`, or leave `level` out. No /nsfw logic changes in Step 3.
+- At Off a picture gets only the realism LoRAs (LORAS + own), so whichever realism set Opus picks after the bench is the whole LoRA list at Off.
+  Note it in table.md. No Off case is needed in the bench.
+- `LORA_INFO` and `LORA_PREFIX_WITH` are new CONFIG keys: each needs a field row in `tools/settings-panel.html` `SECTIONS`, then
+  `node tools/build-panel.mjs` and `node tools/options.mjs`. Removing the povhandc line and adding `LORA_PREFIX_WITH` must leave the
+  golden unchanged (`--check`, not `--write`).
+- Seed `Math.random` per picture (LESSONS §1, round 5), not only the Runware seed, so V0-V5 differ only by their LoRAs and words.
+  Give `env` an `AI` stub that throws, so a failed Runware call shows as an error and doesn't go to Cloudflare.
+- Stop at $0.25 by the Runware MCP `account` (read before and after; 72 pictures at about $0.0034 is about $0.25, so stop early and
+  say so rather than go over).
+- Leave alone: /nsfw, the seed logic, the studio log, `tools/face/bench.json`.

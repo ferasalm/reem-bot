@@ -21,7 +21,8 @@ for (const f of ["HANDOFF.md", "docs/DECISIONS.md", "docs/LESSONS.md"])
   check(claude.includes(`@${f}`), `CLAUDE.md loads ${f} at session start (@${f})`);
 
 check(lines(handoff).length <= 80, `HANDOFF.md at most 80 lines (has ${lines(handoff).length})`);
-check(lines(lessons).length <= 150, `docs/LESSONS.md at most 150 lines (has ${lines(lessons).length})`);
+// owner 2026-10-11: at most 180 lines; once it reaches 180, curate (merge, summarize, prune) it back to about 150
+check(lines(lessons).length <= 180, `docs/LESSONS.md at most 180 lines (has ${lines(lessons).length}): summarize it back to about 150`);
 
 // Next steps: every numbered item names an effort level.
 const next = handoff.split(/^## Next steps.*$/m)[1]?.split(/^## /m)[0] ?? "";

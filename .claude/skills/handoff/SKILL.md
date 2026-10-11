@@ -14,7 +14,7 @@ Do these in order. HANDOFF, DECISIONS and LESSONS load at every session start, s
 3. **Quality record.** One row in `docs/QUALITY.md` per `[live]` run read this session.
 4. **Curate `docs/LESSONS.md`.** Did anything cost real time (an error, a wrong guess, nearly asking the owner for
    something you could do)? Add it as symptom → cause → fix, dated, verified only. Merge with a similar entry;
-   fix or delete entries that proved wrong. At most 150 lines.
+   fix or delete entries that proved wrong. At most 180 lines; once it reaches 180, summarize it back to about 150 (merge, shorten, prune).
 5. **Update `docs/MAP.md`** if files, functions or checks were added, moved or renamed.
 6. **Rewrite `HANDOFF.md`** (rewrite, don't append; at most 80 lines): Last updated; Where we are (what's live
    on `main`, what's on `dev` and not deployed); Waiting on the owner; Verified this session; Next steps in order,

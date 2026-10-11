@@ -863,7 +863,27 @@ section("pictures: his photos (Workers AI vision)");
     t = runware.calls.at(-1);
     yes(r.photos.length === 1 && t.lora.some((l) => /unchained/i.test(l.model)), "On (the default): a blowjob is drawn, the act LoRA on");
     setLevel(undefined);
+    // a nude-tier selfie with Runware failing goes to Cloudflare, whose filter (3030) refuses it: boudoir next, not everyday
+    {
+      const oldAI = env.AI; const cf = []; let refuse = 1;
+      env.AI = { async run(model, input) {
+        if (!model.includes("flux")) return oldAI.run(model, input);
+        cf.push(input.multipart ? Object.fromEntries([...(await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData())]) : input);
+        if (refuse-- > 0) throw new Error("3030: Input prompt contains NSFW content");
+        return { image: btoa("cf picture") };
+      } };
+      runware.mode = "fail";
+      r = await turn("send nudes", ["only because you asked nicely\n\n[selfie: naked on the bed]"], { history: APART });
+      runware.mode = "draw"; env.AI = oldAI;
+      const second = String((cf[1] || {}).prompt || "");
+      yes(r.photos.length === 1 && cf.length === 2 && /naked/.test(String(cf[0].prompt)) && P.WARDROBE.BOUDOIR.some((w) => second.includes(w.split("|")[0].trim())), "nude tier refused by Cloudflare (3030): drawn again in the boudoir wardrobe", second.slice(0, 200));
+    }
+    // her own nude words pick the tier (Opus review of Step 2): nude where the level allows it, else boudoir (as before Step 2,
+    // when "naked" was a BOUDOIR_ASK word); never a random everyday tier for a naked selfie
+    const tierOf = (want, level) => W.selfiePicture({ want, said: "", level }).tier;
+    eq([tierOf("naked on the bed", "on"), tierOf("topless in the mirror", "nude"), tierOf("naked on the bed", "off")], ["nude", "nude", "boudoir"], "her [selfie: naked ...]: the nude tier at On and Nude, boudoir at Off");
     P.ROUTE = "cloudflare"; delete env.RUNWARE_API_KEY;
+    eq(tierOf("naked on the bed", "on"), "boudoir", "her [selfie: naked ...] on Cloudflare: boudoir (it draws nothing nude)");
     store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), nsfw: undefined }));
     store.delete("pics");
   }
