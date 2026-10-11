@@ -122,7 +122,8 @@ const cases = (W) => {
   const selfieDay = (want) => ({ run: (env, ledger) => W.startPicture(env, ledger, "selfie", want, { asked: want || "", dayWear: DAY }) });
   // Step 2 (/nsfw): the words go straight to drawPicture at a level, with no refusal in front (the plan itself must hold)
   const picAt = (args, nsfw) => async (env, ledger) => {
-    const { prompt, location, night } = W.customPicture(W.picWords(args));
+    // built at the case's own level, as picCommand does (fix round review: at Off the golden had the On prompt, no SAFE)
+    const { prompt, location, night } = W.customPicture(W.picWords(args, nsfw), undefined, null, nsfw);
     return W.drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw });
   };
   return [

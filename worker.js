@@ -1192,9 +1192,11 @@ Changing the story
       // what stays on: only a top (TOP_WORDS) = PARTIAL_TOP, only a bottom (BOTTOM_WORDS) = PARTIAL_BOTTOM, both or neither = PARTIAL;
       // "topless" (or "bottomless") in the words beats a top (or bottom) word
       TOP_WORDS: ["bra", "bralette", "sports bra", "top", "crop top", "tank top", "camisole", "t-shirt", "tee", "shirt", "blouse", "sweater", "hoodie", "sweatshirt", "cardigan", "corset", "turtleneck", "covered breasts", "breasts covered", "covered chest", "chest covered"],
-      BOTTOM_WORDS: ["panties", "underwear", "thong", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "skirt"],
+      BOTTOM_WORDS: ["panties", "underwear", "thong", "briefs", "bottoms", "jeans", "leggings", "sweatpants", "joggers", "pants", "trousers", "shorts", "skirt"],
       // a top and a bottom in one piece: named with no BOTTOM_WORDS, no DRESSED_BOTTOM line (Task C)
       ONE_PIECE_WORDS: ["dress", "jumpsuit", "romper", "robe", "nightgown", "bodysuit", "overalls", "onesie", "long coat"],
+      // an outfit that shows her legs on purpose (a long tee to mid-thigh, his shirt and bare legs): no DRESSED_BOTTOM line (fix round review, 2026-10-11)
+      BARE_LEGS_WORDS: ["bare legs", "legs bare", "bare-legged", "mid-thigh"],
       PARTIAL_TOP: "She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing.",
       PARTIAL_BOTTOM: "She is topless: only the clothes described below her waist stay on; her breasts are bare.",
       // Step 5: a crotch close-up (nude, not a sex act): CROTCH_FRAMING, no NAKED_BREASTS, no place picture. A bare "between her legs"
@@ -4032,7 +4034,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     // Task C: clothed on the nude body, a top named and no bottom or one-piece: the bottom is her outfit's own, never bare ("on top" is no top)
     const worn = String(prompt).replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
     const namedIn = (list) => (list || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
-    const topOnly = !!clothedBody && R.CLOTHED_BODY === "nude" && namedIn(R.TOP_WORDS) && !namedIn(R.BOTTOM_WORDS) && !namedIn(R.ONE_PIECE_WORDS);
+    const topOnly = !!clothedBody && R.CLOTHED_BODY === "nude" && namedIn(R.TOP_WORDS) && !namedIn(R.BOTTOM_WORDS) && !namedIn(R.ONE_PIECE_WORDS) && !namedIn(R.BARE_LEGS_WORDS);
     const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "") + (topOnly && R.DRESSED_BOTTOM ? ` ${R.DRESSED_BOTTOM}` : "");
     const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
     const herLine = faceless ? who(lead(R.REFERENCE_CLOSE || R.LOOKS), false, true) : withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true, [rwFace, rwBody].filter(Boolean).length) : who(R.LOOKS + early + hairLine, false, true);

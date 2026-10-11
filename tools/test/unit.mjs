@@ -799,10 +799,12 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const tryOf = (words) => W.runwarePlan(words, { herself: true, kind: "selfie", ref: FAKE, rwFace: FAKE, faceName: "face-2x", width: 576, height: 1024, who: (w) => w, level: "on" }).tries[0];
   const row13 = tryOf("her father's old gray cardigan over a black cami, in the kitchen");
   eq(row13.text.includes(R.DRESSED_BOTTOM), true, "row 13: a cardigan over a cami, no bottom: the bottom line is in the prompt");
-  eq(row13.refs.map((r) => r.name), ["face-2x", "body-v10"], "row 13: her face and the nude body as image 1 (no outfit picture)");
+  eq(row13.refs.map((r) => r.name).filter((n) => !n.startsWith("style:hair-")), ["face-2x", "body-v10"], "row 13: her face and the nude body as image 1 (no outfit picture; the random hairstyle picture aside)");
   eq(tryOf("a fitted black tank top and high-waisted jeans, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "a bottom named: no bottom line");
   eq(tryOf("a black cami under a long dress, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "a one-piece named (a dress): no bottom line");
-  eq(tryOf("sitting on top of the bed in a black dress, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "\"on top\" is no top: no bottom line");
+  eq(tryOf("sitting on top of the counter, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "\"on top\" is no top: no bottom line");
+  // fix round review (2026-10-11): real bottoms (briefs, joggers) and outfits that show her legs on purpose get no bottom line
+  for (const w of ["a black lace bralette and matching high-waisted lace briefs", "a gray zip-up hoodie half open over a white crop tank and joggers", "an oversized gray tee that barely reaches mid-thigh", "his oversized flannel shirt, unbuttoned low, and bare legs"]) eq(tryOf(`a mirror selfie, wearing ${w}, in the bedroom`).text.includes(R.DRESSED_BOTTOM), false, `no bottom line: ${w}`);
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

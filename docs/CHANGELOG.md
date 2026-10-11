@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (thirty-sixth session, Opus): the fix round review; dev only
+- Reran the fix round's checks: the studio browser test reproduces the 404 on d21c4b3 and passes 10/10 on HEAD; check.mjs 8/8.
+- Fixed: the bottoms line (Task C) no longer forces jeans on lingerie with "briefs" or on bare-legs outfits (BOTTOM_WORDS + briefs,
+  bottoms, joggers; `BARE_LEGS_WORDS`; a sweep of every wardrobe entry: 0 hits); the flaky row 13 unit row (1 run in 6); the golden
+  Off case built at its own level (now with SAFE).
+- No body change: 897dfaf vs HEAD at four seeds, $0.02808 (`face-candidates` runs/2026-10-11-fix-review/, b13d85d). WORKPLAN
+  "Fix round review" has the decisions. Model: Opus (from the session record; the raw-ID question is still open).
+
 ## 2026-10-11 (thirty-fifth session, Haiku 5.5): the fix round (studio link, /nsfw Off on Cloudflare, a top and no bottom); dev only
 - The /studio link from another app answered 404: the first visit was a 302 with a SameSite=Strict cookie, which the redirected request did not send (reproduced in Chromium over https, `tools/test/studio-browser.mjs`, before the fix). Now the first visit is the page with a SameSite=Lax cookie; `studio.js` drops `?t=` from the address bar.
 - /nsfw Off draws on Cloudflare klein (`NSFW.OFF_ROUTE`), never Runware or Nano Banana; Off refuses nudity and sex acts on every route (a route-dependent list let "blowjob" through at Off, caught by the unit tests before the push).

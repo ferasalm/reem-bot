@@ -596,3 +596,13 @@ Golden plans: 38 cases match (the Runware requests are unchanged by Step 7). `to
 | Body audit, V1 (OUTFIT_BODY off: the nude front plus the outfit picture) | the four outfit pictures come out as named | $0.0034 each (a fourth reference); the nude image 1 is not, by itself, a leak here |
 | Body audit, V2 (897dfaf's realism LoRAs) and V3 (none) | V2 as V0 with the mirror tank shorter (a band of skin above the jeans, both seeds); V3 changes the room, pose and hair more than the body | seed-to-seed variance is larger than the variant differences in several rows (seed 202 reads slimmer than 101 in two cases) |
 | Not checked here | Off on Cloudflare in the real bot; /studio opened from Telegram; `DRESSED_BOTTOM` alone (no run leaves the line out: the owner's naked-lower-half report came from code before this round) | the owner's Telegram test is the check; a no-line variant would cost about $0.01 (not in the spec) |
+
+## Fix round review 2026-10-11 (Opus): the checks rerun, the wardrobe sweep, 897dfaf vs HEAD (not deployed)
+
+| Check | Result | Notes |
+|---|---|---|
+| `tools/test/studio-browser.mjs` on d21c4b3 (live code) and on HEAD | d21c4b3: 302 + `SameSite=Strict`, then `/studio` 404, reload 404 (7 checks fail); HEAD: 10 of 10 ok | the 390x844 screenshot read: tabs and the empty log fit. Lax is safe here: money is spent only on POST, which a cross-site link never sends with the cookie |
+| `tools/test/unit.mjs` rerun 12 times | 2 of 12 failed: the row 13 refs row got a random hairstyle picture as a third reference | test fixed (random hair refs left out); then 8 of 8 runs passed |
+| Wardrobe sweep: every WARDROBE / LINGERIE entry through `runwarePlan` (On) | the bottoms line hit 6 entries: a lace bralette and "briefs", "an oversized gray tee that barely reaches mid-thigh", "his oversized flannel shirt ... and bare legs", the hoodie with "joggers" (x2), KLEIN_WARDROBE's "bottoms" | BOTTOM_WORDS + briefs, bottoms, joggers; `BARE_LEGS_WORDS`; after: 0 entries; golden unchanged |
+| Golden: the Off case | its prompt was built at On by the harness (no SAFE); the bot gates every Off path before drawing | `picAt` builds at the case's level; the Off case now ends "No nudity." (the only change) |
+| 897dfaf vs HEAD, one clothed /pic (mirror, tank and jeans), seeds 101-404, each version's own request | 897dfaf: halter neckline 4/4 (image 1's cut), cropped midriff 2/4; HEAD: the tank as named 4/4 | arms: the versions differ less than the seeds (torso crops of 101 and 404 at full size, judged). $0.02808 by Runware `usage` (0.78572 → 0.8138; two 502s billed). `face-candidates` runs/2026-10-11-fix-review/ (b13d85d) |

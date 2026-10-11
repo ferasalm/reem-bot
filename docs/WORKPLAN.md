@@ -773,3 +773,21 @@ and QUALITY (fix round). Check, and say what you found at each step:
    change is Opus's call), and what to do with each finding.
 5. Then the owner decides on "deploy". Report anything stuck first.
 Effort: high. Model: Opus. Do not push to `main`.
+
+### Fix round review (Opus, 2026-10-11): what was found and decided
+1. Studio link: reproduced on d21c4b3 (302 + Strict, then 404; a reload 404 too); HEAD 10/10 in Chromium, screenshot read. Lax is safe:
+   every GET is read-only, and money is spent only by POST (compose, draw), which a cross-site link never sends with the cookie. Accepted.
+2. Off: the unit and scenario rows assert the right things (no Runware or OpenRouter call, one klein call with 2-3 pictures, SAFE, the filter
+   words, the log row at "off"). Every real Off path is gated before drawing (`/pic` and `/look` refuse, scenes skip, selfies go boudoir).
+   Off refuses Runware's sex-act list and NUDE_WORDS; Cloudflare's own extra words (sheer, see-through) are left to its filter (a 3030
+   gets the existing tamer try). Accepted. Fixed: the golden harness built the Off prompt at On (no SAFE); `picAt` now builds at its level.
+3. Golden diff: every changed prompt fits its words (the bottoms line on chest-up shots is harmless). But a sweep of every wardrobe
+   entry found the line on outfits that show her legs on purpose or name a bottom it didn't know: fixed with BOTTOM_WORDS (briefs,
+   bottoms, joggers) and `BARE_LEGS_WORDS`; golden unchanged. The row 13 unit row was flaky (a random hairstyle reference): fixed.
+4. Body audit: no body CONFIG change. Seed variance beats the variant differences; the 897dfaf LoRAs (V2) shorten the tank, so HEAD's
+   set stays; a no-line DRESSED_BOTTOM run is not worth its $0.01 (the owner's row 13 is the "without" case, and all V0 row-13 pictures
+   came out clothed below). A direct check of the owner's "slimmer" (897dfaf vs HEAD, the same /pic at four seeds, QUALITY) did not show
+   HEAD slimmer at full size; 897dfaf copied the rust halter's cut (4/4) and crop (2/4). If she still reads slim in Telegram, the owner
+   names the pictures (the studio log shows each one's refs); the lever is the body picture itself (the owner's pick), not body words.
+   Nipples through fitted tops (the tank at seed 202, the olive cami) stay in Later with Step 5's open questions.
+5. Ready for the owner's Telegram test, then "deploy".
