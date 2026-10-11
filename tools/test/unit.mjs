@@ -305,10 +305,11 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const plain = await draw("on the couch reading a book");
     const n0 = plain.inputs.referenceImages.length;
     const camel = await draw(`on the couch in ${R.STYLE_PICTURES["outfit-camel-coat"]}`);
-    eq(camel.inputs.referenceImages.length, n0 + 1, "an outfit with a picture: that picture is one more image");
-    eq(camel.positivePrompt.includes("exactly the clothes shown in image"), true, "an outfit picture is named in the prompt");
+    // Step 4 (RUNWARE.OUTFIT_BODY): the outfit's picture is image 1 itself, so no fourth image, and REFERENCE_OUTFIT names it
+    eq(camel.inputs.referenceImages.length, n0, "an outfit with a picture is image 1 itself: no fourth image");
+    eq(camel.positivePrompt.includes("wearing exactly image 1's clothes"), true, "an outfit picture is named in the prompt (REFERENCE_OUTFIT)");
     const rust = await draw("on the couch in a fitted rust-red halter crop top and light-blue straight-leg jeans");
-    eq(rust.inputs.referenceImages.length, n0, "an outfit without a picture: no extra image");
+    eq(rust.inputs.referenceImages.length, n0, "the rust halter (its own picture now): image 1 itself, no extra image");
     P.HAIR_CHANCE = 1;
     const hair = await draw("on the couch");
     eq(hair.inputs.referenceImages.length, n0 + 1, "a hairstyle with a picture (the first one, picked at chance 1): one more image");
@@ -353,7 +354,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq([sent[0].width, sent[0].height], [480, 480], "Runware: a size asked by the caller wins");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
   eq(Object.keys(R.NUDE_LORAS), ["ferasalm:unchained@2"], "nude LoRAs: Unchained (round 3)");
-  eq(Object.keys(R.LORAS), ["ferasalm:phone2025@1", "ferasalm:ultrareal5@1", "ferasalm:instapic@1", "ferasalm:realhd2kc@1"], "every picture: phone2025, UltraReal, InstaPic, Real HD 2K (Real HD back 2026-10-09)");
+  eq(Object.keys(R.LORAS), ["ferasalm:instapic@1", "ferasalm:realhd2kc@1"], "every picture: InstaPic and Real HD 2K (Step 4, V2: phone2025 and UltraReal spare)");
 }
 {
   const yes = (v, label, got) => eq(!!v || got, true, label);
@@ -397,7 +398,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     // the trigger words open the whole prompt, before the style line (they ran into it: "photo of instapic. This is ...")
     sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, W.customPicture("in a red sweater on the couch", 21).prompt, { ledger: {}, custom: true });
     c = { text: sent[0].positivePrompt };
-    yes(c.text.startsWith("instapic. Realistic candid photo: This is a candid photograph") && !/photo of (instapic|this is)/i.test(c.text), "/pic: triggers first, then the style line, then phone2025's sentence", c.text.slice(0, 120));
+    yes(c.text.startsWith("instapic. ") && !/smartphone/i.test(c.text), "/pic: InstaPic's trigger first, no smartphone sentence (Step 4: phone2025 out)", c.text.slice(0, 120));
     c = await call("a blowjob on the bed", "pic");
     yes(R.MOODS.ORAL.some((m) => c.text.includes(`Her face: ${m}`)) && !R.MOODS.ACT.some((m) => c.text.includes(m)), "a blowjob: an eyes-only expression (MOODS.ORAL), never an open-mouthed one", c.text.slice(-400));
     // round 5: /look and scene pictures find the act in her own words (SEX_CUES, gated by SEX_CONTEXT)
@@ -564,6 +565,25 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const pcm = new Int16Array(48000).map((_, i) => Math.round(9000 * Math.sin(i / 7))).buffer; // 2 s tone
   const mp3 = new Uint8Array(W.pcmToMp3(pcm));
   eq([mp3[0] === 0xff && (mp3[1] & 0xe0) === 0xe0, mp3.length > 1000 && mp3.length < pcm.byteLength / 5], [true, true], "pcmToMp3 gives an MP3 frame stream");
+}
+
+// Step 4 (2026-10-11, docs/WORKPLAN.md): one home and one out outfit a day, by the temperature band; outside words take OUT;
+// clothes named in the words are never replaced; the day's outfit reaches /pic and her own pictures
+{
+  const P = W.CONFIG.PICTURE, H = P.WARDROBE.HOME, O = P.WARDROBE.OUT;
+  eq([W.namesClothes("on the couch in a fitted black tank top"), W.namesClothes("smiling on the couch"), W.namesClothes("in her outfit")], [true, false, true], "namesClothes: clothes words and 'outfit' count, a pose doesn't");
+  eq([W.outfitBand(40), W.outfitBand(60), W.outfitBand(80), W.outfitBand(NaN, "2026-01-15"), W.outfitBand(NaN, "2026-05-01"), W.outfitBand(NaN, "2026-07-01")], ["COLD", "MILD", "WARM", "COLD", "MILD", "WARM"], "outfitBand: under 50 F cold, over 72 warm, between mild; no weather by month");
+  const day = { day: "2026-10-11", band: "COLD", home: H.COLD[0], out: O.COLD[0] };
+  const warm = [...H.WARM, ...O.WARM];
+  const picks = [0, 0.3, 0.6, 0.99].map((r) => W.pickDayOutfits(null, "COLD", "2026-10-11", () => r));
+  eq(picks.every((d) => H.COLD.includes(d.home) && O.COLD.includes(d.out) && !warm.includes(d.home) && !warm.includes(d.out)), true, "a cold day's outfits are cold-day items, never a WARM one");
+  const prev = { day: "2026-10-10", home: H.COLD[0], out: O.COLD[0] };
+  const next = W.pickDayOutfits(prev, "COLD", "2026-10-11", () => 0);
+  eq([next.home !== prev.home, next.out !== prev.out], [true, true], "tomorrow's outfits are never yesterday's");
+  eq(W.dayOutfits && typeof W.dayOutfits, "function", "dayOutfits is exported");
+  const pic = (words, dayWear = day) => W.customPicture(words, 21, dayWear).prompt;
+  eq([pic("on the couch reading a book").includes(`She is wearing ${day.home}.`), pic("at the coffee shop, smiling").includes(`She is wearing ${day.out}.`), pic("in a red sweater on the couch").includes("She is wearing"), pic("naked on the bed").includes("She is wearing"), pic("on the couch reading a book", null).includes("She is wearing")],
+    [true, true, false, false, false], "/pic: no clothes named gets the day's home outfit, outside words the out outfit; named clothes, nudity and no day outfit get none");
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

@@ -838,6 +838,8 @@ Changing the story
     // doesn't fill the gap with image 1's dress (owner 2026-10-05: "She should be wearing casual at home")
     SCENE_UNDER: "a plain black tank top and soft gray sweatpants",
     LAYER_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "coat", "jacket", "scarf", "apron", "socks", "slippers", "heels", "boots", "sneakers", "stockings"],
+    // Step 4: an everyday picture (or /pic) whose words say she is out takes the day's OUT outfit, else HOME
+    OUTSIDE_WORDS: ["outside", "out", "walk", "walking", "street", "park", "cafe", "café", "coffee shop", "store", "grocery", "market", "work", "office", "car", "train", "bus", "subway", "beach", "restaurant", "bar", "date", "campus", "sidewalk", "snow", "rain"],
     WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
@@ -892,6 +894,9 @@ Changing the story
       // acts seen from behind (owner, round 7: "When it's a doggy scene, don't prompt her breasts since they won't show ... always describe
       // that it's from behind"): BODY_BACK, REFERENCE_BACK and NAKED_BACK instead of the front ones
       BACK_WORDS: "doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind",
+      // Step 4 (owner, 2026-10-11): a nude picture that is not an act, with these words, is seen from behind too (BODY_BACK, REFERENCE_BACK,
+      // NAKED_BACK). "her back" is left out: "naked, lying on her back" is a front view
+      NUDE_BACK_WORDS: "from behind, belfie, booty, butt, her ass, back view, over her shoulder, bent over",
       DAILY_USD: 1,                    // owner 2026-10-08 (was 0.5): money a day for Runware pictures; then the Cloudflare route draws (never nude)
       USD_PER_PICTURE: 0.003,          // klein 9B at 768x1344 / 1024x1024: $0.0025-0.0034 (round 6 test; was 0.004 at 1008x1792)
       // owner 2026-10-08 (round 4: "the pictures' quality and details are poor"): Runware's own size and sampler. 576x1024 is
@@ -918,12 +923,21 @@ Changing the story
         "outfit-olive-cardigan": "a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan",
         "outfit-camel-coat": "a long camel wool coat open over a black turtleneck and charcoal trousers, a cream chunky-knit scarf around her neck",
         "outfit-gray-shirt-lace": "an open, oversized gray linen shirt over a black ribbed bralette with lace trim and black knit shorts with lace side panels",
+        "outfit-rust-halter": "a fitted rust-red halter crop top and light-blue straight-leg jeans",
         "hair-long-bangs": "long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows",
         "hair-bun-bangs": "pulled up loosely, with full wispy bangs down to her brows and long loose strands framing her face",
         "hair-long-waves": "long, loose dark waves with a center part and no bangs, falling over her shoulders",
       },
       OUTFIT_LINE: "She wears exactly the clothes shown in image {n} (not image {n}'s body or pose), not image 1's clothes.",
       HAIR_LINE: "Her hair is styled exactly as in image {n}; her face stays image 0's.",
+      // Step 4 (2026-10-11): clothed pictures (not nude, back or partly naked). CLOTHED_BODY "rust": the rust-halter body picture
+      // (BODY_CLOTHED) stays image 1 with REFERENCE_CLOTHED ("not its clothes"); "none": no body picture, REFERENCE_NOBODY.
+      // OUTFIT_BODY: an outfit with a picture (STYLE_PICTURES) is image 1 itself, with REFERENCE_OUTFIT, and no fourth image.
+      CLOTHED_BODY: "rust",
+      OUTFIT_BODY: true,
+      REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE_OUTFIT: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), with exactly the body of image 1 and wearing exactly image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult.",
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
       // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16);
@@ -934,15 +948,17 @@ Changing the story
       // round 5 (owner: "Cut LoRAs where they make the least impact and where they worsen the output"): Anatomy Fixer
       // (myaiprojectsqqq:3@2) out: the drop-one bench (6 situations x 2 seeds) drew the same faces, bodies and acts without it
       // 2026-10-09 (owner: "let's return to using Real HD 2k for all pictures"): realhd2kc back at 0.5, its weight when it was last on
-      LORAS: { "ferasalm:phone2025@1": 0.6, "ferasalm:ultrareal5@1": 0.6, "ferasalm:instapic@1": 0.6, "ferasalm:realhd2kc@1": 0.5 },
+      // Step 4 (Step 3 review, 2026-10-11, "Realism LoRAs: V2"): InstaPic and Real HD 2K only; phone2025 and ultrareal5 are spare
+      // (LORA_INFO). The smartphone prefix needs phone2025 in the list, so it stays out.
+      LORAS: { "ferasalm:instapic@1": 0.6, "ferasalm:realhd2kc@1": 0.5 },
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
       // the prefix goes in only when this LoRA is in the list (Step 3, 2026-10-11): a picture without phone2025 has no smartphone sentence
       LORA_PREFIX_WITH: "ferasalm:phone2025@1",
       // Step 3 (2026-10-11): the LoRA catalog, for tools/options.mjs (docs/OPTIONS.md) and the bench; the plans don't read it.
       // category: realism, nudity, anatomy, act, light. `used` (in a list above) and `spare` (in no list) are worked out by options.mjs.
       LORA_INFO: {
-        "ferasalm:phone2025@1": { name: "Phone Photography 2000-2025", category: "realism", civitai: null, trigger: "LORA_PREFIX", note: "LORAS" },
-        "ferasalm:ultrareal5@1": { name: "UltraReal V5 Pro", category: "realism", civitai: null, trigger: "", note: "LORAS" },
+        "ferasalm:phone2025@1": { name: "Phone Photography 2000-2025", category: "realism", civitai: null, trigger: "LORA_PREFIX", note: "spare (out of LORAS, Step 4)" },
+        "ferasalm:ultrareal5@1": { name: "UltraReal V5 Pro", category: "realism", civitai: null, trigger: "", note: "spare (out of LORAS, Step 4)" },
         "ferasalm:instapic@1": { name: "InstaPic", category: "realism", civitai: 2998522, trigger: "instapic", note: "LORAS" },
         "ferasalm:realhd2kc@1": { name: "Real HD 2K (DoRA converted to rank 32)", category: "realism", civitai: null, trigger: "", note: "LORAS" },
         "ferasalm:lenovoc@1": { name: "Lenovo UltraReal", category: "realism", civitai: null, trigger: "", note: "spare" },
@@ -1256,6 +1272,19 @@ Changing the story
       // Worded so Cloudflare's prompt filter (3030) lets it through: it refused "lingerie", "bralette and briefs"
       BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a red lace bodysuit", "a white lace bodysuit", "a burgundy velvet slip with thin straps", "a black mesh bodysuit", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
       NUDE: ["completely naked", "topless, in only black lace panties", "naked except for her thin gold rings", "completely naked, her hair still damp from the shower", "topless, in only his oversized gray sweatpants", "naked on rumpled white sheets"],
+      // Step 4 (owner, 2026-10-11: "one home outfit a day"): one HOME and one OUT outfit a day by the band (outfitBand: COLD under 50 F,
+      // MILD 50-72, WARM over 72). Everyday pictures that name no clothes wear them; OUTSIDE_WORDS take OUT. Claude's lists; the
+      // STYLE_PICTURES texts are exact (their picture goes with the outfit).
+      HOME: {
+        COLD: ["her father's old gray knit cardigan over a plain black tank top and soft gray sweatpants", "a cream cable-knit sweater and soft gray sweatpants", "a gray zip-up hoodie half open over a white crop tank and joggers", "a matching soft beige lounge set, cropped top and wide pants", "a fitted olive ribbed long-sleeve top and gray yoga pants"],
+        MILD: ["a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan", "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a matching soft beige lounge set, cropped top and wide pants", "a fitted gray ribbed tee and soft black lounge shorts", "an oversized gray tee and black bike shorts"],
+        WARM: ["a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan", "a fitted rust-red halter crop top and light-blue straight-leg jeans", "a tight ribbed white tank top and soft gray cotton shorts", "a loose white linen button-down over a black bralette and cotton shorts"],
+      },
+      OUT: {
+        COLD: ["a long camel wool coat open over a black turtleneck and charcoal trousers, a cream chunky-knit scarf around her neck", "a fitted burgundy sweater dress, black tights and a long black wool coat", "a cream cable-knit sweater, fitted dark jeans and a black puffer jacket", "a black leather jacket over a black turtleneck and jeans"],
+        MILD: ["a black leather jacket over a fitted gray tee and jeans", "a fitted black turtleneck tucked into high-waisted jeans and small gold hoops", "a denim button-up shirt knotted at the waist over a white tank top and jeans", "a fitted navy striped Breton top and high-waisted jeans", "a fitted black wrap dress", "a red silk blouse with the top buttons open and black jeans", "a fitted black ribbed knit midi dress"],
+        WARM: ["a fitted rust-red halter crop top and light-blue straight-leg jeans", "a sleeveless white linen top with a square neckline and wide-leg white linen pants", "a fitted black ribbed tank top and high-waisted jeans", "a fitted black t-shirt tucked into high-waisted jeans", "a fitted white linen button-down tucked into black trousers"],
+      },
     },
     // @name = one of her fixed places (LOCATIONS): the same room in every picture
     PLACES: {
@@ -2161,9 +2190,9 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   // [selfie] out) or she wrote one herself; in person, the moment from the scene
   let drawing = null;
   if (canPicture && scene !== "together" && (out.selfie != null || (picture && picture.kind === "selfie"))) {
-    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked, chat: chatId, nsfw: level });
+    drawing = startPicture(env, ledger, "selfie", out.selfie || null, { dayWear: await dayOutfits(env), said: [...out.texts, out.voiceText].filter(Boolean).join("\n"), plan: picture && picture.plan, history, asked, chat: chatId, nsfw: level });
   } else if (picture && picture.kind === "scene" && out.kind === "scene") {
-    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { history, asked, chat: chatId, nsfw: level });
+    drawing = startPicture(env, ledger, "scene", out.texts.join("\n"), { dayWear: await dayOutfits(env), history, asked, chat: chatId, nsfw: level });
   }
   if (out.reaction) {
     const r = await tg(env, "setMessageReaction", { chat_id: chatId, message_id: reactTo, reaction: [{ type: "emoji", emoji: out.reaction }] });
@@ -2438,6 +2467,7 @@ async function refreshDay(env, cached, today, { plan, weather }) {
     const w = await res.json();
     if (w && w.current) {
       out.weather = weatherWords(w);
+      out.temp = Math.round(Number(w.current.temperature_2m)); // Step 4: the outfit band (outfitBand)
       out.wxAt = Date.now();
     }
   }
@@ -3360,7 +3390,7 @@ function selfieSubject(want, recent = [], said = "", level = CONFIG.PICTURE.NSFW
 // (`words`) replace wardrobe and place, `doing` comes before the wardrobe. {who} is left for drawPicture.
 // Returns { prompt, shot, tier, angle, what } (what: "type, her words or the wardrobe and place", for history).
 // `lingerie`: for PICTURE.LINGERIE (Nano Banana): her words as she wrote them and its WARDROBE for the clothes
-function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [], lingerie = false, wardrobeList = null } = {}) {
+function composePicture({ tier = "everyday", shot = "selfie", words = "", doing = "", hour = herHour(), recentShots = [], lingerie = false, wardrobeList = null, dayWear = null } = {}) {
   const P = CONFIG.PICTURE;
   const args = { tier, shot, words, doing, hour, recentShots };
   if (!lingerie) {
@@ -3374,10 +3404,14 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const time = timeOfDay(hour);
   const hasWhere = template.includes("{where}");
   // "clothes | place" brings its own place, so only for shots with {where}
-  const wardrobe = ((wardrobeList && wardrobeList.length && wardrobeList) || (lingerie && (P.LINGERIE || {}).WARDROBE) || (P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
+  // Step 4: an everyday picture that names no clothes wears the day's outfit (dayWear: OUT when the words are outside, else HOME)
+  const outside = !!dayWear && (P.OUTSIDE_WORDS || []).some((w) => String(w).trim() && hasWord(`${words} ${doing}`, w));
+  const dayClothes = !lingerie && !wardrobeList && T === "EVERYDAY" && dayWear && !namesClothes(`${words} ${doing}`) ? [outside ? dayWear.out : dayWear.home] : null;
+  const wardrobe = ((wardrobeList && wardrobeList.length && wardrobeList) || dayClothes || (lingerie && (P.LINGERIE || {}).WARDROBE) || (P.WARDROBE || {})[T] || []).filter((w) => hasWhere || !String(w).includes("|"));
   const [clothes = "", ownPlace = ""] = pickOne(wardrobe).split("|").map((x) => x.trim());
   const place = hasWhere ? ownPlace || pickOne((P.PLACES || {})[T]) : "";
-  const wearing = words || [doing, clothes && `wearing ${clothes}`].filter(Boolean).join(", ");
+  // Step 4: words that name no clothes get the tier's (or the day's) clothes too, so klein doesn't copy image 1's; nude words stay as they are
+  const wearing = !lingerie && words && !(tier === "nude" || nudeWords(words) || namesClothes(words)) ? [words, clothes && `wearing ${clothes}`].filter(Boolean).join(", ") : words || [doing, clothes && `wearing ${clothes}`].filter(Boolean).join(", ");
   const where = words || doing || !place ? "" : `, ${place}`;
   // {a|b|c}: the one her words mention, else any
   const chosen = template.replace(/\{([^{}|]+(?:\|[^{}|]+)+)\}/g, (_, alts) => {
@@ -3440,7 +3474,7 @@ function locationOf(text) {
 
 // Her selfie for this reply, from her [selfie: ...] (`want`, null when she wrote none), the code's plan (when
 // the code decided the picture) and the chat. Returns composePicture's answer.
-function selfiePicture({ want = null, said = "", plan = null, history = [], asked = "", recent = [], recentShots = [], hour = herHour(), level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
+function selfiePicture({ want = null, said = "", plan = null, history = [], asked = "", recent = [], recentShots = [], hour = herHour(), level = CONFIG.PICTURE.NSFW.DEFAULT, dayWear = null } = {}) {
   const P = CONFIG.PICTURE;
   const s = selfieSubject(want, recent, said, level);
   // her own nude words (NUDE_ASK_PATTERN): the nude tier where the level allows it, else boudoir (as before Step 2)
@@ -3457,7 +3491,7 @@ function selfiePicture({ want = null, said = "", plan = null, history = [], aske
   if (!shot) shot = plan && plan.tier === tier && Object.hasOwn(P.SHOTS, plan.shot) ? plan.shot : pickShot(tier, recentShots, hour);
   // Step 2: a nude-tier picture whose own words name no nudity says so ("completely naked" from the wardrobe when she named none)
   const words = tier === "nude" && s.words && !nudeWords(s.words) ? `${s.words}, completely naked` : s.words;
-  return { ...composePicture({ tier, shot, words, doing: s.doing, hour, recentShots }), asked, explicit: !!s.explicit };
+  return { ...composePicture({ tier, shot, words, doing: s.doing, hour, recentShots, dayWear }), asked, explicit: !!s.explicit };
 }
 
 // A spicier selfie (PICTURE.LINGERIE.SPICY_PATTERN in his ask or her words, or explicit words): Nano Banana's job
@@ -3515,7 +3549,7 @@ function underLayers(what) {
 
 // What she wears in this scene: the newest clothes her narration named (this reply, then her earlier replies of the
 // same in-person scene), else PICTURE.SCENE_WEARING. Filter-safe; "" when it can't be drawn.
-function sceneWearing(sceneText, history = [], level = CONFIG.PICTURE.NSFW.DEFAULT) {
+function sceneWearing(sceneText, history = [], level = CONFIG.PICTURE.NSFW.DEFAULT, dayWear = null) {
   const P = CONFIG.PICTURE;
   const texts = [sceneText];
   let after = Date.now();
@@ -3542,6 +3576,8 @@ function sceneWearing(sceneText, history = [], level = CONFIG.PICTURE.NSFW.DEFAU
       }
     }
   }
+  // Step 4: the day's outfit (OUT when the scene is outside), else the fixed cardigan
+  if (dayWear) return filterSafe((P.OUTSIDE_WORDS || []).some((w) => String(w).trim() && hasWord(sceneText, w)) ? dayWear.out : dayWear.home);
   return filterSafe(P.SCENE_WEARING || "");
 }
 
@@ -3624,6 +3660,41 @@ function stylePicture(text, hair) {
   return key ? { key, kind: key.startsWith("outfit-") ? "outfit" : "hair", bytes: fromBase64(STYLE_JPEG_BASE64[key]) } : null;
 }
 
+// Step 4: do the words name clothes (WEARING_WORDS, "top", "outfit")?
+const namesClothes = (text) => ["top", "crop top", "outfit", ...(CONFIG.PICTURE.WEARING_WORDS || [])].some((w) => String(w).trim() && hasWord(text, w));
+
+// The outfit band of the day: COLD under 50 F, WARM over 72 F, MILD between; with no weather, by month (Dec-Mar cold, Apr-May and
+// Oct-Nov mild, Jun-Sep warm). `day` is herDay()'s YYYY-MM-DD.
+function outfitBand(tempF, day = herDay()) {
+  if (Number.isFinite(tempF)) return tempF < 50 ? "COLD" : tempF > 72 ? "WARM" : "MILD";
+  const m = Number(String(day).slice(5, 7));
+  return [12, 1, 2, 3].includes(m) ? "COLD" : [6, 7, 8, 9].includes(m) ? "WARM" : "MILD";
+}
+
+// One home and one out outfit for `day` from the band's lists. `prev` is yesterday's record: neither outfit is the same as its
+// yesterday's. `rand` is injectable for the tests. Returns { day, band, home, out }.
+function pickDayOutfits(prev, band, day, rand = Math.random) {
+  const W = CONFIG.PICTURE.WARDROBE || {};
+  const pick = (list, not) => {
+    const pool = (list || []).filter((x) => x !== not);
+    return pool[Math.floor(rand() * pool.length)] || (list || [])[0] || "";
+  };
+  return { day, band, home: pick((W.HOME || {})[band], prev && prev.home), out: pick((W.OUT || {})[band], prev && prev.out) };
+}
+
+// Her outfits for today: KV "day" keeps them (picked once per her date; refreshDay keeps the temperature for the band).
+// No KV binding: picked and not kept.
+async function dayOutfits(env) {
+  const kv = env.REEM_KV;
+  const cached = (kv && (await kv.get("day", "json").catch(() => null))) || {};
+  const day = herDay();
+  if (cached.outfits && cached.outfits.day === day) return cached.outfits;
+  const fresh = cached.wxAt && Date.now() - cached.wxAt < 3 * 3600000;
+  const outfits = pickDayOutfits(cached.outfits, outfitBand(fresh ? cached.temp : NaN, day), day);
+  if (kv) await kv.put("day", JSON.stringify({ ...cached, outfits })).catch(() => {});
+  return outfits;
+}
+
 // One of HAIRSTYLES (HAIR_CHANCE of the time) when the words name no hairstyle (HAIR_WORDS), else ""
 function pickHair(text) {
   const P = CONFIG.PICTURE;
@@ -3687,8 +3758,10 @@ function pictureFlags(prompt, herself = true, level = CONFIG.PICTURE.NSFW.DEFAUL
   const act = !off && !!sexAct(prompt, level);
   const oral = act && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
   const nude = !off && (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
-  const partial = (nude || act) && (P.WEARING_WORDS || []).some((w) => String(w).trim() && (hasWord(prompt, w) || hasWord(prompt, `${w}s`)));
-  const back = act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()));
+  // a pose ("sitting back on her heels") is not shoes (WEARING_WORDS "heels"): the phrase is taken out before the check (Step 4)
+  const worn = String(prompt).replace(/\bon (?:her|his|your) heels\b/gi, "");
+  const partial = (nude || act) && (P.WEARING_WORDS || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
+  const back = (act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()))) || (nude && String(R.NUDE_BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim())));
   const kind = !herself ? "alone" : act ? "act" : partial ? "partial" : nude ? "nude" : "clothed";
   return { act, oral: !!oral, nude, partial: !!partial, back: !!back, kind };
 }
@@ -3759,22 +3832,28 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
   const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
   // partly naked: BODY_PARTIAL (the clothed body leaked its tank top, the nude one bared what her clothes cover)
   const bodyArg = back ? "back" : partial ? R.BODY_PARTIAL === "nude" : explicit;
-  const rwBody = ref ? runwareBody(bodyArg) : null;
-  const bodyName = `body-${runwareBodyName(bodyArg)}`;
+  // Step 4: a clothed picture (not nude, back or partly naked): image 1 is the outfit's own picture (OUTFIT_BODY), else the rust body
+  // (CLOTHED_BODY "rust"), or none ("none")
+  const clothedOnly = !explicit && !partial && !back;
+  const outfitBody = !!(clothedOnly && R.OUTFIT_BODY && style && style.kind === "outfit");
+  const noBody = clothedOnly && !outfitBody && R.CLOTHED_BODY === "none";
+  const rwBody = outfitBody ? style.bytes : ref && !noBody ? runwareBody(bodyArg) : null;
+  const bodyName = outfitBody ? `style:${style.key}` : `body-${runwareBodyName(bodyArg)}`;
   // her pictures: klein again (KLEIN_TRIES), then Cloudflare klein with the same references (drawPicture). Never TwinFlow for
   // her: it has no reference and its words drew the big belly (2026-10-10). Without her face, TwinFlow as before.
   const tries = P.ROUTE === "runware-klein" && ref ? Array.from({ length: Math.max(1, Number(R.KLEIN_TRIES) || 1) }, () => [R.MODEL, true]) : [[R.BACKUP_MODEL, false]];
   // with a sex act's back view, REFERENCE_BACK names the view; a hairstyle changes her hair, not its color
-  const ref1 = (back && R.REFERENCE_BACK) || R.REFERENCE;
+  const ref1 = (back && R.REFERENCE_BACK) || (outfitBody && R.REFERENCE_OUTFIT) || (noBody && R.REFERENCE_NOBODY) || (clothedOnly && R.REFERENCE_CLOTHED) || R.REFERENCE;
   const ref0 = hair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color") : ref1;
   const out = [];
   for (const [model, withFace] of tries) {
     if (!model) continue;
     // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
     const base = withFace ? [rwFace && { name: faceName, bytes: rwFace }, rwBody && { name: bodyName, bytes: rwBody }, shownPlace && { name: placeName, bytes: shownPlace }].filter(Boolean) : [];
-    // the style picture comes after them: its image number is base.length
-    const refs = withFace && style ? [...base, { name: `style:${style.key}`, bytes: style.bytes }] : base;
-    const styleLine = withFace && style ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
+    // the style picture comes after them: its image number is base.length (not when it is image 1 itself)
+    const extra = withFace && style && !outfitBody;
+    const refs = extra ? [...base, { name: `style:${style.key}`, bytes: style.bytes }] : base;
+    const styleLine = extra ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
     // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
     // the LoRAs' own trigger words (LORA_WORDS) go first
     const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt }) : [];
@@ -4019,7 +4098,7 @@ async function sendPhoto(env, chatId, bytes, caption = "", sent = null) {
 // Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
 // or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
 // `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
-function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null, source = kind, nsfw = null } = {}) {
+function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null, source = kind, nsfw = null, dayWear = null } = {}) {
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE || {};
   const level = nsfw || P.NSFW.DEFAULT; // /nsfw (Step 2): Off and Nude keep sex acts out of scenes and selfies
@@ -4032,7 +4111,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const location = locationOf(what);
     // a sex act (SEX_CUES or its words): his eyes, she is naked (no clothes from earlier in the scene or SCENE_WEARING)
     const act = !!sexCue(want, level) || sexAct(what, level);
-    const wearing = act ? "" : sceneWearing(want, history, level);
+    const wearing = act ? "" : sceneWearing(want, history, level, dayWear);
     const night = timeOfDay() === "night";
     // her narration's own light (candles, golden hour: LIGHT_WORDS) or a flash beats the time's light
     const lightText = lightFor(what, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]));
@@ -4045,7 +4124,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       nanoScene = { prompt: [P.SCENE_STYLE, `${L.WHO}.`, what.replace(/[.\s]*$/, "."), wearing && `She is wearing ${wearing}.`, light, location && "{room}", P.CRAFT].filter(Boolean).join(" "), what, location, night: pic.night, wearing };
     }
   } else {
-    pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots, level });
+    pic = selfiePicture({ want, said, plan, history, asked, recent: ledger.recent.slice(-(Number(P.REMEMBER) || 8)), recentShots: ledger.shots, level, dayWear });
   }
   const drawing = (async () => {
     let error = null;
@@ -4118,7 +4197,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
         const tiers = pic.tier === "boudoir" || pic.tier === "nude" ? ["boudoir", "flirty"] : ["everyday"];
         for (const [i, tier] of tiers.entries()) {
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
-          pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots });
+          pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots, dayWear });
           try {
             drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level });
             break;
@@ -4357,7 +4436,7 @@ async function lookCommand(env, chatId, args = "") {
   const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-3).map((m) => m.content).filter(inPerson);
   const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t, level));
   if (!text) return notice(env, chatId, M.LOOK_NONE);
-  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { history, chat: chatId, asked: args, source: "look", nsfw: level }));
+  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { dayWear: await dayOutfits(env), history, chat: chatId, asked: args, source: "look", nsfw: level }));
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
 }
 
@@ -4429,7 +4508,7 @@ async function picCommand(env, chatId, args) {
   if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
   const level = nsfwLevel(settings); // /nsfw (Step 2)
   if (!mayDraw(words, level)) return nsfwRefusal(env, chatId, words, level);
-  const { prompt, location, night } = customPicture(words);
+  const { prompt, location, night } = customPicture(words, undefined, await dayOutfits(env));
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const drawing = (async () => {
     let model = null;
@@ -4453,11 +4532,14 @@ async function picCommand(env, chatId, args) {
 
 // /pic's prompt from his words (already about her): CUSTOM.STYLE, {who}, his words, the place ({room}) they name, the
 // light of her hour, CRAFT and (on Cloudflare) SAFE. { prompt, location, night }
-function customPicture(words, hour = herHour()) {
+function customPicture(words, hour = herHour(), dayWear = null) {
   const P = CONFIG.PICTURE;
   const light = lightFor(words, pickOne((P.LIGHT || {})[timeOfDay(hour).toUpperCase()]));
   const location = locationOf(words);
-  const prompt = [(P.CUSTOM || {}).STYLE, "{who}", `${filterSafe(words)}.`, location && "{room}", light && `Lit by ${light}.`, P.CRAFT, safeLine()].filter(Boolean).join(" ");
+  // Step 4: his words name no clothes → the day's outfit (OUT when the words are outside); never for nudity or a sex act
+  const outside = (P.OUTSIDE_WORDS || []).some((w) => String(w).trim() && hasWord(words, w));
+  const wear = dayWear && !namesClothes(words) && !nudeWords(words) && !pictureFlags(words, true, "on").act ? (outside ? dayWear.out : dayWear.home) : "";
+  const prompt = [(P.CUSTOM || {}).STYLE, "{who}", `${filterSafe(words)}.`, wear && `She is wearing ${wear}.`, location && "{room}", light && `Lit by ${light}.`, P.CRAFT, safeLine()].filter(Boolean).join(" ");
   return { prompt, location, night: isDark(hour, light || "") };
 }
 

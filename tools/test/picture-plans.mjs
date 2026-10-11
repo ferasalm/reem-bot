@@ -117,6 +117,8 @@ const cases = (W) => {
     return W.drawPicture(env, prompt, { location, night, ledger, custom: true });
   };
   const selfie = (want, at = null) => ({ at, run: (env, ledger) => W.startPicture(env, ledger, "selfie", want, { asked: want || "" }) });
+  const DAY = { day: "2026-10-11", band: "MILD", home: "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", out: "a black leather jacket over a fitted gray tee and jeans" };
+  const selfieDay = (want) => ({ run: (env, ledger) => W.startPicture(env, ledger, "selfie", want, { asked: want || "", dayWear: DAY }) });
   // Step 2 (/nsfw): the words go straight to drawPicture at a level, with no refusal in front (the plan itself must hold)
   const picAt = (args, nsfw) => async (env, ledger) => {
     const { prompt, location, night } = W.customPicture(W.picWords(args));
@@ -125,6 +127,10 @@ const cases = (W) => {
   return [
     { name: "selfie everyday kitchen (composePicture)", run: selfie("making coffee in my kitchen, gray cardigan").run },
     { name: "selfie no words (cozy)", run: selfie(null).run },
+    // Step 4: her outfits for the day (dayWear as dayOutfits gives them): home when no outside words, out when outside
+    { name: "day outfit: selfie no words (home)", run: selfieDay(null).run },
+    { name: "day outfit: selfie at the coffee shop (out)", run: selfieDay("at the coffee shop, smiling").run },
+    { name: "day outfit: selfie in a named sweater (no day outfit)", run: selfieDay("in a cream sweater, smiling").run },
     { name: "mirror bedroom at night", at: "2026-10-12T04:30:00Z", run: selfie("mirror selfie in the bedroom, late at night").run },
     { name: "flirty mirror-back", run: selfie("flirty, mirror selfie from behind in the bedroom").run },
     { name: "boudoir black lace bodysuit", run: selfie("a black lace bodysuit").run },

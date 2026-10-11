@@ -183,8 +183,6 @@ Gaze: **everyday**: looking straight into the lens; looking off to the side, out
 ## LoRAs (FLUX.2 klein 9B on Runware)
 | LoRA | Category | When | Weight | Trigger words put first |
 |---|---|---|---|---|
-| Phone Photography 2000-2025 (`ferasalm:phone2025@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 | This is a candid photograph taken with a smartphone of |
-| UltraReal V5 Pro (`ferasalm:ultrareal5@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 |  |
 | InstaPic (`ferasalm:instapic@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 | instapic |
 | Real HD 2K (DoRA converted to rank 32) (`ferasalm:realhd2kc@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.5 |  |
 | Unchained XXX v2 (`ferasalm:unchained@2`) | nudity | nude pictures and blowjobs; off with Flux 4 Play AIO, Missionary POV K3NK, POV Doggy Anal | 0.8 |  |
@@ -196,6 +194,6 @@ Gaze: **everyday**: looking straight into the lens; looking off to the side, out
 | PussyDiffusion v2 (`ferasalm:pussyd@1`) | anatomy | words: pussy, vagina, spread legs, legs spread (only without another act LoRA) | 0.8 | hairy pussy |
 | Tushy Raw Filter (camera flash) (`ferasalm:tushyraw@1`) | light | flash words: in place of the realism LoRAs | 1 | (flash trigger sentence) |
 
-Spare (uploaded on Runware, in no list above; not sent): Lenovo UltraReal (`ferasalm:lenovoc@1`), SNOFS v1.4 (rank-128 copy) (`ferasalm:snofsc@1`), NSFW Unlocked V2 (`ferasalm:nsfwunlock@1`), Anatomy Quality Fixer (`myaiprojectsqqq:3@2`), POV Blowjob (`ferasalm:povbj@1`), POV hand (converted) (`ferasalm:povhandc@1`).
+Spare (uploaded on Runware, in no list above; not sent): Phone Photography 2000-2025 (`ferasalm:phone2025@1`), UltraReal V5 Pro (`ferasalm:ultrareal5@1`), Lenovo UltraReal (`ferasalm:lenovoc@1`), SNOFS v1.4 (rank-128 copy) (`ferasalm:snofsc@1`), NSFW Unlocked V2 (`ferasalm:nsfwunlock@1`), Anatomy Quality Fixer (`myaiprojectsqqq:3@2`), POV Blowjob (`ferasalm:povbj@1`), POV hand (converted) (`ferasalm:povhandc@1`).
 
 Cost (measured 2026-10-08, round 8): a LoRA has no fee of its own; the price is GPU time, which grows with the size, the reference pictures (body pictures are sent at 576x1024: at 768x1344 they cost $0.0009 more) and the number of LoRAs: 9:16 pictures $0.0025 (sometimes $0.0034 with a room picture or a cold LoRA load); 1:1 and 16:9 $0.0025-0.0034. Daily cap $1 (about 333 pictures), then Cloudflare (never nude).
