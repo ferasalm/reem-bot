@@ -389,7 +389,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const act = await prompt("riding the man on the bed");
     yes(act.includes(R.POV_MAN) && act.includes(R.NAKED), "a sex act: POV_MAN added, and she is naked (round 7)", act.slice(-200));
     const part = await prompt("missionary sex, naked from the waist down, still wearing her black bra over her breasts");
-    yes(part.includes(R.PARTIAL) && !part.includes(R.NAKED), "partly naked in a sex act: PARTIAL, not NAKED (round 7)", part.slice(-300));
+    yes(part.includes(R.PARTIAL_TOP) && part.includes("A thick, untrimmed dark bush") && !part.includes(R.NAKED) && !part.includes("natural breasts"), "partly naked in a sex act, a bra kept on: PARTIAL_TOP + the bush, not NAKED (round 7, Step 5)", part.slice(-300));
     const dog = await prompt("the man fucking her doggy style on the bed");
     yes(dog.includes(R.NAKED_BACK) && !dog.includes(R.NAKED) && dog.includes("seen from behind: the same back") && !/breast/i.test(dog) && W.runwareBody("back"), "doggy: from behind, no breasts (round 7)", dog);
     const nude = await prompt("naked on the bed, her pussy in view");
@@ -626,6 +626,50 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     ["HOME-OUTFIT", "HOME-OUTFIT", "HOME-OUTFIT", "OUT-OUTFIT", "OUT-OUTFIT", "OUT-OUTFIT"], "OUTSIDE_WORDS: a bare 'out' or the weather is not outside");
   const act = W.composePicture({ tier: "boudoir", shot: "selfie", words: "riding him on the bed" }).prompt;
   eq([/wearing/.test(act), W.pictureFlags(act, true, "on").partial], [false, false], "her sex-act words get no wardrobe (it made the act 'partly naked')");
+}
+
+{
+  // Step 5 (2026-10-11): partly dressed and close-ups
+  const P = W.CONFIG.PICTURE, R = P.RUNWARE, keep = [P.ROUTE, R.BODY_PARTIAL, P.HAIR_CHANCE], realFetch = globalThis.fetch, r0 = Math.random;
+  eq([R.NAKED, R.NAKED_BREASTS, R.NAKED_BUSH].join(" "), "She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view.", "NAKED's three parts join to the text before the split");
+  const f = (t, level = "on") => { const x = W.pictureFlags(t, true, level); return [x.partial, x.top, x.bottom, x.close]; };
+  eq(f("pussy close up, covered breasts"), [true, true, false, true], "covered breasts: partly naked, top on, a close-up (they were drawn bare: no clothes word)");
+  eq(f("naked from the waist down, black sports bra, sitting on the bed"), [true, true, false, false], "a sports bra: partly naked, top on");
+  eq(f("naked, in a crop top"), [true, true, false, false], "a crop top: partly naked, top on");
+  eq(f("topless, in jeans, mirror selfie"), [true, false, true, false], "topless in jeans: bottom on");
+  eq(f("topless, an open shirt and jeans"), [true, false, true, false], "'topless' beats a top word: bottom only");
+  eq(f("naked on the bed, covered in sweat"), [false, false, false, false], "'covered in sweat' is not clothing");
+  eq(f("riding the man, she climbs on top of him"), [false, false, false, false], "riding 'on top' is not a top");
+  eq(f("naked on the bed, her hand between her legs"), [false, false, false, false], "a hand between her legs is no close-up");
+  eq(f("missionary, close-up of her pussy"), [false, false, false, false], "no close-up framing on a sex act (its camera is ACT_SCENES')");
+  eq(f("pussy close up, covered breasts", "off"), [false, false, false, false], "/nsfw Off: nothing partial or close");
+  eq(W.nakedLine({ partial: true, bottom: true }), `${R.PARTIAL_BOTTOM} Natural breasts with soft brown areolas.`, "only a bottom on: PARTIAL_BOTTOM + the breasts as a sentence");
+  eq(W.nakedLine({ partial: true, top: true, bottom: true }), R.PARTIAL, "top and bottom on: PARTIAL as before");
+  eq(W.nakedLine({ close: true }), `${R.NAKED} ${R.NAKED_BUSH} ${R.CROTCH_FRAMING}`, "a nude crotch close-up: no breasts, CROTCH_FRAMING");
+  // LoRAs: partly naked leaves Unchained out and takes PussyDiffusion at PARTIAL_WEIGHTS
+  const nudeL = W.runwareLoras({ explicit: true, text: "naked, legs spread on the bed" }).map((l) => [l.model, l.weight]);
+  const partL = W.runwareLoras({ explicit: true, text: "naked, legs spread on the bed", partial: true }).map((l) => [l.model, l.weight]);
+  eq([nudeL.some(([m]) => m === "ferasalm:unchained@2"), partL.some(([m]) => m === "ferasalm:unchained@2"), (partL.find(([m]) => m === "ferasalm:pussyd@1") || [])[1]], [true, false, R.PARTIAL_WEIGHTS["ferasalm:pussyd@1"]], "partly naked: no Unchained, PussyDiffusion at PARTIAL_WEIGHTS");
+  // the plan: BODY_PARTIAL none sends no body picture and REFERENCE_NOBODY; a close-up sends no place picture and names no face
+  let sent = [];
+  globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
+  const draw = async (words, opts = {}) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words} {room}`, { ledger: {}, ...opts }); return sent[0]; };
+  try {
+    P.ROUTE = "runware-klein"; P.HAIR_CHANCE = 0; Math.random = () => 0;
+    R.BODY_PARTIAL = "none";
+    const none = await draw("naked from the waist down, black sports bra, sitting on the bed", { location: "bedroom" });
+    eq([none.inputs.referenceImages.length, none.positivePrompt.includes(R.REFERENCE_NOBODY.slice(0, 60).replace("same face and hair", "same face, hair color")) || none.positivePrompt.includes("an average-to-full figure"), /as in image 1\b/.test(none.positivePrompt)], [2, true, true], "BODY_PARTIAL none: face and place only, REFERENCE_NOBODY, the place is image 1");
+    R.BODY_PARTIAL = "nude";
+    eq((await draw("naked from the waist down, black sports bra, sitting on the bed")).inputs.referenceImages.length, 2, "BODY_PARTIAL nude: face and the nude body");
+    P.HAIR_CHANCE = 1; // a hairstyle is picked, and left out of the close-up's words and pictures
+    const close = await draw("close-up of her pussy, legs spread on the bed, wearing a white t-shirt", { location: "bedroom" });
+    eq([(close.inputs?.referenceImages || []).length, `${close.width}x${close.height}`, close.positivePrompt.includes(R.REFERENCE_CLOSE), close.positivePrompt.includes(R.CROTCH_FRAMING), /image \d|Her face:|Her hair:|natural breasts/i.test(close.positivePrompt)], [0, R.SIZES[R.CLOSE_SHAPE], true, true, false], "a crotch close-up (CLOSE_FACE false, CLOSE_SHAPE): no face, body or place picture, its own shape, REFERENCE_CLOSE + CROTCH_FRAMING, no face, hair or breasts words");
+    const keepClose = [R.CLOSE_FACE, R.CLOSE_SHAPE];
+    R.CLOSE_FACE = true; R.CLOSE_SHAPE = "";
+    const withFace = await draw("close-up of her pussy, legs spread on the bed, wearing a white t-shirt", { location: "bedroom" });
+    eq([withFace.inputs.referenceImages.length, `${withFace.width}x${withFace.height}`], [2, `${R.WIDTH}x${R.HEIGHT}`], "CLOSE_FACE true: her face and body (no place picture), the usual shape");
+    [R.CLOSE_FACE, R.CLOSE_SHAPE] = keepClose;
+  } finally { globalThis.fetch = realFetch; [P.ROUTE, R.BODY_PARTIAL, P.HAIR_CHANCE] = keep; Math.random = r0; }
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

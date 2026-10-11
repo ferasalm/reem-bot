@@ -1134,11 +1134,41 @@ Changing the story
       // added when the picture's words say she's naked or topless (NUDE_WORDS)
       NUDE_WORDS: ["nude", "naked", "topless", "bottomless", "bare breasts", "bare chest", "nothing on", "wearing nothing", "undressed", "nipple", "nipples", "pussy", "vagina", "pubic", "bush", "spread legs", "legs spread"],
       // round 4: short (see REFERENCE)
-      NAKED: "She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view.",
+      // Step 5 (2026-10-11): NAKED in three parts, joined the same as before (NAKED NAKED_BREASTS NAKED_BUSH); a crotch close-up
+      // (CLOSE_WORDS) leaves NAKED_BREASTS out, PARTIAL_TOP adds NAKED_BUSH, PARTIAL_BOTTOM adds NAKED_BREASTS (`nakedLine`)
+      NAKED: "She is completely naked, no clothing of any kind:",
+      NAKED_BREASTS: "natural breasts with soft brown areolas,",
+      NAKED_BUSH: "a thick, untrimmed dark bush, a real vulva when in view.",
       NAKED_BACK: "She is completely naked, seen from behind.", // acts from behind (BACK_WORDS)
       // nude or a sex act with clothes named (owner, round 7: "I can't seem to make her partially nude ... asking for a bra and covered
-      // breasts, the bare breasts were always there"): in place of NAKED, and image 1 is BODY_PARTIAL ("clothed" or "nude")
+      // breasts, the bare breasts were always there"): in place of NAKED, and image 1 is BODY_PARTIAL ("clothed", "nude" or "none")
       PARTIAL: "She is only partly naked: the clothes named stay on, in place, and cover what they cover (a bra or top keeps her breasts fully covered, no nipples showing); only the rest of her is bare.",
+      // Step 5: partly naked = nude or a sex act + WEARING_WORDS or these ("covered breasts", "crop top", "sports bra" named no clothes,
+      // so the breasts were drawn bare). "covered" only with her breasts or chest ("covered in sweat" is not clothing); "on top" and
+      // "top of" are taken out before the check (riding "on top" is not a top)
+      PARTIAL_WORDS: ["top", "crop top", "sports bra", "covered breasts", "breasts covered", "covered chest", "chest covered", "covered up", "shirt on", "top on", "bra on", "half-dressed", "half dressed"],
+      // what stays on: only a top (TOP_WORDS) = PARTIAL_TOP, only a bottom (BOTTOM_WORDS) = PARTIAL_BOTTOM, both or neither = PARTIAL;
+      // "topless" (or "bottomless") in the words beats a top (or bottom) word
+      TOP_WORDS: ["bra", "bralette", "sports bra", "top", "crop top", "tank top", "camisole", "t-shirt", "tee", "shirt", "blouse", "sweater", "hoodie", "sweatshirt", "cardigan", "corset", "turtleneck", "covered breasts", "breasts covered", "covered chest", "chest covered"],
+      BOTTOM_WORDS: ["panties", "underwear", "thong", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "skirt"],
+      PARTIAL_TOP: "She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing.",
+      PARTIAL_BOTTOM: "She is topless: only the clothes described below her waist stay on; her breasts are bare.",
+      // Step 5: a crotch close-up (nude, not a sex act): CROTCH_FRAMING, no NAKED_BREASTS, no place picture. A bare "between her legs"
+      // is left out ("her hand between her legs", "he kneels between her legs" are no close-up)
+      CLOSE_WORDS: ["close-up of her pussy", "close up of her pussy", "pussy close-up", "pussy close up", "close-up between her legs", "close up between her legs", "her pussy up close", "zoomed in on her pussy", "spread pussy", "pussy shot", "crotch shot"],
+      CROTCH_FRAMING: "Close-up from her navel to her upper thighs; her breasts and face are out of the frame.",
+      // a crotch close-up's shape (a SIZES key; "" = WIDTH x HEIGHT) and her face picture (false: no face or body picture, klein from
+      // REFERENCE_CLOSE alone). Step 5 bench (Opus): at 9:16 with her face every close-up ran from her lips down (12/12, with or without
+      // a body picture); 9:16 without the face kept the chin 4/4, 1:1 with it the lips or chin 2/4; 1:1 without it 0/4, framed from the
+      // chest down, the vulva largest. Never navel-to-thighs exactly (0/16)
+      CLOSE_SHAPE: "1:1",
+      CLOSE_FACE: false,
+      // no belly, hip or thigh words (owner 2026-10-10: they made her belly big); the first framing bench had them, the redraw has not
+      REFERENCE_CLOSE: "A 29-year-old woman, clearly an adult: fair olive skin, an average-to-full figure, about 165 cm and 71 kg.",
+      // Step 5: partly naked pictures leave out these LoRAs (Unchained XXX was trained on full nudes) and take these weights
+      // (PussyDiffusion; 0 = left out)
+      PARTIAL_LORAS_OFF: ["ferasalm:unchained@2"],
+      PARTIAL_WEIGHTS: { "ferasalm:pussyd@1": 0.6 },
       BODY_PARTIAL: "clothed",
     },
     // Never drawn: a description or scene sentence with one of these (whole words or phrases, any case)
@@ -3636,10 +3666,11 @@ function runwareAffordable(env, ledger) {
 // according to situations instead of dumping them all together"): LORAS on every picture, then the kind's own (SELFIE_LORAS her
 // selfies, SCENE_LORAS /look and in-person scenes, PIC_LORAS /pic), NUDE_LORAS when nude or a sex act, and each ACT_LORAS LoRA
 // whose ACT_WORDS are in the words. A later set wins a LoRA's weight; weight 0 or not a number = left out.
-// `opts`: { kind, explicit, text } (a bare boolean = explicit)
+// `opts`: { kind, explicit, text, partial } (a bare boolean = explicit). Partly naked (Step 5): PARTIAL_LORAS_OFF left out,
+// PARTIAL_WEIGHTS for the others (0 = left out)
 function runwareLoras(opts = {}) {
   if (typeof opts === "boolean") opts = { explicit: opts };
-  const { kind = "", explicit = false, text = "" } = opts;
+  const { kind = "", explicit = false, text = "", partial = false } = opts;
   const R = CONFIG.PICTURE.RUNWARE || {};
   const flash = flashAsked(text);
   const own = { selfie: R.SELFIE_LORAS, scene: R.SCENE_LORAS, pic: R.PIC_LORAS }[kind] || {};
@@ -3656,8 +3687,13 @@ function runwareLoras(opts = {}) {
   // an ALONE_LORAS LoRA draws alone (ALONE_WORDS: only when one of its words is in the text)
   const aloneWords = R.ALONE_WORDS || {};
   const alone = acts.map(([air]) => air).find((air) => Object.hasOwn(R.ALONE_LORAS || {}, air) && (!aloneWords[air] || String(aloneWords[air]).split(",").some((w) => w.trim() && hasWord(text, w.trim()))));
-  if (alone) return [{ model: alone, weight: Number(R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0);
-  return Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
+  const list = alone
+    ? [{ model: alone, weight: Number(R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0)
+    : Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
+  if (!partial) return list;
+  const off = R.PARTIAL_LORAS_OFF || [];
+  const weights = R.PARTIAL_WEIGHTS || {};
+  return list.filter((l) => !off.includes(l.model)).map((l) => (Object.hasOwn(weights, l.model) ? { model: l.model, weight: Number(weights[l.model]) } : l)).filter((l) => Number.isFinite(l.weight) && l.weight !== 0);
 }
 
 // The words ask for a camera-flash picture (RUNWARE.FLASH_WORDS, Runware routes only; FLASH_LORAS set)
@@ -3775,12 +3811,35 @@ function pictureFlags(prompt, herself = true, level = CONFIG.PICTURE.NSFW.DEFAUL
   const act = !off && !!sexAct(prompt, level);
   const oral = act && (R.ORAL_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
   const nude = !off && (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
-  // a pose ("sitting back on her heels") is not shoes (WEARING_WORDS "heels"): the phrase is taken out before the check (Step 4)
-  const worn = String(prompt).replace(/\bon (?:her|his|your) heels\b/gi, "");
-  const partial = (nude || act) && (P.WEARING_WORDS || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
+  // a pose ("sitting back on her heels") is not shoes (WEARING_WORDS "heels"): the phrase is taken out before the check (Step 4);
+  // nor is "on top" (riding) or "top of" a top (Step 5)
+  const worn = String(prompt).replace(/\bon (?:her|his|your) heels\b/gi, "").replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
+  const named = (list) => (list || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
+  // Step 5: PARTIAL_WORDS count too; what stays on: a top (TOP_WORDS, not "topless"), a bottom (BOTTOM_WORDS, not "bottomless")
+  const partial = (nude || act) && named([...(P.WEARING_WORDS || []), ...(R.PARTIAL_WORDS || [])]);
+  const top = partial && named(R.TOP_WORDS) && !hasWord(prompt, "topless");
+  const bottom = partial && named(R.BOTTOM_WORDS) && !hasWord(prompt, "bottomless");
   const back = (act && String(R.BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()))) || (nude && String(R.NUDE_BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim())));
+  // Step 5: a crotch close-up (CLOSE_WORDS), nude and not a sex act or a back view
+  const close = nude && !act && !back && (R.CLOSE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
   const kind = !herself ? "alone" : act ? "act" : partial ? "partial" : nude ? "nude" : "clothed";
-  return { act, oral: !!oral, nude, partial: !!partial, back: !!back, kind };
+  return { act, oral: !!oral, nude, partial: !!partial, back: !!back, top: !!top, bottom: !!bottom, close: !!close, kind };
+}
+
+// The nudity line of a nude, partly naked or sex-act picture (Step 5): NAKED NAKED_BREASTS NAKED_BUSH (the same text as before the
+// split); a back view NAKED_BACK; partly naked PARTIAL_TOP + NAKED_BUSH (only a top on), PARTIAL_BOTTOM + NAKED_BREASTS (only a
+// bottom on), else PARTIAL; a crotch close-up leaves the breasts out and adds CROTCH_FRAMING
+function nakedLine({ partial = false, back = false, top = false, bottom = false, close = false } = {}) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  const sentence = (t) => {
+    const x = String(t || "").trim().replace(/[,;:\s]+$/, "");
+    return x ? `${x.charAt(0).toUpperCase()}${x.slice(1)}${/[.!?]$/.test(x) ? "" : "."}` : "";
+  };
+  const full = [R.NAKED, R.NAKED_BREASTS, R.NAKED_BUSH];
+  const parts = partial
+    ? top && !bottom ? [R.PARTIAL_TOP, sentence(R.NAKED_BUSH)] : bottom && !top ? [R.PARTIAL_BOTTOM, close ? "" : sentence(R.NAKED_BREASTS)] : [R.PARTIAL]
+    : back ? [R.NAKED_BACK || full.join(" ")] : [R.NAKED, close ? "" : R.NAKED_BREASTS, R.NAKED_BUSH];
+  return [...parts, close ? R.CROTCH_FRAMING : ""].map((x) => String(x || "").trim()).filter(Boolean).join(" ");
 }
 
 // The Runware plan of one picture, with no network: `tries` in order, each { model, text, refs: [{ name, bytes }], loras,
@@ -3818,12 +3877,13 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     }
     return { tries, flags };
   }
-  const { act, oral, nude, partial, back } = flags;
+  const { act, oral, nude, partial, back, close: crotch } = flags;
   const explicit = nude || act;
-  // partly naked (WEARING_WORDS) = PARTIAL, not NAKED; a sex act's back view = NAKED_BACK
-  const naked = !explicit ? "" : ` ${partial ? R.PARTIAL : back ? R.NAKED_BACK || R.NAKED : R.NAKED}`.trimEnd();
+  // partly naked = PARTIAL_TOP / PARTIAL_BOTTOM / PARTIAL, not NAKED; a back view = NAKED_BACK; a crotch close-up (Step 5: nakedLine)
+  const naked = !explicit ? "" : ` ${nakedLine(flags)}`.trimEnd();
   // its own size (RUNWARE.WIDTH/HEIGHT, a sex act's shape by ASPECTS) unless the caller asked for one
-  const shape = act ? pickWeighted((R.ASPECTS || {})[oral ? "ORAL" : "ACT"] || {}) : "";
+  // Step 5: a crotch close-up takes CLOSE_SHAPE (no random pick: the other cases' picks stay in order)
+  const shape = act ? pickWeighted((R.ASPECTS || {})[oral ? "ORAL" : "ACT"] || {}) : crotch ? String(R.CLOSE_SHAPE || "") : "";
   const sized = String((shape && (R.SIZES || {})[shape]) || "").split("x").map(Number);
   const [ow, oh] = sized.length === 2 && sized[0] > 0 && sized[1] > 0 ? sized : [Number(R.WIDTH), Number(R.HEIGHT)];
   const [rwW, rwH] = size || !(ow > 0 && oh > 0) ? [width, height] : [ow, oh];
@@ -3832,19 +3892,23 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
   const scene = act ? actScene(prompt) : "";
   const close = scene.includes("{close}");
   const pov = scene ? ` ${scene.replace("{close}", "").replace(/\s{2,}/g, " ").trim()}` : "";
-  // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08)
-  const shownPlace = close || flashAsked(prompt) ? null : place;
+  // a flash picture: no place picture either (its lamp light beat the flash; without it the flash look 2/2, 2026-10-08); nor a crotch
+  // close-up (Step 5: a room picture pulls the camera back, as it did on blowjobs)
+  const shownPlace = close || crotch || flashAsked(prompt) ? null : place;
   // her expression and gaze when the words name none (MOODS, GAZES; a sex act's scene may already name her gaze)
   const named = (t) => (R.FACE_WORDS || []).some((w) => String(w).trim() && hasWord(t, w));
   const k = oral && (R.MOODS || {}).ORAL ? "ORAL" : act ? "ACT" : naked ? "HEATED" : "EVERYDAY";
   const look = named(prompt) ? "" : [pickOne((R.MOODS || {})[k]), named(scene) ? "" : pickOne((R.GAZES || {})[k])].filter(Boolean).join(", ");
   // right after who she is (at the end klein kept image 0's smile, round 4 bench), but after a sex act's camera words: early, it
   // turned her face to the lens in doggy 3/3 (without it 1/1 from behind)
-  const mood = look ? ` Her face: ${look}.` : "";
+  // a crotch close-up names no expression or hairstyle (Step 5: they are camera words and pull her face into the frame); the random
+  // picks are still made, in their order
+  const mood = look && !crotch ? ` Her face: ${look}.` : "";
   // a hairstyle (HAIRSTYLES): her hair color stays image 0's, the style changes
   const hair = pickHair(prompt);
-  const style = stylePicture(prompt, hair);
-  const hairLine = hair ? ` Her hair: ${hair}.` : "";
+  const shownHair = crotch ? "" : hair;
+  const style = stylePicture(prompt, shownHair);
+  const hairLine = shownHair ? ` Her hair: ${shownHair}.` : "";
   const [early, late] = act ? ["", mood] : [mood, ""];
   const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
   // partly naked: BODY_PARTIAL (the clothed body leaked its tank top, the nude one bared what her clothes cover)
@@ -3853,29 +3917,32 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
   // (CLOTHED_BODY "rust"), or none ("none")
   const clothedOnly = !explicit && !partial && !back;
   const outfitBody = !!(clothedOnly && R.OUTFIT_BODY && style && style.kind === "outfit");
-  const noBody = clothedOnly && !outfitBody && R.CLOTHED_BODY === "none";
+  // Step 5: partly naked with BODY_PARTIAL "none": no body picture either (the rust halter leaked its crop top), REFERENCE_NOBODY
+  const noBody = (clothedOnly && !outfitBody && R.CLOTHED_BODY === "none") || (partial && !back && R.BODY_PARTIAL === "none");
   // "nude": the nude front (BODY) as image 1 with DRESSED_FULL; "neutral": BODY_NEUTRAL (v10 dressed in a plain gray tank and leggings)
   const clothedBody = clothedOnly && !outfitBody && !noBody ? { nude: R.BODY, neutral: R.BODY_NEUTRAL }[R.CLOTHED_BODY] || "" : "";
-  const rwBody = outfitBody ? style.bytes : ref && !noBody ? (clothedBody ? runwareBodyBytes(clothedBody) : runwareBody(bodyArg)) : null;
+  // Step 5: CLOSE_FACE false = a crotch close-up with no face or body picture (klein from REFERENCE_CLOSE)
+  const faceless = crotch && R.CLOSE_FACE === false;
+  const rwBody = faceless ? null : outfitBody ? style.bytes : ref && !noBody ? (clothedBody ? runwareBodyBytes(clothedBody) : runwareBody(bodyArg)) : null;
   const bodyName = outfitBody ? `style:${style.key}` : `body-${clothedBody || runwareBodyName(bodyArg)}`;
   // her pictures: klein again (KLEIN_TRIES), then Cloudflare klein with the same references (drawPicture). Never TwinFlow for
   // her: it has no reference and its words drew the big belly (2026-10-10). Without her face, TwinFlow as before.
   const tries = P.ROUTE === "runware-klein" && ref ? Array.from({ length: Math.max(1, Number(R.KLEIN_TRIES) || 1) }, () => [R.MODEL, true]) : [[R.BACKUP_MODEL, false]];
   // with a sex act's back view, REFERENCE_BACK names the view; a hairstyle changes her hair, not its color
   const ref1 = (back && R.REFERENCE_BACK) || (outfitBody && R.REFERENCE_OUTFIT) || (noBody && R.REFERENCE_NOBODY) || (clothedOnly && R.REFERENCE_CLOTHED) || R.REFERENCE;
-  const ref0 = hair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color") : ref1;
+  const ref0 = shownHair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color") : ref1;
   const out = [];
   for (const [model, withFace] of tries) {
     if (!model) continue;
     // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
-    const base = withFace ? [rwFace && { name: faceName, bytes: rwFace }, rwBody && { name: bodyName, bytes: rwBody }, shownPlace && { name: placeName, bytes: shownPlace }].filter(Boolean) : [];
+    const base = withFace && !faceless ? [rwFace && { name: faceName, bytes: rwFace }, rwBody && { name: bodyName, bytes: rwBody }, shownPlace && { name: placeName, bytes: shownPlace }].filter(Boolean) : [];
     // the style picture comes after them: its image number is base.length (not when it is image 1 itself)
-    const extra = withFace && style && !outfitBody;
+    const extra = withFace && !faceless && style && !outfitBody;
     const refs = extra ? [...base, { name: `style:${style.key}`, bytes: style.bytes }] : base;
     const styleLine = extra ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
     // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
     // the LoRAs' own trigger words (LORA_WORDS) go first
-    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt }) : [];
+    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt, partial }) : [];
     const flash = model === R.MODEL && flashAsked(prompt);
     const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
     const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);
@@ -3883,7 +3950,8 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
     const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "");
     const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
-    const text = (triggers ? `${triggers}. ` : "") + (withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true, [rwFace, rwBody].filter(Boolean).length) : who(R.LOOKS + early + hairLine, false, true)) + naked + pov + late + dressed + wide + photoLine + styleLine;
+    const herLine = faceless ? who(lead(R.REFERENCE_CLOSE || R.LOOKS), false, true) : withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true, [rwFace, rwBody].filter(Boolean).length) : who(R.LOOKS + early + hairLine, false, true);
+    const text = (triggers ? `${triggers}. ` : "") + herLine + naked + pov + late + dressed + wide + photoLine + styleLine;
     out.push(tryOf(model, text, refs, loras, rwW, rwH));
   }
   return { tries: out, flags };
