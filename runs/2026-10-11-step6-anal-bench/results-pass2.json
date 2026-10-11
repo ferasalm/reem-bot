@@ -1,0 +1,470 @@
+{
+  "dry": false,
+  "seeds": [
+    404,
+    505
+  ],
+  "budgetUsd": 0.035,
+  "spentUsd": 0.02418,
+  "pictures": 8,
+  "runs": [
+    {
+      "id": "doggy-povanal-s404",
+      "case": "doggy",
+      "variant": "povanal",
+      "seed": 404,
+      "file": "pictures/doggy-povanal-s404.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 404,
+          "loras": [
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 1
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back",
+            "style:hair-bun-bangs"
+          ],
+          "positivePrompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: pulled up loosely, with full wispy bangs down to her brows and long loose strands framing her face. anal, doggy style on the bed. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. Her face: eyes half-closed, lips parted, cheeks flushed, her eyes half-open and unfocused. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's.",
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "ms": 16488,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 1
+        }
+      ],
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: pulled up loosely, with full wispy bangs down to her brows and long loose strands framing her face. anal, doggy style on the bed. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. Her face: eyes half-closed, lips parted, cheeks flushed, her eyes half-open and unfocused. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's."
+    },
+    {
+      "id": "missionary-povanal08-mis-s404",
+      "case": "missionary",
+      "variant": "povanal08-mis",
+      "seed": 404,
+      "file": "pictures/missionary-povanal08-mis-s404.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 404,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. missionary anal on the bed. Lit by soft window light. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her knees pulled up to her chest and her legs held wide, her round bottom lifted toward the man kneeling between them; his penis inside her anus, low between her buttocks, and above it her vulva closed and untouched. She looks up at him. Her face: an intense, hungry stare. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 14623,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. missionary anal on the bed. Lit by soft window light. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her knees pulled up to her chest and her legs held wide, her round bottom lifted toward the man kneeling between them; his penis inside her anus, low between her buttocks, and above it her vulva closed and untouched. She looks up at him. Her face: an intense, hungry stare. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "rc-povanal08-rc-s404",
+      "case": "rc",
+      "variant": "povanal08-rc",
+      "seed": 404,
+      "file": "pictures/rc-povanal08-rc-s404.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1344,
+          "height": 768,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 404,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. anal reverse cowgirl on the bed. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, seen from behind. r3v3rs3_c0wg1rl, pov. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She rides the man facing away, her back and round bottom close, his penis inside her anus between her spread buttocks; below it her vulva closed and untouched; she glances back over her shoulder. Her face: a breathless open-mouthed moan. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 7730,
+      "tries": 1,
+      "width": 1344,
+      "height": 768,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. anal reverse cowgirl on the bed. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, seen from behind. r3v3rs3_c0wg1rl, pov. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She rides the man facing away, her back and round bottom close, his penis inside her anus between her spread buttocks; below it her vulva closed and untouched; she glances back over her shoulder. Her face: a breathless open-mouthed moan. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "prone-povanal08-s404",
+      "case": "prone",
+      "variant": "povanal08",
+      "seed": 404,
+      "file": "pictures/prone-povanal08-s404.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1344,
+          "height": 768,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 404,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: in a loose low ponytail with a silk scrunchie. prone bone anal on the bed. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies flat on her stomach on the bed, legs together, the man on top of her from behind; his penis inside her anus between her round buttocks; she looks back over her shoulder, her cheek on the pillow. Her face: a wicked, satisfied smile, her eyes closed. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 7371,
+      "tries": 1,
+      "width": 1344,
+      "height": 768,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: in a loose low ponytail with a silk scrunchie. prone bone anal on the bed. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies flat on her stomach on the bed, legs together, the man on top of her from behind; his penis inside her anus between her round buttocks; she looks back over her shoulder, her cheek on the pillow. Her face: a wicked, satisfied smile, her eyes closed. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "doggy-povanal-s505",
+      "case": "doggy",
+      "variant": "povanal",
+      "seed": 505,
+      "file": "pictures/doggy-povanal-s505.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 505,
+          "loras": [
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 1
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "positivePrompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: in a loose side braid over one shoulder. anal, doggy style on the bed. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. Her face: her mouth open in pleasure, brows drawn together, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "ms": 17811,
+      "tries": 1,
+      "width": 1024,
+      "height": 1024,
+      "loras": [
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 1
+        }
+      ],
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: in a loose side braid over one shoulder. anal, doggy style on the bed. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. Her face: her mouth open in pleasure, brows drawn together, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "missionary-povanal08-mis-s505",
+      "case": "missionary",
+      "variant": "povanal08-mis",
+      "seed": 505,
+      "file": "pictures/missionary-povanal08-mis-s505.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 505,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "style:hair-long-bangs"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows. missionary anal on the bed. Lit by soft window light. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her knees pulled up to her chest and her legs held wide, her round bottom lifted toward the man kneeling between them; his penis inside her anus, low between her buttocks, and above it her vulva closed and untouched. She looks up at him. Her face: a breathless open-mouthed moan. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's.",
+          "status": 200,
+          "cost": 0.00416,
+          "error": ""
+        }
+      ],
+      "cost": 0.00416,
+      "error": "",
+      "budgetStop": false,
+      "ms": 13839,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows. missionary anal on the bed. Lit by soft window light. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her knees pulled up to her chest and her legs held wide, her round bottom lifted toward the man kneeling between them; his penis inside her anus, low between her buttocks, and above it her vulva closed and untouched. She looks up at him. Her face: a breathless open-mouthed moan. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's."
+    },
+    {
+      "id": "rc-povanal08-rc-s505",
+      "case": "rc",
+      "variant": "povanal08-rc",
+      "seed": 505,
+      "file": "pictures/rc-povanal08-rc-s505.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 505,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. anal reverse cowgirl on the bed. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. r3v3rs3_c0wg1rl, pov. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She rides the man facing away, her back and round bottom close, his penis inside her anus between her spread buttocks; below it her vulva closed and untouched; she glances back over her shoulder. Her face: a dazed, blissful look. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8350,
+      "tries": 1,
+      "width": 1024,
+      "height": 1024,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. anal reverse cowgirl on the bed. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. r3v3rs3_c0wg1rl, pov. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She rides the man facing away, her back and round bottom close, his penis inside her anus between her spread buttocks; below it her vulva closed and untouched; she glances back over her shoulder. Her face: a dazed, blissful look. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "prone-povanal08-s505",
+      "case": "prone",
+      "variant": "povanal08",
+      "seed": 505,
+      "file": "pictures/prone-povanal08-s505.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1344,
+          "height": 768,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 505,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. prone bone anal on the bed. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies flat on her stomach on the bed, legs together, the man on top of her from behind; his penis inside her anus between her round buttocks; she looks back over her shoulder, her cheek on the pillow. Her face: a dazed, blissful look, her eyes closed. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8209,
+      "tries": 1,
+      "width": 1344,
+      "height": 768,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. prone bone anal on the bed. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies flat on her stomach on the bed, legs together, the man on top of her from behind; his penis inside her anus between her round buttocks; she looks back over her shoulder, her cheek on the pillow. Her face: a dazed, blissful look, her eyes closed. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    }
+  ]
+}
