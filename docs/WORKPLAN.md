@@ -534,3 +534,24 @@ reflection.
   that picture (not one phrase for all), and a P1-P4 zoom crop for the vulva.
 - Name the model in HANDOFF, table.md and the commits (read it with `get_session`).
 - Leave alone: `CLOTHED_BODY`, the day outfits and OUTSIDE_WORDS, the LoRA set, the blowjob routing, `tools/face/bench.json`.
+
+### Step 5 build (Opus, 2026-10-11)
+Built by Opus (session_01AmUQa9XtUpc3EGRs7ctq3K, `get_session`): the chat was opened with the Haiku prompt, but its model was Opus.
+Before Step 5, the owner's yes to the fuller build: `CLOTHED_BODY` "nude", checked first (`outfit-bench.mjs --nude-check`, 18 pictures,
+$0.04628; see docs/DECISIONS.md and QUALITY). Also fixed there: ROOM's image number when no body picture is sent; "satin slip" words.
+**Step 5 as built, and where it leaves the spec (each for a path seen or traced):**
+- PARTIAL_WORDS: "covered" only as "covered breasts", "breasts covered", "covered chest", "chest covered", "covered up" ("covered in
+  sweat" is no clothing); "on top" / "top of" are taken out before the check (riding "on top" made the act partly naked).
+- CLOSE_WORDS without a bare "between her legs" ("her hand between her legs", "he kneels between her legs"); close-ups only on nude,
+  non-act, non-back pictures (an act keeps its ACT_SCENES camera).
+- PARTIAL_TOP says "her top stays on" (P2 names no garment); PARTIAL_TOP adds NAKED_BUSH, PARTIAL_BOTTOM adds NAKED_BREASTS (as
+  sentences); "topless" / "bottomless" beat a top / bottom word.
+- Crotch close-ups: no place picture and no mood or hairstyle words (camera words; the random picks are still made in order).
+- New after the bench: CLOSE_SHAPE "1:1" and CLOSE_FACE false (no face or body picture, REFERENCE_CLOSE): at 9:16 with her face
+  every close-up ran from her lips down (12/12); 1:1 without the face 0/4 faces. REFERENCE_CLOSE carries no belly, hip or thigh words.
+- PARTIAL_WEIGHTS PussyDiffusion 0.6 (= 0.8 on the zoom, off loses the vulva). `BODY_PARTIAL` left "clothed", as asked.
+**For the review (Opus) to decide:** `BODY_PARTIAL` "none" (my read: the nude body drew "covered breasts" naked 0/6, none 2/2;
+nude = none when a garment is named; "clothed" is the rust halter, which leaks its crop); the faceless 1:1 close-up (it drops her
+face and body pictures: is the skin and build close enough?); nipple points through thin tops (every mode, all three steps); P3
+"legs apart" draws no vulva (not a PussyDiffusion word: LoRA routing was off-limits); close-ups never reach navel-to-thighs (the
+breasts stay in, covered).

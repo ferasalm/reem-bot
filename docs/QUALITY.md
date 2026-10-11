@@ -533,3 +533,22 @@ balance $14.56408 → $14.50883 ($0.05525). Step 4 in all: $0.15691 of $0.20.
   (sleeveless: klein's own reading of "Breton top", also in none). Silk right in all three.
 - **Leak count:** rust 3 (crop length: Breton s101, s303, silk s101), neutral 3 (scoop neck), none 0 of 18, nude 0 of 6.
   → `CLOTHED_BODY` "none" (a clothed image 1 leaks its garment's cut). Faint nipple outlines on thin white tops in every mode.
+
+## CLOTHED_BODY "nude" check (2026-10-11, Opus's read; `outfit-bench.mjs --nude-check`, `face-candidates` runs/2026-10-11-step5-nude-mode)
+18 pictures, $0.04628. Owner's yes to the fuller build, checked where the Step 4 review had not.
+- **Seed 202, six outfits (nude vs Haiku's rust and none):** 6/6 as named; the Breton full length (rust cut it before); the linen
+  top's bust fullest of the three. A second phone in her hand on the silk picture in every mode (her "hands" words).
+- **Lingerie (nude vs none, s101):** lace bodysuit and satin "slip" (drawn as a satin bodysuit in both) the same in both modes, lace
+  sheer, no nipples on the chest crop; the lace cami came out a short bralette in nude (a longer cami in none).
+- **/nsfw Off:** 2/2 drawn past Runware's content check, dressed. **Scenes:** couch (MILD) and bed (WARM white tank) dressed 2/2; faint
+  areola shadows through the thin white rib in both modes. → `CLOTHED_BODY` "nude".
+
+## Step 5 bench: partly dressed and close-ups (2026-10-11, Opus's read; `tools/face/partial-bench.mjs`, `face-candidates` runs/2026-10-11-step5-partial-bench)
+40 pictures, $0.08944 (24 + 12 framing + 4 redraw). table.md has one line per picture.
+- **"covered breasts" (P2):** the nude body as image 1 drew her fully naked 0/6 (image 1 copied whole: pose, wall, crop); no body
+  picture 2/2 covered (klein adds a top). With a garment named (P1 tee, P3 sports bra) covered 12/12 in both modes; P4 topless 4/4.
+- **PussyDiffusion when partly naked:** 0.6 = 0.8 (real, hairy vulva 4/4 each, zoom); off: no vulva 0/2. P3 "legs apart": no vulva
+  0/4 (it doesn't load PussyDiffusion).
+- **Close-up framing:** 9:16 with her face: from the lips down 12/12; 9:16 no face: chin 4/4; 1:1 with face: lips or chin 2/4; 1:1 no
+  face: 0/4, from the chest or shoulders down, the vulva largest. Navel-to-thighs exactly 0/16. → CLOSE_SHAPE "1:1", CLOSE_FACE false.
+- Nipple points through thin tops in nearly every covered picture (all modes). Face the same woman in P3 and P4 (8/8).

@@ -128,17 +128,20 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Right after a deploy the old code may still serve → re-test later (2026-10-03). Cloudflare's 3030 is random: never conclude from one. A live check said "nothing broken reached him" while broken replies went out (Incident, docs/CHANGELOG.md) →
   read every reply of a `[live]` run, not its summary. (2026-10-01)
 
-- Pose words that are also clothes (2026-10-11): "sitting back on her heels" counted as shoes ("heels" in WEARING_WORDS), so a naked
-  mirror shot read as partly naked (PARTIAL). The random pose changed when the day-outfit code shifted the random picks, which is how it
-  showed. Fixed in pictureFlags: "on her heels" is taken out before the clothes check. Check WEARING_WORDS against poses when a pose changes.
+- Pose words that are also clothes (2026-10-11): "sitting back on her heels" counted as shoes ("heels"), so a naked mirror shot read as
+  partly naked → pictureFlags takes "on her heels" (and, Step 5, riding "on top") out before the clothes check. A bare clothes-ish word
+  is a trap in sex narration: "covered" (in sweat), "between her legs" (his knees, her hand) → only phrases that name the thing.
 - A sync function can't await: `startPicture` is sync (it returns the drawing promise), so a `dayOutfits(env)` await inside it
   broke the module load (golden check, SyntaxError). The async callers pass the day's outfits in as an option (`dayWear`).
-- The bench harness names a reference by its bytes: the rust body picture and the rust outfit picture are the same file, so a rust-mode
-  run shows `style:outfit-rust-halter` for the body (2026-10-11). Read the refs with that in mind, not as a second picture.
 - Her back: "her back" in NUDE_BACK_WORDS would make "naked, lying on her back" a back view, so it is left out (2026-10-11).
-- Clothed pictures cut like image 1's garment (Step 4 review, 2026-10-11): the rust halter cropped a Breton and a silk blouse to its
-  length, a "neutral" gray tank turned necklines into its scoop, even with "not image 1's clothes" → no body picture for clothed
-  pictures (`CLOTHED_BODY` "none", 0/18). Judge a reference mode on same-seed side-by-sides, and repeat a one-seed suspect at a new seed.
+- Klein copies image 1 (2026-10-11): a clothed image 1 its garment's cut (the rust halter's crop length, a gray tank's scoop neck, 0/18
+  with no body picture); the nude image 1 is safe when a garment is named (12/12 outfits, `CLOTHED_BODY` "nude", owner) but with words
+  that name none ("covered breasts") it drew image 1 whole, naked, 0/6 → no body picture there (Step 5). Judge modes on same-seed side-by-sides.
+- Image numbers in a prompt must follow the pictures sent: ROOM's `{n}` assumed a body picture, so "none" modes said "image 2" with
+  only face and place sent (Step 4-5 benches; fixed). A tall 9:16 frame plus her face picture kept every crotch close-up framed from
+  her lips down (12/12): 1:1 without the face 0/4 (Step 5). The camera is the frame and the references, not the framing words.
+- A new description of her must pass the owner's word bans: Step 5's REFERENCE_CLOSE got "a soft belly, full soft hips and thighs",
+  which 2026-10-10 had taken out of every description → grep DECISIONS for the body words before writing one.
 - Shared KV keys and `ctx.waitUntil` (2026-10-11): `refreshDay` wrote back the "day" object `dayInfo` read at the start of the reply,
   erasing the outfits `dayOutfits` saved meanwhile → re-read the key right before the write and keep the other writer's field.
 - Golden cases are seeded by their index: inserting cases mid-list moved every later case's random picks and buried the real diff

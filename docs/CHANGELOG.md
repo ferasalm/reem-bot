@@ -4,6 +4,16 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (thirty-first session, Opus): CLOTHED_BODY "nude" (owner); Step 5 built and benched; dev
+- The chat was meant for Haiku's Step 5; `get_session` said Opus, so Opus built it (the records say so).
+- Owner's yes to the fuller build: `CLOTHED_BODY` "nude" after an 18-picture check ($0.04628, runs/2026-10-11-step5-nude-mode/).
+- Fixed: the Runware prompt named the place "image 2" when no body picture was sent (CLOTHED_BODY or BODY_PARTIAL "none": the place is
+  image 1); "satin/silk/lace/velvet slip" are clothes words (her "satin slip" got a second outfit added).
+- Step 5: PARTIAL_WORDS, TOP/BOTTOM_WORDS, NAKED in three parts (`nakedLine`), CLOSE_WORDS + CROTCH_FRAMING, PARTIAL_LORAS_OFF /
+  PARTIAL_WEIGHTS, BODY_PARTIAL "none", CLOSE_SHAPE "1:1" + CLOSE_FACE false. Bench 40 pictures, $0.08944 (runs/2026-10-11-step5-partial-bench/).
+- Runware balance $14.50883 → $14.37077 ($0.13806; the benches' sums $0.13572). Golden: clothed cases (the nude body), then only the
+  four partial and close-up cases.
+
 ## 2026-10-11 (thirtieth session, Opus): Step 4 reviewed; dev
 - Fixed: the day's outfit re-rolled after a weather refresh in the same reply (`refreshDay` wrote back the "day" it read first);
   `OUTSIDE_WORDS` "out", "rain", "snow" put her in street clothes at home ("stretched out", "lights out"); her sex-act words got a

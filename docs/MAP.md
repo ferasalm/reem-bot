@@ -65,6 +65,11 @@ Read before any code change: where each thing lives and how to check it. Not loa
     (klein 9B with face/body/place, KLEIN_TRIES times, then Cloudflare klein with the same references; TwinFlow from LOOKS only without her face: 2026-10-10, TwinFlow drew her from words and the belly), adds RUNWARE.NAKED on NUDE_WORDS; `startPicture` skips the klein
     check and Nano Banana on Runware. The deploy copies the GitHub secret RUNWARE_API_KEY to the Worker; /setup shows the route.
   - studio log (Step 1, 2026-10-11): `drawPicture(env, prompt, { ..., log: { source, chat, asked, herWords, llmText, nsfw } })` = `drawPictureNow` (her face/body/place, `runwarePlan`, `drawRunware` tries, then Cloudflare klein; `rec` keeps what was sent) → `logPicture` (one row per call, `pictureRow`; drawn or not) → one JSON line printed; returns `logId`. `STUDIO_SCHEMA` (tables `pictures`, `presets`) applied once per isolate by `ensureStudioSchema(env)` (a `batch()` of one prepared statement each: D1's `exec()` reads one statement per line); a klein retry sends the next seed; no binding = no log. `logSent` (from `deliverPicture`) stores Telegram's copies: `tg_thumb` (largest at most 400 px), `tg_full`. Sources: selfie, scene (`startPicture`; its `source` option: /look's in-person fallback passes look), look (`lookPicture`; `lookWrite` returns `raw`), pic (`picCommand`), health, face. D1 `reem-studio` (binding `STUDIO_DB`, id in `wrangler.toml`): created with the Cloudflare MCP; `tools/cf-resources.sh` checks it with `wrangler d1 info`.
+  - partly dressed and close-ups (Step 5, 2026-10-11): `pictureFlags` adds `top`, `bottom`, `close` (RUNWARE.PARTIAL_WORDS, TOP_WORDS,
+    BOTTOM_WORDS, CLOSE_WORDS); `nakedLine(flags)` builds the nudity line (NAKED + NAKED_BREASTS + NAKED_BUSH, PARTIAL_TOP / PARTIAL_BOTTOM /
+    PARTIAL, CROTCH_FRAMING); `runwareLoras({ partial })` applies PARTIAL_LORAS_OFF / PARTIAL_WEIGHTS; in `runwarePlan` a crotch close-up
+    takes CLOSE_SHAPE, no place picture, no mood or hair words, and with CLOSE_FACE false no face or body picture (REFERENCE_CLOSE);
+    BODY_PARTIAL "none" = no body picture (REFERENCE_NOBODY). `who(w, withImage, rw, n)`: `n` = the place's real image number.
   - /nsfw (Step 2, 2026-10-11): `CONFIG.PICTURE.NSFW` (DEFAULT "on", SELF_NUDE); the chat's level `nsfwLevel(settings)` (`s:<chat>`.nsfw),
     set by `nsfwCommand` (QUICK_ACTIONS) or `nsfwButton` (`nsfw:` taps, before the auto: check); `levelFor` and `nsfwRefusal` answer a
     picture the level doesn't allow (PIC_NSFW names the level it needs). Every picture function takes the level (default On):
@@ -107,6 +112,10 @@ Read before any code change: where each thing lives and how to check it. Not loa
   the review's set: nude and neutral modes, the crop leak at seed 303). Results go to
   `runs/2026-10-11-step4-outfit-bench/` on `face-candidates`. `tools/face/style/outfit-rust-halter.jpg` is the rust-halter picture
   (the old body-clothed picture, now an outfit: RUNWARE.STYLE_PICTURES, OUTFIT_BODY).
+- `tools/face/partial-bench.mjs` (Step 5, 2026-10-11): partly dressed and crotch close-ups through the bot's own picture code (the same
+  harness; variants set BODY_PARTIAL, PARTIAL_WEIGHTS, CLOSE_SHAPE, CLOSE_FACE; `--framing`, `--redraw`; stops at $0.10 or `BUDGET_USD`).
+  Results: `runs/2026-10-11-step5-partial-bench/` on `face-candidates`. `outfit-bench.mjs --nude-check`: the CLOTHED_BODY "nude" check
+  (runs/2026-10-11-step5-nude-mode/).
 - `tools/face/lora-bench.mjs` (Step 3, 2026-10-11): the LoRA and ghost-hands bench through the bot's own picture code
   (`--dry` = plans with no network, `--run <dir>` = paid Runware, stops at $0.25). Variants are CONFIG edits (LORAS, POV_MAN,
   ACT_SCENES), restored per run; Math.random is seeded by (seed, case). Results go to `runs/2026-10-11-step3-lora-bench/` on `face-candidates`.
