@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (twenty-seventh session): WORKPLAN Step 3 built and benched (72 pictures, $0.20397 of $0.25); waiting on Opus review; dev only
+- Built: `RUNWARE.LORA_INFO` (18 LoRAs), `LORA_PREFIX_WITH` (the smartphone prefix only with phone2025), `povhandc` out of ACT_WORDS and
+  LORA_WORDS, options.mjs category and spare list, `tools/face/lora-bench.mjs`. Golden unchanged (28 cases); check.mjs 7/7; doc-check 144.
+- Bench: runs/2026-10-11-step3-lora-bench on `face-candidates` (pictures, table.md, results.json, zoom sheets). Haiku's read in table.md.
+- Findings: his hands on her butt (doggy) and hips (riding, one seed) came from the hand words; V1 removed them in every case. One clothed
+  picture with a bare nipple under the full realism stack (V0, seed 202). A second head in every riding variant. Doggy anatomy unresolved on zoom.
+
 ## 2026-10-11 (twenty-sixth session): Opus review of Step 2; LESSONS cap 180; dev only
 - Fixed: her own `[selfie: naked ...]` got a random tier (naked/nudes/topless had left BOUDOIR_ASK_PATTERN, which `selfiePicture`
   also reads) → her NUDE_ASK words pick the nude tier where `nudeTierOk(level)`, else boudoir; a nude-tier picture Cloudflare refused

@@ -53,6 +53,13 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
 ## 2. Known traps
+- Ghost hands in POV sex pictures (Step 3 bench, 2026-10-11): his hands drawn on her hips and butt (doggy both seeds, riding seed 202) at V0,
+  none in V1-V5 → cause: POV_MAN "only his hands, belly, hips and thighs may show" and ACT_SCENES "his hands on her butt" name hands; klein draws
+  what the words name → hand words out. Missionary's hands on her thighs (V0, V3-V5) are a pose, not the words.
+- Vaginal vs anal on a 260 px crop at the entry (doggy, 12 pictures): the anus shows above the entry in some frames and not in others → the crop
+  can't decide; judge genitals on the full frame, or a larger crop with the anus in it. Undecided (Opus).
+- Four realism LoRAs (phone2025 0.6, ultrareal5 0.6, instapic 0.6, realhd2kc 0.5 = 2.3) on a clothed picture showed a bare nipple once (clothed
+  bedroom, seed 202, V0); the same seed with 2 or 0 realism LoRAs stayed covered. One case: not a rate.
 - A superseded rule can live on in a prompt string: her own pictures were never nude because `PICTURE.SELF_CHOICE` still said "Your pictures never show you fully naked." (2026-10-02 rule, dropped 2026-10-06) → when a decision supersedes a rule, grep every prompt string for it. (2026-10-11)
 - Picture prompts go to the D1 table `pictures` (`reem-studio`) from the first deploy after Step 1 (2026-10-11; not deployed yet): check that table, not the Worker log; /look's DeepSeek text is `llm_text`. D1's Worker `exec()` reads one statement per line (a multi-line CREATE TABLE fails; the MCP's `d1_database_query` doesn't, and a fake D1 hides it) → `batch()` of prepared statements; check SQL in `node:sqlite`. R2 is off on the account (403 10042). POV hand sits in `ACT_WORDS` but not `ACT_LORAS`, so it never loads: read `runwareLoras` before blaming a LoRA. (2026-10-11)
 - History before v10 has no `parts` (can't be /edit-ed or /rewind-ed: NOT_FOUND); before v8 no `at` either. Rewind/edit only reach the verbatim history; older chat is in `m:` notes (TOO_OLD). Telegram deletes bot messages only for 48 h.

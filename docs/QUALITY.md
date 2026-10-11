@@ -494,3 +494,13 @@ Reasoning "none": "Reply with: OK" 5/5 empty, "Say hello in five words" 5/5, wit
 system + user), a chat prompt with her persona 0/5 (direct and through the AI Gateway alike). Reasoning "low": the plan 0/5, the short
 check 0/5 (~20 s a call). → her replies stay "none" (+ retries), tasks (memory, /auto, plan, /setup) use "low".
 
+
+## LoRA set and ghost hands (2026-10-11, WORKPLAN Step 3; bench `tools/face/lora-bench.mjs`, run `face-candidates` runs/2026-10-11-step3-lora-bench)
+72 pictures through the bot's own picture code (klein 9B, Runware, 5 steps, CFG 1), seeds 101 and 202, $0.20397 (balance read before and after). Haiku's read at full size, every picture; Opus checks it. Variants: V0 today, V1 no hand words, V2 V1 + instapic + realhd2kc, V3 V1 + phone2025 + ultrareal5, V4 V1 + ultrareal5 0.7, V5 V1 + no realism LoRA.
+- **Ghost hands (doggy, both seeds; riding, seed 202):** his hands on her butt/hips at V0 only. V1-V5 none. Cause: the hand words (POV_MAN, doggy/anal ACT_SCENES).
+- **Missionary:** his hands on her thighs at V0, V3, V4, V5 (seed 101): a pose, not the words.
+- **Riding:** a second head behind her shoulder in all six (seed 101): a POV defect, unchanged by any variant.
+- **Blowjob:** POV right in all six, both seeds; the penis reads long in all six (POV_MAN's "average-sized" not honoured).
+- **Clothed bedroom, seed 202:** a bare nipple above the sheer slip at V0 only (four realism LoRAs, 2.3 total); V2, V3, V5 covered.
+- **Nude mirror, clothed kitchen:** two hands, no extra limbs, the face close to the reference in all (likeness by eye, not measured).
+- **Doggy anatomy:** unresolved on 260 px zooms (`doggy-zoom-s101/s202.png`); needs Opus at full size.

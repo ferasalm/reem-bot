@@ -102,6 +102,11 @@ Read before any code change: where each thing lives and how to check it. Not loa
   `bench-models.mjs` + `bench.json` + `.github/workflows/image-bench.yml`: image model bench (`family_of` gives a route its own prompt set, `aspect` the Nano Banana shape; same prompts and
   references through Workers AI, Cloudflare's third-party models, OpenRouter, Runware (`rw-*`, safety check off, `RUNWARE_API_KEY`); capped by `max_usd`; never on dev).
   `lora_routes` (2026-10-08): klein 9B with her face plus `{ lora: { air: weight }, prefix }` (Runware AIRs `ferasalm:...`).
+- `tools/face/lora-bench.mjs` (Step 3, 2026-10-11): the LoRA and ghost-hands bench through the bot's own picture code
+  (`--dry` = plans with no network, `--run <dir>` = paid Runware, stops at $0.25). Variants are CONFIG edits (LORAS, POV_MAN,
+  ACT_SCENES), restored per run; Math.random is seeded by (seed, case). Results go to `runs/2026-10-11-step3-lora-bench/` on `face-candidates`.
+  CONFIG: `RUNWARE.LORA_INFO` (the 18 LoRAs: category, Civitai id, trigger, note; read by options.mjs only) and `LORA_PREFIX_WITH`
+  (the smartphone prefix goes in only with that LoRA in the list).
 - `tools/lora/dora-to-lora.py`: a diffusers-named FLUX.2 klein DoRA → the BFL-named LoRA Runware loads (dora_scale dropped,
   q/k/v fused); numpy only. `tools/lora/lokr-to-lora.py` (2026-10-08): a LyCORIS LoKR (SNOFS) → a rank-N LoRA, exact cut via the
   Kronecker SVD (prints the share kept); both read and write with `tools/lora/lora_io.py`. Runware fetches a model only from a public URL (`model_upload` / `modelUpload`, AIR source `ferasalm`).
