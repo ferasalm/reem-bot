@@ -1,0 +1,1380 @@
+{
+  "dry": false,
+  "seeds": [
+    101,
+    202
+  ],
+  "budgetUsd": 0.1,
+  "spentUsd": 0.05928,
+  "pictures": 24,
+  "runs": [
+    {
+      "id": "p1-closeup-tshirt-nude-pd08-s101",
+      "case": "p1-closeup-tshirt",
+      "variant": "nude-pd08",
+      "seed": 101,
+      "file": "pictures/p1-closeup-tshirt-nude-pd08-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 9220,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p1-closeup-tshirt-nude-pd06-s101",
+      "case": "p1-closeup-tshirt",
+      "variant": "nude-pd06",
+      "seed": 101,
+      "file": "pictures/p1-closeup-tshirt-nude-pd06-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8359,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p1-closeup-tshirt-nude-pdoff-s101",
+      "case": "p1-closeup-tshirt",
+      "variant": "nude-pdoff",
+      "seed": 101,
+      "file": "pictures/p1-closeup-tshirt-nude-pdoff-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 7734,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p1-closeup-tshirt-none-pd06-s101",
+      "case": "p1-closeup-tshirt",
+      "variant": "none-pd06",
+      "seed": 101,
+      "file": "pictures/p1-closeup-tshirt-none-pd06-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 5688,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-nude-pd08-s101",
+      "case": "p2-closeup-covered",
+      "variant": "nude-pd08",
+      "seed": 101,
+      "file": "pictures/p2-closeup-covered-nude-pd08-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 21123,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-nude-pd06-s101",
+      "case": "p2-closeup-covered",
+      "variant": "nude-pd06",
+      "seed": 101,
+      "file": "pictures/p2-closeup-covered-nude-pd06-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 6728,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-nude-pdoff-s101",
+      "case": "p2-closeup-covered",
+      "variant": "nude-pdoff",
+      "seed": 101,
+      "file": "pictures/p2-closeup-covered-nude-pdoff-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 7008,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-none-pd06-s101",
+      "case": "p2-closeup-covered",
+      "variant": "none-pd06",
+      "seed": 101,
+      "file": "pictures/p2-closeup-covered-none-pd06-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 6703,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p3-waistdown-sportsbra-nude-s101",
+      "case": "p3-waistdown-sportsbra",
+      "variant": "nude",
+      "seed": 101,
+      "file": "pictures/p3-waistdown-sportsbra-nude-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "place:bedroom~2"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a teasing smile, biting her lower lip, looking away toward the window. Her hair: half-up with a black claw clip, the rest falling down her back. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 2, in this picture's own light. Lit by soft window light. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8763,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a teasing smile, biting her lower lip, looking away toward the window. Her hair: half-up with a black claw clip, the rest falling down her back. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 2, in this picture's own light. Lit by soft window light. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p3-waistdown-sportsbra-none-s101",
+      "case": "p3-waistdown-sportsbra",
+      "variant": "none",
+      "seed": 101,
+      "file": "pictures/p3-waistdown-sportsbra-none-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "place:bedroom~2"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a teasing smile, biting her lower lip, looking away toward the window. Her hair: half-up with a black claw clip, the rest falling down her back. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 1, in this picture's own light. Lit by soft window light. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 11763,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a teasing smile, biting her lower lip, looking away toward the window. Her hair: half-up with a black claw clip, the rest falling down her back. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 1, in this picture's own light. Lit by soft window light. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p4-topless-jeans-nude-s101",
+      "case": "p4-topless-jeans",
+      "variant": "nude",
+      "seed": 101,
+      "file": "pictures/p4-topless-jeans-nude-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "place:bedroom~2"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: piled up with a claw clip, loose, messy strands falling out. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8599,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: piled up with a claw clip, loose, messy strands falling out. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p4-topless-jeans-none-s101",
+      "case": "p4-topless-jeans",
+      "variant": "none",
+      "seed": 101,
+      "file": "pictures/p4-topless-jeans-none-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "place:bedroom~2"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: piled up with a claw clip, loose, messy strands falling out. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 1, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 6678,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: piled up with a claw clip, loose, messy strands falling out. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 1, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p1-closeup-tshirt-nude-pd08-s202",
+      "case": "p1-closeup-tshirt",
+      "variant": "nude-pd08",
+      "seed": 202,
+      "file": "pictures/p1-closeup-tshirt-nude-pd08-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 13786,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p1-closeup-tshirt-nude-pd06-s202",
+      "case": "p1-closeup-tshirt",
+      "variant": "nude-pd06",
+      "seed": 202,
+      "file": "pictures/p1-closeup-tshirt-nude-pd06-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 7893,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p1-closeup-tshirt-nude-pdoff-s202",
+      "case": "p1-closeup-tshirt",
+      "variant": "nude-pdoff",
+      "seed": 202,
+      "file": "pictures/p1-closeup-tshirt-nude-pdoff-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 18375,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p1-closeup-tshirt-none-pd06-s202",
+      "case": "p1-closeup-tshirt",
+      "variant": "none-pd06",
+      "seed": 202,
+      "file": "pictures/p1-closeup-tshirt-none-pd06-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 5856,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. close-up of her pussy, legs spread on the bed, wearing a white t-shirt. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-nude-pd08-s202",
+      "case": "p2-closeup-covered",
+      "variant": "nude-pd08",
+      "seed": 202,
+      "file": "pictures/p2-closeup-covered-nude-pd08-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 7471,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-nude-pd06-s202",
+      "case": "p2-closeup-covered",
+      "variant": "nude-pd06",
+      "seed": 202,
+      "file": "pictures/p2-closeup-covered-nude-pd06-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8509,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-nude-pdoff-s202",
+      "case": "p2-closeup-covered",
+      "variant": "nude-pdoff",
+      "seed": 202,
+      "file": "pictures/p2-closeup-covered-nude-pdoff-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 7120,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p2-closeup-covered-none-pd06-s202",
+      "case": "p2-closeup-covered",
+      "variant": "none-pd06",
+      "seed": 202,
+      "file": "pictures/p2-closeup-covered-none-pd06-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:pussyd@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x"
+          ],
+          "positivePrompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 10892,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:pussyd@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. hairy pussy. Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. pussy close up, covered breasts. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Close-up from her navel to her upper thighs; her breasts and face are out of the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p3-waistdown-sportsbra-nude-s202",
+      "case": "p3-waistdown-sportsbra",
+      "variant": "nude",
+      "seed": 202,
+      "file": "pictures/p3-waistdown-sportsbra-nude-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "place:bedroom~2"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: in a low, sleek bun at the nape of her neck. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 15106,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: in a low, sleek bun at the nape of her neck. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 2, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p3-waistdown-sportsbra-none-s202",
+      "case": "p3-waistdown-sportsbra",
+      "variant": "none",
+      "seed": 202,
+      "file": "pictures/p3-waistdown-sportsbra-none-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "place:bedroom~2"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: in a low, sleek bun at the nape of her neck. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 1, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 12102,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, her eyes closed, head tilted back. Her hair: in a low, sleek bun at the nape of her neck. naked from the waist down, black sports bra, sitting on the edge of the bed, legs apart. Behind her, her room as in image 1, in this picture's own light. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is naked only from the waist down: her top stays on and fully covers her breasts, no nipples or underboob showing. A thick, untrimmed dark bush, a real vulva when in view. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p4-topless-jeans-nude-s202",
+      "case": "p4-topless-jeans",
+      "variant": "nude",
+      "seed": 202,
+      "file": "pictures/p4-topless-jeans-nude-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "place:bedroom~1"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, looking straight into the lens. Her hair: pulled up in a messy bun and a few loose strands framing her face. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8613,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, looking straight into the lens. Her hair: pulled up in a messy bun and a few loose strands framing her face. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "p4-topless-jeans-none-s202",
+      "case": "p4-topless-jeans",
+      "variant": "none",
+      "seed": 202,
+      "file": "pictures/p4-topless-jeans-none-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "place:bedroom~1"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, looking straight into the lens. Her hair: pulled up in a messy bun and a few loose strands framing her face. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 1, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "ms": 13440,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a shy, flushed smile, looking straight into the lens. Her hair: pulled up in a messy bun and a few loose strands framing her face. topless, in jeans, mirror selfie in her bedroom. Behind her, her room as in image 1, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is topless: only the clothes described below her waist stay on; her breasts are bare. Natural breasts with soft brown areolas. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    }
+  ]
+}
