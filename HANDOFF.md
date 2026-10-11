@@ -16,7 +16,7 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (
 - Session link (this build and bench, Haiku): https://claude.ai/code/session_01TtxHDLcufHAr8WtgC8sPXj
 
 ## Waiting on the owner
-- **Runware balance:** $14.6699 at the start, $14.56408 after the bench: $0.10582 fell, and the bench's sum is $0.10166. The $0.00416 gap is not in the bench's records (about one three-reference picture). Check the Runware dashboard if you want to chase it.
+- **Runware balance:** the $0.10582 drop ($14.6699 → $14.56408) is the bench's $0.10166 plus $0.00416 of your own Telegram pictures (owner, 2026-10-11). Nothing to chase.
 - **Your Telegram test** of the belly fix (deployed 2026-10-10), and of /nsfw once deployed. Do not send `/restart` (it wipes her memory).
 - Step 4 is not deployed. Deploy when you say "deploy" (suggested after Steps 2, 6 and 7).
 - Once deployed, Step 2 makes a chat with no `/nsfw` setting On (about 1 in 3 hot-chat pictures nude): deploy only when you say so.
@@ -26,6 +26,11 @@ Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. **Live (
 - Step 4 build: `node tools/check.mjs` 7/7 (read in full). Golden `--write`: the diff is the LoRA lists, the prefix sentence removed, the clothed reference text, the belfie → `body-v10-back`, the outfit pictures as image 1, and the day-outfit cases.
 - Unit and scenarios pass (unit: outfit helpers, /pic day outfit, LoRA V2 expectations; scenarios: the heels fix). The scenario failure before the fix was a random pose ("sitting back on her heels") read as shoes.
 - Bench: dry plan first ($0, 39 runs), then the paid run: all 39 drawn, no errors, under the $0.20 cap. Refs read in `results.json` on every run. All 39 pictures read at full size; doggy on a zoom crop.
+
+## Open items for the Step 4 review (Opus)
+- **Slimmer rust-mode pictures (owner, 2026-10-11):** the owner saw her slimmer in seed 101's rust-mode pictures (turtleneck-rust-s101, linen-rust-s101). Haiku's side-by-side with the body references showed no clear difference by eye, and the framing differs. Build was never measured; Haiku's "not slimmer than v10" was an overclaim. Check with same-framing crops or a waist and hip width before choosing `CLOTHED_BODY`.
+- **Breton rust, seed 101:** a sleeveless striped tank (the body's top shape); seed 202 is a short-sleeve tee. Repeat before any fix.
+- **Likeness and build:** judged by eye only, in all 39 pictures.
 
 ## Next steps (in order; one chat each; Opus reviews each step before the next)
 1. **Review of Step 4** (Opus). *Effort: high.* Decide `CLOTHED_BODY` ("rust" today). Look at the seed-101 Breton leak: one seed, so repeat it before fixing. Write "Decided in review, for Step 5" under WORKPLAN's "Decided in review". Name the model in the records.
