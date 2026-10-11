@@ -511,3 +511,13 @@ check 0/5 (~20 s a call). → her replies stay "none" (+ retries), tasks (memory
 - **Nude mirror, seed 101:** the bench picture reproduced; BIG_FACE off: same large head; a level gaze in place of "looking up at the camera through her lashes": head in scale. Fixed in code (that gaze out of GAZES): head in scale.
 - **Doggy, seed 202:** front body as image 1: same picture; "belly" out of POV_MAN: same; Flux 4 Play off: anus above the entry, shaft in the vulva (also seed 101). Fixed in code (no Flux 4 Play on doggy): both seeds right, her face closer to image 0.
 - **Blowjob, seed 101:** povdt off: arms the same; Unchained off: fuller bust and arms but the penis out of her mouth; Unchained 0.5: the same as the bench. Not fixed.
+
+## Step 4 outfit bench (2026-10-11, Haiku's read; `tools/face/outfit-bench.mjs`, `face-candidates` runs/2026-10-11-step4-outfit-bench)
+39 pictures, each read at full size (doggy on a zoom crop); $0.10166 by the bench's sum, balance $14.6699 → $14.56408.
+- **Outfits, 12 named (6 outfits x rust/none), seeds 101 and 202:** worn as named in all 24; no halter in the none-mode pictures; no
+  nudity; the same face by eye. One suspect: the rust-mode Breton at seed 101 showed a sleeveless striped tank (the body picture's top
+  shape); seed 202 is a short-sleeve tee in both modes. Open for the review (CLOTHED_BODY pick).
+- **Outfit pictures as image 1 (4 x 2 seeds):** worn as named; the outfit's own picture is image 1 with no fourth image (refs confirm).
+- **Nude back views (4, seed 101):** the back body; no breasts in front; mirror and over-shoulder as asked.
+- **Regressions:** the nude mirror at seeds 101 and 202: head in scale (level gaze); doggy seed 202: the anus above the shaft's entry.
+- Not measured: likeness and build (by eye only); the neutral reference and the nude and neutral CLOTHED_BODY modes are not built.

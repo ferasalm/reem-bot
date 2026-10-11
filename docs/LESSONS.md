@@ -128,6 +128,15 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Right after a deploy the old code may still serve → re-test later (2026-10-03). Cloudflare's 3030 is random: never conclude from one. A live check said "nothing broken reached him" while broken replies went out (Incident, docs/CHANGELOG.md) →
   read every reply of a `[live]` run, not its summary. (2026-10-01)
 
+- Pose words that are also clothes (2026-10-11): "sitting back on her heels" counted as shoes ("heels" in WEARING_WORDS), so a naked
+  mirror shot read as partly naked (PARTIAL). The random pose changed when the day-outfit code shifted the random picks, which is how it
+  showed. Fixed in pictureFlags: "on her heels" is taken out before the clothes check. Check WEARING_WORDS against poses when a pose changes.
+- A sync function can't await: `startPicture` is sync (it returns the drawing promise), so a `dayOutfits(env)` await inside it
+  broke the module load (golden check, SyntaxError). The async callers pass the day's outfits in as an option (`dayWear`).
+- The bench harness names a reference by its bytes: the rust body picture and the rust outfit picture are the same file, so a rust-mode
+  run shows `style:outfit-rust-halter` for the body (2026-10-11). Read the refs with that in mind, not as a second picture.
+- Her back: "her back" in NUDE_BACK_WORDS would make "naked, lying on her back" a back view, so it is left out (2026-10-11).
+
 ## 3. Routes to avoid (and the cheaper route)
 - Never read `worker.js` whole (~212 KB, ~53k tokens): `grep -n` the function or CONFIG key (docs/MAP.md names them), then read only those lines.
   Never open `face.js` (base64 image) or `tools/settings-panel.html` (generated: run `node tools/build-panel.mjs`); `tools/face/reference.jpg` once, for a face check only.
