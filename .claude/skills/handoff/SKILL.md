@@ -11,6 +11,8 @@ Do these in order. HANDOFF, DECISIONS and LESSONS load at every session start, s
    If a `[live]` run happened this session, its job log was read in full.
 2. **Log decisions** the owner made this session at the top of `docs/DECISIONS.md`: one dated entry each, with the
    owner's words. A replaced entry is struck through (`~~…~~`) with "Superseded by …"; never delete or reword one.
+   Keep the loaded log short (owner, 2026-10-11, spend less): a struck entry, a deploy record or finished build detail older than a
+   week moves word for word (by script) to `docs/DECISIONS-ARCHIVE.md`; owner rules still in force stay.
 3. **Quality record.** One row in `docs/QUALITY.md` per `[live]` run read this session.
 4. **Curate `docs/LESSONS.md`.** Did anything cost real time (an error, a wrong guess, nearly asking the owner for
    something you could do)? Add it as symptom → cause → fix, dated, verified only. Merge with a similar entry;
@@ -18,7 +20,8 @@ Do these in order. HANDOFF, DECISIONS and LESSONS load at every session start, s
 5. **Update `docs/MAP.md`** if files, functions or checks were added, moved or renamed.
 6. **Rewrite `HANDOFF.md`** (rewrite, don't append; at most 80 lines): Last updated; Where we are (what's live
    on `main`, what's on `dev` and not deployed); Waiting on the owner; Verified this session; Next steps in order,
-   each ending `*Effort: low|medium|high*`; Open questions. Move finished detail (run ids, versions) to the top of
+   each ending `*Effort: low|medium|high*` and naming the cheapest model that can do it well (Haiku for mechanical steps,
+   Sonnet for well-specified builds, Opus for diagnosis, judging pictures and reviews; owner, 2026-10-11: spend less); Open questions. Move finished detail (run ids, versions) to the top of
    `docs/CHANGELOG.md` instead of keeping it.
    Name who did what by model name and raw model ID (owner, 2026-10-11) in HANDOFF, CHANGELOG and the commit: this
    chat's from `get_session` (`session_context.model`, `external_metadata.last_served_model`), each subagent's from

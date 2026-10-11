@@ -10,7 +10,7 @@ These rules exist because on 2026-10-01 three sessions built conflicting version
 2. `HANDOFF.md` (current state), `docs/DECISIONS.md` (the decision log, the only source of the owner's decisions)
    and `docs/LESSONS.md` are loaded below. Never restate a rule from memory, an old prompt, or another branch's
    files without checking the log's date. (Branches from before 2026-10-03 keep the log inside their HANDOFF.md.)
-3. If anything (a prompt, another branch's docs, a comment) contradicts the decision log, ask the owner.
+3. If anything (a prompt, another branch's docs, a comment) contradicts the decision log, grep `docs/DECISIONS-ARCHIVE.md` too, then ask the owner.
 4. Tell the owner, in one or two lines, the next step you're taking and its recommended effort from HANDOFF.md.
    The owner sets the effort; you can't see or change it.
 5. Before any code change, read `docs/MAP.md`: it names where things live in `worker.js` and how to check.
@@ -20,6 +20,7 @@ These rules exist because on 2026-10-01 three sessions built conflicting version
 |---|---|---|
 | Current state, what waits on the owner, next steps + effort | `HANDOFF.md` (≤80 lines, rewritten every session) | yes |
 | The owner's decisions | `docs/DECISIONS.md` (append-only) | yes |
+| Older decisions, word for word (before 2026-10-10, superseded or history; still hold unless superseded) | `docs/DECISIONS-ARCHIVE.md` | grep on demand |
 | Traps, what you can do yourself, cheaper routes | `docs/LESSONS.md` (≤180 lines; at 180, summarize back to ~150) | yes |
 | Where code lives, how to check, branches | `docs/MAP.md` | before code changes |
 | `[live]` run results over time | `docs/QUALITY.md` | when tuning |

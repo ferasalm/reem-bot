@@ -10,7 +10,7 @@ let fails = 0, oks = 0;
 const check = (ok, what) => { if (ok) oks++; else { console.log(`FAIL ${what}`); fails++; } };
 
 const files = ["CLAUDE.md", "HANDOFF.md", "docs/DECISIONS.md", "docs/LESSONS.md", "docs/MAP.md", "docs/CHANGELOG.md",
-  "docs/QUALITY.md", ".claude/skills/handoff/SKILL.md"];
+  "docs/QUALITY.md", ".claude/skills/handoff/SKILL.md", "docs/DECISIONS-ARCHIVE.md"];
 for (const f of files) check(read(f) !== null, `${f} exists`);
 if (fails) process.exit(1);
 
@@ -32,8 +32,11 @@ for (const it of items)
   check(/Effort: (low|medium|high)/i.test(it), `next step ${it.match(/^\d+/)[0]} has "Effort: low|medium|high"`);
 
 // Decisions: every entry is dated (or struck through and dated); struck entries say what superseded them.
-const log = decisions.split(/^## Decision log.*$/m)[1] ?? "";
-check(log.length > 0, "docs/DECISIONS.md has the decision log");
+// owner 2026-10-11 (spend less): older entries live word for word in docs/DECISIONS-ARCHIVE.md, checked the same way
+const logOf = (s) => s.split(/^## Decision log.*$/m)[1] ?? "";
+check(logOf(decisions).length > 0, "docs/DECISIONS.md has the decision log");
+check(logOf(read("docs/DECISIONS-ARCHIVE.md")).length > 0, "docs/DECISIONS-ARCHIVE.md has the archived decision log");
+const log = logOf(decisions) + "\n" + logOf(read("docs/DECISIONS-ARCHIVE.md"));
 const entries = log.split(/^(?=- )/m).filter((s) => s.startsWith("- "));
 for (const e of entries) {
   const first = e.split("\n")[0];

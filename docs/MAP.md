@@ -65,6 +65,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
     (klein 9B with face/body/place, KLEIN_TRIES times, then Cloudflare klein with the same references; TwinFlow from LOOKS only without her face: 2026-10-10, TwinFlow drew her from words and the belly), adds RUNWARE.NAKED on NUDE_WORDS; `startPicture` skips the klein
     check and Nano Banana on Runware. The deploy copies the GitHub secret RUNWARE_API_KEY to the Worker; /setup shows the route.
   - studio log (Step 1, 2026-10-11): `drawPicture(env, prompt, { ..., log: { source, chat, asked, herWords, llmText, nsfw } })` = `drawPictureNow` (her face/body/place, `runwarePlan`, `drawRunware` tries, then Cloudflare klein; `rec` keeps what was sent) → `logPicture` (one row per call, `pictureRow`; drawn or not) → one JSON line printed; returns `logId`. `STUDIO_SCHEMA` (tables `pictures`, `presets`) applied once per isolate by `ensureStudioSchema(env)` (a `batch()` of one prepared statement each: D1's `exec()` reads one statement per line); a klein retry sends the next seed; no binding = no log. `logSent` (from `deliverPicture`) stores Telegram's copies: `tg_thumb` (largest at most 400 px), `tg_full`. Sources: selfie, scene (`startPicture`; its `source` option: /look's in-person fallback passes look), look (`lookPicture`; `lookWrite` returns `raw`), pic (`picCommand`), health, face. D1 `reem-studio` (binding `STUDIO_DB`, id in `wrangler.toml`): created with the Cloudflare MCP; `tools/cf-resources.sh` checks it with `wrangler d1 info`.
+  - anal positions (Step 6, 2026-10-11): `pictureFlags` adds `anal` (RUNWARE.ANAL_WORDS on a sex act) and `analAt` (ANAL_POSITION_WORDS,
+    first match; back unless missionary); `runwarePlan` picks one by ANAL_POSITIONS when none is named (a random pick on anal acts only),
+    `actScene(text, analAt)` takes ANAL_SCENES, `runwareLoras({ anal })` takes ANAL_LORAS in place of ACT_WORDS, WITH_LORAS and NUDE_LORAS.
   - partly dressed and close-ups (Step 5, 2026-10-11): `pictureFlags` adds `top`, `bottom`, `close` (RUNWARE.PARTIAL_WORDS, TOP_WORDS,
     BOTTOM_WORDS, CLOSE_WORDS); `nakedLine(flags)` builds the nudity line (NAKED + NAKED_BREASTS + NAKED_BUSH, PARTIAL_TOP / PARTIAL_BOTTOM /
     PARTIAL, CROTCH_FRAMING); `runwareLoras({ partial })` applies PARTIAL_LORAS_OFF / PARTIAL_WEIGHTS; in `runwarePlan` a crotch close-up
@@ -116,6 +119,9 @@ Read before any code change: where each thing lives and how to check it. Not loa
   harness; variants set BODY_PARTIAL, PARTIAL_WEIGHTS, CLOSE_SHAPE, CLOSE_FACE; `--framing`, `--redraw`; stops at $0.10 or `BUDGET_USD`).
   Results: `runs/2026-10-11-step5-partial-bench/` on `face-candidates`. `outfit-bench.mjs --nude-check`: the CLOTHED_BODY "nude" check
   (runs/2026-10-11-step5-nude-mode/).
+- `tools/face/anal-bench.mjs` (Step 6, 2026-10-11): anal positions through the bot's own picture code (the same harness; variants set
+  ANAL_LORAS and ALONE_LORAS per position; 4 cases x 2 variants x seeds 101-303; `--extend` with `PICKS=` = seeds 404, 505 on the picked
+  variants; stops at `BUDGET_USD`, default $0.09). Results: `runs/2026-10-11-step6-anal-bench/` on `face-candidates`.
 - `tools/face/lora-bench.mjs` (Step 3, 2026-10-11): the LoRA and ghost-hands bench through the bot's own picture code
   (`--dry` = plans with no network, `--run <dir>` = paid Runware, stops at $0.25). Variants are CONFIG edits (LORAS, POV_MAN,
   ACT_SCENES), restored per run; Math.random is seeded by (seed, case). Results go to `runs/2026-10-11-step3-lora-bench/` on `face-candidates`.
@@ -161,10 +167,11 @@ Read before any code change: where each thing lives and how to check it. Not loa
   `.github/workflows/deploy.yml` (deploy on push to `main`, then /health and /setup printed to the log), `test.yml` (sync, mocked, docs, `[live]`);
   `.claude/settings.json` + `.claude/hooks/session-start.sh` (sync report at session start);
   `.claude/skills/handoff/SKILL.md` (end of session); `.claude/skills/opus-haiku-orchestrator/SKILL.md` + `brief-template.md`
-  + `review-checklist.md` and `.claude/agents/haiku-worker.md` (Opus plans and reviews, Haiku 5.5 at max effort does the
+  + `review-checklist.md` and `.claude/agents/haiku-worker.md` (Opus plans and reviews, Haiku 5.5 at medium effort (per brief) does the
   well-defined bulk work; 2026-10-11); `tools/check.mjs` (all local checks), `tools/doc-check.mjs`
   (docs rules); `tools/model-bench/bench.mjs` + `checks.mjs` (the bench); `.gitignore` files.
 
+- `docs/DECISIONS-ARCHIVE.md` (2026-10-11, owner: spend less): the decision log's older entries, word for word; not loaded at start, grep it.
 - `docs/WORKPLAN.md` (2026-10-11): the step-by-step plan (pictures, /nsfw, prompt log, studio); one Haiku chat per step, each
   reviewed by Opus; its "Decided in review" notes at the end bind the next step.
 
