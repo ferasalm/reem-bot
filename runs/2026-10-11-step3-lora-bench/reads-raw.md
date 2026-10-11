@@ -1,4 +1,10 @@
-# Haiku's read (raw notes, s101/s202 kitchen so far)
+# Bench reads (raw notes), with the owner's corrections of 2026-10-11
+Corrections (owner, 2026-10-11; they override the reads below where they differ):
+- nude-bedroom-mirror seed 101 (all variants): head disproportionately large for the body. Missed in these notes ("ok").
+- act-blowjob seed 101: upper arms slimmer than they should be.
+- act-doggy seeds 101 and 202: hands fine, no deformation, no ghost hands. His hands on her buttocks/hips at V0 are correct. The "ghost hands" reading below is withdrawn.
+- act-doggy seed 202: no anus visible above the entry.
+# Bench read (raw notes, s101/s202 kitchen so far)
 Face reference: tools/face/reference.jpg = dark hair pulled back, straight brows, hazel-brown eyes, mole left cheek.
 clothed-kitchen-V0-s101: selfie arm at right edge, kettle held in left hand; hands 2 expected 2 seen; no extra limbs; face close (dark ponytail, brows); realism 2 (phone look).
 clothed-kitchen-V2-s101: standing, hands at sides and on counter edge; face close; realism 3; no phone visible; composition differs from V0 (LoRAs change the frame).
