@@ -1,0 +1,252 @@
+{
+  "dry": false,
+  "seeds": [
+    101,
+    202
+  ],
+  "budgetUsd": 0.016,
+  "spentUsd": 0.01014,
+  "pictures": 3,
+  "runs": [
+    {
+      "id": "act-doggy-V0-s101-noflux",
+      "case": "act-doggy",
+      "variant": "V0",
+      "seed": 101,
+      "file": "pictures/act-doggy-V0-s101-noflux.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:phone2025@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:ultrareal5@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:unchained@2",
+              "weight": 0.8
+            },
+            {
+              "model": "ferasalm:penis@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back",
+            "style:hair-long-waves"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: long, loose dark waves with a center part and no bangs, falling over her shoulders. doggy style. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. d0gg13, pov. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. Her face: biting her lower lip hard, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's.",
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "ms": 13195,
+      "tries": 1,
+      "width": 768,
+      "height": 1344,
+      "loras": [
+        {
+          "model": "ferasalm:phone2025@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:ultrareal5@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:unchained@2",
+          "weight": 0.8
+        },
+        {
+          "model": "ferasalm:penis@1",
+          "weight": 0.6
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: long, loose dark waves with a center part and no bangs, falling over her shoulders. doggy style. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. d0gg13, pov. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. Her face: biting her lower lip hard, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's."
+    },
+    {
+      "id": "act-blowjob-V0-s101-nopovdt",
+      "case": "act-blowjob",
+      "variant": "V0",
+      "seed": 101,
+      "file": "pictures/act-blowjob-V0-s101-nopovdt.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:phone2025@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:ultrareal5@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:unchained@2",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. blowjob. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. Her face: heavy-lidded eyes, flushed cheeks. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "ms": 20242,
+      "tries": 1,
+      "width": 1024,
+      "height": 1024,
+      "loras": [
+        {
+          "model": "ferasalm:phone2025@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:ultrareal5@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:unchained@2",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. blowjob. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. Her face: heavy-lidded eyes, flushed cheeks. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    },
+    {
+      "id": "act-blowjob-V0-s101-nounchained",
+      "case": "act-blowjob",
+      "variant": "V0",
+      "seed": 101,
+      "file": "pictures/act-blowjob-V0-s101-nounchained.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 5,
+          "CFGScale": 1,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:phone2025@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:ultrareal5@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:instapic@1",
+              "weight": 0.6
+            },
+            {
+              "model": "ferasalm:realhd2kc@1",
+              "weight": 0.5
+            },
+            {
+              "model": "ferasalm:povdt@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "positivePrompt": "instapic. POV deepthroat scene. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. blowjob. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. Her face: heavy-lidded eyes, flushed cheeks. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "ms": 8988,
+      "tries": 1,
+      "width": 1024,
+      "height": 1024,
+      "loras": [
+        {
+          "model": "ferasalm:phone2025@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:ultrareal5@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:instapic@1",
+          "weight": 0.6
+        },
+        {
+          "model": "ferasalm:realhd2kc@1",
+          "weight": 0.5
+        },
+        {
+          "model": "ferasalm:povdt@1",
+          "weight": 0.8
+        }
+      ],
+      "prompt": "instapic. POV deepthroat scene. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. blowjob. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. Her face: heavy-lidded eyes, flushed cheeks. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur)."
+    }
+  ]
+}

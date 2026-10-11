@@ -1,0 +1,3 @@
+[{"case":"nude-bedroom-mirror","seed":101,"tag":"control"},
+ {"case":"nude-bedroom-mirror","seed":101,"tag":"face1x","cfg":{"BIG_FACE":false}},
+ {"case":"act-doggy","seed":202,"tag":"frontbody","swap":{"1":"/home/user/reem-bot/tools/face/body-nude.jpg"}}]
