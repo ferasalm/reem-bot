@@ -979,7 +979,7 @@ Changing the story
         "myaiprojectsqqq:3@2": { name: "Anatomy Quality Fixer", category: "anatomy", civitai: null, trigger: "", note: "spare" },
         "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl (ACT_SCENES)", note: "ACT_LORAS (riding, cowgirl); off doggy since the Step 3 review" },
         "ferasalm:missionary@1": { name: "Missionary POV K3NK", category: "act", civitai: 2699087, trigger: "", note: "ACT_LORAS (missionary)" },
-        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ANAL_LORAS doggy, alone at 1.0 (ALONE_LORAS)" },
+        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ANAL_LORAS: doggy alone at 1.0 (ANAL_ALONE), prone, reverse cowgirl, missionary at 0.8 (Step 6)" },
         "ferasalm:povdt@1": { name: "Holding Deepthroat POV", category: "act", civitai: 2779637, trigger: "POV deepthroat scene", note: "ACT_LORAS (blowjob, deepthroat)" },
         "ferasalm:povbj@1": { name: "POV Blowjob", category: "act", civitai: null, trigger: "", note: "spare" },
         "ferasalm:povhandc@1": { name: "POV hand (converted)", category: "act", civitai: 2640656, trigger: "", note: "spare (not loaded since round 5)" },
@@ -1088,19 +1088,27 @@ Changing the story
         prone: "prone, lying flat, on her stomach, prone bone",
         doggy: "doggy, doggystyle, doggy style, all fours, from behind, bent over",
       },
-      ANAL_POSITIONS: { doggy: 0.45, missionary: 0.3, "reverse cowgirl": 0.15, prone: 0.1 },
+      // Step 6 bench (Opus, 2026-10-11, 32 pictures): missionary anal drew right in no setup (Missionary + penis vaginal 3/3, penis only
+      // vaginal or none 3/3, POV Doggy Anal 0.8 in her anus 2/2 but her legs gone) → never picked at random; reverse cowgirl had a
+      // second head 1/2 → rare. Claude's values
+      ANAL_POSITIONS: { doggy: 0.6, missionary: 0, "reverse cowgirl": 0.1, prone: 0.3 },
       ANAL_SCENES: {
         missionary: "{pov} She lies on her back with her knees pulled up to her chest and her legs held wide, her round bottom lifted toward the man kneeling between them; his penis inside her anus, low between her buttocks, and above it her vulva closed and untouched. She looks up at him. {close}",
-        "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, his penis inside her anus between her spread buttocks; below it her vulva closed and untouched; she glances back over her shoulder. {close}",
+        "reverse cowgirl": "{pov} She rides the man facing away, her back and round bottom close, his penis inside her anus between her spread buttocks; below it her vulva closed and untouched; she glances back over her shoulder. {close}",
         prone: "{pov} She lies flat on her stomach on the bed, legs together, the man on top of her from behind; his penis inside her anus between her round buttocks; she looks back over her shoulder, her cheek on the pillow. {close}",
         doggy: "{pov} She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. {close}",
       },
+      // Step 6 bench: only POV Doggy Anal (trained on anal) put the penis in her anus. Flux 4 Play and Missionary (trained on vaginal
+      // sex) drew it in her vulva, her anus above it (0/3 each, doggy with Flux 4 Play 0/3); General Penis alone drew no penetration
+      // (0/9). POV Doggy Anal: doggy alone at 1.0 5/5; 0.8 with the realism LoRAs prone 5/5 (flat 4/5), reverse cowgirl 2/2 (a
+      // second head 1/2), missionary 2/2 (legs gone 2/2: no frontal anal LoRA yet)
       ANAL_LORAS: {
         doggy: { "ferasalm:povanal@1": 1 },
-        missionary: { "ferasalm:missionary@1": 0.8, "ferasalm:penis@1": 0.6 },
-        "reverse cowgirl": { "ferasalm:flux4play@1": 0.8, "ferasalm:penis@1": 0.6 },
-        prone: { "ferasalm:penis@1": 0.6 },
+        missionary: { "ferasalm:povanal@1": 0.8 },
+        "reverse cowgirl": { "ferasalm:povanal@1": 0.8 },
+        prone: { "ferasalm:povanal@1": 0.8 },
       },
+      ANAL_ALONE: ["doggy"],           // positions whose ANAL_LORAS draw alone (no realism LoRAs or prefix); the others keep LORAS
       TIMEOUT_MS: 60000,
       // round 4: the room on Runware, short (the room's LOOK words drowned the act and the LoRAs); {n} = its image number
       ROOM: "Behind her, her room as in image {n}, in this picture's own light.",
@@ -3712,10 +3720,12 @@ function runwareLoras(opts = {}) {
     if (explicit && !acts.some(([a]) => a === air) && Object.hasOwn(R.ACT_LORAS || {}, air) && String(withs).split(",").some((w) => w.trim() && hasWord(text, w.trim()))) acts.push([air, R.ACT_LORAS[air]]);
   }
   // an ALONE_LORAS LoRA draws alone (ALONE_WORDS: only when one of its words is in the text)
+  // Step 6: with ANAL_LORAS, ANAL_ALONE decides (its LoRA alone at its ANAL_LORAS weight), not ALONE_LORAS
   const aloneWords = R.ALONE_WORDS || {};
-  const alone = acts.map(([air]) => air).find((air) => Object.hasOwn(R.ALONE_LORAS || {}, air) && (!aloneWords[air] || String(aloneWords[air]).split(",").some((w) => w.trim() && hasWord(text, w.trim()))));
+  const alone = analSet ? ((R.ANAL_ALONE || []).includes(anal) ? acts.map(([air]) => air)[0] : undefined)
+    : acts.map(([air]) => air).find((air) => Object.hasOwn(R.ALONE_LORAS || {}, air) && (!aloneWords[air] || String(aloneWords[air]).split(",").some((w) => w.trim() && hasWord(text, w.trim()))));
   const list = alone
-    ? [{ model: alone, weight: Number(R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0)
+    ? [{ model: alone, weight: Number(analSet ? analSet[alone] : R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0)
     : Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !analSet && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
   if (!partial) return list;
   const off = R.PARTIAL_LORAS_OFF || [];
@@ -3983,7 +3993,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt, partial, anal: analAt }) : [];
     const flash = model === R.MODEL && flashAsked(prompt);
     const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
-    const alone = loras.length === 1 && Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model);
+    const alone = loras.length === 1 && (analAt ? (R.ANAL_ALONE || []).includes(analAt) : Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model));
     // Step 3: the prefix only when LORA_PREFIX_WITH (phone2025) is one of the LoRAs
     const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
     const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "");

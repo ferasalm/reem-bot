@@ -454,13 +454,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const refsOf = (words) => planAll(words).tries[0].refs.map((r) => r.name);
     c = await call("missionary anal on the bed", "pic");
     let refs = refsOf("missionary anal on the bed");
-    yes(c.loras.includes("ferasalm:missionary@1") && c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:unchained@2") && !c.loras.includes("ferasalm:povanal@1") && refs.includes("body-v10") && !refs.includes("body-v10-back") && c.text.includes("his penis inside her anus, low between her buttocks") && !c.text.includes("inside her vagina"), "Step 6: missionary anal: front body, missionary + penis, the anal text", { loras: c.loras, refs });
+    yes(JSON.stringify(c.loras.filter((l) => !base.includes(l))) === JSON.stringify(["ferasalm:povanal@1"]) && c.loras.length > 1 && !c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:unchained@2") && refs.includes("body-v10") && !refs.includes("body-v10-back") && c.text.includes("his penis inside her anus, low between her buttocks") && !c.text.includes("inside her vagina"), "Step 6 bench: missionary anal: front body, POV Doggy Anal 0.8 with the realism LoRAs (the vaginal Missionary LoRA drew her vulva 3/3), the anal text", { loras: c.loras, refs });
     c = await call("anal reverse cowgirl on the bed", "pic");
     refs = refsOf("anal reverse cowgirl on the bed");
-    yes(c.loras.includes("ferasalm:flux4play@1") && c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:unchained@2") && refs.includes("body-v10-back") && c.text.includes("r3v3rs3_c0wg1rl") && c.text.includes("inside her anus") && !c.text.includes("inside her vagina"), "Step 6: anal reverse cowgirl: back body, Flux 4 Play + penis, the anal text", { loras: c.loras, refs });
+    yes(JSON.stringify(c.loras.filter((l) => !base.includes(l))) === JSON.stringify(["ferasalm:povanal@1"]) && c.loras.length > 1 && !c.loras.includes("ferasalm:flux4play@1") && refs.includes("body-v10-back") && !c.text.includes("r3v3rs3_c0wg1rl") && c.text.includes("inside her anus") && !c.text.includes("inside her vagina"), "Step 6 bench: anal reverse cowgirl: back body, POV Doggy Anal 0.8 with the realism LoRAs, no Flux 4 Play or its trigger (vaginal 3/3)", { loras: c.loras, refs });
     c = await call("prone bone anal on the bed", "pic");
     refs = refsOf("prone bone anal on the bed");
-    yes(c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:unchained@2") && !c.loras.includes("ferasalm:povanal@1") && refs.includes("body-v10-back") && c.text.includes("lies flat on her stomach"), "Step 6: prone bone anal: back body, penis, the prone text", { loras: c.loras, refs });
+    yes(JSON.stringify(c.loras.filter((l) => !base.includes(l))) === JSON.stringify(["ferasalm:povanal@1"]) && c.loras.length > 1 && !c.loras.includes("ferasalm:penis@1") && refs.includes("body-v10-back") && c.text.includes("lies flat on her stomach"), "Step 6 bench: prone bone anal: back body, POV Doggy Anal 0.8 with the realism LoRAs (General Penis alone drew no penetration 0/3), the prone text", { loras: c.loras, refs });
     c = await call("anal, doggy style on the bed", "pic");
     yes(JSON.stringify(c.loras) === JSON.stringify(["ferasalm:povanal@1"]) && c.text.includes("fucking her in the ass doggy style"), "Step 6: anal, doggy style: POV Doggy Anal alone, the doggy anal text", c.loras);
     c = await call("anal riding the man", "pic");
@@ -473,8 +473,8 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     yes(!grab.anal && !c.loras.includes("ferasalm:povanal@1") && c.text.includes("inside her vagina"), "Step 6: doggy style, grabbing her ass: not anal, no POV Doggy Anal, the vaginal text", { anal: grab.anal, loras: c.loras });
     const rand = Math.random;
     try {
-      const picks = [0.1, 0.5, 0.8, 0.97].map((x) => { Math.random = () => x; return planAll("anal on the bed").flags.analAt; });
-      eq(picks, ["doggy", "missionary", "reverse cowgirl", "prone"], "Step 6: an anal act with no position named: ANAL_POSITIONS picks doggy, missionary, reverse cowgirl, prone (Math.random 0.1, 0.5, 0.8, 0.97)");
+      const picks = [0.1, 0.59, 0.65, 0.8, 0.99].map((x) => { Math.random = () => x; return planAll("anal on the bed").flags.analAt; });
+      eq(picks, ["doggy", "doggy", "reverse cowgirl", "prone", "prone"], "Step 6 bench: an anal act with no position named: ANAL_POSITIONS doggy 0.6, reverse cowgirl 0.1, prone 0.3, never missionary (Math.random 0.1, 0.59, 0.65, 0.8, 0.99)");
     } finally { Math.random = rand; }
     c = await call("naked in bed", "pic");
     yes(!c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:flux4play@1"), "nude, no act: no act LoRAs", c.loras);

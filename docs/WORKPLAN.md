@@ -591,3 +591,47 @@ and says so in HANDOFF):
 > and after with the Runware MCP `account`). No deploy, never push to main. Finish with /handoff: HANDOFF says "Step 6 done", with
 > every check you ran and read, the golden-plan diff summary, where the pictures are, and which parts Haiku did. Name the model of
 > this chat (`get_session`) and of each worker (its subagent transcript) by name and raw model ID in the records.
+
+### Step 6 build (Opus + haiku-worker, 2026-10-11)
+Chat: Opus (`claude-opus-5-5`, `get_session`, session_01Uk8PCnuhgSYzVgAkNLd9k7). Workers: haiku-worker (`claude-haiku-5-5`, from the
+subagent transcripts): the CONFIG keys and panel rows; the unit rows and golden cases; `tools/face/anal-bench.mjs`; pass 1 of the bench
+(its first read stopped: Opus reads every picture); the Civitai report. Opus: the routing, the golden diff, every picture, the picks.
+**Where it leaves the spec (each for a path seen or traced):**
+- ANAL_WORDS without a bare "her ass" ("his hands on her ass" while riding loaded POV Doggy Anal alone and, with anal first, would turn
+  vaginal riding anal); povanal's ACT_WORDS the same list; the anal entry of ACT_SCENES moved to ANAL_SCENES.doggy (its "her ass"
+  caught vaginal doggy words first). "on top" in the reverse cowgirl words only as hers ("he's on top of her" is missionary or prone).
+- ANAL_LORAS from the bench (QUALITY "Step 6 bench"): POV Doggy Anal in every position (doggy alone 1.0, the others 0.8 with the
+  realism LoRAs; `ANAL_ALONE` ["doggy"] is new); no NUDE_LORAS or WITH_LORAS on anal. Flux 4 Play, Missionary POV and General Penis
+  out (vaginal 0/9, no penetration 0/9). The reverse cowgirl scene lost Flux 4 Play's trigger.
+- ANAL_POSITIONS doggy 0.6, reverse cowgirl 0.1, prone 0.3, missionary 0: missionary anal never draws right (vaginal 6/6 with the spec's
+  LoRAs; POV Doggy Anal keeps the opening but loses her legs 2/2). Named "missionary anal" uses POV Doggy Anal 0.8 (the opening right).
+- Bench: 24, then 8 on POV Doggy Anal (doggy, prone, and missionary and reverse cowgirl as new variants) instead of 8 more seeds of
+  0/3 setups. Riding's second head: seen once (anal reverse cowgirl s505); his hands: correct in every picture.
+**Later:** a frontal anal LoRA for missionary (Civitai below: True-Anal Frontal view, Piledriver anal, Reverse Cowgirl anal); the
+two-heads / two-women defect on riding and at 16:9 (WIDE's "Only one woman" did not stop it).
+
+**Civitai, FLUX.2 klein 9B, sex positions (report only; `api.civitai.com`, 2026-10-11, haiku-worker; two rows checked by Opus):**
+| Name | Model id | Version (id) | Downloads | 👍 | File | Act |
+|---|---|---|---|---|---|---|
+| SNOFS | 1972981 | Klein 9b v1.4 (2960556; v1.0-1.3 too) | 290528 | 7507 | LoKR | doggy, missionary, prone, cowgirl |
+| Blacked / Interracial | 2674806 | Doggy Style KLEIN-9B (3092509) | 10324 | 303 | LoRA | doggy |
+| Pyro's Cowgirls | 2332978 | v1.0 (2624304) | 8956 | 295 | LoRA | cowgirl |
+| FLUX 4 PLAY AIO | 2403747 | Flux4Play_Klein9B_v1 (2702716) | 8303 | 360 | LoRA | several (in use) |
+| Missionary POV Vaginal | 2465199 | v1.0 (2771752) | 7145 | 277 | LoRA | missionary, vaginal |
+| POV Doggy Anal Adriano-angle | 2509925 | Klein 9b (2821244) | 7055 | 370 | LoRA | anal doggy (in use) |
+| Against wall doggystyle | 2499761 | v1.0 (2809996) | 6816 | 321 | LoRA | doggy |
+| Bulldog Anal | 2572426 | v1.0 (2890279) | 6520 | 374 | LoRA | anal doggy |
+| Full Nelson Double penetration | 2484754 | v1.0 (2793575) | 5751 | 284 | LoRA | full nelson |
+| True-Anal Frontal view | 2527075 | v1.0 (2840130) | 5715 | 309 | LoRA | anal, frontal |
+| Doggystyle anal Spitroast | 2512133 | v1.0 (2823689) | 5229 | 270 | LoRA | anal doggy |
+| POV Squatting Sex | 2374944 | Klein9b (2670873) | 4944 | 191 | LoRA | squatting |
+| SexGod Doggystyle | 2532708 | v1.0 (2846431) | 4815 | 175 | LoRA | doggy |
+| POV Anal K3NK | 2435368 | v1.0 (2738283) | 4642 | 258 | LoRA | anal POV |
+| Piledriver anal | 2512899 | v1.0 (2824535) | 4582 | 268 | LoRA | anal, on her back |
+| Ultimate Blowjob V2 K3nk | 2520572 | v2.0 (2832958) | 4557 | 174 | LoRA | blowjob, 69 |
+| Missionary POV K3NK | 2400540 | v1.0 (2699087) | 3976 | 205 | LoRA | missionary (in use) |
+| Reverse Cowgirl anal | 2529508 | v1.0 (2842888) | 3241 | 154 | LoRA | anal reverse cowgirl |
+
+### Step 7: how to run it cheaply (Opus, 2026-10-11; owner: "spend less")
+The studio is a well-specified build (its section above): **Sonnet 5.5, effort high**, one chat, with the Haiku prompt of "How to run a
+step" (N = 7, $0.05). No orchestrator: little of it is token-heavy. Opus only if the D1 or link-signing part goes wrong twice.

@@ -86,6 +86,9 @@ const VARIANTS = {
   "penis-only-rc": { act: "reverse cowgirl", loras: { "ferasalm:penis@1": 0.6 } },
   penis: { act: "prone", loras: { "ferasalm:penis@1": 0.6 } },
   povanal08: { act: "prone", loras: { "ferasalm:povanal@1": 0.8 }, aloneLoras: {} },
+  // Opus, after the first 24: only POV Doggy Anal put the penis in her anus; Flux 4 Play and Missionary drew vaginal entry
+  "povanal08-mis": { act: "missionary", loras: { "ferasalm:povanal@1": 0.8 }, aloneLoras: {} },
+  "povanal08-rc": { act: "reverse cowgirl", loras: { "ferasalm:povanal@1": 0.8 }, aloneLoras: {} },
 };
 function applyVariant(name) {
   const v = VARIANTS[name];
@@ -103,7 +106,8 @@ const CASE_LIST = [
 ];
 // --extend: PICKS names the one variant each case keeps; all four cases stay, so the case indexes and the random picks match
 const PICKS = Object.fromEntries((process.env.PICKS || "").split(",").filter(Boolean).map((p) => p.split("=")));
-if (EXTEND) for (const c of CASE_LIST) if (!c.variants.includes(PICKS[c.id])) throw new Error(`--extend: PICKS needs ${c.id}=${c.variants.join(" or ")}`);
+// a pick may also be a variant added after the first pass (any VARIANTS entry)
+if (EXTEND) for (const c of CASE_LIST) if (!Object.hasOwn(VARIANTS, PICKS[c.id] || "")) throw new Error(`--extend: PICKS needs ${c.id}=<a VARIANTS name>`);
 const CASES = CASE_LIST.map((c) => ({ ...c, variants: EXTEND ? [PICKS[c.id]] : c.variants, seeds: SEEDS, run: pic(c.words) }));
 // Runs: seed-major (101 first), then case, then variant
 const runs = [];

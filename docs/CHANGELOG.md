@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (thirty-third session, Opus + haiku-worker): Step 6 anal positions; spend less (owner); dev
+- Anal first (`pictureFlags` anal/analAt, `runwarePlan` position pick, ANAL_SCENES/ANAL_LORAS/ANAL_ALONE); "missionary anal" and "anal
+  riding" no longer get the vaginal text; "her ass" on riding or doggy no longer loads POV Doggy Anal. Bench 32 pictures $0.0936.
+  haiku-worker (claude-haiku-5-5): CONFIG keys + panel rows, unit rows + golden cases, anal-bench.mjs, pass 1 draw, the Civitai report;
+  Opus (claude-opus-5-5): routing, golden diff, every picture, the picks. Commits dc93e49, 20aa0b1 and this session's last.
+- Owner: spend less. DECISIONS.md 77 KB → 30 KB loaded (older entries word for word in DECISIONS-ARCHIVE.md); haiku-worker effort
+  max → medium; the skill delegates only token-heavy steps.
+
 ## 2026-10-11 (thirty-second session, Opus): the opus-haiku-orchestrator skill and haiku-worker; Step 5 not reviewed (owner); dev
 - `.claude/skills/opus-haiku-orchestrator/` + `.claude/agents/haiku-worker.md` (Haiku 5.5, effort max), tested on the 14 workflows
   (14/14 rows right). Owner: no Step 5 review; Step 6 in one Opus chat with the skill (WORKPLAN "Step 6 with the orchestrator");

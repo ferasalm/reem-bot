@@ -552,3 +552,10 @@ balance $14.56408 → $14.50883 ($0.05525). Step 4 in all: $0.15691 of $0.20.
 - **Close-up framing:** 9:16 with her face: from the lips down 12/12; 9:16 no face: chin 4/4; 1:1 with face: lips or chin 2/4; 1:1 no
   face: 0/4, from the chest or shoulders down, the vulva largest. Navel-to-thighs exactly 0/16. → CLOSE_SHAPE "1:1", CLOSE_FACE false.
 - Nipple points through thin tops in nearly every covered picture (all modes). Face the same woman in P3 and P4 (8/8).
+
+## Step 6 bench: anal positions (2026-10-11, Opus's read; `tools/face/anal-bench.mjs`, `face-candidates` runs/2026-10-11-step6-anal-bench)
+32 pictures, $0.0936 (24 + 8). table.md has one line per picture.
+- **In her anus:** POV Doggy Anal doggy alone 1.0 5/5; at 0.8 with the realism LoRAs prone 5/5 (flat 4/5), reverse cowgirl 2/2 (two heads
+  on one body 1/2), missionary 2/2 (her legs gone 2/2). Flux 4 Play + General Penis: doggy 0/3, reverse cowgirl 0/3 (her anus visible
+  above the entry: vaginal); Missionary POV + General Penis 0/3 (vaginal; one with two women at 16:9); General Penis alone 0/9 (no
+  penetration, a scrotum, or vaginal). → ANAL_LORAS POV Doggy Anal everywhere, ANAL_ALONE doggy, ANAL_POSITIONS missionary 0.
