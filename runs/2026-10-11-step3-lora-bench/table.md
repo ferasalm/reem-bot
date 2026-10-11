@@ -12,10 +12,10 @@ alone are the whole list (see the Off note in WORKPLAN, no Off case here).
 
 ## Findings (corrected by the owner, 2026-10-11)
 1. **Nude mirror, seed 101:** the head is disproportionately large for the body (owner; all variants at this seed). Seed 202 is fine. The
-   bench read had missed it. Candidate causes for Opus: BIG_FACE sends the 2x face on every face picture; the head-size line ("her head is
+   bench read had missed it. Leads for the review to double-check (not findings): BIG_FACE sends the 2x face on every face picture; the head-size line ("her head is
    naturally sized for her body, about one seventh of her height") is in LOOKS only, which her face pictures never use.
 2. **Blowjob, seed 101:** the upper arms are slimmer than they should be (owner). The sent prompt says "full upper arms" (REFERENCE), so the
-   words do not hold them. Candidate: image 1 (body-v10) or the POV camera.
+   words do not hold them. Lead: image 1 (body-v10) or the POV camera. Not confirmed.
 3. **Doggy, seeds 101 and 202: no ghost hands.** His two hands on her buttocks/hips at V0 are correct and undeformed (owner). The bench read
    called them ghost hands and tied them to the hand words: that is withdrawn. Doggy does not need the V1 wording change for the hands.
 4. **Doggy, seed 202: no anus visible** above the entry in any variant (owner; zoom agrees). Seed 101 frames show one in some variants.
@@ -24,7 +24,7 @@ alone are the whole list (see the Off note in WORKPLAN, no Off case here).
 6. The realism stack (four LoRAs, 2.3) showed one bare nipple on a clothed picture (seed 202 V0). One case, not a rate.
 7. Missionary: his hands on her thighs (seed 101, V0, V3-V5) are a pose. Blowjob penis reads long in all variants.
 
-Fix the root cause in code, not with prompt words that may leak (owner, 2026-10-11). No code was changed for these.
+The review finds the root causes and fixes them in code, not with prompt words that may leak (owner, 2026-10-11). No code was changed for these.
 
 ## Per picture
 | id | size | LoRAs | cost | ms | hands | limbs | anatomy | face | realism | act | note |
