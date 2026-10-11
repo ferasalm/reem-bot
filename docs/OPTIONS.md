@@ -36,7 +36,7 @@ nude, naked, topless, bottomless, bare breasts, bare chest, nothing on, wearing 
 - **riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man**: c0wg1rl, pov. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below.
 - **missionary**: She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him.
 - **anal, ass fucking, in her ass, in the ass, her ass, anally**: She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder.
-- **doggy, doggystyle, doggy style, on all fours**: d0gg13, pov. Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder.
+- **doggy, doggystyle, doggy style, on all fours**: Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder.
 
 Other sex words (drawn from his eyes, no act LoRA): sex, fuck, fucks, fucked, fucking, masturbates, masturbating, orgasm, cum, penis, cock, dick, blowjob, blow job, sucking, sucks, handjob, riding, rides, doggy, doggystyle, missionary, cowgirl, penetration, penetrated, fingering, fingers herself, oral, deepthroat, deep throat, deepthroating, anal, creampie, cumshot, titfuck, 69, thrusts, thrusting, inside her, sinks down onto the man, lowers herself onto the man, takes the man in her mouth, reverse cowgirl, on all fours, doggy style
 
@@ -174,9 +174,9 @@ In person, when nothing is named: her father's old gray knit cardigan, elbows wo
 
 **act**: her mouth open in pleasure, brows drawn together; eyes half-closed, lips parted, cheeks flushed; biting her lower lip hard; a breathless open-mouthed moan; a wicked, satisfied smile; eyes squeezed shut, head pressed back; a dazed, blissful look; an intense, hungry stare
 
-Gaze: **everyday**: looking straight into the lens; looking off to the side, out of the frame; looking down at something in her hands; looking up at the camera through her lashes; looking past the camera at someone; her eyes closed; her head turned in three-quarter profile, eyes to the lens
+Gaze: **everyday**: looking straight into the lens; looking off to the side, out of the frame; looking down at something in her hands; looking past the camera at someone; her eyes closed; her head turned in three-quarter profile, eyes to the lens
 
-**heated**: looking straight into the lens; looking down at her own body; looking away toward the window; looking up at the camera through her lashes; her eyes closed, head tilted back
+**heated**: looking straight into the lens; looking down at her own body; looking away toward the window; her eyes closed, head tilted back
 
 **act**: looking straight into the man's eyes, into the lens; her eyes closed; her eyes half-open and unfocused; looking down at the man's body
 
@@ -188,7 +188,7 @@ Gaze: **everyday**: looking straight into the lens; looking off to the side, out
 | InstaPic (`ferasalm:instapic@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 | instapic |
 | Real HD 2K (DoRA converted to rank 32) (`ferasalm:realhd2kc@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.5 |  |
 | Unchained XXX v2 (`ferasalm:unchained@2`) | nudity | nude pictures and blowjobs; off with Flux 4 Play AIO, Missionary POV K3NK, POV Doggy Anal | 0.8 |  |
-| Flux 4 Play AIO (`ferasalm:flux4play@1`) | act | words: riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours | 0.8 | c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes |
+| Flux 4 Play AIO (`ferasalm:flux4play@1`) | act | words: riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man | 0.8 | c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes |
 | Holding Deepthroat POV (`ferasalm:povdt@1`) | act | words: blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth | 0.8 | POV deepthroat scene |
 | Missionary POV K3NK (`ferasalm:missionary@1`) | act | words: missionary | 0.8 |  |
 | POV Doggy Anal (`ferasalm:povanal@1`) | act | words: anal, ass fucking, in her ass, in the ass, her ass, anally (alone at 1, no other LoRA) | 0.8 |  |

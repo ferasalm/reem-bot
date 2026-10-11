@@ -431,7 +431,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("missionary on the bed", "pic");
     yes(c.loras.includes("ferasalm:penis@1") && c.loras.includes("ferasalm:missionary@1") && !c.loras.includes("ferasalm:pussyd@1") && c.loras.length <= 6, "missionary: General Penis (WITH_LORAS, round 8), no PussyDiffusion", c.loras);
     c = await call("doggy style on the bed", "pic");
-    yes(c.loras.includes("ferasalm:penis@1") && c.loras.includes("ferasalm:flux4play@1"), "doggy: General Penis too", c.loras);
+    yes(c.loras.includes("ferasalm:penis@1") && !c.loras.includes("ferasalm:flux4play@1") && !c.text.includes("d0gg13"), "doggy: General Penis, no Flux 4 Play (Step 3 review: d0gg13 hid her anus)", c.loras);
     c = await call("naked, holding the man's erect penis in her hand", "pic");
     yes(c.loras.includes("ferasalm:penis@1"), "a penis without an act LoRA: General Penis", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");

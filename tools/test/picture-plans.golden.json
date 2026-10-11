@@ -261,7 +261,7 @@
               "weight": 0.5
             },
             {
-              "model": "ferasalm:flux4play@1",
+              "model": "ferasalm:unchained@2",
               "weight": 0.8
             },
             {
@@ -270,7 +270,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. doggy style. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. d0gg13, pov. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. Her face: eyes half-closed, lips parted, cheeks flushed, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. doggy style. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. Her face: eyes half-closed, lips parted, cheeks flushed, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10-back"
@@ -307,7 +307,7 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a calm, serious face, looking past the camera at someone. with her hair in a messy bun. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "positivePrompt": "instapic. Realistic candid photo: This is a candid photograph taken with a smartphone of the woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0) (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult. Her face: a calm, serious face, her eyes closed. with her hair in a messy bun. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
           "refs": [
             "face-2x",
             "body-v10-clothed"

@@ -952,7 +952,7 @@ Changing the story
         "ferasalm:pussyd@1": { name: "PussyDiffusion v2", category: "anatomy", civitai: 2960754, trigger: "hairy pussy", note: "ACT_LORAS (pussy, spread legs); SOLO_LORAS" },
         "ferasalm:penis@1": { name: "General Penis", category: "anatomy", civitai: 2624854, trigger: "", note: "ACT_LORAS (penis, cock); WITH_LORAS; SOLO_LORAS" },
         "myaiprojectsqqq:3@2": { name: "Anatomy Quality Fixer", category: "anatomy", civitai: null, trigger: "", note: "spare" },
-        "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl, d0gg13 (ACT_SCENES)", note: "ACT_LORAS (riding, cowgirl, doggy)" },
+        "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl (ACT_SCENES)", note: "ACT_LORAS (riding, cowgirl); off doggy since the Step 3 review" },
         "ferasalm:missionary@1": { name: "Missionary POV K3NK", category: "act", civitai: 2699087, trigger: "", note: "ACT_LORAS (missionary)" },
         "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ALONE_LORAS (anal, alone at 1.0)" },
         "ferasalm:povdt@1": { name: "Holding Deepthroat POV", category: "act", civitai: 2779637, trigger: "POV deepthroat scene", note: "ACT_LORAS (blowjob, deepthroat)" },
@@ -1007,7 +1007,7 @@ Changing the story
       // with it one anal picture got a stray bra strap. Holding Deepthroat POV kept: in her mouth 3/3 at 0.6-1.0, without it 0/2
       ACT_LORAS: { "ferasalm:flux4play@1": 0.8, "ferasalm:povdt@1": 0.8, "ferasalm:missionary@1": 0.8, "ferasalm:povanal@1": 0.8, "ferasalm:penis@1": 0.6, "ferasalm:pussyd@1": 0.8 },
       ACT_WORDS: {
-        "ferasalm:flux4play@1": "riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man, doggy, doggystyle, doggy style, on all fours",
+        "ferasalm:flux4play@1": "riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man",
         "ferasalm:povdt@1": "blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth",
         "ferasalm:missionary@1": "missionary",
         "ferasalm:povanal@1": "anal, ass fucking, in her ass, in the ass, her ass, anally",
@@ -1036,7 +1036,8 @@ Changing the story
       // the camera, his hands and the act's trigger words, by act. The first entry whose words (comma-separated) are in the
       // picture's words is added in place of POV_MAN ({pov} = POV_MAN); none = POV_MAN. Round 4 (owner: "Make framing for sex acts
       // tighter and POV to avoid anatomical issues and to improve skin texture and detail"; no side view): every act from his
-      // eyes, close. Flux 4 Play's triggers (c0wg1rl, r3v3rs3_c0wg1rl, d0gg13) only where its ACT_WORDS load it
+      // eyes, close. Flux 4 Play's triggers (c0wg1rl, r3v3rs3_c0wg1rl) only where its ACT_WORDS load it. Doggy has no Flux 4 Play
+      // (Step 3 review, 2026-10-11): its d0gg13 drew the man lying down and her torso upright (a reverse cowgirl), her anus hidden in the closed cleft
       ACT_SCENES: {
         "blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth, the man's cock in her mouth": "First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. {close}",
         "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, his penis inside her vagina: the shaft enters her vulva, her anus above it closed and untouched; she glances back over her shoulder. {close}",
@@ -1048,7 +1049,7 @@ Changing the story
         // owner 2026-10-08 ("Ensure overall anatomical correctness"): the vulva-for-anus of round 5 came with Unchained; without it, from
         // behind 2/3 (POV Doggy Anal alone 3/3), while on her back POV Doggy Anal fused her front and her spread bottom into one pose
         "anal, ass fucking, in her ass, in the ass, her ass, anally": "{pov} She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. {close}",
-        "doggy, doggystyle, doggy style, on all fours": "d0gg13, pov. {pov} Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. {close}",
+        "doggy, doggystyle, doggy style, on all fours": "{pov} Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. {close}",
       },
       TIMEOUT_MS: 60000,
       // round 4: the room on Runware, short (the room's LOOK words drowned the act and the LoRAs); {n} = its image number
@@ -1088,9 +1089,11 @@ Changing the story
         ORAL: ["teary, eager eyes", "brows raised, eyes wide and eager", "heavy-lidded eyes, flushed cheeks", "a teasing look in her eyes", "eyes half-closed, cheeks flushed", "a hungry, intent stare"],
         ACT: ["her mouth open in pleasure, brows drawn together", "eyes half-closed, lips parted, cheeks flushed", "biting her lower lip hard", "a breathless open-mouthed moan", "a wicked, satisfied smile", "eyes squeezed shut, head pressed back", "a dazed, blissful look", "an intense, hungry stare"],
       },
+      // Step 3 review (2026-10-11): no "looking up at the camera through her lashes": it put the camera above her, so a standing
+      // full-body picture drew her head too large for her body (nude mirror, seed 101; with a level gaze the same seed was in scale)
       GAZES: {
-        EVERYDAY: ["looking straight into the lens", "looking off to the side, out of the frame", "looking down at something in her hands", "looking up at the camera through her lashes", "looking past the camera at someone", "her eyes closed", "her head turned in three-quarter profile, eyes to the lens"],
-        HEATED: ["looking straight into the lens", "looking down at her own body", "looking away toward the window", "looking up at the camera through her lashes", "her eyes closed, head tilted back"],
+        EVERYDAY: ["looking straight into the lens", "looking off to the side, out of the frame", "looking down at something in her hands", "looking past the camera at someone", "her eyes closed", "her head turned in three-quarter profile, eyes to the lens"],
+        HEATED: ["looking straight into the lens", "looking down at her own body", "looking away toward the window", "her eyes closed, head tilted back"],
         ACT: ["looking straight into the man's eyes, into the lens", "her eyes closed", "her eyes half-open and unfocused", "looking down at the man's body"],
       },
       // a sex act with one of these: MOODS.ORAL (eyes and brows only; no gaze list: the blowjob scene names it)

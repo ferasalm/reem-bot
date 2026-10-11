@@ -53,13 +53,13 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   A new CONFIG key needs a hand-written field row in `tools/settings-panel.html` `SECTIONS` (the unit test lists the missing ones).
 
 ## 2. Known traps
-- Head size and arm slimness (Step 3 bench, 2026-10-11; the owner saw them, the bench read missed them): a nude picture at seed 101 had a
-  head too large for the body in all four variants, and the blowjob at the same seed slim arms, though the sent prompt said "full upper arms".
-  Leads for the review to double-check (not confirmed): the 2x face on every face picture (BIG_FACE), the head-size line that is in LOOKS only (no-face pictures), and
-  image 1's arms. Fix the reference or the body, not the words. A reader's full-size pass is not a proportion check: check head-to-body against the reference.
-- Withdrawn (2026-10-11, owner): the "ghost hands" in doggy (his hands on her buttocks at V0) were correct and undeformed. No hand-word change is needed for them.
-- Vaginal vs anal on a 260 px crop at the entry (doggy, 12 pictures): the anus shows above the entry in some frames and not in others → the crop
-  can't decide; judge genitals on the full frame, or a larger crop with the anus in it. Undecided (Opus).
+- A head too large for the body (nude mirror, Step 3, seed 101) came from the camera, not the face reference: the random gaze "looking up at
+  the camera through her lashes" put the camera above her (a level gaze drew it in scale; the 1x face drew the same head) → gaze removed.
+  A gaze or expression is camera words too. Test a lead by changing one thing at the same seed, after redrawing the original once. (2026-10-11)
+- An act LoRA's own pose can override the scene words: Flux 4 Play's doggy (d0gg13) drew the man lying down and her torso upright, the
+  cleft closed (no anus at seed 202); without it the anus showed at both seeds → no Flux 4 Play on doggy. The body picture didn't matter. (2026-10-11)
+- Blowjob arms slim at seed 101 (arms stretched forward, seen from above): not image 1, not BIG_FACE; Unchained 0.8 pulls the bust and arms
+  smaller, but povdt alone lost the act. Open. Withdrawn (owner): the doggy "ghost hands" were correct. (2026-10-11)
 - Four realism LoRAs (phone2025 0.6, ultrareal5 0.6, instapic 0.6, realhd2kc 0.5 = 2.3) on a clothed picture showed a bare nipple once (clothed
   bedroom, seed 202, V0); the same seed with 2 or 0 realism LoRAs stayed covered. One case: not a rate.
 - A superseded rule can live on in a prompt string: her own pictures were never nude because `PICTURE.SELF_CHOICE` still said "Your pictures never show you fully naked." (2026-10-02 rule, dropped 2026-10-06) → when a decision supersedes a rule, grep every prompt string for it. (2026-10-11)

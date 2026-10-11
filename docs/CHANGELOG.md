@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-11 (twenty-eighth session, Opus): Step 3 review; two root causes fixed, the LoRA set decided for Step 4; dev only
+- Review of Haiku's Step 3 build: matches its spec; CLAUDE.md, `.claude/`, CI and the tests untouched by it; DECISIONS only appended.
+- Fixed: the large head at nude seed 101 (the gaze "looking up at the camera through her lashes" out of GAZES: the camera); no anus at doggy
+  seed 202 (Flux 4 Play off doggy, d0gg13 out of the scene). Golden: 3 lines. Not fixed: the blowjob arms (leads ruled out, see WORKPLAN).
+- 13 test pictures, $0.03666 (`face-candidates` runs/2026-10-11-step3-review, commit 95c5ab8). Realism LoRAs for Step 4: V2 (InstaPic + Real HD 2K).
+- Owner: the records may name the model that did the work (DECISIONS). The Step 3 build ran on Haiku, this review on Opus.
+
 ## 2026-10-11 (twenty-seventh session): WORKPLAN Step 3 built and benched (72 pictures, $0.20397 of $0.25); waiting on Opus review; dev only
 - Built: `RUNWARE.LORA_INFO` (18 LoRAs), `LORA_PREFIX_WITH` (the smartphone prefix only with phone2025), `povhandc` out of ACT_WORDS and
   LORA_WORDS, options.mjs category and spare list, `tools/face/lora-bench.mjs`. Golden unchanged (28 cases); check.mjs 7/7; doc-check 144.

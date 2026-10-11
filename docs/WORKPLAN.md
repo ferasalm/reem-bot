@@ -17,12 +17,12 @@ step at the end of this file; that step applies them first. Never two steps (or 
 > $X on Runware (read the balance before and after with the Runware MCP `account`). Don't touch tools/face/bench.json. LIMITS & OOC
 > stays word for word. If the spec is unclear, contradicts the code, or a check fails twice, stop and write it under "Waiting on the
 > owner" in HANDOFF instead of guessing. Finish with /handoff: HANDOFF says "Step N done, waiting on review", with every check you
-> ran and read, the golden-plan diff summary, and where the pictures are.
+> ran and read, the golden-plan diff summary, and where the pictures are. Name your model (read it with `get_session`) in HANDOFF and the commits.
 
 **Opus review prompt (Step N):**
 > Continue reem-bot. Follow CLAUDE.md. Review docs/WORKPLAN.md Step N (done by Haiku): read HANDOFF, the step's commits on dev
 > (the diff, the golden-plan diff), its check output and its bench pictures on face-candidates at full size. Fix any slip, decide
-> what the step left to Opus, write the notes for Step N+1 under "Decided in review" at the end of WORKPLAN.md, then /handoff.
+> what the step left to Opus, write the notes for Step N+1 under "Decided in review" at the end of WORKPLAN.md, then /handoff. Name your model (`get_session`) in the records.
 
 ## Rules every step follows
 - Start from `dev`; push your branch, then `dev` (CLAUDE.md). Never `main`. Code changes only in the files the step names.
@@ -433,6 +433,41 @@ The root causes are the review's to find (DECISIONS 2026-10-11). The build's lea
 4. **Doggy hands, seeds 101 and 202: correct, no change.** The hand-word cause is withdrawn.
 5. Not checked by the owner: riding seed 202 V0 (his hands at the bottom of the frame); the second head behind her in riding (both seeds).
 The owner asked for root-cause fixes (the reference, the body or the camera), not prompt words, which leak (DECISIONS 2026-10-11).
+
+### Step 3 review (Opus, 2026-10-11)
+Built by Haiku (session_01RoSzs9sjxYEF75N7tTu8Nt), reviewed by Opus (session_01PVtSGCTGu7CyWDm5pnS4S7); both read with `get_session`.
+**The build** matches its spec: `LORA_INFO` (18), `LORA_PREFIX_WITH`, povhandc out of ACT_WORDS and LORA_WORDS, options.mjs, the bench
+harness; golden unchanged by it; `node tools/check.mjs` 7/7. Haiku left CLAUDE.md, `.claude/`, the CI workflows, `tools/test/` and
+`tools/face/bench.json` untouched, and only appended to DECISIONS.md (no entry reworded). One slip, left as is: the panel row for
+`LORA_INFO` is a "textarea", which shows a nested object as "[object Object]"; the panel is retired (2026-10-06) and the bot never reads the key.
+**Root causes** (13 pictures through the bot's own code, one change at a time, the seed reproduced first; `face-candidates`
+`runs/2026-10-11-step3-review/`, table.md):
+- **Head too large (nude mirror, seed 101): the camera.** The random gaze "looking up at the camera through her lashes" puts the camera
+  above her; on a standing full-body picture that draws the head big and the body short and narrow. Same seed with a level gaze: in scale.
+  Ruled out: BIG_FACE (the 480 px face drew the same head). The LOOKS head-size line was not tested: the gaze alone fixed it, and the owner
+  asked for no new words. Fix: the gaze is out of `GAZES.EVERYDAY` and `GAZES.HEATED` (the shorter lists move other cases' gaze picks:
+  1 golden line). Seed 101 now draws "looking away toward the window", head in scale.
+- **No anus at doggy seed 202: Flux 4 Play.** Its doggy (d0gg13) draws the man lying down and her torso upright (a reverse cowgirl), so the
+  cleft stays closed. Ruled out: the standing back body (image 1 = the front body drew the same picture) and "belly" in POV_MAN. Without
+  Flux 4 Play (Unchained 0.8 + General Penis, the bot's own route) both seeds show the anus above the entry and the shaft in the vulva, and her
+  face is closer to image 0. Fix: Flux 4 Play off doggy (riding and cowgirl keep it), d0gg13 out of the doggy scene; unit row changed.
+- **Blowjob arms (seed 101): not fixed.** Ruled out: image 1 (the owner's picture 6, cropped; same arms), BIG_FACE, Unchained at 0.5. Seen:
+  her arms stretched forward to his thighs, seen from above; without Unchained the bust and arms were fuller but the act failed (penis out
+  of her mouth). One seed per test: a lead for a later bench, not a finding.
+Golden: `--write`, 3 lines (doggy: LoRA 4 Unchained for Flux 4 Play, d0gg13 gone; one gaze pick moved). Spend: $0.03666 by the bot's sum
+(balance $14.70565 → $14.66990); with the bench, $0.24063 of $0.25. The balance had already fallen $0.01573 between the bench's end and this
+review (from $14.72138, cause unknown); counting that, the step is $0.25636.
+
+### Decided in review, for Step 4 (apply these first)
+- **Realism LoRAs: V2**, `LORAS` = `{ "ferasalm:instapic@1": 0.6, "ferasalm:realhd2kc@1": 0.5 }` (phone2025 and ultrareal5 become spare;
+  update their `LORA_INFO` notes). Why: on the reads V0, V2 and V3 look alike (skin, faces), V0's four LoRAs gave the one bare nipple,
+  fewer LoRAs cost less GPU time, and V2 keeps the two the owner asked for by name (InstaPic 2026-10-08, Real HD 2K 2026-10-09).
+  The smartphone prefix then never goes in (`LORA_PREFIX_WITH` is phone2025). At /nsfw Off these two are the whole list.
+  `--write` the golden: only `lora` lists and the prefix sentence may change. Name the reason in the commit.
+- Add three regression pictures to the Step 4 bench (about $0.008): "naked, standing in front of the bedroom mirror" seeds 101 and 202
+  (head in scale) and "doggy style" seed 202 (anus above the entry), read at full size with a zoom crop for doggy.
+- Name the model in HANDOFF, table.md and the commits (owner, 2026-10-11): read it with `get_session`.
+- Leave alone: blowjob routing (the arms stay open), riding (the second head and his hands are not checked yet: Step 6 looks at positions).
 
 ### Step 3 review prompt (paste into a new chat, pick Opus, effort high)
 > Continue reem-bot. Follow CLAUDE.md. You are reviewing WORKPLAN Step 3. The build session that made it is linked in HANDOFF

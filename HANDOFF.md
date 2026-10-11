@@ -2,76 +2,67 @@
 
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md`. Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`. History: `docs/CHANGELOG.md`.
-**Work plan: `docs/WORKPLAN.md`** (2026-10-11): the eight steps, their specs, and the review prompt for Step 3 at its end.
+**Work plan: `docs/WORKPLAN.md`** (2026-10-11): the eight steps, their specs, and the "Decided in review" notes at its end.
 
-**Last updated:** 2026-10-11 (twenty-seventh session: **WORKPLAN Step 3 built and benched**, $0.20397 of the $0.25 cap; the owner's corrections are logged; ready for the review. On `dev`.)
+**Last updated:** 2026-10-11 (twenty-eighth session, **Opus**: the Step 3 review. Two root causes found and fixed, one still open,
+the LoRA set decided for Step 4. On `dev`.)
 **Deployed:** `main` = 897dfaf (deploy run 38013450881, Version 496925bf-95b1-4fd7-8a0b-e1daea3953a7, the belly fix), unchanged.
-Rollback: push `0d2010f` or `9c1270f` to `main`. `dev` = Steps 1-3 (Step 3 not yet reviewed). Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+Rollback: push `0d2010f` or `9c1270f` to `main`. `dev` = Steps 1-3, reviewed. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers (Workers Paid). **Live (`main`, unchanged):** texts, memory and /auto
 on DeepSeek V4 Flash (Workers AI, OpenRouter backup); voice Sulafat; hearing Gemini 3.8 Flash; pictures Runware klein 9B with her face, body
 and place references, the owner's reference set of 2026-10-10, `DAILY_USD` $1.
-**On `dev`, not deployed:** Steps 1-2 (reviewed: golden picture plans, the D1 studio log, `/nsfw` Off / Nude / On per chat, default On).
-**Step 3 (waiting on the review):** `RUNWARE.LORA_INFO` (18 LoRAs), `LORA_PREFIX_WITH` (smartphone prefix only with phone2025), `povhandc`
-out of the word lists, `tools/options.mjs` category and spare list, `tools/face/lora-bench.mjs`. Routing unchanged.
+**On `dev`, not deployed:** Steps 1-2 (golden picture plans, the D1 studio log, `/nsfw` Off / Nude / On per chat, default On) and Step 3
+(built by **Haiku**, reviewed by **Opus**): the LoRA catalog `LORA_INFO`, the smartphone prefix only with phone2025, plus the review's two fixes:
+- **Head too large (nude, seed 101) → the camera.** The random gaze "looking up at the camera through her lashes" put the camera above her.
+  It is out of `GAZES`. Ruled out: BIG_FACE. Seed 101 redrawn: head in scale.
+- **No anus (doggy, seed 202) → Flux 4 Play.** Its doggy drew a reverse-cowgirl pose with the cleft closed. Doggy now runs without it
+  (Unchained + General Penis, as the bot's own route). Ruled out: the back body picture, "belly". Both seeds redrawn: the anus shows above the entry.
+- **Blowjob arms (seed 101): not fixed.** Ruled out: image 1, BIG_FACE, Unchained at 0.5. A lead only: Unchained 0.8 shrinks the bust and arms,
+  but without it the act failed. Details: WORKPLAN "Step 3 review".
 
-## Step 3 bench: where it is
-- **GitHub branch `face-candidates`, folder `runs/2026-10-11-step3-lora-bench/`** (commit 5fba51a):
-  https://github.com/ferasalm/reem-bot/tree/face-candidates/runs/2026-10-11-step3-lora-bench
-  Start with `table.md` (every picture; the owner's reads override the bench read). Also `reads-raw.md`, `plan.txt` (every prompt sent),
-  `results.json`, the two zoom sheets, and `pictures/` (72 JPGs named `case-variant-s<seed>.jpg`).
-- Spend $0.20397 (the bot's sum = the Runware balance change, $14.92535 → $14.72138). Under the $0.25 cap.
-- **The owner's defects (the review finds the root causes):** (1) nude mirror, seed 101: head disproportionately large; (2) blowjob,
-  seed 101: upper arms slimmer than they should be, though the prompt says "full upper arms"; (3) doggy, seed 202: no anus visible above the entry.
-- **Doggy hands are correct** (seeds 101 and 202): the earlier "ghost hands" finding is withdrawn.
-- **The build's leads, for the review to double-check (not findings):** `BIG_FACE` (the 2x face on every face picture); the head-size line
-  exists only in LOOKS, which face pictures never use; image 1 (`body-v10`) arms; the camera.
-- Bench reads not checked by the owner: riding seed 202 V0 (his hands at the bottom of the frame); a second head in riding (both seeds);
-  missionary's hands on her thighs (a pose); one bare nipple on a clothed picture (seed 202 V0, four realism LoRAs); blowjob penis reads long.
-- **The fix is the review's, at the root** (reference, body or camera). No new size, arm or anus words in the prompt (they leak).
+## The review's pictures
+- GitHub branch `face-candidates`, folder `runs/2026-10-11-step3-review/` (commit 95c5ab8): `table.md` (every test and its read), 13 pictures,
+  sheets, the test lists and `diag.mjs` (the bench harness with reference and CONFIG swaps). The Step 3 bench itself: `runs/2026-10-11-step3-lora-bench/`.
+- Spend: the review $0.03666 (bot's sum; balance $14.70565 → $14.66990); with the bench $0.24063 of the $0.25 cap. The balance also fell
+  $0.01573 between the bench's end and the review (cause unknown, not this session's calls); with it, the step is $0.25636.
 
-## Session links (where the work is attributed)
-- Build session: https://claude.ai/code/session_01RoSzs9sjxYEF75N7tTu8Nt (commits e4b3d47, 4e81a2d, 1650d58 on `dev`; fd0e9e0 and 5fba51a on `face-candidates`).
-- The review session's commits carry its own Claude-Session link, which opens its session page.
+## Session links (who did what)
+- Step 3 build (Haiku): https://claude.ai/code/session_01RoSzs9sjxYEF75N7tTu8Nt. Step 3 review (Opus): https://claude.ai/code/session_01PVtSGCTGu7CyWDm5pnS4S7.
+- From now on the records name the model (owner, 2026-10-11; read with `get_session`, never from memory).
 
 ## Waiting on the owner
-- **Model names in the records (the early open question).** The owner asked for the build and the review to be logged by model name. The
-  system rules for this session bar model identifiers in anything pushed to a repository, so the records name no model: the Claude-Session
-  link opens the session, whose page shows the model. The model is named in chat.
-  Recommended: keep it this way. Writing model names into the records needs a change to the session setup; I won't add them without it.
+- **The $0.01573 drop in the Runware balance** between the bench and the review: not this session's calls. Your own Telegram pictures? If not, say so.
 - **Your Telegram test of the belly fix**, and the 01:31:44 UTC picture of 2026-10-10 (a Runware "no picture" that Cloudflare redrew).
 - **Do not send `/restart`**, though `/setup` says to: it wipes her memory.
 - `tools/face/bench.json` still names the deleted `body-hourglass.jpg`; changing it starts the paid image bench (`image-bench.yml`).
 
-## Verified this session (2026-10-11, twenty-seventh session)
-- Sync report OK after `git fetch --unshallow origin`. Golden `picture-plans --check` ok (28 cases); `tools/check.mjs` 7/7 (no code changed since).
-- Bench: dry run, 72 plans at $0; paid run, 72 drawn, 0 errors, $0.20397; every picture read at full size; the owner's re-check confirmed
-  the nude and blowjob defects and the doggy hands (re-viewed here too).
+## Verified this session (2026-10-11, twenty-eighth session)
+- Sync report OK after `git fetch --unshallow origin`. Haiku's commits: CLAUDE.md, `.claude/`, `.github/`, `tools/test/`, `bench.json` untouched; DECISIONS only appended.
+- `node tools/check.mjs` 7/7 (read in full). Golden `--write`: 3 changed lines, all intended (doggy LoRA and d0gg13; one gaze pick moved by the shorter list).
+- 13 pictures read at full size, doggy on a zoom crop; the seed reproduced the bench picture before any change was tested.
 
-## Next steps (in order; one chat each; the review checks each step before the next)
+## Next steps (in order; one chat each; Opus reviews each step before the next)
 Each has a recommended effort. The owner sets the effort; Claude only recommends it.
-1. **Review of Step 3** (paste the review prompt at the end of `docs/WORKPLAN.md`): find and fix the root causes of the three defects,
-   double-check the leads, decide the LoRA set, write "Decided in review, for Step 4". *Effort: high*
-2. **Step 4**: outfits, the daily outfit, image 1 by outfit, nude back views, with a bench. ≤ $0.20. *Effort: high*
+1. **Step 4** (Haiku): outfits, the daily outfit, image 1 by outfit, nude back views, with a bench. ≤ $0.20. Apply "Decided in review, for Step 4"
+   first: realism LoRAs = InstaPic + Real HD 2K (V2), three regression pictures. *Effort: high*
+2. **Review of Step 4** (Opus). *Effort: high*
 3. **Step 5**: partly dressed and close-ups, with a bench. ≤ $0.10. *Effort: medium*
-4. **Step 6**: anal positions, with zoom-crop bench. ≤ $0.12. *Effort: medium*
+4. **Step 6**: anal positions, with zoom-crop bench (also look at riding: a second head, his hands). ≤ $0.12. *Effort: medium*
 5. **Step 7**: the prompt studio at /studio, reading the D1 log. ≤ $0.05. *Effort: high*
 6. **Step 8**: deploy and live checks when you say "deploy" (suggested after Steps 2, 6 and 7). *Effort: low*
 7. **Your Telegram test** of the belly fix, and of `/nsfw` once deployed (at Off/Nude, does /look refuse too often in a hot chat?). *Effort: low*
-8. **Runware "no picture" recurring?** `/spend` (`failed today`) for a few days. *Effort: low*
-9. **Later:** Flux 4 Play tongue weight bench; a seated clothed pose that keeps the belly flat; `/look`'s DeepSeek answers (`llm_text` in the
-   studio log after the deploy); /spend vs the dashboards; a cheaper or better text model; `bench.json` → `body-nude.jpg`; old session branches
-   (`tools/retired-branches.txt`). *Effort: medium*
+8. **Later:** the blowjob arms (a bench: Unchained weight vs povdt, 2+ seeds); the riding second head; Flux 4 Play tongue weight; a seated clothed
+   pose with a flat belly; `/look`'s DeepSeek answers (`llm_text`); /spend vs the dashboards; a cheaper text model; `bench.json` → `body-nude.jpg`;
+   old session branches (`tools/retired-branches.txt`). *Effort: medium*
 
 ## Open questions for the owner
-- Model names in the records: see "Waiting on the owner" (recommended: keep the session links).
-- Realism LoRAs after the review: four (V0) or two (V2 or V3)? The bare nipple came from the full stack once; fewer LoRAs cost less GPU time.
 - OK to press Actions > Delete retired branches for `tools/retired-branches.txt`? The sync check says no work is missing from `dev`.
-- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (Done by hand this session.)
+- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (Done by hand again this session.)
 - Old session branches still hold the old Reem pictures in their history. Clear those too, or leave them?
 - Once deployed, Step 2 changes the default: a chat that never set `/nsfw` is On, and at On about 1 in 3 of her own hot-chat pictures are nude
   (your 2026-10-11 decision). Deploy only when you say so.
 
 ## Prompt for the next chat
-Pick **Opus** (effort high) and paste the "Step 3 review prompt" at the end of `docs/WORKPLAN.md`. It is self-contained.
+Pick **Haiku 5.5** and paste the Haiku prompt from `docs/WORKPLAN.md` ("How to run a step") with N = 4 and $X = 0.20.

@@ -505,3 +505,9 @@ check 0/5 (~20 s a call). → her replies stay "none" (+ retries), tasks (memory
 - **Missionary:** his hands on her thighs at V0, V3, V4, V5 (seed 101): a pose.
 - **Clothed bedroom, seed 202:** a bare nipple above the sheer slip at V0 only (four realism LoRAs, 2.3 total); V2, V3, V5 covered. One case.
 - **Blowjob penis:** reads long in all six (POV_MAN's "average-sized" not honoured).
+
+## Step 3 review: root-cause tests (2026-10-11, Opus; the bench harness with reference and CONFIG swaps, `face-candidates` runs/2026-10-11-step3-review)
+13 pictures, V0 LoRAs, each read at full size (doggy on a zoom crop); $0.03666 by the bot's sum, balance $14.70565 → $14.66990.
+- **Nude mirror, seed 101:** the bench picture reproduced; BIG_FACE off: same large head; a level gaze in place of "looking up at the camera through her lashes": head in scale. Fixed in code (that gaze out of GAZES): head in scale.
+- **Doggy, seed 202:** front body as image 1: same picture; "belly" out of POV_MAN: same; Flux 4 Play off: anus above the entry, shaft in the vulva (also seed 101). Fixed in code (no Flux 4 Play on doggy): both seeds right, her face closer to image 0.
+- **Blowjob, seed 101:** povdt off: arms the same; Unchained off: fuller bust and arms but the penis out of her mouth; Unchained 0.5: the same as the bench. Not fixed.
