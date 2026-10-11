@@ -420,16 +420,34 @@ Opus fixed two slips (golden still unchanged, `node tools/check.mjs` 7/7; each n
   say so rather than go over).
 - Leave alone: /nsfw, the seed logic, the studio log, `tools/face/bench.json`.
 
-### Step 3 corrections (owner, 2026-10-11, for the Opus review)
-The owner's reads override the bench read in `table.md` (face-candidates runs/2026-10-11-step3-lora-bench). Fix each at its root, in code
-(the reference, the body or the camera), not with new prompt words: those leak (owner, DECISIONS 2026-10-11).
-1. **Nude mirror, seed 101: the head is disproportionately large** for the body (all four variants; seed 202 fine). Candidates: `BIG_FACE`
-   (the 2x face, 896x960, as image 0 on every face picture); the head-size line ("her head is naturally sized for her body, about one seventh
-   of her height") is only in LOOKS, which her face pictures never use. Test face-1x against face-2x at this seed and measure head to body.
-2. **Blowjob, seed 101: the upper arms are slimmer than they should be.** The sent prompt already says "full upper arms" (REFERENCE), so the
-   words do not hold them. Candidate: image 1 (`body-v10`, the owner's nude front); compare it with the owner's picture 6 in `tools/face/originals/`.
-3. **Doggy, seeds 101 and 202: no ghost hands.** His hands on her buttocks at V0 are correct. Withdrawn: the hand-word cause. No change needed here.
-4. **Doggy, seed 202: no anus visible** above the entry in any variant. The target wording is "her anus above it closed and untouched". Decide
-   whether the camera or the reference hides it, and fix that at the root. Vaginal vs anal is still unresolved on the zoom crops.
-5. Not checked by the owner: riding seed 202 V0 (his hands at the bottom of the frame, bench read); the second head behind her in riding (both seeds).
-Then the "Decided in review, for Step 4" notes, as the step asks.
+### Step 3 corrections and the review (owner, 2026-10-11)
+Bench: GitHub branch `face-candidates`, folder `runs/2026-10-11-step3-lora-bench/` (commit fd0e9e0): 72 pictures, `table.md` (every
+picture; the owner's reads override the bench read), `reads-raw.md`, `plan.txt` (every prompt sent), `results.json`, zoom sheets.
+The root causes are the review's to find (DECISIONS 2026-10-11). The build's leads below are for it to double-check, not findings.
+1. **Nude mirror, seed 101: the head is disproportionately large** for the body (all four variants; seed 202 fine). Leads: `BIG_FACE` (the 2x
+   face, 896x960, image 0 on every face picture); the head-size line ("her head is naturally sized for her body, about one seventh of her
+   height") is only in LOOKS, which her face pictures never use.
+2. **Blowjob, seed 101: the upper arms are slimmer than they should be.** The sent prompt already says "full upper arms" (REFERENCE). Lead:
+   image 1 (`body-v10`, the owner's nude front); compare with the owner's picture 6 in `tools/face/originals/`.
+3. **Doggy, seed 202: no anus visible** above the entry in any variant. The target is "her anus above it closed and untouched". No lead yet.
+4. **Doggy hands, seeds 101 and 202: correct, no change.** The hand-word cause is withdrawn.
+5. Not checked by the owner: riding seed 202 V0 (his hands at the bottom of the frame); the second head behind her in riding (both seeds).
+Fix each confirmed cause at its root: the reference, the body or the camera. No new size, arm or anus words in the prompt: they leak.
+
+### Step 3 review prompt (paste into a new chat, pick Opus, effort high)
+> Continue reem-bot. Follow CLAUDE.md. Review WORKPLAN Step 3, built and benched in an earlier session (the session link is in HANDOFF).
+> Read in this order: HANDOFF.md; the 2026-10-11 entries of docs/DECISIONS.md; docs/LESSONS.md; WORKPLAN's Step 3 section, its
+> "Decided in review, for Step 3" notes and "Step 3 corrections and the review" (this section). Then the bench on GitHub branch
+> `face-candidates`, folder `runs/2026-10-11-step3-lora-bench/`: table.md (the owner's reads override the bench read), reads-raw.md,
+> plan.txt, results.json, and the pictures you need at full size.
+> Your first job is the root causes, and you find them: (1) the nude mirror at seed 101 has a head too large for the body; (2) the blowjob
+> at seed 101 has upper arms slimmer than they should be, though the prompt says "full upper arms"; (3) the doggy at seed 202 shows no anus
+> above the entry. The build's leads (BIG_FACE; the head-size line only in LOOKS; image 1's arms in body-v10; the camera) are for you to
+> double-check, not findings. Test each lead with real pictures through the bot's own code (`tools/face/lora-bench.mjs` is the harness),
+> keep the Runware spend under $0.10 (Claude's value; the owner can change it), then report what you confirm and what you rule out.
+> Fix each confirmed cause at its root: the reference, the body or the camera. Do not add prompt words for size, arms or the anus: they
+> leak (DECISIONS 2026-10-11, "Root causes, not words"). The doggy hands are correct: no change for them.
+> Then decide the realism LoRA set (V0 four LoRAs, V2, V3, V5) from the reads, and write "Decided in review, for Step 4" at the end of
+> WORKPLAN.md. If the golden plans change, the change must be intended: run `--write` and call it out. Finish with `node tools/check.mjs`
+> (read it in full), then /handoff. Log the review in the records without a model name (the system rules bar it); your session link in
+> the commit trailer identifies you. No deploy; never push to main.

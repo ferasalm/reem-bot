@@ -55,7 +55,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 ## 2. Known traps
 - Head size and arm slimness (Step 3 bench, 2026-10-11; the owner saw them, the bench read missed them): a nude picture at seed 101 had a
   head too large for the body in all four variants, and the blowjob at the same seed slim arms, though the sent prompt said "full upper arms".
-  Cause (candidates, to test): the 2x face on every face picture (BIG_FACE), the head-size line that is in LOOKS only (no-face pictures), and
+  Leads for the review to double-check (not confirmed): the 2x face on every face picture (BIG_FACE), the head-size line that is in LOOKS only (no-face pictures), and
   image 1's arms. Fix the reference or the body, not the words. A reader's full-size pass is not a proportion check: check head-to-body against the reference.
 - Withdrawn (2026-10-11, owner): the "ghost hands" in doggy (his hands on her buttocks at V0) were correct and undeformed. No hand-word change is needed for them.
 - Vaginal vs anal on a 260 px crop at the entry (doggy, 12 pictures): the anus shows above the entry in some frames and not in others → the crop
