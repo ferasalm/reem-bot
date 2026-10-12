@@ -52,8 +52,8 @@ function knownReferences() {
   add("body-cloudflare", FACE.BODY_JPEG_BASE64);
   add("body-v10", FACE.BODY_NUDE_JPEG_BASE64);
   add("body-v10-back", FACE.BODY_BACK_JPEG_BASE64);
-  add("body-v10-clothed", FACE.BODY_CLOTHED_JPEG_BASE64);
-  add("body-v10-neutral", FACE.BODY_NEUTRAL_JPEG_BASE64);
+  add("body-v11-clothed", FACE.BODY_CLOTHED_JPEG_BASE64);
+  add("body-v11-clothed-back", FACE.BODY_CLOTHED_BACK_JPEG_BASE64);
   for (const [k, v] of Object.entries(FACE.STYLE_JPEG_BASE64 || {})) add(`style:${k}`, v);
   for (const [k, v] of Object.entries(PLACES.PLACE_JPEG_BASE64 || {})) add(`place:${k}`, v);
   return names;
@@ -160,8 +160,8 @@ const cases = (W) => {
     { name: "day outfit: selfie no words (home)", run: selfieDay(null).run },
     { name: "day outfit: selfie at the coffee shop (out)", run: selfieDay("at the coffee shop, smiling").run },
     { name: "day outfit: selfie in a named sweater (no day outfit)", run: selfieDay("in a cream sweater, smiling").run },
-    // Step 4 review: the day's outfit has a picture (the rust halter): that picture is image 1, no fourth image
-    { name: "day outfit with a picture: image 1 is the outfit", run: (env, ledger) => W.startPicture(env, ledger, "selfie", null, { dayWear: { ...DAY, home: W.CONFIG.PICTURE.RUNWARE.STYLE_PICTURES["outfit-rust-halter"] } }) },
+    // Step 4 review: the day's outfit had a picture (the rust halter); since 2026-10-12 outfits are words only (the case keeps its name: cases are seeded by index)
+    { name: "day outfit with a picture: image 1 is the outfit", run: (env, ledger) => W.startPicture(env, ledger, "selfie", null, { dayWear: { ...DAY, home: "a fitted rust-red halter crop top and light-blue straight-leg jeans" } }) },
     // Step 4 review: her own sex-act words get no wardrobe added (a boudoir pick made it "partly naked")
     { name: "selfie act words: no clothes added", run: selfieDay("riding him on the bed").run },
     // Step 6: anal positions (new cases at the end: cases are seeded by index)

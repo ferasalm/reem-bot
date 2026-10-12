@@ -120,7 +120,7 @@
 
 // Her personality and rules: the system prompt sent with every reply
 // Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
-import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_NEUTRAL_JPEG_BASE64, STYLE_JPEG_BASE64 } from "./face.js";
+import { FACE_JPEG_BASE64, FACE_2X_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_CLOTHED_BACK_JPEG_BASE64, STYLE_JPEG_BASE64 } from "./face.js";
 import { PLACE_JPEG_BASE64 } from "./places.js";
 import { STUDIO_HTML } from "./studio.js";
 import { Mp3Encoder } from "./mp3.js";
@@ -897,7 +897,11 @@ Changing the story
       // + Real HD 2K 1.0; "v5-back" from behind, "v5-clothed" drawn from v5
       // then "v6" (owner: "redraw the body (the fuller are what's important)"): v5 redrawn with fuller arms and a softer belly
       BODY: "v10",                     // image 1 on nude pictures: the owner's nude front (2026-10-10); older sets are in the history above
-      BODY_CLOTHED: "v10-clothed",     // image 1 when she isn't naked: the owner's rust halter + jeans picture (2026-10-10). A nude body picture made her naked when no clothes were named (2026-10-08)
+      // 2026-10-12 (owner: "Add attached body images as THE only clothed body reference, retiring other clothed image references
+      // (Wardrobe variety now happens with prompt text)"): the black bra + thong pictures (originals 11, 12). Was v10-clothed (the rust
+      // halter + jeans), then the nude front for clothed pictures (CLOTHED_BODY "nude", Step 5); the outfit pictures are retired too
+      BODY_CLOTHED: "v11-clothed",     // image 1 when she isn't naked (and of partly naked pictures, BODY_PARTIAL "clothed")
+      BODY_CLOTHED_BACK: "v11-clothed-back", // image 1 of a clothed back view (NUDE_BACK_WORDS in a clothed picture: a belfie, a mirror back view)
       BODY_BACK: "v10-back",           // image 1 on sex acts from behind (BACK_WORDS): the owner's nude back (2026-10-10)
       // acts seen from behind (owner, round 7: "When it's a doggy scene, don't prompt her breasts since they won't show ... always describe
       // that it's from behind"): BODY_BACK, REFERENCE_BACK and NAKED_BACK instead of the front ones
@@ -913,8 +917,8 @@ Changing the story
       // round 7 (owner: "Use lower resolution for lower cost"): 768x1344 $0.0025 (was 1008x1792 $0.0034; 576x1024 drew a soft, plastic face)
       WIDTH: 768,                      // klein on Runware only (multiples of 16, at most 2048); /face and Cloudflare keep PICTURE.WIDTH
       HEIGHT: 1344,
-      STEPS: 5,
-      CFG: 1,
+      STEPS: 6,                        // 2026-10-12 (owner: "use 6 steps and put CFG at 2"); were 5 and 1 (round 4)
+      CFG: 2,
       ACCELERATION: "none",
       // the shape of sex-act pictures (owner, round 7: "Keep it at 1:1 (with occasional 16:9s) for blowjobs and deepthroat. For other sex
       // scenes, randomize between 9:16, 1:1, with occasional 16:9. Keep other pictures ... at 9:16"): ASPECTS.ORAL on oral acts (ORAL_WORDS),
@@ -925,37 +929,21 @@ Changing the story
       WIDE: "Only one woman is in the picture.",
       BIG_FACE: true,                  // her face reference 2x (896x960, Runware upscaler) instead of the 460x480 one (Cloudflare's limit)
       KLEIN_TRIES: 2,                  // her pictures: klein 9B tries (2 = one retry), then Cloudflare klein with the same references; TwinFlow never draws her (words only: its LOOKS drew the belly, 2026-10-10)
-      // owner 2026-10-10: these outfits and hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when
-      // the picture's words contain the text (an outfit before a hairstyle; at most one picture: about $0.0009 more each)
+      // owner 2026-10-10: these hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when picked (about
+      // $0.0009 more). The four outfit pictures were retired 2026-10-12 (owner): outfits are words only
       STYLE_PICTURES: {
-        "outfit-olive-cardigan": "a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan",
-        "outfit-camel-coat": "a long camel wool coat open over a black turtleneck and charcoal trousers, a cream chunky-knit scarf around her neck",
-        "outfit-gray-shirt-lace": "an open, oversized gray linen shirt over a black ribbed bralette with lace trim and black knit shorts with lace side panels",
-        "outfit-rust-halter": "a fitted rust-red halter crop top and light-blue straight-leg jeans",
         "hair-long-bangs": "long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows",
         "hair-bun-bangs": "pulled up loosely, with full wispy bangs down to her brows and long loose strands framing her face",
         "hair-long-waves": "long, loose dark waves with a center part and no bangs, falling over her shoulders",
       },
-      OUTFIT_LINE: "She wears exactly the clothes shown in image {n} (not image {n}'s body or pose), not image 1's clothes.",
       HAIR_LINE: "Her hair is styled exactly as in image {n}; her face stays image 0's.",
-      // Step 4 (2026-10-11): clothed pictures (not nude, back or partly naked). CLOTHED_BODY "rust": the rust-halter body picture
-      // (BODY_CLOTHED) stays image 1 with REFERENCE_CLOTHED ("not its clothes"); "none": no body picture, REFERENCE_NOBODY.
-      // OUTFIT_BODY: an outfit with a picture (STYLE_PICTURES) is image 1 itself, with REFERENCE_OUTFIT, and no fourth image.
-      // Step 4 review (Opus, 2026-10-11): "none". Klein copies the garment of a clothed image 1: the rust halter cropped other tops
-      // (Breton s101 and s303, silk s101) and the neutral tank turned necklines into its scoop (Breton s101/s303, linen); none: 0 of 18
-      // "nude" (owner, 2026-10-11: yes to the fuller build, v10's): the nude front + DRESSED_FULL. Checked (Opus): 12/12 outfits as
-      // named at seeds 101 and 202 (no crop leak), lingerie 3/3 (lace stays sheer, no nipples), /nsfw Off 2/2 past Runware's check,
-      // scenes 2/2 dressed; a lace cami came out a short bralette once
-      CLOTHED_BODY: "nude",
-      OUTFIT_BODY: true,
-      // Step 4 review: CLOTHED_BODY "nude" sends BODY with this line; "neutral" sends BODY_NEUTRAL (tools/face/body-neutral.jpg, seed 402)
-      BODY_NEUTRAL: "v10-neutral",
-      DRESSED_FULL: "She is fully dressed in the clothes described, nothing see-through; image 1 shows only her body's shape.",
       // Task C (owner's row 13, 2026-10-11: a cardigan over a cami came out naked below the waist): a top named and no bottom or one-piece
       DRESSED_BOTTOM: "Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare.",
-      REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body shape of image 1, not slimmer, but not image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
-      REFERENCE_OUTFIT: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), with exactly the body of image 1 and wearing exactly image 1's clothes: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
-      REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust and soft, full upper arms, fair olive skin. She is 29, clearly an adult.",
+      // clothed pictures on BODY_CLOTHED (2026-10-12): klein copies a clothed image 1's garment (the rust halter's crop, Step 4), so
+      // the line names what image 1 wears and keeps it out. Owner 2026-10-12: "keep adding to prompts of Reem: full upper arms and soft body"
+      REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult.",
+      REFERENCE_CLOTHED_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: the same back, waist, full upper arms, soft body and round bottom, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black thong. She is 29, clearly an adult.",
+      REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): an average-to-full figure, about 165 cm and 71 kg, a full bust, soft, full upper arms and a soft body, fair olive skin. She is 29, clearly an adult.",
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
       // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16);
@@ -968,7 +956,18 @@ Changing the story
       // 2026-10-09 (owner: "let's return to using Real HD 2k for all pictures"): realhd2kc back at 0.5, its weight when it was last on
       // Step 4 (Step 3 review, 2026-10-11, "Realism LoRAs: V2"): InstaPic and Real HD 2K only; phone2025 and ultrareal5 are spare
       // (LORA_INFO). The smartphone prefix needs phone2025 in the list, so it stays out.
-      LORAS: { "ferasalm:instapic@1": 0.6, "ferasalm:realhd2kc@1": 0.5 },
+      // 2026-10-12 (owner: "For realism in telegram bot, always use Lenovo Ultrareal LoRA at 1.3 weighting. Stop using other Realism
+      // LoRAs like instapic", "Maximum #of LoRAs per image is 3"): Lenovo UltraReal (Civitai 2682771, ferasalm:lenovoc@1) alone
+      LORAS: { "ferasalm:lenovoc@1": 1.3 },
+      // at most this many LoRAs a picture (owner 2026-10-12), kept in this order: LORAS, NUDE_LORAS, an act LoRA, HANDS_LORAS, ANATOMY_LORAS
+      MAX_LORAS: 3,
+      // owner 2026-10-12 ("the quality anatomy fix LoRA ... especially since they cannot be retried"; "Sex scenes don't use anatomy
+      // fixer"): Anatomy Quality Fixer on every picture that is not a sex act (her own, /pic, /look), at its round-2 weight
+      ANATOMY_LORAS: { "myaiprojectsqqq:3@2": 0.7 },
+      // owner 2026-10-12 ("When user's hand in the prompt, include the hands LoRA"): POV hand (converted) when HANDS_WORDS name his hands,
+      // at its 2026-10-08 weight; with NSFW Unlocked on, the Step A bench decides it (with and without)
+      HANDS_LORAS: { "ferasalm:povhandc@1": 0.6 },
+      HANDS_WORDS: "his hand, his hands, the man's hand, the man's hands, his fingers, the man's fingers, my hand, my hands, his palm, the man's palm",
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
       // the prefix goes in only when this LoRA is in the list (Step 3, 2026-10-11): a picture without phone2025 has no smartphone sentence
       LORA_PREFIX_WITH: "ferasalm:phone2025@1",
@@ -977,22 +976,22 @@ Changing the story
       LORA_INFO: {
         "ferasalm:phone2025@1": { name: "Phone Photography 2000-2025", category: "realism", civitai: null, trigger: "LORA_PREFIX", note: "spare (out of LORAS, Step 4)" },
         "ferasalm:ultrareal5@1": { name: "UltraReal V5 Pro", category: "realism", civitai: null, trigger: "", note: "spare (out of LORAS, Step 4)" },
-        "ferasalm:instapic@1": { name: "InstaPic", category: "realism", civitai: 2998522, trigger: "instapic", note: "LORAS" },
-        "ferasalm:realhd2kc@1": { name: "Real HD 2K (DoRA converted to rank 32)", category: "realism", civitai: null, trigger: "", note: "LORAS" },
-        "ferasalm:lenovoc@1": { name: "Lenovo UltraReal", category: "realism", civitai: null, trigger: "", note: "spare" },
-        "ferasalm:unchained@2": { name: "Unchained XXX v2", category: "nudity", civitai: 2753532, trigger: "", note: "NUDE_LORAS" },
+        "ferasalm:instapic@1": { name: "InstaPic", category: "realism", civitai: 2998522, trigger: "instapic", note: "spare (out of LORAS, 2026-10-12: Lenovo only)" },
+        "ferasalm:realhd2kc@1": { name: "Real HD 2K (DoRA converted to rank 32)", category: "realism", civitai: null, trigger: "", note: "spare (out of LORAS, 2026-10-12: Lenovo only)" },
+        "ferasalm:lenovoc@1": { name: "Lenovo UltraReal", category: "realism", civitai: null, trigger: "", note: "LORAS at 1.3 (owner 2026-10-12: on every picture)" },
+        "ferasalm:unchained@2": { name: "Unchained XXX v2", category: "nudity", civitai: 2753532, trigger: "", note: "spare (out of NUDE_LORAS, 2026-10-12: NSFW Unlocked)" },
         "ferasalm:snofsc@1": { name: "SNOFS v1.4 (rank-128 copy)", category: "nudity", civitai: null, trigger: "", note: "spare" },
-        "ferasalm:nsfwunlock@1": { name: "NSFW Unlocked V2", category: "nudity", civitai: 3030169, trigger: "", note: "spare" },
-        "ferasalm:pussyd@1": { name: "PussyDiffusion v2", category: "anatomy", civitai: 2960754, trigger: "hairy pussy", note: "ACT_LORAS (pussy, spread legs); SOLO_LORAS" },
-        "ferasalm:penis@1": { name: "General Penis", category: "anatomy", civitai: 2624854, trigger: "", note: "ACT_LORAS (penis, cock); WITH_LORAS; SOLO_LORAS" },
-        "myaiprojectsqqq:3@2": { name: "Anatomy Quality Fixer", category: "anatomy", civitai: null, trigger: "", note: "spare" },
-        "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl (ACT_SCENES)", note: "ACT_LORAS (riding, cowgirl); off doggy since the Step 3 review" },
-        "ferasalm:missionary@1": { name: "Missionary POV K3NK", category: "act", civitai: 2699087, trigger: "", note: "ACT_LORAS (missionary)" },
-        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ANAL_LORAS: doggy alone at 1.0 (ANAL_ALONE), prone, reverse cowgirl, missionary at 0.8 (Step 6)" },
-        "ferasalm:povdt@1": { name: "Holding Deepthroat POV", category: "act", civitai: 2779637, trigger: "POV deepthroat scene", note: "ACT_LORAS (blowjob, deepthroat)" },
+        "ferasalm:nsfwunlock@1": { name: "NSFW Unlocked V2", category: "nudity", civitai: 3030169, trigger: "", note: "NUDE_LORAS at 0.8 (owner 2026-10-12: nudity and sex)" },
+        "ferasalm:pussyd@1": { name: "PussyDiffusion v2", category: "anatomy", civitai: 2960754, trigger: "hairy pussy", note: "spare (2026-10-12: no act LoRA)" },
+        "ferasalm:penis@1": { name: "General Penis", category: "anatomy", civitai: 2624854, trigger: "", note: "spare (2026-10-12: no act LoRA)" },
+        "myaiprojectsqqq:3@2": { name: "Anatomy Quality Fixer", category: "anatomy", civitai: null, trigger: "", note: "ANATOMY_LORAS at 0.7 (owner 2026-10-12: every picture but sex acts)" },
+        "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl (ACT_SCENES)", note: "spare (2026-10-12: no act LoRA)" },
+        "ferasalm:missionary@1": { name: "Missionary POV K3NK", category: "act", civitai: 2699087, trigger: "", note: "spare (2026-10-12: no act LoRA)" },
+        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ANAL_LORAS doggy only at 1.0, with Lenovo, in NSFW Unlocked's place (owner 2026-10-12: doggy AND anal)" },
+        "ferasalm:povdt@1": { name: "Holding Deepthroat POV", category: "act", civitai: 2779637, trigger: "POV deepthroat scene", note: "spare (2026-10-12: no act LoRA)" },
         "ferasalm:povbj@1": { name: "POV Blowjob", category: "act", civitai: null, trigger: "", note: "spare" },
-        "ferasalm:povhandc@1": { name: "POV hand (converted)", category: "act", civitai: 2640656, trigger: "", note: "spare (not loaded since round 5)" },
-        "ferasalm:tushyraw@1": { name: "Tushy Raw Filter", category: "light", civitai: 2569967, trigger: "FLASH_TRIGGER", note: "FLASH_LORAS (camera flash)" },
+        "ferasalm:povhandc@1": { name: "POV hand (converted)", category: "act", civitai: 2640656, trigger: "", note: "HANDS_LORAS at 0.6 (owner 2026-10-12: his hands named)" },
+        "ferasalm:tushyraw@1": { name: "Tushy Raw Filter", category: "light", civitai: 2569967, trigger: "FLASH_TRIGGER", note: "spare (owner 2026-10-12: flash LoRA dropped)" },
       },
       // owner 2026-10-08: SNOFS (Civitai, klein 9B v1.4) on nude/explicit pictures only: added to LORAS when NUDE_WORDS match
       // (or, with SEX_ACTS on, a NOT_DRAWN word). Runware can't load its LoKR ("failed to load") and its merged klein 9B
@@ -1003,26 +1002,30 @@ Changing the story
       // legs and showed penetration riding where SNOFS and Unlocked didn't; Unlocked beat SNOFS on 2 of 3 → Unchained +
       // Unlocked (SNOFS, ferasalm:snofsc@1, stays on Runware)
       // Unlocked (ferasalm:nsfwunlock@1) out too: with every LoRA stacked (9) her face drifted in 5 of 8 sex pictures
-      NUDE_LORAS: { "ferasalm:unchained@2": 0.8 },
+      // 2026-10-12 (owner: "For NSFW and nudity, use NSFW Unlocked V2 LoRA at 0.8 weighting, instead of other LoRAs. The NSFW Unlocked
+      // LoRA works fine for most of NSFW scenes and positions nudity and sex"): Unchained out
+      NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.8 },
       // owner 2026-10-08 ("don't confuse which is anal and which is normal vaginal ... Ensure overall anatomical correctness"): with
       // Unchained on a sex act the penis went in below an open, empty vulva on riding 0/4 and missionary 0/4 (even worded "inside her
       // vagina"), and anal from behind came out vaginal 0/2; without it riding 2/2, missionary 2/2, anal from behind 2/3. NUDE_LORAS
       // are left out when one of these act LoRAs (penetration) loads; blowjobs and nude pictures keep them
-      NUDE_LORAS_OFF_WITH: ["ferasalm:flux4play@1", "ferasalm:missionary@1", "ferasalm:povanal@1"],
+      // 2026-10-12 (owner: "The act may replace NSFW unlocked LoRA if and only if NSFW LoRA has a high failure rate in achieving such
+      // act"): POV Doggy Anal replaces it (Step 6: only it drew the penis in her anus; with the realism LoRAs a vulva was drawn there 4/5)
+      NUDE_LORAS_OFF_WITH: ["ferasalm:povanal@1"],
       // an act LoRA drawn alone (no LORAS, NUDE_LORAS or LORA_PREFIX) at this weight when it loads. Owner 2026-10-08 ("Let's try POV
       // doggy anal alone without the other LoRAs while raising its weight to 1"): anal from behind, her anus where it belongs 3/3 alone
       // at 1.0, while with the realism LoRAs a small vulva was drawn where her anus is (4 of 5)
       // round 7 (owner: "The tear streak is fine during deepthroat"): Holding Deepthroat POV alone at 1.0 on "deepthroat" benched again: her
       // face drifted 3/3 (older, another woman) and in her mouth only 1/3, while with the others a blowjob kept her face → not alone.
       // ALONE_WORDS: an ALONE_LORAS LoRA is alone only when one of its words is in the text (none = always alone)
-      ALONE_LORAS: { "ferasalm:povanal@1": 1 },
+      ALONE_LORAS: {},                 // 2026-10-12: none (Lenovo is on every picture, owner)
       ALONE_WORDS: {},
       // a LoRA (at its ACT_LORAS weight) added to a sex act whose words (comma-separated) are in the picture, even next to another act
       // LoRA (SOLO_LORAS aside). Round 7 put PussyDiffusion on vaginal acts; round 8 (owner: "his penis becomes as if it were part of the
       // pussy. Try running general penis with it"), zoom crops, 2 seeds each: PussyDiffusion missionary 0/2, riding 1/2, doggy 1/2; with
       // General Penis too 0/2, 0/2, 1/2; General Penis alone 2/2, 0/2 (on riding it drew the penis growing from her bush), 2/2 →
       // General Penis on missionary and doggy, riding with neither (right 2/2 in round 6)
-      WITH_LORAS: { "ferasalm:penis@1": "missionary, doggy, doggystyle, doggy style" },
+      WITH_LORAS: {},                  // 2026-10-12: none (owner: no third act LoRA for now)
       // by situation (owner 2026-10-08: "use LoRAs according to situations", runwareLoras): added to LORAS on her selfies /
       // in-person scenes and /look / /pic. InstaPic (Civitai 2998522) on selfies: more natural hair and skin (alone it drew
       // the phone in a plain selfie, so only with the others, at 0.6)
@@ -1039,7 +1042,10 @@ Changing the story
       // blowjob scenes": Holding Deepthroat POV, Civitai 2779637, ferasalm:povdt@1): blowjobs from his eyes with it (povbj stays on Runware)
       // round 5: POV hand (ferasalm:povhandc@1) out: ACT_SCENES' "his hands on her butt" drew his hands 4/4 without it, and
       // with it one anal picture got a stray bra strap. Holding Deepthroat POV kept: in her mouth 3/3 at 0.6-1.0, without it 0/2
-      ACT_LORAS: { "ferasalm:flux4play@1": 0.8, "ferasalm:povdt@1": 0.8, "ferasalm:missionary@1": 0.8, "ferasalm:povanal@1": 0.8, "ferasalm:penis@1": 0.6, "ferasalm:pussyd@1": 0.8 },
+      // 2026-10-12 (owner: "None for now, expect that this will change later and new LoRAs might be added"): no act LoRA; ACT_WORDS
+      // below stay, so an act LoRA comes back with one line here. Was: Flux 4 Play, Holding Deepthroat, Missionary, POV Doggy Anal 0.8,
+      // General Penis 0.6, PussyDiffusion 0.8
+      ACT_LORAS: {},
       ACT_WORDS: {
         "ferasalm:flux4play@1": "riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man",
         "ferasalm:povdt@1": "blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth",
@@ -1064,19 +1070,19 @@ Changing the story
       // ... Strength: 1.0"): FLASH_LORAS replace LORAS (the realism LoRAs) and LORA_PREFIX; NUDE_LORAS and ACT_LORAS stay.
       // FLASH_LIGHT replaces the picture's light, FLASH_PHOTO the PHOTO line, FLASH_TRIGGER opens the prompt
       FLASH_WORDS: ["camera flash", "flash on", "with flash", "with the flash", "with a flash", "flash photo", "flash pic", "flash picture", "flash selfie", "use flash", "using flash", "using the flash", "harsh flash", "direct flash", "flash photography"],
-      FLASH_LORAS: { "ferasalm:tushyraw@1": 1 },
+      FLASH_LORAS: {},                 // 2026-10-12 (owner: "Drop flash LoRA"): none, so flashAsked is false and a flash is words only
       FLASH_TRIGGER: "the photograph is shot with harsh frontal flash. background is very dark. change the entire lighting of the image into tushy raw style",
       FLASH_LIGHT: "only the phone's harsh direct camera flash, the room behind her falling into darkness",
       FLASH_PHOTO: "Raw, unretouched flash photo: flat frontal light, blown-out highlights on her skin, hard shadows behind her, a very dark background.",
       // the camera, his hands and the act's trigger words, by act. The first entry whose words (comma-separated) are in the
       // picture's words is added in place of POV_MAN ({pov} = POV_MAN); none = POV_MAN. Round 4 (owner: "Make framing for sex acts
       // tighter and POV to avoid anatomical issues and to improve skin texture and detail"; no side view): every act from his
-      // eyes, close. Flux 4 Play's triggers (c0wg1rl, r3v3rs3_c0wg1rl) only where its ACT_WORDS load it. Doggy has no Flux 4 Play
+      // eyes, close. Flux 4 Play's triggers (c0wg1rl, r3v3rs3_c0wg1rl) went out with it (2026-10-12: no act LoRA). Doggy has no Flux 4 Play
       // (Step 3 review, 2026-10-11): its d0gg13 drew the man lying down and her torso upright (a reverse cowgirl), her anus hidden in the closed cleft
       ACT_SCENES: {
         "blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth, the man's cock in her mouth": "First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. {close}",
-        "reverse cowgirl": "r3v3rs3_c0wg1rl, pov. {pov} She rides the man facing away, her back and round bottom close, his penis inside her vagina: the shaft enters her vulva, her anus above it closed and untouched; she glances back over her shoulder. {close}",
-        "riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man": "c0wg1rl, pov. {pov} She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. {close}",
+        "reverse cowgirl": "{pov} She rides the man facing away, her back and round bottom close, his penis inside her vagina: the shaft enters her vulva, her anus above it closed and untouched; she glances back over her shoulder. {close}",
+        "riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man": "{pov} She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. {close}",
         // owner 2026-10-08: "don't confuse which is anal and which is normal vaginal": vaginal acts name the vagina and vulva
         "missionary": "{pov} She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. {close}",
         // round 5 (owner: "the anus looks like a vagina"): from behind, klein drew a vulva where her anus is 0/14 (POV Doggy Anal at
@@ -1111,13 +1117,12 @@ Changing the story
       // sex) drew it in her vulva, her anus above it (0/3 each, doggy with Flux 4 Play 0/3); General Penis alone drew no penetration
       // (0/9). POV Doggy Anal: doggy alone at 1.0 5/5; 0.8 with the realism LoRAs prone 5/5 (flat 4/5), reverse cowgirl 2/2 (a
       // second head 1/2), missionary 2/2 (legs gone 2/2: no frontal anal LoRA yet)
+      // 2026-10-12 (owner: "remove the use of doggy anal LoRA unless specifically asked for doggy AND anal"): doggy only, and only when
+      // the words name it (a position picked by ANAL_POSITIONS loads nothing); with Lenovo, in NSFW Unlocked's place (NUDE_LORAS_OFF_WITH)
       ANAL_LORAS: {
         doggy: { "ferasalm:povanal@1": 1 },
-        missionary: { "ferasalm:povanal@1": 0.8 },
-        "reverse cowgirl": { "ferasalm:povanal@1": 0.8 },
-        prone: { "ferasalm:povanal@1": 0.8 },
       },
-      ANAL_ALONE: ["doggy"],           // positions whose ANAL_LORAS draw alone (no realism LoRAs or prefix); the others keep LORAS
+      ANAL_ALONE: [],                  // positions whose ANAL_LORAS draw alone; none since 2026-10-12 (Lenovo on every picture)
       TIMEOUT_MS: 60000,
       // round 4: the room on Runware, short (the room's LOOK words drowned the act and the LoRAs); {n} = its image number
       ROOM: "Behind her, her room as in image {n}, in this picture's own light.",
@@ -1130,9 +1135,9 @@ Changing the story
       // 163 cm and 64 kg, an hourglass figure ... wide hips, full thighs", which on the heavier clothed body made her overweight
       // round 8: with only "the same build and proportions" clothed pictures came out slimmer than image 1 (narrow hips, thin arms 4/4):
       // image 1's own shape named, "not slimmer" (round 7's overweight came from "but curvier" on a heavier picture)
-      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust and full upper arms, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult.",
       // a sex act from behind (BACK_WORDS): image 1 is BODY_BACK, no breasts named (owner: "don't prompt her breasts since they won't show")
-      REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: the same back, waist, hips and round bottom, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: the same back, waist, hips, full upper arms, soft body and round bottom, fair olive skin. She is 29, clearly an adult.",
       LOOKS: "Photo of a woman: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair olive skin, thick dark arched brows, almond-shaped warm amber-brown eyes, full lips, long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs; about 165 cm and 71 kg, an average-to-full figure, not slim and not heavy: a full bust, a soft defined waist, soft, narrow, rounded shoulders and soft, full upper arms with no muscle definition. Her head is naturally sized for her body, about one seventh of her height.",
       // sex acts: never drawn on Runware while SEX_ACTS is off; with it on, they add NUDE_LORAS and POV_MAN
       NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "deep throat", "deepthroating", "anal", "creampie", "cumshot", "titfuck", "69", "thrusts", "thrusting", "inside her", "sinks down onto the man", "lowers herself onto the man", "takes the man in her mouth", "reverse cowgirl", "on all fours", "doggy style"],
@@ -1213,7 +1218,7 @@ Changing the story
       REFERENCE_CLOSE: "A 29-year-old woman, clearly an adult: fair olive skin, an average-to-full figure, about 165 cm and 71 kg.",
       // Step 5: partly naked pictures leave out these LoRAs (Unchained XXX was trained on full nudes) and take these weights
       // (PussyDiffusion; 0 = left out)
-      PARTIAL_LORAS_OFF: ["ferasalm:unchained@2"],
+      PARTIAL_LORAS_OFF: [],           // was Unchained XXX (out 2026-10-12); NSFW Unlocked stays on partly naked pictures
       PARTIAL_WEIGHTS: { "ferasalm:pussyd@1": 0.6 },
       BODY_PARTIAL: "clothed",
     },
@@ -1358,8 +1363,8 @@ Changing the story
       BOUDOIR: ["a black lace bodysuit", "a black satin slip with thin straps", "a black lace cami and matching silk shorts", "a red lace bodysuit", "a white lace bodysuit", "a burgundy velvet slip with thin straps", "a black mesh bodysuit", "a black one-shoulder swimsuit | on Crane Beach, bright sun", "a black string bikini | on Crane Beach, bright sun"],
       NUDE: ["completely naked", "topless, in only black lace panties", "naked except for her thin gold rings", "completely naked, her hair still damp from the shower", "topless, in only his oversized gray sweatpants", "naked on rumpled white sheets"],
       // Step 4 (owner, 2026-10-11: "one home outfit a day"): one HOME and one OUT outfit a day by the band (outfitBand: COLD under 50 F,
-      // MILD 50-72, WARM over 72). Everyday pictures that name no clothes wear them; OUTSIDE_WORDS take OUT. Claude's lists; the
-      // STYLE_PICTURES texts are exact (their picture goes with the outfit).
+      // MILD 50-72, WARM over 72). Everyday pictures that name no clothes wear them; OUTSIDE_WORDS take OUT. Claude's lists (words
+      // only since 2026-10-12: the outfit pictures were retired).
       HOME: {
         COLD: ["her father's old gray knit cardigan over a plain black tank top and soft gray sweatpants", "a cream cable-knit sweater and soft gray sweatpants", "a gray zip-up hoodie half open over a white crop tank and joggers", "a matching soft beige lounge set, cropped top and wide pants", "a fitted olive ribbed long-sleeve top and gray yoga pants"],
         MILD: ["a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan", "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", "a matching soft beige lounge set, cropped top and wide pants", "a fitted gray ribbed tee and soft black lounge shorts", "an oversized gray tee and black bike shorts"],
@@ -3703,9 +3708,9 @@ const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null)
 const runwareRoute = (level) => /^runware/.test(String(CONFIG.PICTURE.ROUTE || "")) && !(level === "off" && CONFIG.PICTURE.NSFW.OFF_ROUTE === "cloudflare");
 const safeLine = (level = CONFIG.PICTURE.NSFW.DEFAULT) => (runwareRoute(level) ? "" : CONFIG.PICTURE.SAFE);
 
-// Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): the owner's 2026-10-10 set (v10 nude front, v10-back, v10-clothed)
+// Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): v10 nude front, v10-back (2026-10-10), v11-clothed (2026-10-12)
 // `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08); "back": BODY_BACK
-// The RUNWARE.BODY* key of a picture's body reference ("v10", "v10-back", "v10-clothed"); explicit = "back" | nude | clothed
+// The RUNWARE.BODY* key of a picture's body reference ("v10", "v10-back", "v11-clothed"); explicit = "back" | nude | clothed
 function runwareBodyName(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   return explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
@@ -3715,9 +3720,9 @@ function runwareBody(explicit = true) {
   return runwareBodyBytes(runwareBodyName(explicit));
 }
 
-// A body picture by its RUNWARE.BODY* name; v10-neutral (Step 4 review): the v10 nude front dressed in a gray tank and leggings
+// A body picture by its RUNWARE.BODY* name: v10 / v10-back (nude, 2026-10-10), v11-clothed / v11-clothed-back (black bra and thong, 2026-10-12)
 function runwareBodyBytes(name) {
-  const pics = { "v10": BODY_NUDE_JPEG_BASE64, "v10-back": BODY_BACK_JPEG_BASE64, "v10-clothed": BODY_CLOTHED_JPEG_BASE64, "v10-neutral": BODY_NEUTRAL_JPEG_BASE64 };
+  const pics = { "v10": BODY_NUDE_JPEG_BASE64, "v10-back": BODY_BACK_JPEG_BASE64, "v11-clothed": BODY_CLOTHED_JPEG_BASE64, "v11-clothed-back": BODY_CLOTHED_BACK_JPEG_BASE64 };
   const b64 = pics[name] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
@@ -3735,10 +3740,12 @@ function runwareAffordable(env, ledger, level = CONFIG.PICTURE.NSFW.DEFAULT) {
 // whose ACT_WORDS are in the words. A later set wins a LoRA's weight; weight 0 or not a number = left out.
 // `opts`: { kind, explicit, text, partial, anal } (a bare boolean = explicit). Partly naked (Step 5): PARTIAL_LORAS_OFF left out,
 // PARTIAL_WEIGHTS for the others (0 = left out). Step 6: `anal` = the anal position: its ANAL_LORAS replace the ACT_WORDS LoRAs,
-// WITH_LORAS and NUDE_LORAS (penetration: Unchained put the penis below an empty vulva, round 6); an ALONE_LORAS one stays alone
+// WITH_LORAS and NUDE_LORAS (penetration: Unchained put the penis below an empty vulva, round 6); an ALONE_LORAS one stays alone.
+// 2026-10-12 (owner): then HANDS_LORAS when HANDS_WORDS name his hands, ANATOMY_LORAS when not a sex act (`act`), and at most
+// MAX_LORAS in that order (realism, nudity, act, hands, anatomy)
 function runwareLoras(opts = {}) {
   if (typeof opts === "boolean") opts = { explicit: opts };
-  const { kind = "", explicit = false, text = "", partial = false, anal = "", level = CONFIG.PICTURE.NSFW.DEFAULT } = opts;
+  const { kind = "", explicit = false, act = false, text = "", partial = false, anal = "", level = CONFIG.PICTURE.NSFW.DEFAULT } = opts;
   const R = CONFIG.PICTURE.RUNWARE || {};
   const flash = flashAsked(text, level);
   const own = { selfie: R.SELFIE_LORAS, scene: R.SCENE_LORAS, pic: R.PIC_LORAS }[kind] || {};
@@ -3761,10 +3768,15 @@ function runwareLoras(opts = {}) {
   const list = alone
     ? [{ model: alone, weight: Number(analSet ? analSet[alone] : R.ALONE_LORAS[alone]) }].filter((l) => Number.isFinite(l.weight) && l.weight !== 0)
     : Object.entries({ ...(flash ? R.FLASH_LORAS || {} : { ...(R.LORAS || {}), ...own }), ...(explicit && !analSet && !acts.some(([air]) => (R.NUDE_LORAS_OFF_WITH || []).includes(air)) ? R.NUDE_LORAS || {} : {}), ...Object.fromEntries(acts) }).map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0);
-  if (!partial) return list;
-  const off = R.PARTIAL_LORAS_OFF || [];
-  const weights = R.PARTIAL_WEIGHTS || {};
-  return list.filter((l) => !off.includes(l.model)).map((l) => (Object.hasOwn(weights, l.model) ? { model: l.model, weight: Number(weights[l.model]) } : l)).filter((l) => Number.isFinite(l.weight) && l.weight !== 0);
+  const off = partial ? R.PARTIAL_LORAS_OFF || [] : [];
+  const weights = partial ? R.PARTIAL_WEIGHTS || {} : {};
+  const shaped = list.filter((l) => !off.includes(l.model)).map((l) => (Object.hasOwn(weights, l.model) ? { model: l.model, weight: Number(weights[l.model]) } : l)).filter((l) => Number.isFinite(l.weight) && l.weight !== 0);
+  // his hands named, then not a sex act: the hands and anatomy LoRAs; MAX_LORAS keeps the first ones (owner 2026-10-12)
+  const hands = String(R.HANDS_WORDS || "").split(",").some((w) => w.trim() && hasWord(text, w.trim()));
+  const more = [...(hands ? Object.entries(R.HANDS_LORAS || {}) : []), ...(!act && !alone ? Object.entries(R.ANATOMY_LORAS || {}) : [])]
+    .map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0 && !shaped.some((x) => x.model === l.model));
+  const max = Number(R.MAX_LORAS) > 0 ? Number(R.MAX_LORAS) : Infinity;
+  return [...shaped, ...more].slice(0, max);
 }
 
 // The words ask for a camera-flash picture (RUNWARE.FLASH_WORDS, Runware routes only; FLASH_LORAS set)
@@ -3955,6 +3967,8 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     }
     return { tries, flags };
   }
+  // the position the words name: only it loads ANAL_LORAS (owner 2026-10-12: POV Doggy Anal only when doggy AND anal are asked)
+  const analNamed = flags.analAt || "";
   // Step 6: an anal act with no position named gets one by ANAL_POSITIONS (a random pick only on anal acts: the others keep theirs)
   if (flags.anal && !flags.analAt) {
     flags.analAt = pickWeighted(R.ANAL_POSITIONS || {}) || Object.keys(R.ANAL_SCENES || {})[0] || "";
@@ -3996,46 +4010,46 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
   const photo = [act && R.ACT_PHOTO, R.PHOTO].filter(Boolean).map((x) => ` ${x}`).join("");
   // partly naked: BODY_PARTIAL (the clothed body leaked its tank top, the nude one bared what her clothes cover)
   const bodyArg = back ? "back" : partial ? R.BODY_PARTIAL === "nude" : explicit;
-  // Step 4: a clothed picture (not nude, back or partly naked): image 1 is the outfit's own picture (OUTFIT_BODY), else the rust body
-  // (CLOTHED_BODY "rust"), or none ("none")
+  // a clothed picture (not nude, back or partly naked): image 1 is BODY_CLOTHED, or BODY_CLOTHED_BACK when its words ask for a back
+  // view (NUDE_BACK_WORDS: "back view", "from behind", a belfie) (owner 2026-10-12: the only clothed body references)
   const clothedOnly = !explicit && !partial && !back;
-  const outfitBody = !!(clothedOnly && R.OUTFIT_BODY && style && style.kind === "outfit");
-  // Step 5: partly naked with BODY_PARTIAL "none": no body picture either (the rust halter leaked its crop top), REFERENCE_NOBODY
-  const noBody = (clothedOnly && !outfitBody && R.CLOTHED_BODY === "none") || (partial && !back && R.BODY_PARTIAL === "none");
-  // "nude": the nude front (BODY) as image 1 with DRESSED_FULL; "neutral": BODY_NEUTRAL (v10 dressed in a plain gray tank and leggings)
-  const clothedBody = clothedOnly && !outfitBody && !noBody ? { nude: R.BODY, neutral: R.BODY_NEUTRAL }[R.CLOTHED_BODY] || "" : "";
+  const clothedBack = clothedOnly && String(R.NUDE_BACK_WORDS || "").split(",").some((w) => w.trim() && hasWord(prompt, w.trim()));
+  // Step 5: partly naked with BODY_PARTIAL "none": no body picture (the rust halter leaked its crop top), REFERENCE_NOBODY
+  const noBody = partial && !back && R.BODY_PARTIAL === "none";
+  const clothedBody = clothedOnly ? (clothedBack && R.BODY_CLOTHED_BACK) || R.BODY_CLOTHED || "" : "";
   // Step 5: CLOSE_FACE false = a crotch close-up with no face or body picture (klein from REFERENCE_CLOSE)
   const faceless = crotch && R.CLOSE_FACE === false;
-  const rwBody = faceless ? null : outfitBody ? style.bytes : ref && !noBody ? (clothedBody ? runwareBodyBytes(clothedBody) : runwareBody(bodyArg)) : null;
-  const bodyName = outfitBody ? `style:${style.key}` : `body-${clothedBody || runwareBodyName(bodyArg)}`;
+  const rwBody = faceless ? null : ref && !noBody ? (clothedBody ? runwareBodyBytes(clothedBody) : runwareBody(bodyArg)) : null;
+  const bodyName = `body-${clothedBody || runwareBodyName(bodyArg)}`;
   // her pictures: klein again (KLEIN_TRIES), then Cloudflare klein with the same references (drawPicture). Never TwinFlow for
   // her: it has no reference and its words drew the big belly (2026-10-10). Without her face, TwinFlow as before.
   const tries = P.ROUTE === "runware-klein" && ref ? Array.from({ length: Math.max(1, Number(R.KLEIN_TRIES) || 1) }, () => [R.MODEL, true]) : [[R.BACKUP_MODEL, false]];
   // with a sex act's back view, REFERENCE_BACK names the view; a hairstyle changes her hair, not its color
-  const ref1 = (back && R.REFERENCE_BACK) || (outfitBody && R.REFERENCE_OUTFIT) || (noBody && R.REFERENCE_NOBODY) || (clothedOnly && R.REFERENCE_CLOTHED) || R.REFERENCE;
+  const ref1 = (back && R.REFERENCE_BACK) || (noBody && R.REFERENCE_NOBODY) || (clothedBack && R.REFERENCE_CLOTHED_BACK) || (clothedOnly && R.REFERENCE_CLOTHED) || R.REFERENCE;
   const ref0 = shownHair ? ref1.replace("with exactly the same face and hair", "with exactly the same face, hair color") : ref1;
   const out = [];
   for (const [model, withFace] of tries) {
     if (!model) continue;
     // face, body, place: the same order and numbers as the Cloudflare route (ROOM's {n})
     const base = withFace && !faceless ? [rwFace && { name: faceName, bytes: rwFace }, rwBody && { name: bodyName, bytes: rwBody }, shownPlace && { name: placeName, bytes: shownPlace }].filter(Boolean) : [];
-    // the style picture comes after them: its image number is base.length (not when it is image 1 itself)
-    const extra = withFace && !faceless && style && !outfitBody;
+    // the hairstyle's picture comes after them: its image number is base.length
+    const extra = withFace && !faceless && style;
     const refs = extra ? [...base, { name: `style:${style.key}`, bytes: style.bytes }] : base;
-    const styleLine = extra ? ` ${(style.kind === "outfit" ? R.OUTFIT_LINE : R.HAIR_LINE).replaceAll("{n}", String(base.length))}` : "";
+    const styleLine = extra ? ` ${R.HAIR_LINE.replaceAll("{n}", String(base.length))}` : "";
     // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
     // the LoRAs' own trigger words (LORA_WORDS) go first
-    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, text: prompt, partial, anal: analAt, level }) : [];
+    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, act, text: prompt, partial, anal: analNamed, level }) : [];
     const flash = model === R.MODEL && flashAsked(prompt, level);
     const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
     const alone = loras.length === 1 && (analAt ? (R.ANAL_ALONE || []).includes(analAt) : Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model));
     // Step 3: the prefix only when LORA_PREFIX_WITH (phone2025) is one of the LoRAs
     const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
-    // Task C: clothed on the nude body, a top named and no bottom or one-piece: the bottom is her outfit's own, never bare ("on top" is no top)
+    // Task C: clothed, a top named and no bottom or one-piece: the bottom is her outfit's own, never bare ("on top" is no top). Since
+    // 2026-10-12 image 1 wears a thong, so the line stays (a top alone would leave image 1's thong and bare legs)
     const worn = String(prompt).replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
     const namedIn = (list) => (list || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
-    const topOnly = !!clothedBody && R.CLOTHED_BODY === "nude" && namedIn(R.TOP_WORDS) && !namedIn(R.BOTTOM_WORDS) && !namedIn(R.ONE_PIECE_WORDS) && !namedIn(R.BARE_LEGS_WORDS);
-    const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (clothedBody && R.CLOTHED_BODY === "nude" && R.DRESSED_FULL ? ` ${R.DRESSED_FULL}` : "") + (topOnly && R.DRESSED_BOTTOM ? ` ${R.DRESSED_BOTTOM}` : "");
+    const topOnly = !!clothedBody && namedIn(R.TOP_WORDS) && !namedIn(R.BOTTOM_WORDS) && !namedIn(R.ONE_PIECE_WORDS) && !namedIn(R.BARE_LEGS_WORDS);
+    const dressed = (!explicit && R.DRESSED ? ` ${R.DRESSED}` : "") + (topOnly && R.DRESSED_BOTTOM ? ` ${R.DRESSED_BOTTOM}` : "");
     const photoLine = flash && R.FLASH_PHOTO ? ` ${R.FLASH_PHOTO}` : photo;
     const herLine = faceless ? who(lead(R.REFERENCE_CLOSE || R.LOOKS), false, true) : withFace ? who(lead(ref0 + early + hairLine), !!shownPlace, true, [rwFace, rwBody].filter(Boolean).length) : who(R.LOOKS + early + hairLine, false, true);
     const text = (triggers ? `${triggers}. ` : "") + herLine + naked + pov + late + dressed + wide + photoLine + styleLine;
@@ -4269,6 +4283,11 @@ async function studioOptions(env) {
     models: [{ id: "klein", label: "klein 9B (Runware, her face)", model: R.MODEL }, { id: "twinflow", label: "TwinFlow (Runware, text only)", model: R.BACKUP_MODEL }],
     loras: Object.entries(R.LORA_INFO || {}).map(([air, i]) => ({ air, name: i.name, category: i.category, trigger: i.trigger || "", note: i.note || "" })),
     refs: studioRefNames(),
+    // the Body menu (owner 2026-10-12: body pictures under Body, hair pictures under Hair)
+    bodies: [[R.BODY_CLOTHED, "clothed front (bra + thong)"], [R.BODY_CLOTHED_BACK, "clothed back (thong)"], [R.BODY, "nude front"], [R.BODY_BACK, "nude back"]].filter(([n]) => n).map(([n, label]) => ({ name: `body-${n}`, label })),
+    // the editor starts from the bot's own sampler and its every-picture LoRAs (LORAS)
+    sampler: { steps: Number(R.STEPS) || 0, cfg: Number(R.CFG) || 0 },
+    defaultLoras: Object.entries(R.LORAS || {}).map(([model, weight]) => ({ model, weight: Number(weight) })),
     sizes: [{ label: "9:16 (768 x 1344)", width: 768, height: 1344 }, { label: "1:1 (1024 x 1024)", width: 1024, height: 1024 }, { label: "16:9 (1344 x 768)", width: 1344, height: 768 }],
     levels: NSFW_LEVELS,
     usdPerPicture: Number(R.USD_PER_PICTURE) || 0,
@@ -4276,16 +4295,19 @@ async function studioOptions(env) {
   };
 }
 
-// The reference pictures the editor can send, by name: face-1x / face-2x, body-<BODY name>, place:<key>, style:<key>
+// The reference pictures the editor can send, by name: face-2x, body-<BODY name>, place:<key>, style:<key> (hairstyles). face-1x
+// (Cloudflare's 480 px face) and body-cloudflare stay readable for old log rows, but are not offered (2026-10-12)
 function studioRefNames() {
+  const R = CONFIG.PICTURE.RUNWARE;
   return [
-    "face-2x", "face-1x", "body-v10", "body-v10-back", "body-v10-clothed", "body-v10-neutral",
+    "face-2x", ...[R.BODY, R.BODY_BACK, R.BODY_CLOTHED, R.BODY_CLOTHED_BACK].filter(Boolean).map((n) => `body-${n}`),
     ...Object.keys(PLACE_JPEG_BASE64 || {}).filter((k) => !k.includes("~")).map((k) => `place:${k}`),
     ...Object.keys(STYLE_JPEG_BASE64 || {}).map((k) => `style:${k}`),
   ];
 }
 async function refBytes(env, name) {
   if (name === "face-1x" || name === "face-2x") return faceBytes(env, name === "face-2x");
+  if (name === "body-cloudflare") return bodyBytes();
   if (name.startsWith("body-")) return runwareBodyBytes(name.slice("body-".length));
   if (name.startsWith("place:")) {
     const crops = placePictures(name.slice("place:".length));
@@ -4310,7 +4332,9 @@ async function studioCompose(env, body, dayWear = null) {
   if (!words) return { ok: false, error: "Type the words first, as you would after /pic." };
   const c = customPicture(words, undefined, dayWear, level);
   const out = await drawPicture(env, c.prompt, { location: c.location, night: c.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: level, planOnly: true });
-  return { ok: true, level, tries: (out.plan || []).map(planLine), location: c.location || null };
+  // at Off (NSFW.OFF_ROUTE "cloudflare") the bot draws on Cloudflare klein: its prompt and references, named as the studio sends them
+  const reason = (out.plan || []).length ? "" : !env.RUNWARE_API_KEY ? "RUNWARE_API_KEY is not set, so there is no Runware plan." : level === "off" ? "" : "Runware isn't the picture route for these words.";
+  return { ok: true, level, tries: (out.plan || []).map(planLine), cloudflare: out.cloudflare || null, reason, location: c.location || null };
 }
 
 // The studio's own draw: one Runware task with `results` pictures, the editor's prompt, references, LoRAs and sampler. Stops
@@ -4495,7 +4519,13 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
       }
     }
   }
-  if (planOnly) return { plan: [] }; // the studio's compose with Runware not affordable: nothing is drawn
+  // the studio's compose when Runware doesn't draw these words (/nsfw Off): the Cloudflare prompt, nothing drawn. Its references as the
+  // studio names them: the 2x face (the studio draws on Runware) and the clothed body (body.jpg is its small copy)
+  if (planOnly) {
+    const R = P.RUNWARE;
+    const cfText = who(ref ? P.REFERENCE : P.LOOKS, true);
+    return { plan: [], cloudflare: { prompt: cfText, refs: [ref && "face-2x", body && `body-${R.BODY_CLOTHED}`, place && placeKey && `place:${placeKey}`].filter(Boolean), width: Number(R.WIDTH) || width, height: Number(R.HEIGHT) || height } };
+  }
   // Cloudflare: FLUX.2 klein with her references (face, body, place); FLUX.1 schnell from words when klein is unavailable
   const text = who(ref ? P.REFERENCE : P.LOOKS, true);
   rec.attempts++;

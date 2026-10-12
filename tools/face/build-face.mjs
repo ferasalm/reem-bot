@@ -1,6 +1,7 @@
 // Builds face.js (her reference pictures as base64) from tools/face/: node tools/face/build-face.mjs
 // The owner's reference set of 2026-10-10 (originals in tools/face/originals/): face = picture 2, bodies = 6 (nude front),
-// 7 (nude back), 9 (clothed front, cut below the mouth); style/ = outfits and hairstyles sent next to them (RUNWARE.STYLE_PICTURES).
+// 7 (nude back); 2026-10-12 (owner: "the only clothed body reference"): 11 (clothed front: black bra and thong, the chin cut off) and
+// 12 (clothed back); style/ = hairstyles sent next to them (RUNWARE.STYLE_PICTURES; the outfit pictures were retired 2026-10-12).
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,12 +16,12 @@ const out = [
   "// /face in Telegram can replace the face (KV \"face\"; /face reset goes back to this one).\n",
   one("FACE_JPEG_BASE64", "reference.jpg", "her face, 480x480 (Cloudflare needs under 512)"),
   one("FACE_2X_JPEG_BASE64", "reference-2x.jpg", "her face, 960x960 (Runware, RUNWARE.BIG_FACE)"),
-  one("BODY_JPEG_BASE64", "body.jpg", "the Cloudflare route's body picture (image 1): the clothed body, made small"),
+  one("BODY_JPEG_BASE64", "body.jpg", "the Cloudflare route's body picture (image 1): the clothed front (picture 11), made small"),
   one("BODY_NUDE_JPEG_BASE64", "body-nude.jpg", "Runware BODY \"v10\": nude, front, faceless"),
   one("BODY_BACK_JPEG_BASE64", "body-back.jpg", "Runware BODY_BACK \"v10-back\": nude, from behind"),
-  one("BODY_CLOTHED_JPEG_BASE64", "body-clothed.jpg", "Runware BODY_CLOTHED \"v10-clothed\": rust halter + jeans, faceless"),
-  one("BODY_NEUTRAL_JPEG_BASE64", "body-neutral.jpg", "Runware BODY_NEUTRAL \"v10-neutral\": v10 dressed in a gray tank + leggings (klein, seed 402)"),
-  "// outfits and hairstyles (RUNWARE.STYLE_PICTURES: key = file name without .jpg)\nexport const STYLE_JPEG_BASE64 = {\n",
+  one("BODY_CLOTHED_JPEG_BASE64", "body-clothed.jpg", "Runware BODY_CLOTHED \"v11-clothed\": black bra + thong, front, faceless (picture 11)"),
+  one("BODY_CLOTHED_BACK_JPEG_BASE64", "body-clothed-back.jpg", "Runware BODY_CLOTHED_BACK \"v11-clothed-back\": black thong, from behind (picture 12)"),
+  "// hairstyles (RUNWARE.STYLE_PICTURES: key = file name without .jpg)\nexport const STYLE_JPEG_BASE64 = {\n",
   ...styles.map((f) => `  "${f.replace(/\.jpg$/, "")}": "${b64(join("style", f))}",\n`),
   "};\n",
 ];

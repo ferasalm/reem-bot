@@ -96,7 +96,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
 <label>Face<select id="ed-face"></select></label>
 <label>Body<select id="ed-body"></select></label>
 <label>Place<select id="ed-place"></select></label>
-<label>Outfit or hair<select id="ed-style"></select></label>
+<label>Hair<select id="ed-style"></select></label>
 </div>
 </fieldset>
 <fieldset><legend>LoRAs (weight 0 to 1.5)</legend><div id="ed-loras"></div></fieldset>
@@ -245,21 +245,30 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
       fillSelect($("ed-model"), o.models.map(function (m) { return [m.id, m.label]; }), "klein");
       fillSelect($("ed-size"), o.sizes.map(function (z, i) { return [String(i), z.label]; }), "0");
       fillSelect($("ed-level"), o.levels.map(function (l) { return [l, l]; }), "on");
-      fillSelect($("ed-face"), [["", "none"], ["face-2x", "face (2x)"], ["face-1x", "face (1x)"]], "face-2x");
-      fillSelect($("ed-body"), [["", "none"], ["body-v10", "nude front"], ["body-v10-back", "nude back"], ["body-v10-clothed", "clothed"], ["body-v10-neutral", "neutral"]], "body-v10-clothed");
+      // one face (the 2x picture Runware gets); the bodies by what they show; hair pictures only under Hair (owner 2026-10-12)
+      fillSelect($("ed-face"), [["", "none"], ["face-2x", "face"]], "face-2x");
+      fillSelect($("ed-body"), [["", "none"]].concat(o.bodies.map(function (b) { return [b.name, b.label]; })), o.bodies[0] ? o.bodies[0].name : "");
       fillSelect($("ed-place"), [["", "none"]].concat(o.refs.filter(function (r) { return r.indexOf("place:") === 0; }).map(labelOf)), "");
-      fillSelect($("ed-style"), [["", "none"]].concat(o.refs.filter(function (r) { return r.indexOf("style:") === 0; }).map(labelOf)), "");
+      fillSelect($("ed-style"), [["", "none"]].concat(o.refs.filter(function (r) { return r.indexOf("style:hair-") === 0; }).map(labelOf)), "");
       var n = [];
       for (var i = 1; i <= o.cap.resultsMax; i++) n.push([String(i), String(i)]);
       fillSelect($("ed-n"), n, "1");
-      renderLoras([]);
+      // the bot's own defaults: its sampler and its LoRAs on every picture
+      $("ed-steps").value = o.sampler.steps || "";
+      $("ed-cfg").value = o.sampler.cfg || "";
+      renderLoras(o.defaultLoras || []);
       estimate();
     });
   }
   function compose() {
     say("Composing from your words...");
     return api("/studio/api/compose", { source: "pic", words: $("ed-words").value, level: $("ed-level").value }).then(function (r) {
-      if (!r.tries.length) return say("Runware can't draw right now, so there is nothing to compose.", true);
+      // at Off the bot draws on Cloudflare klein (no LoRAs): its prompt and references come back instead of a Runware plan
+      if (!r.tries.length && r.cloudflare) {
+        applyEditor({ prompt: r.cloudflare.prompt, words: $("ed-words").value, model: "klein", width: r.cloudflare.width, height: r.cloudflare.height, results: Number($("ed-n").value) || 1, refs: r.cloudflare.refs, loras: [], nsfw: r.level });
+        return say("At Off the bot draws these words on Cloudflare klein (no LoRAs); its prompt is loaded. Generate draws it on Runware klein. Set the level to Nude or On for the Runware plan.");
+      }
+      if (!r.tries.length) return say(r.reason || "Nothing to compose for these words.", true);
       var t = r.tries[0];
       applyEditor({ prompt: t.prompt, words: $("ed-words").value, model: idOf(t.model), width: t.width, height: t.height, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, results: Number($("ed-n").value) || 1, refs: t.refs, loras: t.loras, nsfw: r.level });
       say("Composed from your words: the bot's plan (" + r.tries.length + " planned). Check the prompt, then Generate.");

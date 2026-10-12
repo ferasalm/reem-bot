@@ -861,13 +861,13 @@ section("pictures: his photos (Workers AI vision)");
       r = await turn("/look", [], { history: ACT_SCENE });
       t = runware.calls.length > rw0 ? runware.calls.at(-1) : { positivePrompt: "", lora: [] }; // Off draws on Cloudflare (2026-10-11): no Runware call
       const kleinSex = ai.slice(ai0).filter((a) => a.model === P.MODEL).some((a) => /\bcock\b|blowjob|lips around/i.test(a.fields.prompt || ""));
-      const actLoRA = (t.lora || []).some((l) => /povbj|povdt|unchained/i.test(l.model));
+      const actLoRA = (t.lora || []).some((l) => /povbj|povdt|unchained|nsfwunlock/i.test(l.model)); // 2026-10-12: NSFW Unlocked is the sex LoRA
       yes(r.photos.length === 1 && (drawn ? t.positivePrompt.includes("Sex act: a blowjob.") && actLoRA : !actLoRA && !t.positivePrompt.includes("Sex act: a blowjob.") && !kleinSex), `/look in person at ${level || "the default (On)"}: ${drawn ? "the blowjob is drawn with its LoRA" : "no sex act, no act LoRA"}`, `${JSON.stringify((t.lora || []).map((l) => l.model))} | ${t.positivePrompt.slice(0, 200)}`);
     }
     setLevel(undefined);
     r = await turn("/pic blowjob", [], {});
     t = runware.calls.at(-1);
-    yes(r.photos.length === 1 && t.lora.some((l) => /unchained/i.test(l.model)), "On (the default): a blowjob is drawn, the act LoRA on");
+    yes(r.photos.length === 1 && t.lora.some((l) => /nsfwunlock/i.test(l.model)), "On (the default): a blowjob is drawn, NSFW Unlocked on (2026-10-12)");
     setLevel(undefined);
     // a nude-tier selfie with Runware failing goes to Cloudflare, whose filter (3030) refuses it: boudoir next, not everyday
     {
