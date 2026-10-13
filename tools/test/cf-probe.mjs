@@ -16,7 +16,8 @@ const ask = async (max_tokens, reasoning_effort) => {
   const t = Date.now();
   const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${model}`, {
     method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: chat, max_tokens, reasoning_effort, temperature: 0.95 }) });
+    body: JSON.stringify({ messages: chat, max_tokens, reasoning_effort, temperature: 0.95 }), signal: AbortSignal.timeout(60000) }).catch((e) => e);
+  if (res instanceof Error) return `${((Date.now() - t) / 1000).toFixed(1)}s ${res.name}`;
   const d = await res.json().catch(() => ({}));
   const s = ((Date.now() - t) / 1000).toFixed(1);
   if (d.success === false) return `${s}s ERROR ${JSON.stringify(d.errors).slice(0, 160)}`;
@@ -26,8 +27,8 @@ const ask = async (max_tokens, reasoning_effort) => {
   return `${s}s finish=${c.finish_reason} usage=${JSON.stringify(d.result?.usage || {})} content=${content.length}ch reasoning=${reasoning.length}ch keys=${Object.keys(c.message || {}).join(",")} | end: ${JSON.stringify(content.slice(-120))}`;
 };
 for (const [max, effort] of [[220, "none"], [380, "none"], [900, "none"], [220, "low"]]) {
-  for (let i = 0; i < 4; i++) {
-    console.log(`max ${max} ${effort} #${i + 1}: ${await ask(max, effort)}`);
+  for (let i = 0; i < 3; i++) {
+    process.stdout.write(`max ${max} ${effort} #${i + 1}: ${await ask(max, effort)}\n`);
     await new Promise((r) => setTimeout(r, 1500));
   }
 }
