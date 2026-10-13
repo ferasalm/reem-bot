@@ -896,6 +896,21 @@ Changing the story
       // "...the phone is the camera" drew a man holding a phone, seen from outside (1/1)
       ALONE_STYLE: "Realistic candid first-person photo taken from the man's own eyes (no person in the picture; no phone and no hands unless described):",
     },
+    // Step D (picture overhaul; owner 2026-10-13: "fix every anatomical issues that I have seen in almost every single picture", then
+    // "Step D now"): after each picture of her (KINDS), a vision model answers PROMPT (+ POV on pictures from his eyes, ACT on sex acts);
+    // a picture with problems is drawn again with the next seed, TRIES pictures at most, the one with the fewest problems sent.
+    // Claude's wording; benched on labelled pictures first (tools/face/anatomy-probe.mjs).
+    ANATOMY: {
+      ON: true,
+      MODEL: "@cf/meta/llama-4-scout-17b-16e-instruct", // as VISION.MODEL
+      KINDS: ["selfie", "scene", "look", "pic"],
+      TRIES: 3,                        // pictures drawn at most (2 redraws)
+      TIMEOUT_MS: 20000,               // a slower check passes the picture
+      MAX_TOKENS: 300,
+      PROMPT: "Check this photo for AI drawing mistakes before it is sent, the way a retoucher would. Go part by part: for each person, count the arms, hands, legs and feet you can see and follow each one to the body it belongs to; look at every hand's fingers. A mistake is: a hand, arm, leg, foot or head that belongs to no body in the photo (for example one reaching in at the edge); a person with more than two arms, hands, legs or feet; a hand with too many, too few, fused or melted fingers; an arm or leg bent the wrong way, broken, cut off in the middle of the frame, or merging into clothes, furniture or another body; one leg in one garment and the other leg in a different one or bare; a twisted or distorted face or neck; the head turned impossibly far from the body.{pov}{act} Write at most three short lines of what you checked, then on the last line only JSON: {\"people\": number of people whose head or face shows, \"mistakes\": [\"each mistake, a few words\"], \"ok\": true if there is no mistake}",
+      POV: " The photo is taken from a man's own eyes: his own hands or forearms may reach in from the bottom edge; they are not a mistake.",
+      ACT: " It shows sex from the man's own eyes: his hands, arms, legs, torso and penis may show; they are not a mistake and not a second person. Any second head or face is a mistake.",
+    },
     // Step C (picture overhaul, owner 2026-10-12: "Hybrid (Recommended)"): DeepSeek on Workers AI writes only the words of the moment
     // (action, pose, clothes, place) of /look (LOOK.PROMPT, under RULES) and of her own pictures: SELFIE tidies the code's draft
     // (framing + her words: D1 rows 13 and 14 had two poses, two smiles and a phone), SCENE writes her in-person moment from her
@@ -4948,6 +4963,23 @@ async function lingerieSeen(env, ledger, bytes) {
   } finally {
     aiSpent(ledger, CONFIG.AI_BUDGET.PHOTO_NEURONS, error);
   }
+}
+
+// Step D: the anatomy check's answer (PICTURE.ANATOMY.PROMPT) as { ok, mistakes, people }: its last JSON object; ok only with no mistake
+// listed, "ok" not false and at most one person. null when there is no JSON to read (the caller passes the picture).
+function anatomyVerdict(text) {
+  const t = String(text || "");
+  const found = [...t.matchAll(/\{[^{}]*\}/g)].map((m) => m[0]);
+  for (const j of found.reverse()) {
+    try {
+      const v = JSON.parse(j);
+      if (!v || typeof v !== "object" || !("ok" in v || "mistakes" in v)) continue;
+      const mistakes = (Array.isArray(v.mistakes) ? v.mistakes : []).map((m) => String(m).trim()).filter((m) => m && !/^(?:none|no mistakes?)\.?$/i.test(m));
+      const people = Number(v.people) || 0;
+      return { ok: v.ok !== false && !mistakes.length && people <= 1, mistakes: people > 1 && !mistakes.length ? [`${people} people`] : mistakes, people };
+    } catch {}
+  }
+  return null;
 }
 
 // May this picture go to PICTURE.LINGERIE (Nano Banana) today?

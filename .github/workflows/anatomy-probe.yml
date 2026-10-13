@@ -1,0 +1,32 @@
+name: Anatomy check probe
+
+# Step D (2026-10-13): does a Workers AI vision model catch the anatomy mistakes in labelled pictures? tools/face/anatomy-probe.mjs
+# (the bot's own PICTURE.ANATOMY prompt) prints every answer and a tally per model. Runs when the script or this file changes (never on
+# dev/main), or by hand.
+on:
+  push:
+    branches-ignore: [dev, main, face-candidates]
+    paths: [tools/face/anatomy-probe.mjs, .github/workflows/anatomy-probe.yml]
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: face-candidates
+          path: fc
+          sparse-checkout: |
+            runs/2026-10-13-stepA-bench
+            runs/2026-10-13-stepC-bench
+            runs/38333810448-cf-lora-probe
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/face/anatomy-probe.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          FC: fc
