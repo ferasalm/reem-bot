@@ -1,0 +1,376 @@
+[
+ {
+  "id": "off-counter-r1",
+  "level": "off",
+  "kind": "selfie",
+  "seconds": 14.4,
+  "writer": [
+   "Sitting up on the counter in her kitchen, wearing her father's old gray cardigan over a black cami and sweatpants."
+  ],
+  "prompt": "Realistic candid smartphone photo she took herself: {who} Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Sitting up on the counter in her kitchen, wearing her father's old gray cardigan over a black cami and sweatpants, biting back a smile, dim, soft candlelight from a few candles, warm flickering glow, deep soft shadows. {room}",
+  "tries": [
+   {
+    "file": "off-counter-r1-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible in the image.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. The woman's hands appear normal with no irregularities in the fingers.\n4. There are no broken, bent, missing, doubled, or merged limbs.\n5. Both of her legs are dressed the same.\n6. Her face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-counter-r2",
+  "level": "off",
+  "kind": "selfie",
+  "seconds": 17.4,
+  "writer": [
+   "Sitting up on the counter in her kitchen, wearing her father's old gray cardigan over a black cami, and sweatpants."
+  ],
+  "prompt": "Realistic candid smartphone photo she took herself: {who} Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Sitting up on the counter in her kitchen, wearing her father's old gray cardigan over a black cami, and sweatpants, a soft half smile, dim light from a bedside lamp. {room}",
+  "tries": [
+   {
+    "file": "off-counter-r2-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. There are no hands with too many or too few fingers, or fused, melted, or impossibly bent fingers.\n4. There are no broken, bent the wrong way, missing, doubled, far too long, or merging arms or legs.\n5. Both of her legs appear to be dressed the same.\n6. Her face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-mirror-r1",
+  "level": "off",
+  "kind": "selfie",
+  "seconds": 13.1,
+  "writer": [
+   "Full-body reflection in a mirror, wearing a long black slip dress, standing in the hallway."
+  ],
+  "prompt": "Realistic candid smartphone photo she took herself: {who} Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror, wearing a long black slip dress, standing in the hallway, a slow, knowing smile, warm lamp light in a dark room. {room}",
+  "tries": [
+   {
+    "file": "off-mirror-r1-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. There are no hands with too many or too few fingers, or fused, melted, or impossibly bent fingers.\n4. There are no broken, bent the wrong way, missing, doubled, far too long, or merging into furniture, clothes, or another body arms or legs.\n5. Both of her legs appear to be dressed the same.\n6. Her face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-mirror-r2",
+  "level": "off",
+  "kind": "selfie",
+  "seconds": 11.7,
+  "writer": [
+   "Full-body reflection in a mirror, wearing a long black slip dress, standing in the hallway."
+  ],
+  "prompt": "Realistic candid smartphone photo she took herself: {who} Mirror selfie: she holds an iPhone (camera lenses visible) at chest height, visible in the mirror, her face visible. Full-body reflection in a mirror, wearing a long black slip dress, standing in the hallway, biting back a smile, dim light from a bedside lamp. {room}",
+  "tries": [
+   {
+    "file": "off-mirror-r2-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible.\n2. No stray hands, arms, legs, or feet are visible.\n3. No hands with too many, too few, or abnormally formed fingers are seen.\n4. No broken, bent, missing, doubled, or abnormally long limbs or merged limbs are observed.\n5. Both legs are dressed the same.\n6. The face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-couch-r1",
+  "level": "off",
+  "kind": "selfie",
+  "seconds": 20,
+  "writer": [
+   "Chest-up, tilted down, wearing an oversized gray hoodie and black leggings, in her bedroom."
+  ],
+  "prompt": "Realistic candid smartphone photo she took herself: {who} Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, tilted down, wearing an oversized gray hoodie and black leggings, in her bedroom, heavy-lidded eyes, lips slightly parted, dim, soft candlelight from a few candles, warm flickering glow, deep soft shadows. {room}",
+  "tries": [
+   {
+    "file": "off-couch-r1-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible in the photo.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. There are no hands with too many or too few fingers, or fused, melted, or impossibly bent fingers.\n4. There are no broken, bent the wrong way, missing, doubled, far too long, or merging arms or legs.\n5. Both of her legs appear to be dressed the same (both in black pants).\n6. Her face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-couch-r2",
+  "level": "off",
+  "kind": "selfie",
+  "seconds": 20.6,
+  "writer": [
+   "Chest-up, at eye level, in an oversized gray hoodie and black leggings, in her bedroom."
+  ],
+  "prompt": "Realistic candid smartphone photo she took herself: {who} Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, at eye level, in an oversized gray hoodie and black leggings, in her bedroom, a raised-eyebrow smirk, dim light from a bedside lamp. {room}",
+  "tries": [
+   {
+    "file": "off-couch-r2-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. There are no hands with too many or too few fingers, or fused, melted, or impossibly bent fingers.\n4. There are no broken, bent the wrong way, missing, doubled, far too long, or merging into furniture, clothes, or another body arms or legs.\n5. Both legs appear to be dressed the same.\n6. The face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-doorframe-r1",
+  "level": "off",
+  "kind": "scene",
+  "seconds": 16.9,
+  "writer": [
+   "She leans against a doorframe, wearing a gray knit cardigan and a black tank top, with soft gray sweatpants, her hands by her sides. She has a slow smile on her lips, facing the camera."
+  ],
+  "prompt": "Realistic candid first-person photo from the man's own eyes, as he sees her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing: {who} She leans against a doorframe, wearing a gray knit cardigan and a black tank top, with soft gray sweatpants, her hands by her sides. She has a slow smile on her lips, facing the camera. It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps. {room}",
+  "tries": [
+   {
+    "file": "off-doorframe-r1-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. There are no hands with too many or too few fingers, or fused, melted, or impossibly bent fingers.\n4. There are no broken, bent the wrong way, missing, doubled, far too long, or merging arms or legs.\n5. Both of her legs are dressed the same (in gray sweatpants).\n6. Her face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-doorframe-r2",
+  "level": "off",
+  "kind": "scene",
+  "seconds": 17.2,
+  "writer": [
+   "She leans against a doorframe, wearing a gray knit cardigan and a black tank top, with soft gray sweatpants, her hands by her sides. She has a slow smile on her lips, facing the camera."
+  ],
+  "prompt": "Realistic candid first-person photo from the man's own eyes, as he sees her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing: {who} She leans against a doorframe, wearing a gray knit cardigan and a black tank top, with soft gray sweatpants, her hands by her sides. She has a slow smile on her lips, facing the camera. It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps. {room}",
+  "tries": [
+   {
+    "file": "off-doorframe-r2-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. There are no hands with too many or too few fingers, or fused, melted, or impossibly bent fingers.\n4. There are no broken, bent the wrong way, missing, doubled, far too long, or merged arms or legs.\n5. Both of her legs are dressed the same (in gray sweatpants).\n6. Her face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-kitchen-r1",
+  "level": "off",
+  "kind": "scene",
+  "seconds": 11.2,
+  "writer": [
+   "She stirs a pot, leaning back, wearing a black ribbed tank top and gray sweatpants dusted with flour. Her hands are on the spoon and the pot, with a soft expression, in a kitchen."
+  ],
+  "prompt": "Realistic candid first-person photo from the man's own eyes, as he sees her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing: {who} She stirs a pot, leaning back, wearing a black ribbed tank top and gray sweatpants dusted with flour. Her hands are on the spoon and the pot, with a soft expression, in a kitchen. It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps. {room}",
+  "tries": [
+   {
+    "file": "off-kitchen-r1-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible in the photo.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body or to the man (who is the camera and not visible).\n3. The woman's hands appear normal with 5 fingers each.\n4. There are no broken, bent, missing, doubled, or merged limbs.\n5. Both of the woman's legs are dressed the same (in gray sweatpants).\n6. The woman's face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "off-kitchen-r2",
+  "level": "off",
+  "kind": "scene",
+  "seconds": 14.6,
+  "writer": [
+   "She stirs a pot, leaning back, wearing a black ribbed tank top and gray sweatpants dusted with flour. Her hands are on the spoon and the pot, with a soft expression, in a kitchen."
+  ],
+  "prompt": "Realistic candid first-person photo from the man's own eyes, as he sees her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing: {who} She stirs a pot, leaning back, wearing a black ribbed tank top and gray sweatpants dusted with flour. Her hands are on the spoon and the pot, with a soft expression, in a kitchen. It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps. {room}",
+  "tries": [
+   {
+    "file": "off-kitchen-r2-t1.jpg",
+    "model": "@cf/black-forest-labs/flux-2-klein-4b",
+    "neurons": "115.77",
+    "cost": null,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 1
+    },
+    "text": "1. There is 1 human head or face visible in the photo.\n2. There are no hands, arms, legs, or feet that are not clearly attached to the woman's body.\n3. There are no hands with too many or too few fingers, or fused, melted, or impossibly bent fingers.\n4. There are no broken, bent the wrong way, missing, doubled, or merged arms or legs.\n5. Both of her legs are dressed the same (in gray sweatpants).\n6. Her face and neck appear normal.\n\nJSON: {\"heads\": 1, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 175,
+   "rwUsd": 0
+  }
+ },
+ {
+  "id": "on-riding-r1",
+  "level": "on",
+  "kind": "scene",
+  "seconds": 19.4,
+  "writer": [
+   "She rides the man, naked, her hands braced on his chest, head thrown back, on a sofa. She has a soft smile, wearing nothing, in a room with a sofa."
+  ],
+  "prompt": "Realistic candid first-person photo from the man's own eyes, caught in the middle of the act, not posing: {who} She rides the man, naked, her hands braced on his chest, head thrown back, on a sofa. She has a soft smile, wearing nothing, in a room with a sofa. It is the middle of the night: the windows are black, and the room is lit only by its own warm lamps. {room}",
+  "tries": [
+   {
+    "file": "on-riding-r1-t1.jpg",
+    "model": "runware",
+    "neurons": null,
+    "cost": 0.00338,
+    "sent": true
+   }
+  ],
+  "checks": [
+   {
+    "verdict": {
+     "ok": true,
+     "mistakes": [],
+     "people": 2
+    },
+    "text": "1. There are 2 human heads or faces visible in the image.\n2. No hands, arms, legs, or feet from another person are visible that are not clearly attached to the woman's body or the man's body.\n3. All visible hands appear to have the correct number of fingers.\n4. There are no obviously broken, bent incorrectly, missing, doubled, or merged limbs visible.\n5. The woman's legs appear to be dressed similarly, with no clothing visible on either leg.\n6. The faces and necks visible do not appear to be deformed.\n\nJSON: {\"heads\": 2, \"stray_parts\": false, \"bad_hands\": false, \"bad_limbs\": false, \"mismatched_legs\": false, \"bad_face\": false}"
+   }
+  ],
+  "error": "",
+  "ledger": {
+   "neurons": 60,
+   "rwUsd": 0.00338
+  }
+ }
+]
