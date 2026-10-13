@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-13 (forty-sixth session, Haiku 5.5 (per `get_session` `session_context.model` and `last_served_model`); no subagents): deploy of DeepSeek with a 60 s limit
+- Owner: "Deploy". Sync: the SessionStart report listed 51 branches with "work not here" on a shallow clone. `git fetch --unshallow origin`, then `node tools/sync-check.mjs`: "No other branch has work missing here". `git cherry origin/dev origin/<b>` per branch agrees: only `ccr-9d5bc032-5c585q` and `claude/reem-bot-cloudflare-deploy-6l42tq` (squash-merged, retired), `face-candidates` (pictures) and `chat-timeout` (the older base, superseded on dev) differ. `node tools/check.mjs` 8 of 8 on `2c18113`. `git push origin origin/dev:main`: `cabafb8..2c18113`, fast-forward.
+- Deploy run 38365240367 (run_number 45): success, every step success. Cloudflare resources: the Vectorize 3002 and metadata 40004 "already exists" errors, normal. Deploy Worker: Current Version ID `84535994-ab66-402c-80d9-6f2c5d39e3fc` (was `8095dafd-3991-4889-9d49-265a796d0c8c`). `/health`: klein 4B drew 56,649 bytes in 14,251 ms; Llama 4 Scout (`@cf/meta/llama-4-scout-17b-16e-instruct`) answered in 2,113 ms. Open /setup: all ✅, the chat row on `@cf/deepseek-ai/deepseek-v4-flash-0731`.
+- Tests run 38365240396 (run_number 603): sync and mocked success; live skipped (no `[live]`).
+- Read in the deploy job log: the container can't reach workers.dev (LESSONS §1). The /setup Pictures line is stale (DECISIONS, the 2026-10-13 deploy entry).
+
 ## 2026-10-13 (forty-fifth session, Sonnet 5.5 (`claude-sonnet-5-5`, per `get_session` `session_context.model` "sonnet" and `last_served_model`); no subagents): the switch to chat-timeout
 - Owner: "switch to chat-timeout deepseek". Done on `dev` by hand: `LLM.MODEL` DeepSeek, `CONTEXT_TOKENS` 32768, `TIMEOUT_MS` 60000 (unit.mjs and the panel from `origin/chat-timeout`); `check.mjs` 8 of 8. Not deployed (`main` = cabafb8, Llama).
 

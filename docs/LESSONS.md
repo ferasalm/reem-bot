@@ -26,8 +26,9 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Test pictures on Cloudflare: push `tools/face/job.json` to your branch (never `dev`: face.yml skips dev/main and its own edits);
   pictures land on `face-candidates`; past `day_neurons` it refuses, and the count is the whole account's neurons today (61,712 on 2026-10-13: wait for 00:00 UTC, or raise it); `model` and `keep_full` pick klein 9B at
   full size (2026-10-13). A 3030 there falls back to Pollinations (watermarked: never a reference).
-- The sync report lists "N commits not here" for old branches on a shallow clone: `git fetch --unshallow origin`, rerun
-  `node tools/sync-check.mjs`; `git cherry origin/dev origin/<b>` counts what's really missing. Deploy = `git push origin origin/dev:main`.
+- The sync report lists "N commits not here" for old branches on a shallow clone (51 branches on 2026-10-13; none after the unshallow):
+  `git fetch --unshallow origin`, rerun `node tools/sync-check.mjs`; `git cherry origin/dev origin/<b>` counts what's really missing
+  (2026-10-13: only retired branches and the superseded `chat-timeout` commit differed). Deploy = `git push origin origin/dev:main`.
 - No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only. Text replay on Workers AI: test.yml `model`
   `@cf/...`; never two at once (429, 3021); a push-triggered probe starts a run per push, so fix the script locally, push once
   (cf-probe: three pushes, three runs at once, one hung with no fetch timeout; give probe calls `AbortSignal.timeout`, 2026-10-13). Runware MCP `account`: the spend is `usage.total` read before and after (the `balance`
