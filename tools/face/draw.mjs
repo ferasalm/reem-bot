@@ -8,7 +8,8 @@ import { execFileSync } from "node:child_process";
 const job = JSON.parse(readFileSync("tools/face/job.json", "utf8"));
 const { CLOUDFLARE_API_TOKEN: token, CLOUDFLARE_ACCOUNT_ID: account } = process.env;
 const api = (model) => `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${model}`;
-const DRAW = "@cf/black-forest-labs/flux-2-klein-4b";
+// job.model (Step B, 2026-10-13): another Workers AI image model, e.g. "@cf/black-forest-labs/flux-2-klein-9b" (the bot's since Step B)
+const DRAW = job.model || "@cf/black-forest-labs/flux-2-klein-4b";
 const SEE = "@cf/meta/llama-4-scout-17b-16e-instruct";
 const out = `tools/face/out/${job.mode}`;
 mkdirSync(out, { recursive: true });
@@ -18,7 +19,8 @@ let cloudflare = !!(token && account);
 // saw, and the bot was locked out). A run may cost at most RUN_CAP neurons, and is refused when it would take the
 // account's real usage today (GraphQL analytics, bot included) past DAY_CAP, so tests stay inside the free
 // allocation and leave the bot its share. job.json may raise either with "max_neurons" / "day_neurons".
-const PICTURE_NEURONS = 125, SEE_NEURONS = 60; // klein: 4 output tiles (640x640 or 768x1024) + the reference images
+// klein 4B: 4 output tiles (640x640 or 768x1024) + the reference images; klein 9B: its first megapixel (1,363.64) + input megapixels
+const PICTURE_NEURONS = /klein-9b/.test(DRAW) ? 1500 : 125, SEE_NEURONS = 60;
 const RUN_CAP = job.max_neurons || 3000;
 const DAY_CAP = job.day_neurons || 7000;
 let spent = 0;
@@ -137,7 +139,9 @@ draw: for (const [p, prompt] of job.prompts.entries()) {
     const raw = `${out}/${String(n).padStart(2, "0")}-full.${ext}`;
     writeFileSync(raw, bytes);
     // a reference (job.square, the default): 480x480, under klein's 512 limit; else the whole picture, 600 px wide
-    if (job.square === false) execFileSync("convert", [raw, "-resize", "600x800", "-quality", "86", "-strip", jpg]);
+    // job.keep_full (Step B): the picture as drawn, for reading at full size
+    if (job.keep_full) execFileSync("convert", [raw, "-quality", "92", "-strip", jpg]);
+    else if (job.square === false) execFileSync("convert", [raw, "-resize", "600x800", "-quality", "86", "-strip", jpg]);
     else execFileSync("convert", [raw, "-resize", "480x480^", "-gravity", "center", "-extent", "480x480", "-quality", "86", "-strip", jpg]);
     execFileSync("rm", [raw]);
     console.log(`  saved ${jpg} (${readFileSync(jpg).length} bytes)`);
