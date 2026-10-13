@@ -1,0 +1,45 @@
+{
+  "note": "2026-10-13 Step B: Cloudflare klein 9B at 768x1344 with the bot's own /nsfw Off prompts (tools/face/draw.mjs model field)",
+  "mode": "stepB-cf9b",
+  "model": "@cf/black-forest-labs/flux-2-klein-9b",
+  "width": 768,
+  "height": 1344,
+  "square": false,
+  "keep_full": true,
+  "max_neurons": 7000,
+  "day_neurons": 20000,
+  "labels": [
+    "off: /pic kitchen, cardigan",
+    "off: /pic bedroom mirror, black midi dress",
+    "off: /look 483 (lamp light)",
+    "off: /pic PoV spooning (D1 491)"
+  ],
+  "prompts": [
+    "Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult. Making coffee in her kitchen, a gray cardigan over a black tank top and jeans. Behind her is the part of her room shown in image 2, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Lit by bright afternoon daylight. Natural skin texture, slight grain.",
+    "Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult. A mirror selfie in her bedroom, full body, a fitted black ribbed knit midi dress. Behind her is the part of her room shown in image 2, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp on a small wooden nightstand with books, a tall arched black floor mirror leaning on the wall, sheer white curtains on a wide old wooden sash window, a white radiator, a jute rug on dark worn wood floors. Lit by bright afternoon daylight. Natural skin texture, slight grain.",
+    "Realistic candid first-person photo from the man's own eyes, as he sees her (only she is in the picture, nobody else), caught in the middle of what she's doing, not posing: The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult. She sits beside him on the edge of the bed, turned toward him, one of her hands gently raised to his jaw while the other rests on her thigh, her cardigan wrapped tight over a simple top. The room is dim, lit only by a warm bedside lamp, with a glass of water and a blister pack on the nightstand beside them. Her expression is soft but worried, her eyes fixed on the cut above his brow. Behind her is the part of her room shown in image 2, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp on a small wooden nightstand with books, a tall arched black floor mirror leaning on the wall, sheer white curtains on a wide old wooden sash window, a white radiator, a jute rug on dark worn wood floors. Natural skin texture, slight grain.",
+    "Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult. PoV of spooning with her. First-person photo from the man's own eyes: he holds the camera, so his face and head are never in the picture and nobody else is; only his own hands or forearms may reach in from the bottom edge. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain."
+  ],
+  "refs": [
+    [
+      "tools/face/reference.jpg",
+      "tools/face/body.jpg",
+      "tools/face/places/views/kitchen~1.jpg"
+    ],
+    [
+      "tools/face/reference.jpg",
+      "tools/face/body.jpg",
+      "tools/face/places/views/bedroom~2.jpg"
+    ],
+    [
+      "tools/face/reference.jpg",
+      "tools/face/body.jpg",
+      "tools/face/places/views/bedroom_night~3.jpg"
+    ],
+    [
+      "tools/face/reference.jpg",
+      "tools/face/body.jpg"
+    ]
+  ],
+  "reference": ""
+}
