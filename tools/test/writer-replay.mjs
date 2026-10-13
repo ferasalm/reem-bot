@@ -10,8 +10,12 @@ const account = process.env.CLOUDFLARE_ACCOUNT_ID;
 const token = process.env.CLOUDFLARE_API_TOKEN;
 if (!account || !token) throw new Error("CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are needed");
 const RUNS = Number(process.env.RUNS) || 2;
-if (process.env.WRITER_REASONING) W.CONFIG.PICTURE.WRITER.REASONING = process.env.WRITER_REASONING;
-console.log(`reasoning: ${W.CONFIG.PICTURE.WRITER.REASONING}`);
+// a variant (the workflow's matrix): another model, reasoning or token cap for the writer and /look
+const Wr = W.CONFIG.PICTURE.WRITER;
+if (process.env.WRITER_REASONING) Wr.REASONING = process.env.WRITER_REASONING;
+if (process.env.WRITER_MODEL) Wr.MODEL = W.CONFIG.PICTURE.LOOK.MODEL = process.env.WRITER_MODEL;
+if (process.env.WRITER_MAX_TOKENS) Wr.MAX_TOKENS = W.CONFIG.PICTURE.LOOK.MAX_TOKENS = Number(process.env.WRITER_MAX_TOKENS);
+console.log(`model: ${Wr.MODEL} | reasoning: ${Wr.REASONING} | max tokens: ${Wr.MAX_TOKENS} (look ${W.CONFIG.PICTURE.LOOK.MAX_TOKENS})`);
 const calls = [];
 const store = new Map();
 const env = {

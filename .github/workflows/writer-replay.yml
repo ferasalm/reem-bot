@@ -1,7 +1,8 @@
 name: Picture writer replay
 
-# Step C (2026-10-13): the picture writer (PICTURE.WRITER, LOOK.PROMPT) on the real DeepSeek on Workers AI, no pictures
-# (tools/test/writer-replay.mjs prints every answer). Runs when the script or this file changes (never on dev/main), or by hand.
+# Step C (2026-10-13): the picture writer (PICTURE.WRITER, LOOK.PROMPT) on real Workers AI text models, no pictures
+# (tools/test/writer-replay.mjs prints every answer and its seconds). One job per variant (model, token cap). Runs when the script
+# or this file changes (never on dev/main), or by hand.
 on:
   push:
     branches-ignore: [dev, main, face-candidates]
@@ -11,6 +12,14 @@ on:
 jobs:
   replay:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: deepseek-none-1000, model: "", tokens: "1000" }
+          - { name: mistral-small-3.1, model: "@cf/mistralai/mistral-small-3.1-24b-instruct", tokens: "" }
+          - { name: llama-3.3-70b-fast, model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", tokens: "" }
+    name: replay ${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,4 +29,6 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          RUNS: "2"
+          RUNS: "1"
+          WRITER_MODEL: ${{ matrix.model }}
+          WRITER_MAX_TOKENS: ${{ matrix.tokens }}
