@@ -243,7 +243,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq([out, n], ["there you are", 3], "an empty Workers AI answer is asked again");
   const efforts = []; let k = 0;
   const env2 = { AI: { async run(model, input) { efforts.push(input.reasoning_effort); k++; return { choices: [{ message: { content: k < 4 ? "" : "finally" } }] }; } } };
-  eq([await W.askModel(env2, [{ role: "user", content: "hi" }], { max_tokens: 20 }, { model: "@cf/x", timeoutMs: 5000, attempts: 1 }), efforts], ["finally", ["none", "none", "low", "low"]], "the last two tries think a little");
+  eq([await W.askModel(env2, [{ role: "user", content: "hi" }], { max_tokens: 20 }, { model: "@cf/deepseek-x", timeoutMs: 5000, attempts: 1 }), efforts], ["finally", ["none", "none", "low", "low"]], "the last two tries think a little (a model that thinks, LLM.THINKING_MODELS)");
 }
 {
   // a task (memory, /auto, the plan, /setup) gets reasoning "low" and room for it; her replies "none"
@@ -264,6 +264,9 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS.TEXT }, { model: M, timeoutMs: 5000, attempts: 1, task: true });
   eq(seen, [["none", L.MAX_TOKENS.TEXT + L.THINK_TOKENS], ["none", L.MAX_TOKENS.SCENE + L.THINK_TOKENS], ["none", L.MAX_TOKENS.VOICE + L.THINK_TOKENS], ["low", L.MAX_TOKENS.TEXT + 1500]], "chat replies: MAX_TOKENS + THINK_TOKENS; a task keeps +1500 (Fix round 2)");
   eq([L.THINK_TOKENS, L.TIMEOUT_MS], [700, 30000], "LLM.THINK_TOKENS 700 and LLM.TIMEOUT_MS 30 s (Fix round 2)");
+  seen.length = 0;
+  await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS.TEXT }, { model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", timeoutMs: 5000, attempts: 1 });
+  eq(seen.map((x) => x[1]), [L.MAX_TOKENS.TEXT], "a model that doesn't think (Llama) gets no thinking room (LLM.THINKING_MODELS)");
 }
 {
   // the owner's main routes (2026-10-06): texts/memory/auto DeepSeek on Cloudflare, voice Sulafat on OpenRouter, hearing Gemini on
@@ -936,6 +939,12 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   reset([verdict({ bad_hands: true, bad_limbs: true }), verdict({ heads: 2 }), verdict({ bad_hands: true, stray_parts: true })]);
   out = await draw();
   eq([new TextDecoder().decode(out.bytes), draws.length], ["picture 2", A.TRIES], "anatomy: TRIES pictures at most, the one with the fewest mistakes sent");
+  reset([verdict({ heads: 2 }), verdict({ heads: 2 }), verdict({})]);
+  out = await draw({ kind: "pic" });
+  eq([new TextDecoder().decode(out.bytes), draws.length], ["picture 1", 2], "anatomy: the same single mistake twice → no third picture (STOP_ON_REPEAT, F3 a)");
+  reset([verdict({ heads: 2 }), verdict({ bad_hands: true }), verdict({})]);
+  out = await draw({ kind: "pic" });
+  eq([new TextDecoder().decode(out.bytes), draws.length], ["picture 3", 3], "anatomy: a different mistake on the second try → drawn a third time");
   reset(["I can't tell."]);
   out = await draw();
   eq([draws.length, asked.length], [1, 1], "anatomy: an answer with no JSON passes the picture");
@@ -952,7 +961,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   await W.drawPicture(env, "x {who}", { kind: "selfie", nsfw: "off" });
   eq(asked.length, 0, "anatomy: no ledger (/face, /health) → not checked");
   const led = ledger();
-  reset([verdict({ stray_parts: true }), verdict({ stray_parts: true }), verdict({})]);
+  reset([verdict({ stray_parts: true }), verdict({ bad_hands: true }), verdict({})]);
   await draw({ ledger: led });
   eq(led.neurons, W.CONFIG.AI_BUDGET.PICTURE_NEURONS * 2 + W.CONFIG.AI_BUDGET.PHOTO_NEURONS * 3, "anatomy: the 2 Cloudflare redraws and the 3 checks are counted (the first picture is its caller's)");
   reset([verdict({ heads: 2 })]);

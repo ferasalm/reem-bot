@@ -317,6 +317,9 @@ const CONFIG = {
     // DeepSeek on Workers AI thinks before every reply, and the thinking counts in max_tokens: her replies get this much more room
     // (cf-probe 38355964346: 150-300 tokens of thinking). A reply's visible length is still MAX_TOKENS (Fix round 2, 2026-10-13).
     THINK_TOKENS: 700,
+    // Models that think before answering (THINK_TOKENS and the "low" retry go only to these): words in the model id, e.g. "deepseek".
+    // Llama 3.3 70B fast doesn't think: its replies stay at MAX_TOKENS (owner 2026-10-13, her chat on Llama to test)
+    THINKING_MODELS: ["deepseek"],
     // How much of the chat is sent with each reply, in tokens. The oldest messages are left out so the
     // prompt always fits. DeepSeek V4 Flash reads far more; this keeps replies fast and cheap.
     CONTEXT_TOKENS: 32768,
@@ -911,6 +914,9 @@ Changing the story
       MODEL: "@cf/meta/llama-4-scout-17b-16e-instruct", // as VISION.MODEL; ~4.6 s and ~63 neurons a check (probe v2)
       KINDS: ["selfie", "scene", "look", "pic"],
       TRIES: 3,                        // pictures drawn at most (2 redraws)
+      // owner 2026-10-13 (F3, option a): stop redrawing when a try has the same single mistake as the try before it (a likely false
+      // alarm, e.g. "2 heads" on a /look 3 times, D1 565-567): at most 2 pictures paid for it
+      STOP_ON_REPEAT: true,
       TIMEOUT_MS: 20000,               // a slower check passes the picture
       MAX_TOKENS: 300,
       // probe run 38340313839 (an open checklist, one JSON verdict): Scout caught 1 of 4 mistakes outside sex acts, and counted the man as a
@@ -3075,7 +3081,8 @@ async function askModel(env, messages, sampling, { model, timeoutMs, attempts, t
 // repetition_penalty are OpenRouter's), and no thinking step: Cloudflare's DeepSeek thinks by default
 async function workersChat(env, model, messages, sampling, timeoutMs, trimCut, task = false) {
   if (!env.AI) throw new ApiError("Workers AI is not connected (the AI binding).", false);
-  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: (sampling.max_tokens || 0) + (task ? 1500 : (CONFIG.LLM.THINK_TOKENS || 0)), reasoning_effort: task ? "low" : "none" }; // room for the thinking
+  const thinks = thinksFirst(model);
+  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: (sampling.max_tokens || 0) + (task ? 1500 : thinks ? (CONFIG.LLM.THINK_TOKENS || 0) : 0), reasoning_effort: task ? "low" : "none" }; // room for the thinking
   if (sampling.temperature != null) input.temperature = sampling.temperature;
   // Cloudflare's DeepSeek sometimes ends at once with nothing (1 token, "stop"): 7 of 25 calls with reasoning "none",
   // 3 of 28 with "low" (live runs 37544942514, 37544945221). An empty answer is back in ~1 s and its prompt is cached,
@@ -3083,13 +3090,16 @@ async function workersChat(env, model, messages, sampling, timeoutMs, trimCut, t
   // the last two tries think a little (reasoning "low" never came back empty in cf-probe, 2026-10-06)
   let data, choice, out = "";
   for (let i = 0; i < 4 && !out; i++) {
-    if (i === 2 && input.reasoning_effort === "none") Object.assign(input, { reasoning_effort: "low", max_tokens: (input.max_tokens || 0) + 1500 });
+    if (i === 2 && thinks && input.reasoning_effort === "none") Object.assign(input, { reasoning_effort: "low", max_tokens: (input.max_tokens || 0) + 1500 });
     data = await aiRun(env, model, input, timeoutMs);
     choice = data?.choices?.[0];
     out = String(choice?.message?.content ?? data?.response ?? "").trim();
   }
   return out && trimCut && choice?.finish_reason === "length" ? trimUnfinished(out) : out;
 }
+
+// A model that thinks before answering (LLM.THINKING_MODELS): its thinking counts in max_tokens
+const thinksFirst = (model) => (CONFIG.LLM.THINKING_MODELS || []).some((w) => w && String(model || "").toLowerCase().includes(String(w).toLowerCase()));
 
 // Cuts back to the last full sentence, closing an *action* or "quote" left open
 function trimUnfinished(t) {
@@ -4575,6 +4585,7 @@ async function drawPicture(env, prompt, opts = {}) {
   const checking = !!(A.ON && opts.ledger && opts.herself !== false && (A.KINDS || []).includes(kind));
   const tries = checking ? Math.max(1, Math.floor(Number(A.TRIES) || 1)) : 1;
   let best = null;
+  let prev = null; // the last try's mistakes (STOP_ON_REPEAT)
   let seed = Number(opts.seed) || 0;
   for (let i = 0; i < tries; i++) {
     const rec = newRec();
@@ -4601,6 +4612,9 @@ async function drawPicture(env, prompt, opts = {}) {
     const mistakes = verdict ? verdict.mistakes.length : 0;
     if (!best || mistakes < best.mistakes) best = { out: { ...out, logId }, mistakes };
     if (!verdict || verdict.ok) break;
+    const same = verdict.mistakes.length === 1 && prev && prev.length === 1 && prev[0] === verdict.mistakes[0];
+    if (A.STOP_ON_REPEAT && same) break; // the same single mistake twice: likely the check, not the picture
+    prev = verdict.mistakes;
     seed = ((((Number(rec.seed) || 1) - 1 + 7919) % 2147483646) + 1); // another picture, not the same one again
   }
   return best.out;
