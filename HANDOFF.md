@@ -5,7 +5,7 @@ Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Fix round 2", the current plan).
 
 **Last updated:** 2026-10-13 (forty-fourth session: Opus 5.5, `claude-opus-5-5` per `get_session` `session_context.model` and `last_served_model`; no subagents). The Opus check of F1/F2; the owner's picks: F2 enough, F3 (a), two latency branches; Llama deployed for the owner's test.
-**Deployed:** `main` = cabafb8 (Fix round 2 F1, F2, F3 a, her chat on Llama), deploy run 38361955420; see CHANGELOG for the Version ID and /setup. Rollback: push `79daf47` to `main` (Steps A-D, DeepSeek chat, before Fix round 2). Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**Deployed:** `main` = cabafb8 (Fix round 2 F1, F2, F3 a, her chat on Llama), deploy run 38361955420, Version ID `8095dafd-3991-4889-9d49-265a796d0c8c`; /health ok, /setup all ✅ (Workers AI answered on Llama). Rollback: push `79daf47` to `main` (Steps A-D, DeepSeek chat, before Fix round 2). Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
 **Branches:** `ccr-468e83c1-ci51w8` = `chat-llama` = `dev` = `main` (cabafb8). `chat-timeout` (not deployed): the other latency option.
 
 ## Where we are
@@ -25,7 +25,7 @@ Live since this session (Fix round 2):
 - F1, F2 checked (QUALITY "Opus check"): diffs, probe log line by line, golden by script, 12 pictures at full size.
 - Llama replay test.yml 38361339464 (QUALITY): 48/48 answered, 0 broken, no refusal; shorter, plainer replies; "Reem's eyes..." openings.
 - `node tools/check.mjs` 8 of 8 at 2e0d800, 2e193c5, cabafb8 and on `chat-timeout`.
-- Deploy run 38361955420: see CHANGELOG (Version ID, /health, /setup as read in its log).
+- Deploy run 38361955420 read: every step success; /health drew and saw; /setup all ✅, the chat model row on Llama.
 - Not verified: the live bot in Telegram (the owner's test); STOP_ON_REPEAT live; explicit scenes on Llama.
 
 ## Next steps (in order; one chat each)

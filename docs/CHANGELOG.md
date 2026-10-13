@@ -4,7 +4,9 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
-## 2026-10-13 (forty-fourth session, Opus 5.5 (`claude-opus-5-5`, per `get_session` `session_context.model` and `last_served_model`)): the Opus check of Fix round 2 F1 and F2; dev only
+## 2026-10-13 (forty-fourth session, Opus 5.5 (`claude-opus-5-5`, per `get_session` `session_context.model` and `last_served_model`)): the Opus check of Fix round 2, the owner's picks, deploy
+- Owner: F2 enough; F3 (a) built (`2e0d800`, `PICTURE.ANATOMY.STOP_ON_REPEAT`, with `LLM.THINKING_MODELS`); two latency branches: `chat-llama` (`2e193c5`, her chat on Llama 3.3 70B fast, CONTEXT_TOKENS 20000) and `chat-timeout` (DeepSeek, TIMEOUT_MS 60000, not deployed).
+- Llama replay test.yml 38361339464: 48/48, 0 broken (QUALITY). Deploy run 38361955420: `main` = cabafb8, Version ID `8095dafd-3991-4889-9d49-265a796d0c8c`; /health and /setup all ok (DECISIONS).
 - F1 (`b13aece`) diff and probe run 38357963015 read line by line: sound; the cut and empty replies are gone, the latency is not (the owner's call). VOICE answers are longer now but `forSpeech` still caps a note at 360 chars.
 - F2 (`ba42045`): golden diff checked by script (only body words). The 12 Runware pictures read at full size: a little fuller in 2 of 6 pairs, barely in the rest, the clothed fronts hardly change; faces hold; no new mistakes but a small stray object (nude front V1 202). Verdict in QUALITY. No code changed.
 
