@@ -907,9 +907,12 @@ Changing the story
       TRIES: 3,                        // pictures drawn at most (2 redraws)
       TIMEOUT_MS: 20000,               // a slower check passes the picture
       MAX_TOKENS: 300,
-      PROMPT: "Check this photo for AI drawing mistakes before it is sent, the way a retoucher would. Go part by part: for each person, count the arms, hands, legs and feet you can see and follow each one to the body it belongs to; look at every hand's fingers. A mistake is: a hand, arm, leg, foot or head that belongs to no body in the photo (for example one reaching in at the edge); a person with more than two arms, hands, legs or feet; a hand with too many, too few, fused or melted fingers; an arm or leg bent the wrong way, broken, cut off in the middle of the frame, or merging into clothes, furniture or another body; one leg in one garment and the other leg in a different one or bare; a twisted or distorted face or neck; the head turned impossibly far from the body.{pov}{act} Write at most three short lines of what you checked, then on the last line only JSON: {\"people\": number of people whose head or face shows, \"mistakes\": [\"each mistake, a few words\"], \"ok\": true if there is no mistake}",
-      POV: " The photo is taken from a man's own eyes: his own hands or forearms may reach in from the bottom edge; they are not a mistake.",
-      ACT: " It shows sex from the man's own eyes: his hands, arms, legs, torso and penis may show; they are not a mistake and not a second person. Any second head or face is a mistake.",
+      // probe run 38340313839 (an open checklist, one JSON verdict): Scout caught 1 of 4 mistakes outside sex acts, and counted the man as a
+      // second person in every act picture, good or bad → v2: one question per mistake, his head counted as a mistake (he is the camera)
+      PROMPT: "You check an AI-generated photo for drawing mistakes. Look closely, especially along all four edges of the photo, then answer.\n1. How many human heads or faces can you see? Count every one, even partly hidden, blurred or cut off at an edge.\n2. Is there any hand, arm, leg or foot that is not clearly attached to the woman's body{attached}?\n3. Does any hand have too many or too few fingers, or fused, melted or impossibly bent fingers?\n4. Is any arm or leg broken, bent the wrong way, missing, doubled, far too long, or merging into furniture, clothes or another body?\n5. Is one of her legs dressed differently from the other (one in jeans, the other bare)?\n6. Is her face or neck twisted or distorted?{pov}{act}\nAnswer in at most four short lines, then on the last line only JSON: {\"heads\": number, \"stray_parts\": true or false, \"bad_hands\": true or false, \"bad_limbs\": true or false, \"mismatched_legs\": true or false, \"bad_face\": true or false}",
+      ATTACHED: " or to the man whose eyes are the camera",
+      POV: "\nThe photo is taken from a man's own eyes: he is the camera, so his head and face are never in it; his own hands or forearms may reach in from the bottom edge.",
+      ACT: "\nIt shows sex from the man's own eyes: he is the camera, so his head and face are never in it; his hands, arms, legs, torso and penis may show and belong to him.",
     },
     // Step C (picture overhaul, owner 2026-10-12: "Hybrid (Recommended)"): DeepSeek on Workers AI writes only the words of the moment
     // (action, pose, clothes, place) of /look (LOOK.PROMPT, under RULES) and of her own pictures: SELFIE tidies the code's draft
@@ -4965,18 +4968,21 @@ async function lingerieSeen(env, ledger, bytes) {
   }
 }
 
-// Step D: the anatomy check's answer (PICTURE.ANATOMY.PROMPT) as { ok, mistakes, people }: its last JSON object; ok only with no mistake
-// listed, "ok" not false and at most one person. null when there is no JSON to read (the caller passes the picture).
+// Step D: the anatomy check's answer (PICTURE.ANATOMY.PROMPT) as { ok, mistakes, people }: its last JSON object; ok only with no flag
+// true, no mistake listed and at most one head (v1's { people, mistakes, ok } read too). null when there is no JSON to read (the caller passes the picture).
 function anatomyVerdict(text) {
   const t = String(text || "");
   const found = [...t.matchAll(/\{[^{}]*\}/g)].map((m) => m[0]);
   for (const j of found.reverse()) {
     try {
       const v = JSON.parse(j);
-      if (!v || typeof v !== "object" || !("ok" in v || "mistakes" in v)) continue;
-      const mistakes = (Array.isArray(v.mistakes) ? v.mistakes : []).map((m) => String(m).trim()).filter((m) => m && !/^(?:none|no mistakes?)\.?$/i.test(m));
-      const people = Number(v.people) || 0;
-      return { ok: v.ok !== false && !mistakes.length && people <= 1, mistakes: people > 1 && !mistakes.length ? [`${people} people`] : mistakes, people };
+      if (!v || typeof v !== "object" || !("ok" in v || "mistakes" in v || "heads" in v || "stray_parts" in v)) continue;
+      // v2: one flag per mistake and the heads it counted (more than one head: someone else, or his own head, is in the picture)
+      const flags = ["stray_parts", "bad_hands", "bad_limbs", "mismatched_legs", "bad_face"].filter((k) => v[k] === true || String(v[k]).toLowerCase() === "true");
+      const listed = (Array.isArray(v.mistakes) ? v.mistakes : []).map((m) => String(m).trim()).filter((m) => m && !/^(?:none|no mistakes?)\.?$/i.test(m));
+      const heads = Number(v.heads ?? v.people) || 0;
+      const mistakes = [...listed, ...flags, ...(heads > 1 ? [`${heads} heads`] : [])];
+      return { ok: v.ok !== false && !mistakes.length, mistakes, people: heads };
     } catch {}
   }
   return null;

@@ -11,7 +11,8 @@ const A = W.CONFIG.PICTURE.ANATOMY;
 const FC = process.env.FC || "fc";
 const account = process.env.CLOUDFLARE_ACCOUNT_ID;
 const token = process.env.CLOUDFLARE_API_TOKEN;
-const MODELS = (process.env.MODELS || [A.MODEL, "@cf/google/gemma-3-12b-it", "@cf/meta/llama-3.2-11b-vision-instruct"].join(",")).split(",").filter(Boolean);
+// run 38340313839: Gemma 3 12B is not allowed on this account (5018); Llama 3.2 11B Vision needs a one-time "agree" (sent below)
+const MODELS = (process.env.MODELS || [A.MODEL, "@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/meta/llama-3.2-11b-vision-instruct"].join(",")).split(",").filter(Boolean);
 const B = "runs/2026-10-13-stepA-bench/";
 const C = "runs/2026-10-13-stepC-bench/";
 const P4 = "runs/38333810448-cf-lora-probe/";
@@ -37,7 +38,7 @@ const PICTURES = [
   [`${B}a4-doggy-V0-s202.jpg`, false, "act", ""],
 ];
 
-const promptFor = (view) => W.fill(A.PROMPT, { pov: view === "pov" ? A.POV : "", act: view === "act" ? A.ACT : "" });
+const promptFor = (view) => W.fill(A.PROMPT, { attached: view ? A.ATTACHED : "", pov: view === "pov" ? A.POV : "", act: view === "act" ? A.ACT : "" });
 async function ask(model, bytes, view) {
   const input = { messages: [{ role: "user", content: [{ type: "text", text: promptFor(view) }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${bytes.toString("base64")}` } }] }], max_tokens: A.MAX_TOKENS };
   const t0 = Date.now();
@@ -51,6 +52,11 @@ async function ask(model, bytes, view) {
 }
 const verdict = (text) => W.anatomyVerdict(text);
 
+// Llama 3.2 Vision's license: a one-time "agree" prompt on the account (Cloudflare's own instruction in the 403)
+if (MODELS.some((m) => m.includes("llama-3.2-11b-vision"))) {
+  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/@cf/meta/llama-3.2-11b-vision-instruct`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ prompt: "agree" }) });
+  console.log(`llama-3.2-11b-vision agree: ${res.status} ${(await res.text()).slice(0, 200)}`);
+}
 const tally = {};
 for (const model of MODELS) {
   tally[model] = { caught: 0, bad: 0, passed: 0, good: 0, unread: 0, ms: [], neurons: 0 };
