@@ -1,7 +1,11 @@
 name: Cloudflare probe
 
 # A quick look at a Workers AI text model's answers (tools/test/cf-probe.mjs). Cloudflare only (no OpenRouter).
+# Runs on a push of the script to a session branch (2026-10-13), or by hand from dev.
 on:
+  push:
+    branches-ignore: [dev, main, face-candidates]
+    paths: [tools/test/cf-probe.mjs]
   workflow_dispatch:
     inputs:
       model:
@@ -20,4 +24,4 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          PROBE_MODEL: ${{ github.event.inputs.model }}
+          PROBE_MODEL: ${{ github.event.inputs.model || '@cf/deepseek-ai/deepseek-v4-flash-0731' }}
