@@ -216,7 +216,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const seen = [];
   const env = { AI: { async run(model, input) { seen.push([model, input.reasoning_effort, input.max_tokens, "min_p" in input]); return { choices: [{ message: { content: "hey you." }, finish_reason: "stop" }] }; } } };
   const out = await W.askModel(env, [{ role: "system", content: "s" }, { role: "user", content: "hi" }], { temperature: 0.9, max_tokens: 50, min_p: 0.1 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1, trimCut: true });
-  eq([out, seen], ["hey you.", [["@cf/deepseek-ai/deepseek-v4-flash-0731", "none", 50, false]]], "a @cf/ text model goes through the AI binding with no thinking step");
+  eq([out, seen], ["hey you.", [["@cf/deepseek-ai/deepseek-v4-flash-0731", "none", 750, false]]], "a @cf/ text model goes through the AI binding with no thinking step");
 }
 {
   // long memory (RECALL): folded messages saved with who/when/chat, OOC and tiny lines left out; nothing without the index
@@ -251,7 +251,19 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const env = { AI: { async run(model, input) { seen.push([input.reasoning_effort, input.max_tokens]); return { choices: [{ message: { content: "ok then" } }] }; } } };
   await W.askModel(env, [{ role: "user", content: "x" }], { max_tokens: 100 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1, task: true });
   await W.askModel(env, [{ role: "user", content: "x" }], { max_tokens: 100 }, { model: "@cf/deepseek-ai/deepseek-v4-flash-0731", timeoutMs: 5000, attempts: 1 });
-  eq(seen, [["low", 1600], ["none", 100]], "Workers AI: tasks think a little (low), her replies don't (none)");
+  eq(seen, [["low", 1600], ["none", 800]], "Workers AI: tasks think a little (low); her replies (none) get THINK_TOKENS more");
+}
+{
+  // F1 (Fix round 2, 2026-10-13): her replies get LLM.THINK_TOKENS more room, since DeepSeek on Workers AI thinks before each one;
+  // a task keeps its +1500. The visible length of a reply is still LLM.MAX_TOKENS
+  W.budget.reset();
+  const seen = [];
+  const env = { AI: { async run(model, input) { seen.push([input.reasoning_effort, input.max_tokens]); return { choices: [{ message: { content: "ok then" } }] }; } } };
+  const L = W.CONFIG.LLM, M = "@cf/deepseek-ai/deepseek-v4-flash-0731", msgs = [{ role: "user", content: "x" }];
+  for (const mode of ["TEXT", "SCENE", "VOICE"]) await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS[mode] }, { model: M, timeoutMs: 5000, attempts: 1 });
+  await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS.TEXT }, { model: M, timeoutMs: 5000, attempts: 1, task: true });
+  eq(seen, [["none", L.MAX_TOKENS.TEXT + L.THINK_TOKENS], ["none", L.MAX_TOKENS.SCENE + L.THINK_TOKENS], ["none", L.MAX_TOKENS.VOICE + L.THINK_TOKENS], ["low", L.MAX_TOKENS.TEXT + 1500]], "chat replies: MAX_TOKENS + THINK_TOKENS; a task keeps +1500 (Fix round 2)");
+  eq([L.THINK_TOKENS, L.TIMEOUT_MS], [700, 30000], "LLM.THINK_TOKENS 700 and LLM.TIMEOUT_MS 30 s (Fix round 2)");
 }
 {
   // the owner's main routes (2026-10-06): texts/memory/auto DeepSeek on Cloudflare, voice Sulafat on OpenRouter, hearing Gemini on

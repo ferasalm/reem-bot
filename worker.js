@@ -314,6 +314,9 @@ const CONFIG = {
     BACKUP_REASONING: { enabled: false }, // no thinking step: faster, cheaper, and the bench was run this way
     // Reply length per kind of reply (max_tokens above is used if one is missing). Shorter = less rambling.
     MAX_TOKENS: { TEXT: 220, VOICE: 120, SCENE: 380 },
+    // DeepSeek on Workers AI thinks before every reply, and the thinking counts in max_tokens: her replies get this much more room
+    // (cf-probe 38355964346: 150-300 tokens of thinking). A reply's visible length is still MAX_TOKENS (Fix round 2, 2026-10-13).
+    THINK_TOKENS: 700,
     // How much of the chat is sent with each reply, in tokens. The oldest messages are left out so the
     // prompt always fits. DeepSeek V4 Flash reads far more; this keeps replies fast and cheap.
     CONTEXT_TOKENS: 32768,
@@ -322,7 +325,7 @@ const CONFIG = {
     BACKUP_CONTEXT_TOKENS: 32768,
     CHARS_PER_TOKEN: 3.5,              // rough estimate used for both (lower = safer)
     RETRY_TEMPERATURE: 1.05,           // the second try, when her first reply repeated herself
-    TIMEOUT_MS: 20000,                 // one Workers AI call once took over 15 s (live run 37544942514)
+    TIMEOUT_MS: 30000,                 // thinking replies took 4-10 s, some 37-60 s (cf-probe 38355964346); was 20 s
     ATTEMPTS: 2,                       // tries per reply when the model fails
     RETRY_DELAY_MS: 1500,
   },
@@ -3069,7 +3072,7 @@ async function askModel(env, messages, sampling, { model, timeoutMs, attempts, t
 // repetition_penalty are OpenRouter's), and no thinking step: Cloudflare's DeepSeek thinks by default
 async function workersChat(env, model, messages, sampling, timeoutMs, trimCut, task = false) {
   if (!env.AI) throw new ApiError("Workers AI is not connected (the AI binding).", false);
-  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: (sampling.max_tokens || 0) + (task ? 1500 : 0), reasoning_effort: task ? "low" : "none" }; // room for the thinking
+  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: (sampling.max_tokens || 0) + (task ? 1500 : (CONFIG.LLM.THINK_TOKENS || 0)), reasoning_effort: task ? "low" : "none" }; // room for the thinking
   if (sampling.temperature != null) input.temperature = sampling.temperature;
   // Cloudflare's DeepSeek sometimes ends at once with nothing (1 token, "stop"): 7 of 25 calls with reasoning "none",
   // 3 of 28 with "low" (live runs 37544942514, 37544945221). An empty answer is back in ~1 s and its prompt is cached,
