@@ -606,3 +606,11 @@ Golden plans: 38 cases match (the Runware requests are unchanged by Step 7). `to
 | Wardrobe sweep: every WARDROBE / LINGERIE entry through `runwarePlan` (On) | the bottoms line hit 6 entries: a lace bralette and "briefs", "an oversized gray tee that barely reaches mid-thigh", "his oversized flannel shirt ... and bare legs", the hoodie with "joggers" (x2), KLEIN_WARDROBE's "bottoms" | BOTTOM_WORDS + briefs, bottoms, joggers; `BARE_LEGS_WORDS`; after: 0 entries; golden unchanged |
 | Golden: the Off case | its prompt was built at On by the harness (no SAFE); the bot gates every Off path before drawing | `picAt` builds at the case's level; the Off case now ends "No nudity." (the only change) |
 | 897dfaf vs HEAD, one clothed /pic (mirror, tank and jeans), seeds 101-404, each version's own request | 897dfaf: halter neckline 4/4 (image 1's cut), cropped midriff 2/4; HEAD: the tank as named 4/4 | arms: the versions differ less than the seeds (torso crops of 101 and 404 at full size, judged). $0.02808 by Runware `usage` (0.78572 → 0.8138; two 502s billed). `face-candidates` runs/2026-10-11-fix-review/ (b13d85d) |
+
+## Step A bench: one clothed body, Lenovo + NSFW Unlocked (2026-10-13, Opus 5.5 `claude-opus-5-5`; `tools/face/stepa-bench.mjs`, `face-candidates` runs/2026-10-13-stepA-bench)
+31 pictures read one by one at full size (table.md there has one line each); Runware usage +$0.093 (7.12509 → 7.21817). Klein 9B, 6 steps, CFG 2: $0.0025-0.0034 a picture, as at CFG 1.
+- **Clothed on v11-clothed (bra + thong):** 10/10 outfits as named, no underwear showing; a back view on v11-clothed-back 2/2. One slip dress drew a second phone in her other hand (gaze "looking down at something in her hands"). Bodies look slimmer than on v10 (the new picture is).
+- **NSFW Unlocked alone (no act LoRA):** riding 4/4, missionary 4/4, blowjob 2/2 (in her mouth, his eyes), vaginal doggy 2/2. → no act LoRA.
+- **POV hand:** with and without, the same picture 4/4 pairs. → dropped (owner).
+- **"his hands on her hips" (riding):** a second man's head behind her 3/4. → Step B (he is the camera).
+- **Doggy anal:** POV Doggy Anal 1.0 in her anus 2/2, another woman's face 2/2; 0.8 the same 2/2; NSFW Unlocked alone in her anus 1/1, her face closer (1 Runware 502). → NSFW Unlocked only (owner).

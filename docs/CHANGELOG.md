@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-12/13 (thirty-eighth session, Opus 5.5 (`claude-opus-5-5`)): picture overhaul planned, Step A built; dev only
+- `get_session`: `session_context.model` and `last_served_model` both `claude-opus-5-5`. No subagents.
+- Read the live D1 log (rows 483-503): /pic words reach the prompt as typed ("Feras having sex with Reem"), /look 483-484 were drawn at Off on Cloudflare klein 4B with the old long prompt and two lights, Compose returned no plan at Off (an "edit" of an Off log row set the level).
+- Built: the owner's bra-and-thong pictures as `BODY_CLOTHED` v11-clothed / `BODY_CLOTHED_BACK` v11-clothed-back (originals 11, 12); outfit pictures, v10-clothed, v10-neutral, CLOTHED_BODY, OUTFIT_BODY, REFERENCE_OUTFIT, DRESSED_FULL, OUTFIT_LINE removed; Lenovo 1.3, NSFW Unlocked 0.8, Anatomy Fixer 0.7 (not on sex acts), MAX_LORAS 3, no act / hands / flash LoRA, ANAL_LORAS empty; STEPS 6, CFG 2; Flux 4 Play triggers out of ACT_SCENES; /studio Face / Body / Hair menus, defaults from the bot, Compose at Off returns the Cloudflare prompt.
+- Checks: check.mjs 8/8; golden rewritten twice, diff read case by case (all changes intended); studio-browser 10/10 and the editor driven in Chromium (menus, Off and On compose with typed words).
+- Bench `tools/face/stepa-bench.mjs`: 31 pictures, Runware usage +$0.093, `face-candidates` e0cfaa8 runs/2026-10-13-stepA-bench (QUALITY "Step A bench").
+
 ## 2026-10-11 (thirty-seventh session, Sonnet 5.5 (`claude-sonnet-5-5`)): deploy of the fix round
 - `main` d21c4b3 → b42cac1 (fast-forward). Deploy run 38173924557 (42) and Tests 38173924502 (545) green; Version ID `b9d09df9-efbe-4163-aa8c-1eb392bc17d1`; `/health` ok (klein 60,871 bytes, 24.3 s); `/setup` all ✅ with the new Off-on-Cloudflare Pictures line. Rollback: push `d21c4b3`.
 - Owner settled the model-ID question: records name each model by name and raw ID (DECISIONS). This chat: Sonnet 5.5 (`claude-sonnet-5-5`), `get_session` `session_context.model` and `last_served_model` both `claude-sonnet-5-5`.

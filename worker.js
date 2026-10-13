@@ -964,9 +964,10 @@ Changing the story
       // owner 2026-10-12 ("the quality anatomy fix LoRA ... especially since they cannot be retried"; "Sex scenes don't use anatomy
       // fixer"): Anatomy Quality Fixer on every picture that is not a sex act (her own, /pic, /look), at its round-2 weight
       ANATOMY_LORAS: { "myaiprojectsqqq:3@2": 0.7 },
-      // owner 2026-10-12 ("When user's hand in the prompt, include the hands LoRA"): POV hand (converted) when HANDS_WORDS name his hands,
-      // at its 2026-10-08 weight; with NSFW Unlocked on, the Step A bench decides it (with and without)
-      HANDS_LORAS: { "ferasalm:povhandc@1": 0.6 },
+      // owner 2026-10-12 ("When user's hand in the prompt, include the hands LoRA"): POV hand when HANDS_WORDS name his hands. Step A
+      // bench (2026-10-13): with and without it the same pictures 4/4 pairs (NSFW Unlocked on) → owner: "Drop it"; it comes back with
+      // one line here ({ "ferasalm:povhandc@1": 0.6 })
+      HANDS_LORAS: {},
       HANDS_WORDS: "his hand, his hands, the man's hand, the man's hands, his fingers, the man's fingers, my hand, my hands, his palm, the man's palm",
       LORA_PREFIX: "This is a candid photograph taken with a smartphone of", // phone2025's trigger words, before her description
       // the prefix goes in only when this LoRA is in the list (Step 3, 2026-10-11): a picture without phone2025 has no smartphone sentence
@@ -987,10 +988,10 @@ Changing the story
         "myaiprojectsqqq:3@2": { name: "Anatomy Quality Fixer", category: "anatomy", civitai: null, trigger: "", note: "ANATOMY_LORAS at 0.7 (owner 2026-10-12: every picture but sex acts)" },
         "ferasalm:flux4play@1": { name: "Flux 4 Play AIO", category: "act", civitai: 2702716, trigger: "c0wg1rl, r3v3rs3_c0wg1rl (ACT_SCENES)", note: "spare (2026-10-12: no act LoRA)" },
         "ferasalm:missionary@1": { name: "Missionary POV K3NK", category: "act", civitai: 2699087, trigger: "", note: "spare (2026-10-12: no act LoRA)" },
-        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "ANAL_LORAS doggy only at 1.0, with Lenovo, in NSFW Unlocked's place (owner 2026-10-12: doggy AND anal)" },
+        "ferasalm:povanal@1": { name: "POV Doggy Anal", category: "act", civitai: 2821244, trigger: "", note: "spare (owner 2026-10-13: doggy anal on NSFW Unlocked only; with it her face changed 4/4)" },
         "ferasalm:povdt@1": { name: "Holding Deepthroat POV", category: "act", civitai: 2779637, trigger: "POV deepthroat scene", note: "spare (2026-10-12: no act LoRA)" },
         "ferasalm:povbj@1": { name: "POV Blowjob", category: "act", civitai: null, trigger: "", note: "spare" },
-        "ferasalm:povhandc@1": { name: "POV hand (converted)", category: "act", civitai: 2640656, trigger: "", note: "HANDS_LORAS at 0.6 (owner 2026-10-12: his hands named)" },
+        "ferasalm:povhandc@1": { name: "POV hand (converted)", category: "act", civitai: 2640656, trigger: "", note: "spare (owner 2026-10-13: dropped, no visible change 4/4 pairs)" },
         "ferasalm:tushyraw@1": { name: "Tushy Raw Filter", category: "light", civitai: 2569967, trigger: "FLASH_TRIGGER", note: "spare (owner 2026-10-12: flash LoRA dropped)" },
       },
       // owner 2026-10-08: SNOFS (Civitai, klein 9B v1.4) on nude/explicit pictures only: added to LORAS when NUDE_WORDS match
@@ -1010,8 +1011,9 @@ Changing the story
       // vagina"), and anal from behind came out vaginal 0/2; without it riding 2/2, missionary 2/2, anal from behind 2/3. NUDE_LORAS
       // are left out when one of these act LoRAs (penetration) loads; blowjobs and nude pictures keep them
       // 2026-10-12 (owner: "The act may replace NSFW unlocked LoRA if and only if NSFW LoRA has a high failure rate in achieving such
-      // act"): POV Doggy Anal replaces it (Step 6: only it drew the penis in her anus; with the realism LoRAs a vulva was drawn there 4/5)
-      NUDE_LORAS_OFF_WITH: ["ferasalm:povanal@1"],
+      // act"): none since the Step A bench (2026-10-13): NSFW Unlocked drew every act right (riding 4/4, missionary 4/4, blowjob 2/2,
+      // doggy 2/2, doggy anal 1/1), and POV Doggy Anal in its place drew another woman's face 4/4 (at 1.0 and 0.8)
+      NUDE_LORAS_OFF_WITH: [],
       // an act LoRA drawn alone (no LORAS, NUDE_LORAS or LORA_PREFIX) at this weight when it loads. Owner 2026-10-08 ("Let's try POV
       // doggy anal alone without the other LoRAs while raising its weight to 1"): anal from behind, her anus where it belongs 3/3 alone
       // at 1.0, while with the realism LoRAs a small vulva was drawn where her anus is (4 of 5)
@@ -1117,11 +1119,10 @@ Changing the story
       // sex) drew it in her vulva, her anus above it (0/3 each, doggy with Flux 4 Play 0/3); General Penis alone drew no penetration
       // (0/9). POV Doggy Anal: doggy alone at 1.0 5/5; 0.8 with the realism LoRAs prone 5/5 (flat 4/5), reverse cowgirl 2/2 (a
       // second head 1/2), missionary 2/2 (legs gone 2/2: no frontal anal LoRA yet)
-      // 2026-10-12 (owner: "remove the use of doggy anal LoRA unless specifically asked for doggy AND anal"): doggy only, and only when
-      // the words name it (a position picked by ANAL_POSITIONS loads nothing); with Lenovo, in NSFW Unlocked's place (NUDE_LORAS_OFF_WITH)
-      ANAL_LORAS: {
-        doggy: { "ferasalm:povanal@1": 1 },
-      },
+      // 2026-10-12 (owner: "remove the use of doggy anal LoRA unless specifically asked for doggy AND anal"), then 2026-10-13 (owner, after
+      // the Step A bench: her face changed 4/4 with it): "NSFW Unlocked only". A position here loads only when the words name it
+      // (doggy was { "ferasalm:povanal@1": 1 })
+      ANAL_LORAS: {},
       ANAL_ALONE: [],                  // positions whose ANAL_LORAS draw alone; none since 2026-10-12 (Lenovo on every picture)
       TIMEOUT_MS: 60000,
       // round 4: the room on Runware, short (the room's LOOK words drowned the act and the LoRAs); {n} = its image number

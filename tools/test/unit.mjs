@@ -350,7 +350,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(await loras("having sex"), [[R.MODEL, act]], "a sex act with SEX_ACTS on: LORAS + NUDE_LORAS, no Anatomy Fixer (owner 2026-10-12)");
     // 2026-10-12 (owner: no act LoRA for now): riding and missionary are Lenovo + NSFW Unlocked only
     for (const words of ["riding the man", "missionary"]) eq(await loras(words), [[R.MODEL, act]], `${words}: Lenovo + NSFW Unlocked, no act LoRA (2026-10-12)`);
-    eq(await loras("the man fucking her ass doggy style, anal"), [[R.MODEL, ["ferasalm:lenovoc@1", "ferasalm:povanal@1"]]], "doggy + anal: Lenovo + POV Doggy Anal in NSFW Unlocked's place (2026-10-12)");
+    eq(await loras("the man fucking her ass doggy style, anal"), [[R.MODEL, act]], "doggy + anal: Lenovo + NSFW Unlocked (owner 2026-10-13: POV Doggy Anal changed her face 4/4)");
     eq(await loras("the man fucking her ass, anal, prone bone"), [[R.MODEL, act]], "anal not doggy: no POV Doggy Anal (owner 2026-10-12: doggy AND anal only)");
     eq((await loras("sucking the man's cock, blowjob"))[0][1].includes(Object.keys(R.NUDE_LORAS)[0]), true, "a blowjob keeps NUDE_LORAS");
     // round 4: Runware's own size and sampler
@@ -444,7 +444,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("naked, holding the man's erect penis in her hand", "pic");
     yes(!c.loras.includes("ferasalm:penis@1") && c.loras.length <= R.MAX_LORAS, "a penis without an act: no General Penis (2026-10-12)", c.loras);
     c = await call("the man fucking her anal doggystyle", "pic");
-    yes(JSON.stringify(c.loras) === JSON.stringify(["ferasalm:lenovoc@1", "ferasalm:povanal@1"]) && !c.text.includes("an4l") && c.text.includes("seen from behind") && c.text.includes("his penis inside her anus; below it, between her thighs, her vulva closed and untouched") && !c.text.includes("This is a candid photograph") && !c.text.includes("POV hand"), "doggy anal: Lenovo + POV Doggy Anal, from behind, the vulva below her anus, no LORA_PREFIX (2026-10-12)", c);
+    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && !c.text.includes("an4l") && c.text.includes("seen from behind") && c.text.includes("his penis inside her anus; below it, between her thighs, her vulva closed and untouched") && !c.text.includes("This is a candid photograph") && !c.text.includes("POV hand"), "doggy anal: Lenovo + NSFW Unlocked (2026-10-13), from behind, the vulva below her anus, no LORA_PREFIX", c);
     // Step 6 (WORKPLAN, 2026-10-11): anal positions. ANAL_POSITION_WORDS names the position, else ANAL_POSITIONS picks one; the position
     // sets the camera (ANAL_SCENES), the LoRAs (ANAL_LORAS, no Unchained) and the body (the front for missionary, else the back)
     const OPTS = { ref: new Uint8Array([1]), rwFace: new Uint8Array([1]), faceName: "face-2x", place: new Uint8Array([1]), placeName: "place", who: (w) => w };
@@ -460,12 +460,12 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     refs = refsOf("prone bone anal on the bed");
     yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && refs.includes("body-v10-back") && c.text.includes("lies flat on her stomach"), "prone bone anal: back body, Lenovo + NSFW Unlocked (2026-10-12), the prone text", { loras: c.loras, refs });
     c = await call("anal, doggy style on the bed", "pic");
-    yes(JSON.stringify(c.loras) === JSON.stringify(["ferasalm:lenovoc@1", "ferasalm:povanal@1"]) && c.text.includes("fucking her in the ass doggy style"), "anal, doggy style: Lenovo + POV Doggy Anal (2026-10-12), the doggy anal text", c.loras);
+    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && c.text.includes("fucking her in the ass doggy style"), "anal, doggy style: Lenovo + NSFW Unlocked (2026-10-13), the doggy anal text", c.loras);
     c = await call("anal riding the man", "pic");
     yes(planAll("anal riding the man").flags.analAt === "reverse cowgirl" && c.text.includes("inside her anus") && !c.text.includes("inside her vagina"), "Step 6: anal riding the man: the reverse cowgirl position (riding), the anal text", c.text.slice(0, 200));
     c = await call("riding the man, his hands on her ass", "pic");
     const hands = planAll("riding the man, his hands on her ass").flags;
-    yes(!hands.anal && !c.loras.includes("ferasalm:povanal@1") && c.loras.includes("ferasalm:povhandc@1") && c.loras.length === R.MAX_LORAS && c.text.includes("inside her vagina"), "riding, his hands on her ass: not anal, Lenovo + NSFW Unlocked + POV hand (2026-10-12), the vaginal text", { anal: hands.anal, loras: c.loras });
+    yes(!hands.anal && JSON.stringify(c.loras) === JSON.stringify(actSet) && c.text.includes("inside her vagina"), "riding, his hands on her ass: not anal, Lenovo + NSFW Unlocked (2026-10-13: no hands LoRA), the vaginal text", { anal: hands.anal, loras: c.loras });
     c = await call("doggy style, grabbing her ass", "pic");
     const grab = planAll("doggy style, grabbing her ass").flags;
     yes(!grab.anal && !c.loras.includes("ferasalm:povanal@1") && c.text.includes("inside her vagina"), "Step 6: doggy style, grabbing her ass: not anal, no POV Doggy Anal, the vaginal text", { anal: grab.anal, loras: c.loras });
@@ -479,7 +479,12 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("missionary sex on the bed", "scene");
     eq(c.loras, actSet, "/look missionary: Lenovo + NSFW Unlocked (2026-10-12)");
     c = await call("in a black dress, the man's hand on her waist", "pic");
-    eq(c.loras, ["ferasalm:lenovoc@1", "ferasalm:povhandc@1", ...anat].sort(), "his hand, clothed: Lenovo + POV hand + Anatomy Fixer (owner 2026-10-12: the hands LoRA when his hand is named)");
+    eq(c.loras, ["ferasalm:lenovoc@1", ...anat].sort(), "his hand, clothed: Lenovo + Anatomy Fixer (owner 2026-10-13: hands LoRA dropped)");
+    const keepHands = R.HANDS_LORAS;
+    R.HANDS_LORAS = { "ferasalm:povhandc@1": 0.6 };
+    c = await call("riding the man, his hands on her hips", "pic");
+    eq(c.loras, [...actSet, "ferasalm:povhandc@1"].sort(), "HANDS_LORAS set again: his hands named add it, within MAX_LORAS");
+    R.HANDS_LORAS = keepHands;
     eq(W.picWords("my hand on your waist, you in a black dress"), "the man's hand on her waist, her in a black dress", "/pic: 'my hand' is his");
     R.SEX_ACTS = false;
     yes(!W.mayDraw("her giving a blowjob") && !W.sexAct("her giving a blowjob"), "switch off: not drawn");
