@@ -83,7 +83,7 @@ for (const c of CASES) {
       writeFileSync(join(OUT, f), t.bytes);
       return { file: f, model: t.model, neurons: t.neurons || null, cost: t.cost || null, sent: !!sent && sent.equals(t.bytes) };
     });
-    const row = { id: current.id, level: c.level, kind: c.kind, seconds: Math.round((Date.now() - t0) / 100) / 10, writer: current.writer, prompt: pic && pic.prompt, tries: files, checks: current.checks.map((t) => ({ verdict: W.anatomyVerdict(t), text: t })), error, ledger: { neurons: ledger.neurons, rwUsd: ledger.rwUsd } };
+    const row = { id: current.id, level: c.level, kind: c.kind, seconds: Math.round((Date.now() - t0) / 100) / 10, writer: current.writer, prompt: pic && pic.prompt, tries: files, checks: current.checks.map((t) => ({ verdict: W.anatomyVerdict(t, { heads: !/^on-/.test(c.id) }), text: t })), error, ledger: { neurons: ledger.neurons, rwUsd: ledger.rwUsd } };
     results.push(row);
     console.log(`\n### ${row.id} (${row.seconds} s): ${files.length} tries, sent ${files.findIndex((f) => f.sent) + 1}${error ? `, error ${error}` : ""}`);
     if (row.writer.length) console.log(`writer: ${row.writer.join(" | ").replace(/\n/g, " ")}`);

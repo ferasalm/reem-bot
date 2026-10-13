@@ -51,7 +51,7 @@ async function ask(model, bytes, view) {
   const r = data.result || {};
   return { ms, neurons, text: String(r.response ?? r.choices?.[0]?.message?.content ?? "") };
 }
-const verdict = (text) => W.anatomyVerdict(text);
+const verdict = (text, view) => W.anatomyVerdict(text, { heads: view !== "act" }); // as anatomyCheck
 
 // Llama 3.2 Vision's license: a one-time "agree" prompt on the account (Cloudflare's own instruction in the 403)
 if (MODELS.some((m) => m.includes("llama-3.2-11b-vision"))) {
@@ -65,7 +65,7 @@ for (const model of MODELS) {
   for (const [file, bad, view, note] of PICTURES) {
     const bytes = readFileSync(join(FC, file));
     const out = await ask(model, bytes, view);
-    const v = out.error ? null : verdict(out.text);
+    const v = out.error ? null : verdict(out.text, view);
     const t = tally[model];
     t.ms.push(out.ms);
     t.neurons += Number(out.neurons) || 0;

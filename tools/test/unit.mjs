@@ -935,6 +935,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   reset([verdict({ stray_parts: true }), verdict({ stray_parts: true }), verdict({})]);
   await draw({ ledger: led });
   eq(led.neurons, W.CONFIG.AI_BUDGET.PICTURE_NEURONS * 2 + W.CONFIG.AI_BUDGET.PHOTO_NEURONS * 3, "anatomy: the 2 Cloudflare redraws and the 3 checks are counted (the first picture is its caller's)");
+  reset([verdict({ heads: 2 })]);
+  await W.drawPicture(env, "Realistic candid first-person photo from the man's own eyes, caught in the middle of the act, not posing: {who} She rides the man on the sofa, naked.", { ledger: ledger(), kind: "scene", nsfw: "on" });
+  yes(asked[0] && asked[0].text.includes(A.ACT), "anatomy: a sex act at On is asked with the act lines", asked[0] && asked[0].text);
+  eq(draws.length, 1, "anatomy: on a sex act \"2 heads\" is not a mistake (Scout counts the man on clean act pictures, probe v3)");
   A.ON = false;
   reset([verdict({ stray_parts: true })]);
   await draw();

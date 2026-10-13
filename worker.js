@@ -910,7 +910,9 @@ Changing the story
       // probe run 38340313839 (an open checklist, one JSON verdict): Scout caught 1 of 4 mistakes outside sex acts, and counted the man as a
       // second person in every act picture, good or bad → v2: one question per mistake, his head counted as a mistake (he is the camera).
       // v2 (run 38340521232): Scout caught 5 of 7 (the second man's head 2/2, the bare + jeans legs), passed 9 of 11 (a laugh read as a
-      // distorted face; 2 heads in a clean riding picture); Llama 3.2 11B Vision 3/7, Mistral Small 3.1 1/7 → Scout; v3: the edges, a laugh
+      // distorted face; 2 heads in a clean riding picture); Llama 3.2 11B Vision 3/7, Mistral Small 3.1 1/7 → Scout; v3: the edges, a laugh.
+      // v3 (run 38341298420): 5/7 and 9/11; no laugh false alarm; "2 heads" on every act picture, clean ones too (it infers the man) →
+      // on acts the head count is not a mistake (anatomyVerdict); outside acts: second heads, mismatched legs, 1 of 3 klein 4B stray hands
       PROMPT: "You check an AI-generated photo for drawing mistakes. Look closely, especially along all four edges of the photo, then answer.\n1. How many human heads or faces can you see? Count every one, even partly hidden, blurred or cut off at an edge.\n2. Is there any hand, arm, leg or foot that is not clearly attached to the woman's body{attached}? Look hardest at the left and right edges, where someone else's hand or arm can reach in.\n3. Does any hand have too many or too few fingers, or fused, melted or impossibly bent fingers?\n4. Is any arm or leg broken, bent the wrong way, missing, doubled, far too long, or merging into furniture, clothes or another body?\n5. Is one of her legs dressed differently from the other (one in jeans, the other bare)?\n6. Is her face or neck deformed (melted, lopsided, twisted)? An expression, a laugh or a squint is not a mistake.{pov}{act}\nAnswer in at most four short lines, then on the last line only JSON: {\"heads\": number, \"stray_parts\": true or false, \"bad_hands\": true or false, \"bad_limbs\": true or false, \"mismatched_legs\": true or false, \"bad_face\": true or false}",
       ATTACHED: " or to the man whose eyes are the camera",
       POV: "\nThe photo is taken from a man's own eyes: he is the camera, so his head and face are never in it; his own hands or forearms may reach in from the bottom edge.",
@@ -4997,7 +4999,8 @@ async function lingerieSeen(env, ledger, bytes) {
 
 // Step D: the anatomy check's answer (PICTURE.ANATOMY.PROMPT) as { ok, mistakes, people }: its last JSON object; ok only with no flag
 // true, no mistake listed and at most one head (v1's { people, mistakes, ok } read too). null when there is no JSON to read (the caller passes the picture).
-function anatomyVerdict(text) {
+// `heads` false: the head count is not a mistake (sex acts: Scout answered "2 heads" on 3 of 3 clean act pictures, probe v3)
+function anatomyVerdict(text, { heads: countHeads = true } = {}) {
   const t = String(text || "");
   const found = [...t.matchAll(/\{[^{}]*\}/g)].map((m) => m[0]);
   for (const j of found.reverse()) {
@@ -5008,7 +5011,7 @@ function anatomyVerdict(text) {
       const flags = ["stray_parts", "bad_hands", "bad_limbs", "mismatched_legs", "bad_face"].filter((k) => v[k] === true || String(v[k]).toLowerCase() === "true");
       const listed = (Array.isArray(v.mistakes) ? v.mistakes : []).map((m) => String(m).trim()).filter((m) => m && !/^(?:none|no mistakes?)\.?$/i.test(m));
       const heads = Number(v.heads ?? v.people) || 0;
-      const mistakes = [...listed, ...flags, ...(heads > 1 ? [`${heads} heads`] : [])];
+      const mistakes = [...listed, ...flags, ...(countHeads && heads > 1 ? [`${heads} heads`] : [])];
       return { ok: v.ok !== false && !mistakes.length, mistakes, people: heads };
     } catch {}
   }
@@ -5026,7 +5029,7 @@ async function anatomyCheck(env, ledger, bytes, view = "") {
   try {
     const input = { messages: [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(bytes)}` } }] }], max_tokens: Number(A.MAX_TOKENS) || 300 };
     const text = String(aiText(await aiRun(env, A.MODEL, input, Number(A.TIMEOUT_MS) || 20000)) || "").trim();
-    const v = anatomyVerdict(text);
+    const v = anatomyVerdict(text, { heads: view !== "act" });
     return v && { ...v, text };
   } catch (e) {
     error = e;
