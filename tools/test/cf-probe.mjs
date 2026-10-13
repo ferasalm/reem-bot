@@ -32,3 +32,4 @@ for (const [max, effort] of [[220, "none"], [380, "none"], [900, "none"], [220, 
     await new Promise((r) => setTimeout(r, 1500));
   }
 }
+process.exit(0); // the loaded worker may hold timers open
