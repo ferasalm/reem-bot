@@ -1,6 +1,7 @@
-// Her replies on Workers AI's DeepSeek, as the bot asks for them (2026-10-13: short, cut replies and "wifi died" after the deploy):
-// her persona + a short chat, reasoning "none", LLM.MAX_TOKENS TEXT 220 / SCENE 380, and 900 for comparison. Prints per call the
-// seconds, finish_reason, token usage, the length of the content and of any reasoning, and the content's end.
+// Her replies on Workers AI's DeepSeek, as the bot asks for them (2026-10-13: short, cut replies and "wifi died" after the deploy).
+// Fix round 2, F1: her persona + a short chat, reasoning "none", max_tokens = her reply's length (LLM.MAX_TOKENS TEXT 220,
+// SCENE 380, VOICE 120) + LLM.THINK_TOKENS (700), 4 calls each. Prints per call the seconds, finish_reason, token usage,
+// the length of the content and of any reasoning, and the content's end. The check: every answer finishes (finish=stop) with content.
 // Workers AI REST only (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID). Runs on a push of this file (cf-probe.yml).
 import { loadWorker } from "./load-worker.mjs";
 const { CLOUDFLARE_API_TOKEN: token, CLOUDFLARE_ACCOUNT_ID: account } = process.env;
@@ -26,9 +27,11 @@ const ask = async (max_tokens, reasoning_effort) => {
   const reasoning = String(c.message?.reasoning_content ?? c.message?.reasoning ?? "");
   return `${s}s finish=${c.finish_reason} usage=${JSON.stringify(d.result?.usage || {})} content=${content.length}ch reasoning=${reasoning.length}ch keys=${Object.keys(c.message || {}).join(",")} | end: ${JSON.stringify(content.slice(-120))}`;
 };
-for (const [max, effort] of [[220, "none"], [380, "none"], [900, "none"], [220, "low"]]) {
-  for (let i = 0; i < 3; i++) {
-    process.stdout.write(`max ${max} ${effort} #${i + 1}: ${await ask(max, effort)}\n`);
+const L = W.CONFIG.LLM;
+for (const mode of ["TEXT", "SCENE", "VOICE"]) {
+  const max = L.MAX_TOKENS[mode] + L.THINK_TOKENS;
+  for (let i = 0; i < 4; i++) {
+    process.stdout.write(`${mode} max ${max} none #${i + 1}: ${await ask(max, "none")}\n`);
     await new Promise((r) => setTimeout(r, 1500));
   }
 }
