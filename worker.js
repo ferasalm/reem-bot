@@ -296,7 +296,10 @@ const CONFIG = {
 
   /* ---------------- Brain (OpenRouter) ---------------- */
   LLM: {
-    MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // owner 2026-10-06: DeepSeek on Workers AI first ("it succeeds even with explicit texts"),
+    // owner 2026-10-13 (branch chat-llama, deployed for his test): her chat on Llama 3.3 70B fast (1.3 s median on the writer replays;
+    // DeepSeek took 4-6 s or 33-48 s and 4 of 12 got nothing in 60 s, cf-probe 38357963015). The alternative: branch chat-timeout.
+    // Memory and /auto stay on DeepSeek (their own MODEL keys). Was:
+    MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", // owner 2026-10-06: DeepSeek on Workers AI first ("it succeeds even with explicit texts"),
                                        // the same DeepSeek on OpenRouter as the backup (BACKUP_MODEL with BACKUP_PROVIDER)
     // Novita, Baidu and StreamLake ignore min_p; Relace and the backup model use it
     SAMPLING: { temperature: 0.95, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 420 },
@@ -322,7 +325,7 @@ const CONFIG = {
     THINKING_MODELS: ["deepseek"],
     // How much of the chat is sent with each reply, in tokens. The oldest messages are left out so the
     // prompt always fits. DeepSeek V4 Flash reads far more; this keeps replies fast and cheap.
-    CONTEXT_TOKENS: 32768,
+    CONTEXT_TOKENS: 20000,             // Llama 3.3 70B fast reads 24,000 tokens (Cloudflare's model page); DeepSeek took 32768
     // The same for the backup model: when it answers, older messages
     // are left out first, so OpenRouter never cuts the middle (her rules) out silently.
     BACKUP_CONTEXT_TOKENS: 32768,
@@ -3082,7 +3085,7 @@ async function askModel(env, messages, sampling, { model, timeoutMs, attempts, t
 async function workersChat(env, model, messages, sampling, timeoutMs, trimCut, task = false) {
   if (!env.AI) throw new ApiError("Workers AI is not connected (the AI binding).", false);
   const thinks = thinksFirst(model);
-  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: (sampling.max_tokens || 0) + (task ? 1500 : thinks ? (CONFIG.LLM.THINK_TOKENS || 0) : 0), reasoning_effort: task ? "low" : "none" }; // room for the thinking
+  const input = { messages: messages.map((m) => ({ role: m.role, content: String(m.content) })), max_tokens: (sampling.max_tokens || 0) + (task ? 1500 : thinks ? (CONFIG.LLM.THINK_TOKENS || 0) : 0), reasoning_effort: task && thinks ? "low" : "none" }; // room for the thinking; "none" as the Llama writer sends it
   if (sampling.temperature != null) input.temperature = sampling.temperature;
   // Cloudflare's DeepSeek sometimes ends at once with nothing (1 token, "stop"): 7 of 25 calls with reasoning "none",
   // 3 of 28 with "low" (live runs 37544942514, 37544945221). An empty answer is back in ~1 s and its prompt is cached,
