@@ -155,6 +155,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
   2026-10-08) → Runware modelUpload → one test picture.
 - `tools/test/recall-check.mjs` + `.github/workflows/recall-check.yml`: real bge-m3 scores for pairs of her replies, to set
   `RECALL.REPEAT_SCORE` (Workers AI only).
+- `tools/face/cf-lora-probe.sh` + `.github/workflows/cf-lora-probe.yml` (Step B, 2026-10-13): does Workers AI's klein 9B take a LoRA (Lenovo UltraReal)? Uploads it as a finetune (wrangler and REST), draws plain / bogus `lora` / `lora` at 768x1344 seed 4242; pictures to `face-candidates` runs/<id>-cf-lora-probe. Runs on a push of the script (not dev/main).
 - `tools/test/cf-probe.mjs` + `.github/workflows/cf-probe.yml`: empty-answer check of a Workers AI text model, direct vs AI Gateway.
 - `tools/cf-resources.sh` + `.github/workflows/cf-resources.yml`: creates the Cloudflare resources wrangler.toml binds (the Vectorize
   index `reem-memory` for `RECALL`); deploy.yml runs it before every deploy.
