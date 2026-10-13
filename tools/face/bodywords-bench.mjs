@@ -139,38 +139,48 @@ const env = {
 };
 
 if (MODE === "cf") {
-  // Plan the Cloudflare case for both variants (nothing drawn), then write the job face.yml draws
+  // Plan the Cloudflare case for both variants and both seeds (nothing drawn). The random picks are seeded as in the Runware runs
+  // (the same seed and case index), so the two variants of a seed share every pick. Then write the job face.yml draws, one draw per prompt
   const R = NEW.CONFIG.PICTURE.RUNWARE;
   const FILES = { "face-2x": "tools/face/reference-2x.jpg", [`body-${R.BODY_CLOTHED}`]: "tools/face/body-clothed.jpg" };
-  const cf = {};
-  for (const [v, M] of Object.entries(VARIANTS)) {
-    const p = plan(M, CF_CASE.words, "off");
-    if (!p) throw new Error(`${v}: refused at /nsfw Off`);
-    const out = await M.drawPicture(env, p.prompt, { location: p.location, night: p.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: "off", planOnly: true });
-    if (!out?.cloudflare) throw new Error(`${v}: no Cloudflare plan (is the route Runware at Off?)`);
-    cf[v] = out.cloudflare;
-    console.log(`${v} refs ${out.cloudflare.refs.join(", ")} ${out.cloudflare.width}x${out.cloudflare.height}\n  ${out.cloudflare.prompt}`);
+  const CF_INDEX = CASES.indexOf(CF_CASE) >= 0 ? CASES.indexOf(CF_CASE) : 0;
+  const cf = [];
+  for (const seed of SEEDS) {
+    for (const [v, M] of Object.entries(VARIANTS)) {
+      frozen = FROZEN;
+      Math.random = mulberry32(seed * 100 + CF_INDEX);
+      const p = plan(M, CF_CASE.words, "off");
+      if (!p) throw new Error(`${v}: refused at /nsfw Off`);
+      const out = await M.drawPicture(env, p.prompt, { location: p.location, night: p.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: "off", planOnly: true });
+      if (!out?.cloudflare) throw new Error(`${v}: no Cloudflare plan (is the route Runware at Off?)`);
+      cf.push({ v, seed, ...out.cloudflare });
+      console.log(`${v} s${seed} refs ${out.cloudflare.refs.join(", ")}\n  ${out.cloudflare.prompt}`);
+    }
   }
-  if (cf.V0.refs.join() !== cf.V1.refs.join()) throw new Error("the two variants send different references");
-  const refFiles = cf.V1.refs.map((n) => FILES[n] || (() => { throw new Error(`no file for reference ${n}`); })());
+  if (new Set(cf.map((x) => x.refs.join())).size !== 1) throw new Error("the variants send different references");
+  const refFiles = cf[0].refs.map((n) => FILES[n] || (() => { throw new Error(`no file for reference ${n}`); })());
   for (const f of refFiles) if (!existsSync(join(ROOT, f))) throw new Error(`missing ${f}`);
+  const refs = {};
+  cf.forEach((_, i) => {
+    refs[i] = refFiles.slice(1);
+  });
   const job = {
-    note: "2026-10-13 Fix round 2 F2: Cloudflare klein 4B at /nsfw Off, the clothed mirror selfie: today's body lines (V0 = REV, the words before F2) vs PICTURE.BODY_WORDS (V1), two draws each. The bot's own prompts (drawPicture planOnly); references: her face (image 0) and the clothed body",
+    note: "2026-10-13 Fix round 2 F2: Cloudflare klein 4B at /nsfw Off, the clothed mirror selfie: today's body lines (V0 = REV, the words before F2) vs PICTURE.BODY_WORDS (V1), two seeds each; the bot's own random picks per seed, the same for both variants. The bot's own prompts (drawPicture planOnly); references: her face (image 0) and the clothed body",
     mode: "2026-10-13-body-words",
-    width: cf.V1.width,
-    height: cf.V1.height,
+    width: NEW.CONFIG.PICTURE.WIDTH,
+    height: NEW.CONFIG.PICTURE.HEIGHT,
     square: false,
     keep_full: true,
     max_neurons: 1000,
     day_neurons: 20000,
     reference: refFiles[0],
-    refs: { 0: refFiles.slice(1), 1: refFiles.slice(1) },
-    per_prompt: 2,
-    labels: ["off clothed mirror selfie: V0 today's body lines", "off clothed mirror selfie: V1 PICTURE.BODY_WORDS"],
-    prompts: [cf.V0.prompt, cf.V1.prompt],
+    refs,
+    per_prompt: 1,
+    labels: cf.map((x) => `off clothed mirror selfie, ${x.v === "V0" ? "V0 today's body lines" : "V1 PICTURE.BODY_WORDS"}, seed ${x.seed}`),
+    prompts: cf.map((x) => x.prompt),
   };
   writeFileSync(join(ROOT, "tools/face/job.json"), JSON.stringify(job, null, 2) + "\n");
-  console.log(`wrote tools/face/job.json: ${job.prompts.length} prompts x ${job.per_prompt} draws, refs ${cf.V1.refs.join(", ")}`);
+  console.log(`wrote tools/face/job.json: ${job.prompts.length} prompts, one draw each, size ${job.width}x${job.height}, refs ${cf[0].refs.join(", ")}`);
   process.exit(0);
 }
 
