@@ -902,14 +902,16 @@ Changing the story
     // Claude's wording; benched on labelled pictures first (tools/face/anatomy-probe.mjs).
     ANATOMY: {
       ON: true,
-      MODEL: "@cf/meta/llama-4-scout-17b-16e-instruct", // as VISION.MODEL
+      MODEL: "@cf/meta/llama-4-scout-17b-16e-instruct", // as VISION.MODEL; ~4.6 s and ~63 neurons a check (probe v2)
       KINDS: ["selfie", "scene", "look", "pic"],
       TRIES: 3,                        // pictures drawn at most (2 redraws)
       TIMEOUT_MS: 20000,               // a slower check passes the picture
       MAX_TOKENS: 300,
       // probe run 38340313839 (an open checklist, one JSON verdict): Scout caught 1 of 4 mistakes outside sex acts, and counted the man as a
-      // second person in every act picture, good or bad → v2: one question per mistake, his head counted as a mistake (he is the camera)
-      PROMPT: "You check an AI-generated photo for drawing mistakes. Look closely, especially along all four edges of the photo, then answer.\n1. How many human heads or faces can you see? Count every one, even partly hidden, blurred or cut off at an edge.\n2. Is there any hand, arm, leg or foot that is not clearly attached to the woman's body{attached}?\n3. Does any hand have too many or too few fingers, or fused, melted or impossibly bent fingers?\n4. Is any arm or leg broken, bent the wrong way, missing, doubled, far too long, or merging into furniture, clothes or another body?\n5. Is one of her legs dressed differently from the other (one in jeans, the other bare)?\n6. Is her face or neck twisted or distorted?{pov}{act}\nAnswer in at most four short lines, then on the last line only JSON: {\"heads\": number, \"stray_parts\": true or false, \"bad_hands\": true or false, \"bad_limbs\": true or false, \"mismatched_legs\": true or false, \"bad_face\": true or false}",
+      // second person in every act picture, good or bad → v2: one question per mistake, his head counted as a mistake (he is the camera).
+      // v2 (run 38340521232): Scout caught 5 of 7 (the second man's head 2/2, the bare + jeans legs), passed 9 of 11 (a laugh read as a
+      // distorted face; 2 heads in a clean riding picture); Llama 3.2 11B Vision 3/7, Mistral Small 3.1 1/7 → Scout; v3: the edges, a laugh
+      PROMPT: "You check an AI-generated photo for drawing mistakes. Look closely, especially along all four edges of the photo, then answer.\n1. How many human heads or faces can you see? Count every one, even partly hidden, blurred or cut off at an edge.\n2. Is there any hand, arm, leg or foot that is not clearly attached to the woman's body{attached}? Look hardest at the left and right edges, where someone else's hand or arm can reach in.\n3. Does any hand have too many or too few fingers, or fused, melted or impossibly bent fingers?\n4. Is any arm or leg broken, bent the wrong way, missing, doubled, far too long, or merging into furniture, clothes or another body?\n5. Is one of her legs dressed differently from the other (one in jeans, the other bare)?\n6. Is her face or neck deformed (melted, lopsided, twisted)? An expression, a laugh or a squint is not a mistake.{pov}{act}\nAnswer in at most four short lines, then on the last line only JSON: {\"heads\": number, \"stray_parts\": true or false, \"bad_hands\": true or false, \"bad_limbs\": true or false, \"mismatched_legs\": true or false, \"bad_face\": true or false}",
       ATTACHED: " or to the man whose eyes are the camera",
       POV: "\nThe photo is taken from a man's own eyes: he is the camera, so his head and face are never in it; his own hands or forearms may reach in from the bottom edge.",
       ACT: "\nIt shows sex from the man's own eyes: he is the camera, so his head and face are never in it; his hands, arms, legs, torso and penis may show and belong to him.",

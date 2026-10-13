@@ -11,8 +11,9 @@ const A = W.CONFIG.PICTURE.ANATOMY;
 const FC = process.env.FC || "fc";
 const account = process.env.CLOUDFLARE_ACCOUNT_ID;
 const token = process.env.CLOUDFLARE_API_TOKEN;
-// run 38340313839: Gemma 3 12B is not allowed on this account (5018); Llama 3.2 11B Vision needs a one-time "agree" (sent below)
-const MODELS = (process.env.MODELS || [A.MODEL, "@cf/mistralai/mistral-small-3.1-24b-instruct", "@cf/meta/llama-3.2-11b-vision-instruct"].join(",")).split(",").filter(Boolean);
+// run 38340313839: Gemma 3 12B is not allowed on this account (5018); Llama 3.2 11B Vision needs a one-time "agree" (sent below).
+// run 38340521232 (v2): Scout 5/7 caught, 9/11 passed; Llama 3.2 11B Vision 3/7, 9/11; Mistral Small 3.1 1/7, 7/11. Default: the bot's.
+const MODELS = (process.env.MODELS || A.MODEL).split(",").filter(Boolean);
 const B = "runs/2026-10-13-stepA-bench/";
 const C = "runs/2026-10-13-stepC-bench/";
 const P4 = "runs/38333810448-cf-lora-probe/";
