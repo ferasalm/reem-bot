@@ -4757,6 +4757,8 @@ function writtenWords(raw, settings = {}) {
     t = kept.join(" ");
     if (wordsOf(t).length > max) t = t.split(/\s+/).slice(0, max).join(" ").replace(/[,;:\s]+$/, "");
   }
+  // Step D bench: Llama's "and no visible bottom garment" drew her bare-legged under a cardigan at /nsfw Off → such a clause goes
+  t = t.split(",").filter((seg) => !/\bno (?:visible )?(?:bottoms?|pants|trousers|jeans|shorts|skirt|underwear|(?:bottom )?garment)\b/i.test(seg)).join(",").replace(/,\s*and\s*(?=[.,]|$)/gi, "").trim();
   t = asCamera(t, settings);
   return wordsOf(t).length >= 4 ? t : "";
 }

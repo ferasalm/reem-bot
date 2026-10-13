@@ -885,6 +885,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   yes(Date.now() - t0 < 2000, "...after TIMEOUT_MS, not the model's own time limit");
   Wr.TIMEOUT_MS = keep;
   eq(W.writtenWords("Clause: She sits on the sofa,\n\"wearing a red dress\"."), "She sits on the sofa, wearing a red dress", "writtenWords: one line, no label or quotes");
+  eq(W.writtenWords("Sitting up on the counter in her kitchen, wearing her father's old gray cardigan over a black cami, and no visible bottom garment."), "Sitting up on the counter in her kitchen, wearing her father's old gray cardigan over a black cami", "writtenWords: \"no visible bottom garment\" goes (Step D bench: bare legs at Off)");
   Wr.ON = false;
   eq(await W.writePicture(env, "scene", {}), null, "writer off: nothing asked");
 }
