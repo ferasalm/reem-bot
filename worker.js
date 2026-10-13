@@ -4753,7 +4753,9 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
   let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
   if (kind === "scene") {
     const what = scenePicturePrompt(want, level);
-    if (!what) return null;
+    // Step C: no sentence left for the template (each one names him: "you wrap your arms around her ...") → only the writer can draw it
+    const writes = (P.WRITER || {}).ON && ((P.WRITER || {}).KINDS || []).includes("scene") && !!env.AI;
+    if (!what && !writes) return null;
     const location = locationOf(what);
     // a sex act (SEX_CUES or its words): his eyes, she is naked (no clothes from earlier in the scene or SCENE_WEARING)
     const act = !!sexCue(want, level) || sexAct(what, level);
@@ -4794,6 +4796,10 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
           pic = w;
           log.llmText = w.written;
         }
+      }
+      if (kind === "scene" && !pic.what && !pic.written) {
+        model = null;
+        return null; // the template had nothing to draw and the writer didn't answer: no picture, as before Step C
       }
       let kleinPic = null;
       let kleinRefused = null;

@@ -928,6 +928,15 @@ section("pictures: his photos (Workers AI vision)");
     const fw = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
     yes(r.photos.length === 1 && writerAsked.length === w0 + 1 && writerAsked.at(-1).includes("dark waves loose over one shoulder") && writerAsked.at(-1).includes(W.CONFIG.PICTURE.WRITER.RULES), "in person: the writer reads her reply and the rules", writerAsked.at(-1));
     yes(fw.prompt.startsWith(W.CONFIG.PICTURE.SCENE_STYLE) && fw.prompt.includes("resting on the frame and the other in her hair") && !fw.prompt.includes("She is wearing") && /^<\d+ bytes>$/.test(fw.input_image_0 || ""), "...its words drawn with her face, the scene style, no second clothes line", fw.prompt);
+    // a moment the template can't draw (every sentence names him): only the writer draws it
+    writerAnswer = "She leans back against the camera at the stove, stirring a pot, wearing a black ribbed tank top and gray sweatpants dusted with flour, her head tilted to one side, eyes half-closed.";
+    r = await turn("*steps closer* let me see you", ["*You wrap your arms around her waist and she leans back into you, stirring the pot.* \"you're in my way.\" *She tilts her head so you can kiss her neck.*"], { history: SCENE });
+    const fk = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
+    yes(r.photos.length === 1 && fk.prompt.includes("stirring a pot, wearing a black ribbed tank top"), "a moment every sentence of which names him: the writer draws it (the template drew none)", fk.prompt);
+    writerAnswer = null;
+    const p0 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length;
+    r = await turn("*steps closer* let me see you", ["*You wrap your arms around her waist and she leans back into you, stirring the pot.* \"you're in my way.\""], { history: SCENE });
+    eq([r.photos.length, ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length], [0, p0], "...the writer down there: no picture, nothing drawn (as before Step C)");
     writerAnswer = null;
     r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\""], { history: SCENE });
     const ft = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
