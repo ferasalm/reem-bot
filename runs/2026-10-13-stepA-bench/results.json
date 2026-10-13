@@ -1,0 +1,1564 @@
+{
+  "dry": false,
+  "budgetUsd": 0.15,
+  "spentUsd": 0.07826,
+  "pictures": 28,
+  "runs": [
+    {
+      "id": "o1-sweater-mirror-V0-s101",
+      "case": "o1-sweater-mirror",
+      "variant": "V0",
+      "seed": 101,
+      "file": "o1-sweater-mirror-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a lopsided smirk, looking off to the side, out of the frame. Her hair: pulled up in a messy bun and a few loose strands framing her face. a mirror selfie, standing, full body, a cream cable-knit sweater and soft gray sweatpants. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o1-sweater-mirror-V0-s202",
+      "case": "o1-sweater-mirror",
+      "variant": "V0",
+      "seed": 202,
+      "file": "o1-sweater-mirror-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a mock-annoyed eye roll, looking straight into the lens. Her hair: half-up with a black claw clip, the rest falling down her back. a mirror selfie, standing, full body, a cream cable-knit sweater and soft gray sweatpants. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o2-tee-jeans-couch-V0-s101",
+      "case": "o2-tee-jeans-couch",
+      "variant": "V0",
+      "seed": 101,
+      "file": "o2-tee-jeans-couch-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed",
+            "place:living~3"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a calm, serious face, looking straight into the lens. Her hair: blown out straight and glossy. on the couch, a fitted gray ribbed tee and high-waisted jeans. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed",
+        "place:living~3"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o2-tee-jeans-couch-V0-s202",
+      "case": "o2-tee-jeans-couch",
+      "variant": "V0",
+      "seed": 202,
+      "file": "o2-tee-jeans-couch-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed",
+            "place:living~1"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a raised-eyebrow 'really?' look, looking off to the side, out of the frame. Her hair: messy bedhead waves, a little flat on one side. on the couch, a fitted gray ribbed tee and high-waisted jeans. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed",
+        "place:living~1"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o3-slip-dress-mirror-V0-s101",
+      "case": "o3-slip-dress-mirror",
+      "variant": "V0",
+      "seed": 101,
+      "file": "o3-slip-dress-mirror-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a mock-annoyed eye roll, looking off to the side, out of the frame. Her hair: blown out straight and glossy. a mirror selfie, full body, a long black satin slip dress. Lit by soft window light. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o3-slip-dress-mirror-V0-s202",
+      "case": "o3-slip-dress-mirror",
+      "variant": "V0",
+      "seed": 202,
+      "file": "o3-slip-dress-mirror-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a thoughtful look, lips pressed together, looking down at something in her hands. Her hair: pulled up in a messy bun and a few loose strands framing her face. a mirror selfie, full body, a long black satin slip dress. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o4-cardigan-cami-V0-s101",
+      "case": "o4-cardigan-cami",
+      "variant": "V0",
+      "seed": 101,
+      "file": "o4-cardigan-cami-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed",
+            "place:kitchen~2"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a relaxed face with soft, closed lips and no smile, her head turned in three-quarter profile, eyes to the lens. Her hair: piled up with a claw clip, loose, messy strands falling out. her father's old gray cardigan over a black cami, in the kitchen. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is dressed as described, not naked. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed",
+        "place:kitchen~2"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o4-cardigan-cami-V0-s202",
+      "case": "o4-cardigan-cami",
+      "variant": "V0",
+      "seed": 202,
+      "file": "o4-cardigan-cami-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed",
+            "place:kitchen~1"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and thong. She is 29, clearly an adult. Her face: a mock-annoyed eye roll, looking straight into the lens. Her hair: pulled up in a messy bun and a few loose strands framing her face. her father's old gray cardigan over a black cami, in the kitchen. Behind her, her room as in image 2, in this picture's own light. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is dressed as described, not naked. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed",
+        "place:kitchen~1"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o5-sundress-back-V0-s101",
+      "case": "o5-sundress-back",
+      "variant": "V0",
+      "seed": 101,
+      "file": "o5-sundress-back-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed-back",
+            "style:hair-long-waves"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, full upper arms, soft body and round bottom, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black thong. She is 29, clearly an adult. Her hair: long, loose dark waves with a center part and no bangs, falling over her shoulders. a mirror selfie from behind, a red sundress, looking over her shoulder. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's.",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed-back",
+        "style:hair-long-waves"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "o5-sundress-back-V0-s202",
+      "case": "o5-sundress-back",
+      "variant": "V0",
+      "seed": 202,
+      "file": "o5-sundress-back-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v11-clothed-back"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, full upper arms, soft body and round bottom, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black thong. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. a mirror selfie from behind, a red sundress, looking over her shoulder. Lit by soft window light. Natural skin texture, slight grain. She is dressed as described, not naked. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v11-clothed-back"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "myaiprojectsqqq:3@2",
+          "weight": 0.7
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "h1-riding-hands-V0-s101",
+      "case": "h1-riding-hands",
+      "variant": "V0",
+      "seed": 101,
+      "file": "h1-riding-hands-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            },
+            {
+              "model": "ferasalm:povhandc@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. riding the man, his hands on her hips. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. Her face: biting her lower lip hard, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        },
+        {
+          "model": "ferasalm:povhandc@1",
+          "weight": 0.6
+        }
+      ],
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "id": "h1-riding-hands-V0-s202",
+      "case": "h1-riding-hands",
+      "variant": "V0",
+      "seed": 202,
+      "file": "h1-riding-hands-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            },
+            {
+              "model": "ferasalm:povhandc@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: pulled up in a messy bun and a few loose strands framing her face. riding the man, his hands on her hips. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. Her face: biting her lower lip hard, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        },
+        {
+          "model": "ferasalm:povhandc@1",
+          "weight": 0.6
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "h2-missionary-hands-V0-s101",
+      "case": "h2-missionary-hands",
+      "variant": "V0",
+      "seed": 101,
+      "file": "h2-missionary-hands-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            },
+            {
+              "model": "ferasalm:povhandc@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. missionary, his hands holding her thighs. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. Her face: biting her lower lip hard. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        },
+        {
+          "model": "ferasalm:povhandc@1",
+          "weight": 0.6
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "h2-missionary-hands-V0-s202",
+      "case": "h2-missionary-hands",
+      "variant": "V0",
+      "seed": 202,
+      "file": "h2-missionary-hands-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            },
+            {
+              "model": "ferasalm:povhandc@1",
+              "weight": 0.6
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. missionary, his hands holding her thighs. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. Her face: a breathless open-mouthed moan. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        },
+        {
+          "model": "ferasalm:povhandc@1",
+          "weight": 0.6
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "a1-riding-V0-s101",
+      "case": "a1-riding",
+      "variant": "V0",
+      "seed": 101,
+      "file": "a1-riding-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1344,
+          "height": 768,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: in a loose low ponytail with a silk scrunchie. riding the man. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. Her face: an intense, hungry stare, her eyes half-open and unfocused. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 1344,
+      "height": 768
+    },
+    {
+      "id": "a1-riding-V0-s202",
+      "case": "a1-riding",
+      "variant": "V0",
+      "seed": 202,
+      "file": "a1-riding-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10",
+            "style:hair-long-bangs"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows. riding the man. Lit by soft window light. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. Her face: eyes half-closed, lips parted, cheeks flushed, looking down at the man's body. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur). Her hair is styled exactly as in image 2; her face stays image 0's.",
+      "refs": [
+        "face-2x",
+        "body-v10",
+        "style:hair-long-bangs"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "id": "a2-missionary-V0-s101",
+      "case": "a2-missionary",
+      "variant": "V0",
+      "seed": 101,
+      "file": "a2-missionary-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: pulled up in a messy bun and a few loose strands framing her face. missionary. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. Her face: biting her lower lip hard. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "id": "a2-missionary-V0-s202",
+      "case": "a2-missionary",
+      "variant": "V0",
+      "seed": 202,
+      "file": "a2-missionary-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: in a high ponytail. missionary. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. Her face: an intense, hungry stare. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "a3-blowjob-V0-s101",
+      "case": "a3-blowjob",
+      "variant": "V0",
+      "seed": 101,
+      "file": "a3-blowjob-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: pulled up in a big messy top bun, no bangs, loose wispy strands around her face and neck. giving the man a blowjob. Lit by soft window light. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. Her face: brows raised, eyes wide and eager. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "id": "a3-blowjob-V0-s202",
+      "case": "a3-blowjob",
+      "variant": "V0",
+      "seed": 202,
+      "file": "a3-blowjob-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: half-up with a black claw clip, the rest falling down her back. giving the man a blowjob. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera. Her face: brows raised, eyes wide and eager. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "id": "a4-doggy-V0-s101",
+      "case": "a4-doggy",
+      "variant": "V0",
+      "seed": 101,
+      "file": "a4-doggy-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips, full upper arms, soft body and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: tucked behind one ear, the rest down. the man fucking her doggy style. Lit by soft window light. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. Her face: an intense, hungry stare, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10-back"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "id": "a4-doggy-V0-s202",
+      "case": "a4-doggy",
+      "variant": "V0",
+      "seed": 202,
+      "file": "a4-doggy-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips, full upper arms, soft body and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: damp and tousled from the shower. the man fucking her doggy style. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder. Her face: a breathless open-mouthed moan, her eyes half-open and unfocused. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10-back"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "a5-doggy-anal-V0-s101",
+      "case": "a5-doggy-anal",
+      "variant": "V0",
+      "seed": 101,
+      "file": "a5-doggy-anal-V0-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 1
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips, full upper arms, soft body and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: pulled up in a messy bun and a few loose strands framing her face. anal, doggy style. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. Her face: biting her lower lip hard, her eyes half-open and unfocused. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10-back"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 1
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "a5-doggy-anal-V0-s202",
+      "case": "a5-doggy-anal",
+      "variant": "V0",
+      "seed": 202,
+      "file": "a5-doggy-anal-V0-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1344,
+          "height": 768,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:povanal@1",
+              "weight": 1
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10-back"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: the same back, waist, hips, full upper arms, soft body and round bottom, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. anal, doggy style. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, seen from behind. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She is on all fours on the bed, seen from behind and above: the man is fucking her in the ass doggy style, his penis inside her anus; below it, between her thighs, her vulva closed and untouched. His hands on her butt, she looks back over her shoulder. Her face: a dazed, blissful look, looking down at the man's body. Only one woman is in the picture. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10-back"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:povanal@1",
+          "weight": 1
+        }
+      ],
+      "width": 1344,
+      "height": 768
+    },
+    {
+      "id": "h1-riding-hands-VH-s101",
+      "case": "h1-riding-hands",
+      "variant": "VH",
+      "seed": 101,
+      "file": "h1-riding-hands-VH-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 1024,
+          "height": 1024,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00338,
+          "error": ""
+        }
+      ],
+      "cost": 0.00338,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: her long hair down in loose natural waves. riding the man, his hands on her hips. Lit by bright afternoon daylight. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. Her face: biting her lower lip hard, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "id": "h1-riding-hands-VH-s202",
+      "case": "h1-riding-hands",
+      "variant": "VH",
+      "seed": 202,
+      "file": "h1-riding-hands-VH-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: pulled up in a messy bun and a few loose strands framing her face. riding the man, his hands on her hips. Lit by soft gray overcast daylight from the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below. Her face: biting her lower lip hard, looking straight into the man's eyes, into the lens. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "h2-missionary-hands-VH-s101",
+      "case": "h2-missionary-hands",
+      "variant": "VH",
+      "seed": 101,
+      "file": "h2-missionary-hands-VH-s101.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 101,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. missionary, his hands holding her thighs. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. Her face: biting her lower lip hard. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    },
+    {
+      "id": "h2-missionary-hands-VH-s202",
+      "case": "h2-missionary-hands",
+      "variant": "VH",
+      "seed": 202,
+      "file": "h2-missionary-hands-VH-s202.jpg",
+      "calls": [
+        {
+          "model": "runware:400@2",
+          "width": 768,
+          "height": 1344,
+          "steps": 6,
+          "CFGScale": 2,
+          "seed": 202,
+          "loras": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "ferasalm:nsfwunlock@1",
+              "weight": 0.8
+            }
+          ],
+          "refs": [
+            "face-2x",
+            "body-v10"
+          ],
+          "status": 200,
+          "cost": 0.00247,
+          "error": ""
+        }
+      ],
+      "cost": 0.00247,
+      "error": "",
+      "budgetStop": false,
+      "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, hair color (not image 0's expression or head tilt), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. She is 29, clearly an adult. Her hair: messy bedhead waves, a little flat on one side. missionary, his hands holding her thighs. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain. She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a thick, untrimmed dark bush, a real vulva when in view. First-person view from the man's own eyes: never his face; only his hands, belly, hips and thighs may show. One man, his penis average-sized and realistic. She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him. Her face: a breathless open-mouthed moan. Close framing: their bodies fill the frame. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+      "refs": [
+        "face-2x",
+        "body-v10"
+      ],
+      "loras": [
+        {
+          "model": "ferasalm:lenovoc@1",
+          "weight": 1.3
+        },
+        {
+          "model": "ferasalm:nsfwunlock@1",
+          "weight": 0.8
+        }
+      ],
+      "width": 768,
+      "height": 1344
+    }
+  ]
+}
