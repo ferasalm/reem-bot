@@ -888,7 +888,7 @@ Changing the story
       MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (as DAY.PLAN_MODEL)
       CHAT_MESSAGES: 8,
       MAX_TOKENS: 300,
-      PROMPT: "You describe one photo: exactly what {him} sees right now with his own eyes in the roleplay story below, as if he took a picture of it this second. {her} is the woman in the story.\n\nThe story so far (newest last):\n{chat}\n\n{ask}Write the first line as WITH_HER if {her} is in front of him and in view, else ALONE. Then 1 to 3 plain sentences for an image model, nothing else: what is in the frame, seen from his eyes; the place, the light, the things around. If she is in view: what she is doing, her pose, what she is wearing (or that she is naked, or which clothes are off), her expression; call her \"she\" and him \"the man\"; he is the camera, so only his own hands or body may show, never his face. If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; say she is naked unless clothes are still on, and name those. No dialogue, no feelings, no names.",
+      PROMPT: "You describe one photo: exactly what {him} sees right now with his own eyes in the roleplay story below, as if he took a picture of it this second. {her} is the woman in the story.\n\nThe story so far (newest last):\n{chat}\n\n{ask}Write the first line as WITH_HER if {her} is in front of him and in view, else ALONE. Then 1 to 3 plain sentences for an image model, nothing else: what is in the frame, seen from his eyes; the place, the light, the things around. If she is in view: what she is doing, her pose, what she is wearing (or that she is naked, or which clothes are off), her expression; call her \"she\" and him \"the man\"; he is the camera, so only his own hands or body may show, never his face; never make the man the subject of a sentence or say where he sits or stands (write \"she sits close beside the camera\", not \"the man sits on the bed and she sits beside him\"). If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; say she is naked unless clothes are still on, and name those. No dialogue, no feelings, no names.",
       ASK: "His request for this photo (it wins over the story): {words}\n\n",
       // "...the phone is the camera" drew a man holding a phone, seen from outside (1/1)
       ALONE_STYLE: "Realistic candid first-person photo taken from the man's own eyes (no person in the picture; no phone and no hands unless described):",
@@ -1174,13 +1174,14 @@ Changing the story
         HEATED: ["a sultry look with her lips parted", "a teasing smile, biting her lower lip", "a daring, confident stare with no smile", "a shy, flushed smile", "heavy-lidded eyes and a slow smile", "a playful laugh", "a serious, intense look", "a soft, dreamy look"],
         // oral acts (ORAL_WORDS): her mouth is on him, so only eyes and brows (an open-mouthed moan drew her tongue out, not sucking: 2/2 seeds)
         ORAL: ["teary, eager eyes", "brows raised, eyes wide and eager", "heavy-lidded eyes, flushed cheeks", "a teasing look in her eyes", "eyes half-closed, cheeks flushed", "a hungry, intent stare"],
-        ACT: ["her mouth open in pleasure, brows drawn together", "eyes half-closed, lips parted, cheeks flushed", "biting her lower lip hard", "a breathless open-mouthed moan", "a wicked, satisfied smile", "eyes squeezed shut, head pressed back", "a dazed, blissful look", "an intense, hungry stare"],
+        ACT: ["her mouth open in pleasure, brows drawn together", "eyes half-closed, lips parted, cheeks flushed", "biting her lower lip hard", "a breathless open-mouthed moan", "a wicked, satisfied smile", "eyes squeezed shut, head pressed back", "a dazed, blissful look", "a hungry, heavy-lidded look"],
       },
       // Step 3 review (2026-10-11): no "looking up at the camera through her lashes": it put the camera above her, so a standing
       // full-body picture drew her head too large for her body (nude mirror, seed 101; with a level gaze the same seed was in scale)
       // Step B (2026-10-13): no "looking down at something in her hands" (it drew a second phone in her other hand, Step A bench), and
       // MOODS.EVERYDAY lost the eye roll and the "really?" look (scowls the owner didn't ask for); no "looking past the camera at
-      // someone" either (someone else in the picture, beside his POV line)
+      // someone" either (someone else in the picture, beside his POV line); ACT's "an intense, hungry stare" drew a worried frown (Step B
+      // bench, D1 485 seed 202, 2/2) → "a hungry, heavy-lidded look"
       GAZES: {
         EVERYDAY: ["looking straight into the lens", "looking off to the side, out of the frame", "her eyes closed", "her head turned in three-quarter profile, eyes to the lens"],
         HEATED: ["looking straight into the lens", "looking down at her own body", "looking away toward the window", "her eyes closed, head tilted back"],
@@ -5013,7 +5014,10 @@ function lookPicture(env, ledger, text, withHer, log = null, level = CONFIG.PICT
       const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
       const style = withHer ? (sexAct(text, level) && P.SCENE_ACT_STYLE) || P.SCENE_STYLE : (P.LOOK || {}).ALONE_STYLE;
       const body = withHer ? filterSafe(asCamera(text), level) : text; // Step B: he is the camera
-      const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), light, location && "{room}", withHer ? safeLine(level) : ""].filter(Boolean).join(" ");
+      // Step B: a /look text that names no clothes (and no nudity or sex act) gets SCENE_WEARING, as her scene pictures do: else klein
+      // drew image 1's black bra and thong (/look 484, 4/4)
+      const wear = withHer && P.SCENE_WEARING && !namesClothes(text) && !nudeWords(text) && !sexAct(text, level) ? `She is wearing ${P.SCENE_WEARING}.` : "";
+      const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), wear, light, location && "{room}", withHer ? safeLine(level) : ""].filter(Boolean).join(" ");
       const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" }, nsfw: level });
       model = drawn.model;
       return { bytes: drawn.bytes, kind: "scene", logId: drawn.logId };
@@ -5048,6 +5052,14 @@ function asCamera(text, settings = {}) {
   t = aboutHer(t);
   // him as the subject at the start of a clause: "the man (is) having ...", "the man's PoV of ..." → "having ...", "PoV of ..."
   t = t.replace(/(^|[.;!?]\s*)the man(?:['’]s)?\s+(?:is\s+|are\s+)?(?=\w+ing\b|pov\b|point of view\b)/gi, "$1");
+  // ...and a clause where he does something with his body ("The man sits on the edge of a bed, and she is right beside him", /look
+  // 484: the man drawn 2/2): the clause goes, and "beside him" is beside the camera
+  // (only where he sits, stands, lies, waits or watches: "the man fucks her doggy style" keeps its act words)
+  t = t.replace(/(^|[.;!?]\s*)the man\s+(?:is\s+)?(?:sits|sitting|seated|stands|standing|lies|lying|leans|leaning|waits|waiting|watches|watching|rests|resting)\b[^,.;!?]*(?:,\s*(?:and|while|as)\s+|[.;!?]\s*)(?=\S)/gi, "$1");
+  t = t.replace(/\b(?:right |close )?(?:beside|next to) (?:him|the man)\b/gi, "close beside the camera");
+  // his face is the camera: "her hand raised to his jaw", "the cut above his brow" drew a second person to own it (/look 483, 484)
+  t = t.replace(/\b(?:his|the man['’]s) (?:jaw|jawline|face|cheek|cheeks|chin|lips|mouth|forehead|brow|eye|eyes|head|nose|temple|ear)\b/gi, "the camera");
+  t = t.replace(/\b(toward|towards) (?:him|the man)\b/gi, "$1 the camera");
   return t.replace(/^\s*\w/, (c) => c.toUpperCase()).replace(/[.\s]+$/, "").trim();
 }
 
@@ -5108,7 +5120,8 @@ function customPicture(words, hour = herHour(), dayWear = null, level = CONFIG.P
   const location = locationOf(words);
   // Step 4: his words name no clothes → the day's outfit (OUT when the words are outside); never for nudity or a sex act
   const outside = (P.OUTSIDE_WORDS || []).some((w) => String(w).trim() && hasWord(words, w));
-  const wear = dayWear && !namesClothes(words) && !nudeWords(words) && !pictureFlags(words, true, level).act ? (outside ? dayWear.out : dayWear.home) : "";
+  // Step B: no day outfit (KV down, the studio, a bench) → SCENE_WEARING: with no clothes named klein drew image 1's bra and thong (D1 491)
+  const wear = !namesClothes(words) && !nudeWords(words) && !pictureFlags(words, true, level).act ? (dayWear ? (outside ? dayWear.out : dayWear.home) : P.SCENE_WEARING || "") : "";
   // Step B: him in the words and no sex act (POV_MAN covers acts): he is the camera
   const pov = P.POV_CLOTHED && involvesHim(words) && !sexAct(words, level) ? P.POV_CLOTHED : "";
   const prompt = [(P.CUSTOM || {}).STYLE, "{who}", `${filterSafe(words, level)}.`, pov, wear && `She is wearing ${wear}.`, location && "{room}", light && `Lit by ${light}.`, safeLine(level)].filter(Boolean).join(" ");

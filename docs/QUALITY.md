@@ -614,3 +614,12 @@ Golden plans: 38 cases match (the Runware requests are unchanged by Step 7). `to
 - **POV hand:** with and without, the same picture 4/4 pairs. → dropped (owner).
 - **"his hands on her hips" (riding):** a second man's head behind her 3/4. → Step B (he is the camera).
 - **Doggy anal:** POV Doggy Anal 1.0 in her anus 2/2, another woman's face 2/2; 0.8 the same 2/2; NSFW Unlocked alone in her anus 1/1, her face closer (1 Runware 502). → NSFW Unlocked only (owner).
+
+## Step B bench: he is the camera, owned hands, short prompts, Cloudflare klein 9B (2026-10-13, Opus 5.5 `claude-opus-5-5`; `tools/face/stepb-bench.mjs`, `face-candidates` runs/2026-10-13-stepB-bench)
+25 Runware pictures read one by one at full size (table.md there); Runware usage +$0.10283 (7.21817 → 7.32100; four 502s billed with no picture). Cloudflare: cf-lora-probe 3 pictures + face run 38332129065 4,385 neurons (~8,800 neurons, inside or near the free 10,000).
+- **Third (T) vs first (F) person:** riding + "his hands on her hips": a second man's head T 1/2, F 0/2 (Step A, old prompt: 3/4); his hands came out as her own hands on her hips 4/4. D1 485 ("Feras having sex with Reem" → "Having sex with her"): one man 3/3, his hands on her thighs (F s101). D1 490 reverse cowgirl: one man 4/4, entry below a closed anus on crops. /look 484 as DeepSeek wrote it ("The man sits ..., she is beside him"): T drew the man 2/2, F a second woman 2/2. → T stays the default (F's "I" became a woman).
+- **/look fixed (asCamera drops where he sits, his face → "the camera"):** /look 484 2/2 and 483 1/1 only her; one held a phone ("studies the cut above the camera").
+- **Clothes:** with no clothes named (D1 491, /look 484) image 1's bra and thong showed 7/7 → SCENE_WEARING fallback; after it 3/3 dressed. Outfits without DRESSED: slip dress, tee and jeans, cardigan over a cami 3/3 as named, no underwear, one phone (Step A: a second phone).
+- **Light:** /look 483 lamp light only 2/2 (was lamp + "bright afternoon daylight").
+- **Slips:** "an intense, hungry stare" drew a worried frown 2/2 → replaced; "PoV of spooning" drew no spooning pose (Step C).
+- **Cloudflare klein 9B, 768x1344, Off prompts:** kitchen and bedroom mirror outfits as named, rooms right, natural photos; mirror arms slimmer than image 1 (1/2); /look 483 lamp light; "PoV of spooning" refused (3030). No bra or thong in any. Lenovo on Cloudflare: refused (finetunes not supported on klein 9B).

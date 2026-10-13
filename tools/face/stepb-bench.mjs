@@ -91,10 +91,13 @@ const CASES = [
 ];
 const VARIANTS = { T: () => { P.CAMERA = "third"; }, F: () => { P.CAMERA = "first"; } };
 const ONLY = String(process.env.ONLY || "").split(",").filter(Boolean);
+// CASES=h1-riding-hands,... redraws only those cases (a 502 leaves a run without a picture)
+const PICK = String(process.env.CASES || "").split(",").filter(Boolean);
 const runs = [];
 for (const v of Object.keys(VARIANTS).filter((k) => !ONLY.length || ONLY.includes(k)))
   CASES.forEach((c, ci) => {
     if (v === "F" && !c.tf) return;
+    if (PICK.length && !PICK.includes(c.id)) return;
     for (const seed of c.tf ? SEEDS : SEEDS.slice(0, 1)) runs.push({ v, ci, seed, id: `${c.id}-${v}-s${seed}` });
   });
 

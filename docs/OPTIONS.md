@@ -22,7 +22,7 @@
 - /restart (also /start): Start the story over (wipes her memory)
 
 ## Kinds of picture (Runware)
-- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v10-clothed`), the room picture when a place is named.
+- **Clothed** (selfies, mirror selfies, /pic without nude or sex words): 9:16 (768x1344), her face + her body dressed (`v11-clothed`), the room picture when a place is named.
 - **Nude** (a nude word, below): 9:16, her nude body (`v10`), the nude LoRAs.
 - **Sex act** (a sex word, below): from his eyes, no room picture; shape picked at random: oral 1:1 80%, 16:9 20%; the rest 9:16 40%, 1:1 40%, 16:9 20% (sizes: 9:16 768x1344, 1:1 1024x1024, 16:9 1344x768). From behind (doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind): her body from behind, no breasts named.
 - **Partly naked**: a nude or sex picture that also names clothes (cardigan, sweater, hoodie, sweatshirt, t-shirt, tee, shirt, blouse, tank top, camisole, slip dress, satin slip...): those clothes stay on.
@@ -33,8 +33,8 @@ nude, naked, topless, bottomless, bare breasts, bare chest, nothing on, wearing 
 
 ## Sex acts and their camera (first match wins)
 - **blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth, the man's cock in her mouth**: First-person view looking down at her: she kneels between the man's legs sucking his average-sized penis, her lips around the shaft, looking up at the camera.
-- **reverse cowgirl**: r3v3rs3_c0wg1rl, pov. She rides the man facing away, her back and round bottom close, his penis inside her vagina: the shaft enters her vulva, her anus above it closed and untouched; she glances back over her shoulder.
-- **riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man**: c0wg1rl, pov. She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below.
+- **reverse cowgirl**: She rides the man facing away, her back and round bottom close, his penis inside her vagina: the shaft enters her vulva, her anus above it closed and untouched; she glances back over her shoulder.
+- **riding, rides, ride, cowgirl, sinks down onto the man, lowers herself onto the man**: She straddles the man lying on his back, riding him, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, seen from below.
 - **missionary**: She lies on her back with her legs spread, the man kneeling between them, his penis inside her vagina: the shaft enters her vulva at its center, her labia spread around it, looking up at him.
 - **doggy, doggystyle, doggy style, on all fours**: Seen from behind and above, her back and round bottom toward the camera: she is on all fours on the bed, the man fucking her doggy style from behind, his penis inside her vagina: the shaft enters her vulva between her thighs, her anus above it closed and untouched; his hands on her butt, she looks back over her shoulder.
 
@@ -146,7 +146,7 @@ In person, when nothing is named: her father's old gray knit cardigan, elbows wo
 - messy bedhead waves, a little flat on one side
 - in a loose low ponytail with a silk scrunchie
 
-## Light (by her time of day, unless your words name one: golden hour, blue hour, sunset, sunrise, candle, candles, candlelight, candlelit, moonlight, neon, string lights, lamp light, lamplight, daylight, sunlight, in the dark, flash)
+## Light (by her time of day, unless your words name one: golden hour, blue hour, sunset, sunrise, candle, candles, candlelight, candlelit, moonlight, neon, string lights, lamp light, lamplight, daylight, sunlight, in the dark, flash, lamp, lamps, lamplit, lit by, lit only, glow, dimly lit, dim light, overcast, sunny, bright sun)
 **morning**: soft morning daylight; bright morning sun through the window; low golden early-morning sun through the window, long warm shadows; soft gray overcast daylight from the window
 
 **afternoon**: bright afternoon daylight; soft window light; dappled sunlight through the leaves outside the window; soft gray overcast daylight from the window
@@ -166,15 +166,15 @@ In person, when nothing is named: her father's old gray knit cardigan, elbows wo
 - **the hallway between their doors**: hallway, hall, doorframe, landing, stairs, your door, my door
 
 ## Expressions (picked when your words name none)
-**everyday**: a wide, open-mouthed laugh; a playful grin showing her teeth; a lopsided smirk; a shy small smile, chin tucked; a mock-annoyed eye roll; a relaxed face with soft, closed lips and no smile; a surprised, delighted look, eyebrows raised; a thoughtful look, lips pressed together; a cheeky grin with the tip of her tongue out; a sleepy half smile; a raised-eyebrow 'really?' look; a calm, serious face
+**everyday**: a wide, open-mouthed laugh; a playful grin showing her teeth; a lopsided smirk; a shy small smile, chin tucked; a relaxed face with soft, closed lips and no smile; a surprised, delighted look, eyebrows raised; a thoughtful look, lips pressed together; a cheeky grin with the tip of her tongue out; a sleepy half smile; a calm, serious face
 
 **heated**: a sultry look with her lips parted; a teasing smile, biting her lower lip; a daring, confident stare with no smile; a shy, flushed smile; heavy-lidded eyes and a slow smile; a playful laugh; a serious, intense look; a soft, dreamy look
 
 **oral**: teary, eager eyes; brows raised, eyes wide and eager; heavy-lidded eyes, flushed cheeks; a teasing look in her eyes; eyes half-closed, cheeks flushed; a hungry, intent stare
 
-**act**: her mouth open in pleasure, brows drawn together; eyes half-closed, lips parted, cheeks flushed; biting her lower lip hard; a breathless open-mouthed moan; a wicked, satisfied smile; eyes squeezed shut, head pressed back; a dazed, blissful look; an intense, hungry stare
+**act**: her mouth open in pleasure, brows drawn together; eyes half-closed, lips parted, cheeks flushed; biting her lower lip hard; a breathless open-mouthed moan; a wicked, satisfied smile; eyes squeezed shut, head pressed back; a dazed, blissful look; a hungry, heavy-lidded look
 
-Gaze: **everyday**: looking straight into the lens; looking off to the side, out of the frame; looking down at something in her hands; looking past the camera at someone; her eyes closed; her head turned in three-quarter profile, eyes to the lens
+Gaze: **everyday**: looking straight into the lens; looking off to the side, out of the frame; her eyes closed; her head turned in three-quarter profile, eyes to the lens
 
 **heated**: looking straight into the lens; looking down at her own body; looking away toward the window; her eyes closed, head tilted back
 
@@ -183,17 +183,9 @@ Gaze: **everyday**: looking straight into the lens; looking off to the side, out
 ## LoRAs (FLUX.2 klein 9B on Runware)
 | LoRA | Category | When | Weight | Trigger words put first |
 |---|---|---|---|---|
-| InstaPic (`ferasalm:instapic@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.6 | instapic |
-| Real HD 2K (DoRA converted to rank 32) (`ferasalm:realhd2kc@1`) | realism | every picture (not with the flash or an alone LoRA) | 0.5 |  |
-| Unchained XXX v2 (`ferasalm:unchained@2`) | nudity | nude pictures and blowjobs; off with Flux 4 Play AIO, Missionary POV K3NK, POV Doggy Anal | 0.8 |  |
-| Flux 4 Play AIO (`ferasalm:flux4play@1`) | act | words: riding, rides, ride, cowgirl, reverse cowgirl, sinks down onto the man, lowers herself onto the man | 0.8 | c0wg1rl / r3v3rs3_c0wg1rl / d0gg13 in its act scenes |
-| Holding Deepthroat POV (`ferasalm:povdt@1`) | act | words: blowjob, blow job, sucking, sucks, suck, deepthroat, deep throat, deepthroating, takes the man in her mouth | 0.8 | POV deepthroat scene |
-| Missionary POV K3NK (`ferasalm:missionary@1`) | act | words: missionary | 0.8 |  |
-| POV Doggy Anal (`ferasalm:povanal@1`) | act | words: anal, anally, ass fucking, in her ass, in the ass, up her ass, fucks her ass, fucking her ass, fucked her ass, in her anus (alone at 1, no other LoRA) | 0.8 |  |
-| General Penis (`ferasalm:penis@1`) | anatomy | words: penis, cock, dick, erection, erect (only without another act LoRA); also added on sex acts with: missionary, doggy, doggystyle, doggy style | 0.6 |  |
-| PussyDiffusion v2 (`ferasalm:pussyd@1`) | anatomy | words: pussy, vagina, spread legs, legs spread (only without another act LoRA) | 0.8 | hairy pussy |
-| Tushy Raw Filter (camera flash) (`ferasalm:tushyraw@1`) | light | flash words: in place of the realism LoRAs | 1 | (flash trigger sentence) |
+| Lenovo UltraReal (`ferasalm:lenovoc@1`) | realism | every picture (not with the flash or an alone LoRA) | 1.3 |  |
+| NSFW Unlocked V2 (`ferasalm:nsfwunlock@1`) | nudity | nude pictures and blowjobs; off with  | 0.8 |  |
 
-Spare (uploaded on Runware, in no list above; not sent): Phone Photography 2000-2025 (`ferasalm:phone2025@1`), UltraReal V5 Pro (`ferasalm:ultrareal5@1`), Lenovo UltraReal (`ferasalm:lenovoc@1`), SNOFS v1.4 (rank-128 copy) (`ferasalm:snofsc@1`), NSFW Unlocked V2 (`ferasalm:nsfwunlock@1`), Anatomy Quality Fixer (`myaiprojectsqqq:3@2`), POV Blowjob (`ferasalm:povbj@1`), POV hand (converted) (`ferasalm:povhandc@1`).
+Spare (uploaded on Runware, in no list above; not sent): Phone Photography 2000-2025 (`ferasalm:phone2025@1`), UltraReal V5 Pro (`ferasalm:ultrareal5@1`), InstaPic (`ferasalm:instapic@1`), Real HD 2K (DoRA converted to rank 32) (`ferasalm:realhd2kc@1`), Unchained XXX v2 (`ferasalm:unchained@2`), SNOFS v1.4 (rank-128 copy) (`ferasalm:snofsc@1`), PussyDiffusion v2 (`ferasalm:pussyd@1`), General Penis (`ferasalm:penis@1`), Anatomy Quality Fixer (`myaiprojectsqqq:3@2`), Flux 4 Play AIO (`ferasalm:flux4play@1`), Missionary POV K3NK (`ferasalm:missionary@1`), POV Doggy Anal (`ferasalm:povanal@1`), Holding Deepthroat POV (`ferasalm:povdt@1`), POV Blowjob (`ferasalm:povbj@1`), POV hand (converted) (`ferasalm:povhandc@1`), Tushy Raw Filter (`ferasalm:tushyraw@1`).
 
 Cost (measured 2026-10-08, round 8): a LoRA has no fee of its own; the price is GPU time, which grows with the size, the reference pictures (body pictures are sent at 576x1024: at 768x1344 they cost $0.0009 more) and the number of LoRAs: 9:16 pictures $0.0025 (sometimes $0.0034 with a room picture or a cold LoRA load); 1:1 and 16:9 $0.0025-0.0034. Daily cap $1 (about 333 pictures), then Cloudflare (never nude).

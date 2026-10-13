@@ -392,6 +392,8 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(W.asCamera("Feras PoV of spooning with Reem", feras), "PoV of spooning with her", "asCamera: D1 491");
     eq(W.asCamera("I'm fucking you from behind", feras), "Fucking her from behind", "asCamera: I'm as the subject goes");
     eq(W.asCamera("Reem's legs over Feras's shoulders", feras), "Her legs over the man's shoulders", "asCamera: possessives");
+    eq(W.asCamera("The man sits on the edge of a bed, and she is right beside him, their shoulders touching."), "She is close beside the camera, their shoulders touching", "asCamera: /look 484, where he sits goes (the man was drawn 2/2)");
+    eq(W.asCamera("the man fucks her doggy style"), "The man fucks her doggy style", "asCamera: an act clause keeps its words");
     {
       const P = W.CONFIG.PICTURE, was = P.CAMERA;
       eq(W.cloudflareText("She straddles the man lying on his back").startsWith("She straddles the man lying on his back"), true, "CAMERA third: the man stays");
@@ -646,7 +648,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq(W.dayOutfits && typeof W.dayOutfits, "function", "dayOutfits is exported");
   const pic = (words, dayWear = day) => W.customPicture(words, 21, dayWear).prompt;
   eq([pic("on the couch reading a book").includes(`She is wearing ${day.home}.`), pic("at the coffee shop, smiling").includes(`She is wearing ${day.out}.`), pic("in a red sweater on the couch").includes("She is wearing"), pic("naked on the bed").includes("She is wearing"), pic("on the couch reading a book", null).includes("She is wearing")],
-    [true, true, false, false, false], "/pic: no clothes named gets the day's home outfit, outside words the out outfit; named clothes, nudity and no day outfit get none");
+    [true, true, false, false, true], "/pic: no clothes named gets the day's home outfit, outside words the out outfit; named clothes and nudity get none; no day outfit gets SCENE_WEARING (Step B)");
 }
 
 // Step 4 review (Opus, 2026-10-11): the day's outfit holds all day, "out" and the weather aren't outside, act words get no clothes

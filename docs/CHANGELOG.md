@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-13 (thirty-ninth session, Opus 5.5 (`claude-opus-5-5`)): picture overhaul Step B; dev only
+- `get_session`: `session_context.model` and `last_served_model` both `claude-opus-5-5`. No subagents.
+- Owner: Cloudflare klein 9B at 768x1344 (picked after the price: ~$0.0165 a picture); Lenovo UltraReal on Cloudflare's SFW pictures (DECISIONS).
+- cf-lora-probe run 38330056690: Workers AI refuses finetunes on klein 9B (MODEL_NOT_SUPPORTED) and ignores a `lora` field; klein 9B at 768x1344 drew in 7 s. Nothing built for the LoRA.
+- Built (commits ab29706 and the handoff commit): short REFERENCE / LOOKS / NOBODY / CLOSE / LINGERIE.WHO (no height, weight; the Cloudflare one ~250 characters, image 1's clothes not named: 3030); CRAFT only on Cloudflare (`cloudflareText`), SAFE "", no DRESSED on the clothed body; EXPRESSIONS count as naming her face; GAZES lost "something in her hands" and "past the camera at someone", MOODS the eye roll, the "really?" look and "an intense, hungry stare"; LIGHT_WORDS + lamp words; FACE_WORDS + brow words; `asCamera` (/pic, /look), `involvesHim` + PICTURE.POV_CLOTHED, PICTURE.CAMERA third|first (`firstPerson`), `ownHands`; SCENE_STYLE without "in front of her"; POV_MAN "face or head"; SCENE_WEARING fallback on /pic and /look; LOOK.PROMPT: never the man as a subject; PICTURE.MODEL klein 9B, WIDTH/HEIGHT 768x1344, PICTURE_NEURONS 1,500, HEALTH_NEURONS 1,450.
+- Checks: check.mjs 8/8; golden rewritten, diff read case by case; unit rows (ownHands, asCamera, CAMERA, POV_CLOTHED), a scenarios row (her selfie's hands).
+- Bench: stepb-bench 25 Runware pictures, +$0.10283; face run 38332129065 (3 Cloudflare 9B pictures + 1 refused); `face-candidates` cd64f73 runs/2026-10-13-stepB-bench (QUALITY "Step B bench").
+
 ## 2026-10-12/13 (thirty-eighth session, Opus 5.5 (`claude-opus-5-5`)): picture overhaul planned, Step A built; dev only
 - `get_session`: `session_context.model` and `last_served_model` both `claude-opus-5-5`. No subagents.
 - Read the live D1 log (rows 483-503): /pic words reach the prompt as typed ("Feras having sex with Reem"), /look 483-484 were drawn at Off on Cloudflare klein 4B with the old long prompt and two lights, Compose returned no plan at Off (an "edit" of an Off log row set the level).
