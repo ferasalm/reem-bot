@@ -379,9 +379,30 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");
-    yes(clothed.includes(R.DRESSED) && !clothed.includes(R.NAKED), "clothed: DRESSED, no NAKED");
-    eq(W.picWords("you riding me on my bed"), "her riding the man on the man's bed", "/pic sex act: me/my are the man, you is her");
-    eq(W.picWords("you in my shirt"), "her in her shirt", "/pic without a sex act: unchanged");
+    yes(!clothed.includes(R.DRESSED) && !clothed.includes(R.NAKED) && clothed.includes("she wears only the clothes described here"), "clothed: no DRESSED on the clothed body (Step B: REFERENCE_CLOTHED says it), no NAKED");
+    eq(W.picWords("you riding me on my bed"), "Her riding the man on his bed", "/pic sex act: me is the man, my is his, you is her");
+    eq(W.picWords("you in my shirt"), "Her in his shirt", "/pic without a sex act: my is his too (Step B: he is the camera)");
+    // Step B (2026-10-13): every hand has an owner (ownHands), on every Runware and Cloudflare prompt
+    for (const [t, want] of [["leaning back on one hand", "leaning back on one of her hands"], ["a hand on her hip", "one of her hands on her hip"], ["both hands in her hair", "both her hands in her hair"], ["hands on her hips, smiling", "her hands on her hips, smiling"], ["Hands in her pockets", "Her hands in her pockets"], ["her hip, hand on the door", "her hip, her hand on the door"],
+      ["his hands on her hips", "his hands on her hips"], ["the man's hands on her butt", "the man's hands on her butt"], ["his big rough hands", "his big rough hands"], ["on her hands and knees", "on her hands and knees"], ["one of her hands on his chest", "one of her hands on his chest"], ["hand-knit sweater, second-hand coat", "hand-knit sweater, second-hand coat"], ["no phone and no hands unless described", "no phone and no hands unless described"]])
+      eq(W.ownHands(t), want, `ownHands: ${t}`);
+    // Step B: he is the camera (asCamera): his name, I/me/my and her name; a clause that opens with him loses him
+    const feras = { name: "Feras" };
+    eq(W.asCamera("Feras having sex with Reem", feras), "Having sex with her", "asCamera: D1 485, his name as the subject goes, hers is her");
+    eq(W.asCamera("Feras PoV of spooning with Reem", feras), "PoV of spooning with her", "asCamera: D1 491");
+    eq(W.asCamera("I'm fucking you from behind", feras), "Fucking her from behind", "asCamera: I'm as the subject goes");
+    eq(W.asCamera("Reem's legs over Feras's shoulders", feras), "Her legs over the man's shoulders", "asCamera: possessives");
+    {
+      const P = W.CONFIG.PICTURE, was = P.CAMERA;
+      eq(W.cloudflareText("She straddles the man lying on his back").startsWith("She straddles the man lying on his back"), true, "CAMERA third: the man stays");
+      P.CAMERA = "first";
+      eq(W.cloudflareText("She straddles the man lying on his back, the man is fucking her").split(". Natural")[0].replace(/ Natural.*$/, ""), "She straddles me lying on my back, I am fucking her", "CAMERA first: me / my / I am");
+      P.CAMERA = was;
+      const c = W.customPicture(W.picWords("Feras PoV of spooning with Reem", "on", feras), 14, null, "on");
+      yes(c.prompt.includes(P.POV_CLOTHED) && !/Feras|Reem/.test(c.prompt), "/pic with him, no sex act: POV_CLOTHED, no names (D1 491)");
+      yes(!W.customPicture(W.picWords("in a red dress on the porch", "on", feras), 14, null, "on").prompt.includes(P.POV_CLOTHED), "/pic without him: no POV_CLOTHED");
+      yes(!W.customPicture(W.picWords("Feras having sex with Reem, riding him", "on", feras), 14, null, "on").prompt.includes(P.POV_CLOTHED), "/pic sex act: POV_MAN (in runwarePlan), not POV_CLOTHED");
+    }
     yes(W.mayDraw("her giving a blowjob") && W.sexAct("her giving a blowjob"), "a sex act is drawn with the switch on");
     const act = await prompt("riding the man on the bed");
     yes(act.includes(R.POV_MAN) && act.includes(R.NAKED), "a sex act: POV_MAN added, and she is naked (round 7)", act.slice(-200));
@@ -485,10 +506,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     c = await call("riding the man, his hands on her hips", "pic");
     eq(c.loras, [...actSet, "ferasalm:povhandc@1"].sort(), "HANDS_LORAS set again: his hands named add it, within MAX_LORAS");
     R.HANDS_LORAS = keepHands;
-    eq(W.picWords("my hand on your waist, you in a black dress"), "the man's hand on her waist, her in a black dress", "/pic: 'my hand' is his");
+    eq(W.picWords("my hand on your waist, you in a black dress"), "His hand on her waist, her in a black dress", "/pic: 'my hand' is his");
     R.SEX_ACTS = false;
     yes(!W.mayDraw("her giving a blowjob") && !W.sexAct("her giving a blowjob"), "switch off: not drawn");
-    eq(W.picWords("you riding me"), "her riding her", "switch off: /pic unchanged");
+    eq(W.picWords("you riding me"), "Her riding the man", "switch off: /pic words the same as with it on (Step B)");
   } finally { globalThis.fetch = realFetch; [P.ROUTE, R.SEX_ACTS] = keep; }
 }
 {
@@ -690,7 +711,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     P.ROUTE = "runware-klein"; P.HAIR_CHANCE = 0; Math.random = () => 0;
     R.BODY_PARTIAL = "none";
     const none = await draw("naked from the waist down, black sports bra, sitting on the bed", { location: "bedroom" });
-    eq([none.inputs.referenceImages.length, none.positivePrompt.includes(R.REFERENCE_NOBODY.slice(0, 60).replace("same face and hair", "same face, hair color")) || none.positivePrompt.includes("an average-to-full figure"), /as in image 1\b/.test(none.positivePrompt)], [2, true, true], "BODY_PARTIAL none: face and place only, REFERENCE_NOBODY, the place is image 1");
+    eq([none.inputs.referenceImages.length, none.positivePrompt.includes(R.REFERENCE_NOBODY.slice(0, 60).replace("same face and hair", "same face, hair color")) || none.positivePrompt.includes("full upper arms and a soft body"), /as in image 1\b/.test(none.positivePrompt)], [2, true, true], "BODY_PARTIAL none: face and place only, REFERENCE_NOBODY, the place is image 1");
     R.BODY_PARTIAL = "nude";
     eq((await draw("naked from the waist down, black sports bra, sitting on the bed")).inputs.referenceImages.length, 2, "BODY_PARTIAL nude: face and the nude body");
     P.HAIR_CHANCE = 1; // a hairstyle is picked, and left out of the close-up's words and pictures
@@ -780,7 +801,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(klein.length, 1, "Off: one klein picture on Workers AI");
     eq(klein[0] && klein[0].model === P.MODEL, true, "Off: the Cloudflare model is P.MODEL");
     eq(klein[0] && klein[0].images.length >= 2 && klein[0].images.length <= 3, true, "Off: her face and body (and the place) as input images");
-    eq(/\b(?:bra|panties)\b/i.test(kleinPrompts().join(" ")), false, "Off: the klein prompt has the filter words, not bra or panties");
+    eq(/\b(?:bra|panties|thong)\b/i.test(kleinPrompts().join(" ")), false, "Off: the klein prompt has the filter words, not bra, panties or thong (Step B: REFERENCE names none)");
     eq(kleinPrompts()[0] && kleinPrompts()[0].includes(P.SAFE), true, "Off: SAFE is in the klein prompt");
     eq(urls.some((u) => u.includes("openrouter.ai")), false, "Off: no OpenRouter call");
     eq(drawn.model === P.MODEL, true, "Off: the picture is klein's");

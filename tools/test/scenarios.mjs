@@ -450,14 +450,14 @@ section("pictures: his photos (Workers AI vision)");
   yes(r.system[0].includes("He's asking for a picture of you, and you send one"), "he asks: always (FORMAT_ASKED), like a voice note");
   eq(r.order, ["sendMessage", "sendPhoto"], "her words, then the picture");
   const f1 = ai.find((a) => a.model === W.CONFIG.PICTURE.MODEL).fields;
-  yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a mirror in the hallway between their doors") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(`${W.CONFIG.PICTURE.CRAFT} ${W.CONFIG.PICTURE.SAFE}`), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT + SAFE", f1.prompt);
+  yes(f1.prompt.startsWith(W.CONFIG.PICTURE.SELFIE_STYLE) && f1.prompt.includes("reflection in a mirror in the hallway between their doors") && f1.prompt.includes("in the hallway, black slip dress,") && f1.prompt.endsWith(W.CONFIG.PICTURE.CRAFT), "prompt: style + her shot (the mirror she named) + what she wrote + CRAFT (Step B: added on Cloudflare; SAFE is empty)", f1.prompt);
   yes(f1.prompt.includes(W.CONFIG.PICTURE.MIRROR_PHONE), "a mirror selfie: the iPhone rule");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.LOCATIONS.hallway.LOOK) && !f1.prompt.includes("@") && !f1.prompt.includes("{room}"), "her hallway: its fixed look, no @key or {room} left");
   eq(/^<\d+ bytes>$/.test(f1.input_image_2 || ""), f1.prompt.includes("the part of her room shown in image 2"), "the place's picture is image 2 (after her face and body) exactly when the prompt says so");
   yes(W.placePictures("hallway").length === 3 && W.placePictures("hallway").map((b) => `<${W.fromBase64(b).length} bytes>`).includes(f1.input_image_2), "the place picture is one of its three crops (owner 2026-10-05: not the same angle every time)");
-  yes(/^<\d+ bytes>$/.test(f1.input_image_1 || "") && f1.prompt.includes("body shape of the woman in image 1"), "her body shape is image 1, named in the prompt");
+  yes(/^<\d+ bytes>$/.test(f1.input_image_1 || "") && f1.prompt.includes("exactly the body of image 1"), "her body shape is image 1, named in the prompt");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
-  eq([f1.width, f1.height], ["576", "1024"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (4 tiles, the price of 640x640)");
+  eq([f1.width, f1.height], ["768", "1344"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (klein 9B: the first megapixel's price, Step B)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
   eq(r.saved.content, "here 😏\n\n[selfie: mirror, in the hallway, black slip dress]", "history: her words and [selfie: type, what]");
   yes(typeof r.saved.parts.at(-1).id === "number", "the picture has its message id, so /rewind and /retry delete it");
@@ -475,7 +475,7 @@ section("pictures: his photos (Workers AI vision)");
   // Pictures v3 (owner 2026-10-02): sexy by pose or wardrobe is fine, nudity never
   r = await turn("hey", ["hi\n\n[selfie: me in lingerie on the bed]"], { history: APART });
   const f3 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
-  yes(f3.prompt.includes(", in lace bodysuit on the bed,") && f3.prompt.endsWith("No nudity.") && !/fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it (worded past the filter: FILTER_WORDS); SAFE is only 'No nudity.'", f3.prompt);
+  yes(f3.prompt.includes(", in lace bodysuit on the bed,") && !/No nudity|fully clothed|non-sexual/i.test(f3.prompt), "lingerie is drawn as she wrote it (worded past the filter: FILTER_WORDS); no SAFE words (Step B)", f3.prompt);
   eq([W.composePicture({ tier: "boudoir", shot: "selfie", words: "a red satin bra and matching panties, on the bed" }).what, W.composePicture({ tier: "boudoir", shot: "mirror", words: "a black g-string bikini" }).what], ["selfie, a red satin bodysuit, on the bed", "mirror, a black string bikini"], "bra and panties → a bodysuit in her color; g-string → string bikini");
   // live 2026-10-03: every boudoir back view was refused (3030), 4/4
   eq([0, 1, 2].map(() => W.planShot({ asked: "send me a belfie in your lingerie" })).map((p) => `${p.tier}/${p.shot}`), ["flirty/mirror-back", "flirty/mirror-back", "flirty/mirror-back"], "a belfie is a flirty back view, never a refused boudoir one");
@@ -563,9 +563,9 @@ section("pictures: his photos (Workers AI vision)");
       if (P.SHOTS[shot].includes("{light}") && !lights.some((l) => p.includes(l))) bad.push(`no light: ${p}`);
       if (pic.angle && !Object.hasOwn(P.ANGLES, pic.angle)) bad.push(`angle ${pic.angle}`);
       if (P.SHOTS[shot].includes("{angle}") !== !!pic.angle) bad.push(`angle where there's none: ${shot}`);
-      if (!p.endsWith(`${P.CRAFT} ${P.SAFE}`)) bad.push(`no CRAFT + SAFE: ${p}`);
+      if (p.includes(P.CRAFT) || /No nudity/.test(p)) bad.push(`CRAFT or SAFE in the composed prompt (Step B: drawPictureNow adds CRAFT on Cloudflare): ${p}`);
     }
-    eq(bad.slice(0, 3), [], "every shot x tier: slots from the tier's lists, light, angle only where the shot has one, 40-110 words, CRAFT + SAFE last");
+    eq(bad.slice(0, 3), [], "every shot x tier: slots from the tier's lists, light, angle only where the shot has one, 40-110 words, no CRAFT or SAFE (Step B)");
     // The owner's phone rules: selfies never show the phone or her hand; mirror selfies an iPhone
     const cams = Object.entries(P.SHOTS).map(([t, tpl]) => [t, (tpl.match(/\{(selfie|mirror|pov)\}/g) || []).join("")]);
     eq(cams.filter(([, c]) => !["{selfie}", "{mirror}", "{pov}"].includes(c)), [], "every shot starts from exactly one phone rule");
@@ -655,6 +655,8 @@ section("pictures: his photos (Workers AI vision)");
     eq(banana.calls.length, 5, "an everyday selfie never goes to Nano Banana");
     // owner 2026-10-05: "Let klein draw lingerie first, then nanobanana if klein refuses"
     // owner 2026-10-05: "Let klein try first unless it's more explicit or user asks for two pieces or a \"spicier\" picture"
+    // Step B: klein 9B counts 1,500 neurons a picture, so this run's earlier pictures would reach PICTURE_SHARE: a fresh day's count
+    store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics") || "{}"), neurons: 0 }));
     W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = true;
     banana.mode = "draw";
     const nb0 = banana.calls.length;
@@ -759,8 +761,12 @@ section("pictures: his photos (Workers AI vision)");
     r = await turn("send me a nude", ["here\n\n[selfie: naked on the bed, wearing nothing at all]"], { history: APART });
     let t = runware.calls.at(-1);
     yes(r.photos.length === 1 && t.model === R.MODEL && Object.keys(R.NUDE_LORAS).every((k) => (t.lora || []).some((l) => l.model === k)) && t.safety.checkContent === false && t.inputs.referenceImages.length >= 2 && t.inputs.referenceImages.every((x) => x.startsWith("data:image/jpeg;base64,")), "runware-klein: a nude on klein 9B with NUDE_LORAS (SNOFS), her face and body, content check off", t && { model: t.model, refs: t.inputs?.referenceImages?.length });
-    yes(/naked on the bed/.test(t.positivePrompt) && t.positivePrompt.includes(R.NAKED) && !t.positivePrompt.includes(P.SAFE) && t.positivePrompt.replace(/^instapic\. /, "").startsWith(P.SELFIE_STYLE), "...her words as written, NAKED added, no 'No nudity.' (triggers, then the style)", t.positivePrompt.slice(0, 200));
+    yes(/naked on the bed/.test(t.positivePrompt) && t.positivePrompt.includes(R.NAKED) && !/No nudity/.test(t.positivePrompt) && t.positivePrompt.replace(/^instapic\. /, "").startsWith(P.SELFIE_STYLE), "...her words as written, NAKED added, no 'No nudity.' (triggers, then the style)", t.positivePrompt.slice(0, 200));
     yes(ai.length === a0 && JSON.parse(store.get("pics")).rwUsd > 0, "...Cloudflare isn't called; the spend is in the ledger's rwUsd");
+    // Step B (2026-10-13): her own selfie words with a bare hand: it gets her as its owner (ownHands)
+    r = await turn("send me a selfie", ["here\n\n[selfie: sitting on the kitchen counter, leaning back on one hand, hand in her hair]"], { history: APART });
+    t = runware.calls.at(-1);
+    yes(r.photos.length === 1 && /leaning back on one of her hands, her hand in her hair/.test(t.positivePrompt) && !/\bone hand\b/.test(t.positivePrompt), "her selfie: every hand is hers (ownHands)", t.positivePrompt.slice(0, 400));
     r = await turn("send me a pic in lingerie", ["[selfie: mirror, red lace bra and panties by the window]"], { history: APART });
     t = runware.calls.at(-1);
     yes(r.photos.length === 1 && /red lace bra and panties/.test(t.positivePrompt) && banana.calls.length === b0, "lingerie: Runware draws the real words (no FILTER_WORDS), no Nano Banana", t.positivePrompt.slice(0, 160));
@@ -808,7 +814,7 @@ section("pictures: his photos (Workers AI vision)");
     r = await turn("/pic your hair in a high ponytail, red lipstick, black satin slip dress, leaning on the kitchen counter, full body, low angle", [], {});
     let t = runware.calls.at(-1);
     yes(r.photos.length === 1 && t.model === P.RUNWARE.MODEL && t.inputs.referenceImages.length >= 2, "runware-klein: drawn with her face and body", t && t.model);
-    yes(/her hair in a high ponytail, red lipstick, black satin slip dress/.test(t.positivePrompt) && t.positivePrompt.includes(P.CUSTOM.SAME_PERSON) && !t.positivePrompt.includes("same face and hair"), "...his words (you → her), and 'same face' without 'and hair' so the ponytail is drawn", t.positivePrompt.slice(0, 260));
+    yes(/her hair in a high ponytail, red lipstick, black satin slip dress/i.test(t.positivePrompt) && t.positivePrompt.includes(P.CUSTOM.SAME_PERSON) && !t.positivePrompt.includes("same face and hair"), "...his words (you → her), and 'same face' without 'and hair' so the ponytail is drawn", t.positivePrompt.slice(0, 260));
     eq(store.get("h:7"), h0, "...never stored in the story");
     r = await turn("/photo naked, hair down, lying on her side in bed", [], {});
     t = runware.calls.at(-1);
@@ -819,7 +825,7 @@ section("pictures: his photos (Workers AI vision)");
     const a0 = ai.length;
     r = await turn("/pic messy bun, no makeup, oversized gray hoodie, curled up on the couch, close-up from above", [], {});
     const k = ai.at(-1);
-    yes(r.photos.length === 1 && ai.length > a0 && k.fields.prompt.includes("messy bun") && k.fields.prompt.includes(P.CUSTOM.SAME_PERSON) && k.fields.prompt.includes(P.SAFE), "on Cloudflare: klein draws it with her face, SAFE kept", k.fields && k.fields.prompt.slice(0, 200));
+    yes(r.photos.length === 1 && ai.length > a0 && /messy bun/i.test(k.fields.prompt) && k.fields.prompt.includes(P.CUSTOM.SAME_PERSON) && k.fields.prompt.endsWith(P.CRAFT), "on Cloudflare: klein draws it with her face, CRAFT last (Step B: SAFE empty)", k.fields && k.fields.prompt.slice(0, 200));
     store.set("s:7", JSON.stringify({ ...JSON.parse(store.get("s:7") || "{}"), minor: true }));
     r = await turn("/pic red dress", [], {});
     yes(r.photos.length === 0, "after he says he's under 18: no /pic either");
@@ -914,6 +920,8 @@ section("pictures: his photos (Workers AI vision)");
     r = await turn("*steps closer* let me see you", ["*Reem stands by the bed in a black lace bra and matching panties, one hand on her hip, chin tipped up.* \"well?\""], { history: SCENE });
     const c2 = banana.calls.at(-1)?.messages[0].content || "";
     yes(r.photos.length === 1 && banana.calls.length === nb2 + 1 && /black lace bra/.test(c2) && c2.startsWith(W.CONFIG.PICTURE.SCENE_STYLE) && c2.includes(W.CONFIG.PICTURE.LINGERIE.WHO), "in person in two pieces: Nano Banana draws the moment, her real words, her description", c2);
+    // Step B: klein 9B counts 1,500 neurons a picture, so this run's earlier pictures would reach PICTURE_SHARE: a fresh day's count
+    store.set("pics", JSON.stringify({ ...JSON.parse(store.get("pics") || "{}"), neurons: 0 }));
     W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = true;
     const k0 = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).length;
     r = await turn("*steps closer* let me see you", ["*Reem leans in the doorway in a red satin teddy with lace trim, one knee bent, smiling slowly.* \"better?\""], { history: SCENE });
