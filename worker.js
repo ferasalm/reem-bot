@@ -328,7 +328,7 @@ const CONFIG = {
     BACKUP_CONTEXT_TOKENS: 32768,
     CHARS_PER_TOKEN: 3.5,              // rough estimate used for both (lower = safer)
     RETRY_TEMPERATURE: 1.05,           // the second try, when her first reply repeated herself
-    TIMEOUT_MS: 30000,                 // thinking replies took 4-10 s, some 37-60 s (cf-probe 38355964346); was 20 s
+    TIMEOUT_MS: 60000,                 // owner 2026-10-13 (option 1, branch chat-timeout): DeepSeek finished in 4-6 s or 33-48 s (cf-probe 38357963015); was 30 s
     ATTEMPTS: 2,                       // tries per reply when the model fails
     RETRY_DELAY_MS: 1500,
   },

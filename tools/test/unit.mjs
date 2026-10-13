@@ -263,7 +263,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   for (const mode of ["TEXT", "SCENE", "VOICE"]) await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS[mode] }, { model: M, timeoutMs: 5000, attempts: 1 });
   await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS.TEXT }, { model: M, timeoutMs: 5000, attempts: 1, task: true });
   eq(seen, [["none", L.MAX_TOKENS.TEXT + L.THINK_TOKENS], ["none", L.MAX_TOKENS.SCENE + L.THINK_TOKENS], ["none", L.MAX_TOKENS.VOICE + L.THINK_TOKENS], ["low", L.MAX_TOKENS.TEXT + 1500]], "chat replies: MAX_TOKENS + THINK_TOKENS; a task keeps +1500 (Fix round 2)");
-  eq([L.THINK_TOKENS, L.TIMEOUT_MS], [700, 30000], "LLM.THINK_TOKENS 700 and LLM.TIMEOUT_MS 30 s (Fix round 2)");
+  eq([L.THINK_TOKENS, L.TIMEOUT_MS], [700, 60000], "LLM.THINK_TOKENS 700 and LLM.TIMEOUT_MS 60 s (branch chat-timeout, owner 2026-10-13)");
   seen.length = 0;
   await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS.TEXT }, { model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", timeoutMs: 5000, attempts: 1 });
   eq(seen.map((x) => x[1]), [L.MAX_TOKENS.TEXT], "a model that doesn't think (Llama) gets no thinking room (LLM.THINKING_MODELS)");
