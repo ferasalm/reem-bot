@@ -801,3 +801,79 @@ Planned and Step A built by Opus 5.5 (`claude-opus-5-5`). Each step ends with `/
 - **Step D (built, 2026-10-13):** `PICTURE.ANATOMY` on Llama 4 Scout, up to 3 pictures, fewest mistakes sent. Probes: QUALITY "Step D". Left: Scout misses most klein 4B stray hands and all problems on sex acts.
 - **Step C plan (as written): the hybrid writer (Opus, effort high).** `PICTURE.WRITER` (DeepSeek on Workers AI, reasoning "low") writes only the scene sentence (action, pose, clothes, place) of /look (in place of LOOK.PROMPT's free text) and her own pictures, under Step B's rules; code keeps choosing references (front/back, clothed/nude body, a place picture only in a named room and not a close-up, the hair picture) and LoRAs from `pictureFlags`; when the writer fails or is slow, today's template. Checks: free replays of D1 `her_words` / `llm_text`, then a ≤ $0.15 bench.
 - **Step D plan (as written): anatomy check on her own pictures (Opus to design, effort medium).** After each draw of her own pictures, VISION.MODEL answers a fixed checklist (extra or missing limbs, hands, fingers, a second person or head); a fail redraws with the next seed, 3 tries at most, the best one sent; per-try results in D1. First a free test on known good and bad pictures (the vision model may refuse nudes).
+
+## Fix round 2 (2026-10-13, after the Steps A-D deploy): cut replies, her body words, picture cost
+Diagnosed and planned by Opus 5.5 (`claude-opus-5-5`, per the session's model line; subagents for the cost and body sweeps). Build: one
+**Haiku 5.5** chat (prompt below), then an Opus check. Deploy only when the owner says "deploy".
+
+### Diagnosis
+1. **Short, cut replies and "wifi died" (the in-character `LINE_DROPPED` message = every try failed).** Not the deploy's code: the
+   chat path (`think` → `callModel` → `workersChat`, worker.js ~2790, ~2993-3086) didn't change between b42cac1 and 79daf47. Workers AI's
+   DeepSeek V4 Flash now **ignores `reasoning_effort: "none"` and thinks before every reply**, and the thinking counts inside
+   `max_tokens`. cf-probe run 38355964346 (her persona + a 3-line chat, as the bot asks; two other probe runs were going at the same
+   time, so some of the slowness may be the probes' own load): every answer carried 450-920 chars of `reasoning_content`.
+   At `LLM.MAX_TOKENS.TEXT` 220 (texts), 0 of 3 came back whole: 1 cut mid-sentence (`finish=length`, 203 chars), 1 empty (all 220 tokens were thinking), 1 timed out at 60 s.
+   At SCENE 380 (scenes and visits): 1 of 3 cut. At 900: 2 of 2 finished at 249-267 tokens, with a 326-518 char reply, and 1 timed out.
+   Latency 4-10 s, with some at 37-60 s (the bot gives up at `LLM.TIMEOUT_MS` 20 s). Cut text → `trimUnfinished` → a short reply; empty
+   → asked again up to 4 times → past 20 s → the OpenRouter backup (one try) → "wifi died". VOICE 120 is worse still.
+2. **Her body.** Every body line repeats "not slimmer: the same full bust, full upper arms and soft body, fair olive skin" (RUNWARE
+   REFERENCE 1205, REFERENCE_CLOTHED 1010, _CLOTHED_BACK 1011, _NOBODY 1012, _BACK 1207, _CLOSE 1291, LOOKS 1208; PICTURE.REFERENCE 823,
+   LOOKS 824; LINGERIE.WHO 1350, SPICY_PROMPT 1331). The words describe only the bust and the arms, not the shape the owner wants. Round 8's evidence (ARCHIVE) is that a clothed
+   picture with no body words came out slim 4/4, so removing the words with nothing in their place risks a slimmer her. LESSONS §2:
+   body words stack on the body picture. So whatever goes in has to be benched.
+3. **Picture cost (subagent, D1 `reem-studio` + the deployed code):** the price of **one picture is unchanged**: Runware klein 9B
+   $0.0025-0.0034, Cloudflare klein 4B 115 neurons, as before. What's new is Step D: a picture with mistakes is drawn again, up to 3
+   paid pictures (`ANATOMY.TRIES` 3, worker.js ~4561-4605; each Runware try in `rwUsd`, capped by `RUNWARE.DAILY_USD` $1; Scout 60
+   neurons a check). After the deploy: 18 bot rows for 15 requests, $0.0517, about **+18%** from redraws. One /look (D1 565-567)
+   was paid 3 times, every try "2 heads": a /look is checked as "pov", where heads count, and Scout infers the man (LESSONS §2, as on
+   acts). Pictures take 16-26 s now (a /look was 11.5 s). Today's $0.70 Runware spend is mostly benches/studio, not the bot.
+   The writer (Llama, ~$0.00024 a call) is not in the neuron ledger.
+
+### The fix (owner's picks marked; the rest is Opus's recommendation)
+- **F1, replies:** `workersChat` gives a chat reply (task false) `max_tokens` = the reply's own limit + `LLM.THINK_TOKENS` (new, 700;
+  the probe's thinking ran 150-300 tokens). The visible length stays the same: the prompt and `shapeReply` still decide it, and
+  `trimUnfinished` still cuts at a sentence end. `LLM.TIMEOUT_MS` 20000 → 30000. The OpenRouter backup is unchanged (reasoning off there).
+- **F2, her body (owner: remove the body descriptions; make her "a little bit fuller, yet same fullness"):** one CONFIG string,
+  `PICTURE.BODY_WORDS` = "narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine
+  curves" (the owner's list, in the owner's words). It goes in every body line above, in place of "not slimmer: the same full bust, full upper arms and soft body"
+  and "a full bust, full upper arms and a soft body". "Exactly the body of image 1" stays: it is the anchor, not a description. "fair olive skin" stays (a skin tone,
+  not a body description; the owner can drop it too). The back lines keep "seen from behind". SPICY_PROMPT's `body`, `upper`, `waist` and `arms`
+  fields become BODY_WORDS too, and the JSON must stay valid. The persona (SYSTEM_PROMPT "HOW YOU LOOK") is not touched.
+  **Option B** (the owner named it as an alternative): redraw the four body references a little fuller, then drop the words. Kept for later because
+  a new body picture risks her likeness, costs a bench per body, and needs the owner's pick of each picture. Bench F2 first.
+- **F3, picture cost (owner to pick; nothing built without it):** (a) stop redrawing when a try has the same single mistake as the
+  try before it (a likely false alarm): at most 2 paid pictures; (b) `ANATOMY.TRIES` 3 → 2; (c) leave it (~+18%).
+
+### Checks
+F1: unit row: a chat call on a `@cf/` model sends max_tokens = MAX_TOKENS[mode] + THINK_TOKENS; a task call is unchanged (+1500).
+Then cf-probe (push `tools/test/cf-probe.mjs` with cases `[220+700, "none"]`, `[380+700, "none"]`, `[120+700, "none"]`, 4 calls
+each, **one run at a time**): every answer must finish (`finish=stop`) with content. F2: unit rows 312, 718 and 520-524
+(`tools/test/unit.mjs`) follow the owner's new words: the ban on "wide hips" etc. is superseded for BODY_WORDS only, and the belly
+words stay banned. Then `node tools/test/picture-plans.mjs --write` and read the golden diff case by case (only the body words may change).
+Bench ≤ $0.10: the bot's own `drawPicture` (LESSONS §1), seeds 101 and 202, today vs BODY_WORDS, at clothed front, nude front, a back
+view and a clothed /nsfw Off on Cloudflare (16 pictures). Pictures go to `face-candidates` runs/2026-10-13-body-words. **Haiku does not
+judge the pictures**: Opus and the owner do, at full size, side by side.
+
+### Haiku prompt (paste into a new chat, pick Haiku 5.5, effort high)
+"Read HANDOFF, then docs/WORKPLAN.md 'Fix round 2' end to end; it is your spec. Build F1 and F2 on your session branch, in that
+order, one commit each. Do not build F3 or Option B. Rules: never read worker.js whole: grep -n the CONFIG key or function and read
+only those lines (docs/MAP.md). Change CONFIG strings with a script that asserts each old string exists exactly once, then print the
+changed lines. Add a hand-written `tools/settings-panel.html` SECTIONS row for every new CONFIG key (LLM.THINK_TOKENS,
+PICTURE.BODY_WORDS), then `node tools/build-panel.mjs`. F1: in `workersChat`, task false → max_tokens = sampling.max_tokens +
+CONFIG.LLM.THINK_TOKENS (700); the empty-answer retries (reasoning low, +1500) stay as they are; LLM.TIMEOUT_MS 30000; add the unit row
+from Checks. Push tools/test/cf-probe.mjs with the Checks cases and read every line of its log (GitHub MCP get_job_logs). Push it once
+and wait for the run to finish before pushing anything else that triggers a workflow. Report the finish/content counts. If any
+answer is still cut or empty, stop and write that down; do not tune further. F2: add PICTURE.BODY_WORDS with exactly the wording in the
+spec, then put it into each line listed in Diagnosis 2 (verify each line number by grep first; they are from 79daf47). Grep every prompt string for
+'not slimmer', 'full upper arms', 'soft body' afterwards: zero left outside SYSTEM_PROMPT. Update the unit rows named in Checks. Then
+`node tools/test/picture-plans.mjs --write`. Dump the old and the new prompts to a scratch file and confirm that only the body words changed,
+case by case. Run the bench from Checks (spend: read Runware `usage` with the MCP account tool before and after; stop at $0.10).
+Push the pictures to face-candidates. Do not say which picture is better. Before each push run `node tools/check.mjs`; it must show 8 of 8.
+Record your model by name and raw ID from get_session. Then /handoff: QUALITY rows (probe and bench), CHANGELOG, HANDOFF ('Fix round 2
+built (F1, F2), waiting on the Opus check and the owner's look at the bench'), push your branch and dev. Never main."
+
+### Opus check prompt (after Haiku; pick Opus, effort medium)
+"Read HANDOFF and WORKPLAN 'Fix round 2'. Check Haiku's F1 and F2: the diff, the probe log line by line and the golden diff. Then read
+every bench picture at full size against the same seed with today's words: is she fuller in the owner's shape (narrow shoulders, wide low hips,
+full arms, a defined waist, a big round bottom) without going overweight? Is her face the same? Are there new anatomy mistakes? Write the
+verdict in QUALITY and ask the owner F3 and whether Option B is needed."

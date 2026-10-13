@@ -640,3 +640,15 @@ Missed by every version: 2 of 3 klein 4B stray hands at the left edge, stray toe
 
 ## Step D bench: writer + check end to end (2026-10-13, Opus 5.5 `claude-opus-5-5`; `tools/face/stepd-bench.mjs`, runs 38341404459, 38341749003; `face-candidates` runs/2026-10-13-stepD-bench-*)
 22 pictures sent from 26 tries, every try read at full size (table.md in the first run's folder). Off (Cloudflare klein 4B with her face and body): anatomy clean 18/20; the 2 slips (a stray sleeve at the right edge; her leg running into an arm at the bottom) missed by the check; 1 false "2 heads" → one redraw. Other slips: "no visible bottom garment" from the writer → bare thighs (now cut in `writtenWords`); a phone held up in a front-camera selfie; a selfie framed third-person. On (Runware riding): act right 2/2; run 1's 3 tries on the false "2 heads" (heads no longer count on acts). The owner's "almost every picture" were the probe's text-only klein 4B pictures (no references: stray hands 3/5). 11-43 s a picture end to end.
+
+## Her replies on Workers AI DeepSeek after the Steps A-D deploy (2026-10-13, Opus 5.5 `claude-opus-5-5`; cf-probe run 38355964346, every line read)
+Her persona + a 3-line chat, temperature 0.95, as `workersChat` asks. Runs 38355405129 and 38355952392 were going at the same time
+(pushed in a row), so some of the slow calls may be load. `reasoning_effort` "none" is ignored: every answer has `reasoning_content`
+(447-921 chars), counted in `completion_tokens`. Per case, 3 calls:
+| max_tokens, effort | finished with content | cut (`length`) | empty | timeout 60 s | seconds |
+|---|---|---|---|---|---|
+| 220 none (TEXT) | 0 | 1 (203 chars) | 1 (919 chars of thinking) | 1 | 37-40 |
+| 380 none (SCENE) | 2 (354, 552 chars) | 1 (593 chars) | 0 | 0 | 5-10 |
+| 900 none | 2 (326, 518 chars; 249-267 tokens) | 0 | 0 | 1 | 5 |
+| 220 low | 0 | 3 (104-253 chars) | 0 | 0 | 4-38 |
+→ the owner's "short and interrupted, disconnected often" (WORKPLAN "Fix round 2" F1: + `LLM.THINK_TOKENS` on chat replies).

@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-13 (forty-second session, Opus 5.5 (`claude-opus-5-5`, per `get_session` `session_context.model` and `last_served_model`); two subagents, Opus 5.5 `claude-opus-5-5` per their transcripts): diagnosis after the deploy; dev only
+- Owner: short, cut replies and "disconnects" after the deploy; her body not full enough; did picture cost go up? Plan: WORKPLAN "Fix round 2" (F1 replies, F2 body words, F3 redraw cost) with a Haiku prompt.
+- cf-probe now runs on a push of `tools/test/cf-probe.mjs` to a session branch; it asks as the bot does. Run 38355964346: DeepSeek on Workers AI thinks even at "none", and the thinking fills max_tokens (QUALITY). Runs 38355405129 (hung, no fetch timeout) and 38355952392 ran at the same time.
+- Cost subagent (D1 `reem-studio` + deployed code): price per picture unchanged; Step D redraws +~18% ($0.0092 of $0.0517 after the deploy); /look D1 565-567 paid 3x for "2 heads".
+- Body subagent: every body line and the tests that pin them (WORKPLAN Fix round 2, Diagnosis 2).
+
 ## 2026-10-13 (forty-first session, Sonnet 5.5 (`claude-sonnet-5-5`, per `get_session` `session_context.model` and `last_served_model`)): deploy of Steps A-D
 - Owner said "Deploy": `git push origin origin/dev:main` (b42cac1 → 79daf47, fast-forward) after `node tools/check.mjs` 8 of 8. Deploy run 38342744063 (run_number 43) success, Version ID `4f30ebfd-6bbe-406b-9fa5-f4003830b6f0` (was `b9d09df9-efbe-4163-aa8c-1eb392bc17d1`); `/health` ok (klein 4B 55,086 bytes, 12.5 s; Scout described it); `/setup` all ✅. Not checked live: the writer, the anatomy check, Runware-only Nude/On. Rollback: push `b42cac1` to `main`. No code changed; no subagents.
 

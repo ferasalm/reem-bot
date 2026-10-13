@@ -2,41 +2,39 @@
 
 Current state only, **rewritten every session** (`/handoff`). At most 80 lines (`tools/doc-check.mjs`).
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
-History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds the picture overhaul, Steps A-D).
+History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Fix round 2", the current plan).
 
-**Last updated:** 2026-10-13 (forty-first session: Sonnet 5.5, `claude-sonnet-5-5` per `get_session` `session_context.model` and `last_served_model`. Deployed Steps A-D; built by the fortieth session, Opus 5.5, `claude-opus-5-5`.)
-**Deployed:** `main` = 79daf47 (Steps A-D), deploy run 38342744063 success, Version ID `4f30ebfd-6bbe-406b-9fa5-f4003830b6f0`; `/health` and `/setup` ok. Rollback if ever needed: push `b42cac1` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**Branch:** `ccr-56dd148d-2zr3oz` (pushed), and `dev` = the same commit (docs only ahead of `main`).
+**Last updated:** 2026-10-13 (forty-second session: Opus 5.5, `claude-opus-5-5` per `get_session` `session_context.model` and `last_served_model`; two subagents on Opus 5.5 `claude-opus-5-5` per their transcripts. Diagnosis and plan only; no bot code changed.)
+**Deployed:** `main` = 79daf47 (Steps A-D), Version ID `4f30ebfd-6bbe-406b-9fa5-f4003830b6f0`. Rollback if ever needed: push `b42cac1` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**Branch:** `claude/reem-agent-fixes-upgqr1` (pushed), and `dev` = the same commit (docs + the cf-probe script only, ahead of `main`).
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live (`main`): texts, memory, /auto on DeepSeek V4 Flash; voice Sulafat; hearing Gemini; pictures on Runware klein 9B; /nsfw (Off on Cloudflare klein 4B); /studio.
-Live since this deploy (`main` = `dev` code): Step A (one clothed body, Lenovo + NSFW Unlocked), Step B (he is the camera, owned hands), and:
-- **Cloudflare back to klein 4B** at 576x1024 (owner). Workers AI refuses LoRAs on klein 4B too (MODEL_NOT_SUPPORTED); the anatomy fixer and amateur-selfies LoRAs dropped (owner).
-- **Step C, the picture writer** (`PICTURE.WRITER`, Llama 3.3 70B fast, owner's pick): tidies her selfie drafts (one pose, no phone, no second smile; bench 4/4 vs the template's 1/4), writes her in-person moments, including ones the template couldn't draw; /look's LOOK.PROMPT under the same rules. Off, failed, past 25 s or unusable → today's template.
-- **Nude/On are Runware's only** (owner): no Cloudflare or Nano Banana fallback; a picture Runware can't draw (failed, or $1/day spent) doesn't come.
-- **Step D, the anatomy check** (`PICTURE.ANATOMY`, Llama 4 Scout): her pictures are checked, a picture with mistakes is redrawn with another seed, 3 at most, the fewest mistakes sent. Probe: 5 of 7 known mistakes caught (second heads, a bare leg next to a jeans leg); misses most edge strays. Bench: klein 4B with her references clean 18/20 at Off.
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: texts, memory, /auto on DeepSeek V4 Flash (Workers AI); voice Sulafat; hearing Gemini; pictures on Runware klein 9B (Nude/On only there), /nsfw Off on Cloudflare klein 4B; the Llama picture writer and the Scout anatomy check (Steps C, D).
+The owner reported three problems after the deploy. Diagnosis and plan are in WORKPLAN "Fix round 2":
+- **Short, cut replies and "wifi died":** not the deploy's code. Workers AI's DeepSeek now thinks even at reasoning "none". The thinking counts in max_tokens, so at TEXT 220 her replies came back cut or empty in 3 of 3 calls (cf-probe run 38355964346, QUALITY). Fix F1: + `LLM.THINK_TOKENS` 700 on chat replies, `LLM.TIMEOUT_MS` 30 s.
+- **Her body not full enough:** replace every "not slimmer: the same full bust, full upper arms and soft body" with one `PICTURE.BODY_WORDS` (the owner's list: narrow shoulders, wide low hips, full arms, tapered waist, big bubbly bottom, curves), then a ≤ $0.10 bench (F2). Option B, fuller body pictures, comes later if needed.
+- **Picture cost:** one picture costs the same as before. Step D's redraws (up to 3 paid pictures) add about 18%. One /look was paid 3 times for a likely false "2 heads" (Scout infers the man on POV). Options F3 (a), (b) and (c) wait on the owner.
 
-## Verified this session (deploy)
-- Before the push `node tools/check.mjs` 8 of 8; deploy run 43 all steps success; `/health`: klein 4B drew 55,086 bytes in 12.5 s, Scout described it; `/setup` all ✅ (job log read). Nothing of Steps A-D is checked in the real bot yet.
-- `/setup`'s Pictures line is stale: it still says "retried, then Cloudflare klein" (worker.js ~6778); Nude/On are Runware-only now. Cosmetic.
-
-## Verified by the build session (fortieth)
-- `node tools/check.mjs` 8 of 8; golden plans: the 4B size and "Runware fails twice: no picture" only (read case by case); unit rows for the writer and the check; scenarios for the writer in person and Runware-only.
-- Writer replays on Workers AI (no pictures): DeepSeek thinks first even at "none" (median 5-24 s, most selfie calls past 25 s); Llama 15/15 in 1.3 s with the rules kept. Step C bench: 18 Runware pictures read (QUALITY "Step C"). Anatomy probes x3 and the Step D bench: 22 pictures, every try read (QUALITY "Step D").
-- Spend: my benches ~$0.064 by the scripts' sums; Runware usage +$0.228 over the session (the live bot drew too). Cloudflare: ~11,000 neurons across probes and benches.
+## Verified this session
+- cf-probe run 38355964346: every line read; the table is in QUALITY. Caveat: two other probe runs were going at the same time, so some of the slow calls may be load. The pattern (thinking inside max_tokens) holds in every call.
+- `node tools/check.mjs` 8 of 8 before the push.
+- The subagents' findings (cost from D1 `reem-studio` and the deployed code, the body-line sweep) were checked against worker.js lines `drawPicture` ~4561-4605 and `anatomyCheck` ~5026. They were not re-queried.
 
 ## Waiting on the owner
-- A Telegram test of the deployed bot: a selfie with her own words, an in-person "let me see you", /look in a scene, /pic, a sex act, one picture at /nsfw Off; then read D1 rows (`llm_text` = the writer's words; `error` "anatomy: ..." = a redrawn try).
+- **F3, the redraw cost:** (a) stop redrawing when a try has the same single mistake as the try before it, (b) `ANATOMY.TRIES` 2, or (c) leave it.
+- **F2's route:** words first (recommended) or fuller body pictures (Option B).
+- The Telegram test of Steps A-D is still useful after F1 (replies now break the chat).
 
 ## Next steps (in order; one chat each)
-1. **After the owner's Telegram test, read the D1 rows** of the new pictures (writer words, anatomy notes, seconds a picture). Sonnet. *Effort: medium.*
-2. **Edge strays**: the check misses hands or sleeves reaching in at an edge (2 of 3 in the probe, 2 of 2 in the bench). Try a second, edge-only question, or crops of the left/right thirds sent as extra images. Opus. *Effort: medium.*
-3. **Later**: `/setup`'s Pictures line (stale, see above); VISION.BACKUP_MODEL (Gemma 3 12B) answers "not allowed" on this account: pick another; Llama's plainer wording ("thumb near a cut"; spooning lost "facing away"); selfies on klein 4B sometimes show a phone; an anal LoRA that keeps her face; old session branches. *Effort: medium.*
+1. **Build Fix round 2, F1 + F2**: paste WORKPLAN "Fix round 2" → "Haiku prompt". Haiku 5.5. *Effort: high.*
+2. **Opus check of F1/F2 and the body bench pictures**: the "Opus check prompt" there. Opus. *Effort: medium.*
+3. **Deploy F1** once checked (owner says "deploy"): her replies are broken live until then. F1 alone could go first. Sonnet. *Effort: low.*
+4. **Later**: Step D's edge strays; `/setup`'s stale Pictures line; VISION.BACKUP_MODEL (Gemma 3 12B "not allowed"); old session branches. *Effort: medium.*
 
 ## Open questions for the owner
+- F3 and F2's route (above).
 - OK to press Actions > Delete retired branches for `tools/retired-branches.txt`?
-- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (~35 old branches show as "not here" on a shallow clone; left alone again.)
-- Old session branches still hold the old pictures in their history. Clear them, or leave them?
+- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (~40 old branches show as "not here" on a shallow clone.)
 
 ## Prompt for the next chat
-"Read HANDOFF. I tested the bot in Telegram after the deploy: read the D1 rows of those pictures and tell me what the writer and the anatomy check did." *Effort: medium.*
+Paste the "Haiku prompt" of WORKPLAN "Fix round 2" (pick Haiku 5.5). *Effort: high.*

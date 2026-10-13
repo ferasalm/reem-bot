@@ -29,7 +29,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - The sync report lists "N commits not here" for old branches on a shallow clone: `git fetch --unshallow origin`, rerun
   `node tools/sync-check.mjs`; `git cherry origin/dev origin/<b>` counts what's really missing. Deploy = `git push origin origin/dev:main`.
 - No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only. Text replay on Workers AI: test.yml `model`
-  `@cf/...`; never two at once (429, 3021). Runware MCP `account`: the spend is `usage.total` read before and after (the `balance`
+  `@cf/...`; never two at once (429, 3021); a push-triggered probe starts a run per push, so fix the script locally, push once
+  (cf-probe: three pushes, three runs at once, one hung with no fetch timeout; give probe calls `AbortSignal.timeout`, 2026-10-13). Runware MCP `account`: the spend is `usage.total` read before and after (the `balance`
   lagged). Hand-run workflows must be on `dev` (404).
 - Civitai → Runware LoRAs (2026-10-08): the proxy allows `api.civitai.com`; `/api/download/models/<v>` answers a 307 to a signed
   link (24 h) Runware or Actions can fetch (REST `modelUpload` + `uniqueIdentifier` = sha256). "failed to load": DoRA/OneTrainer
@@ -165,5 +166,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   code rewrites it (`asCamera`) and LOOK.PROMPT now forbids it (Step B, not yet seen live).
 - DeepSeek V4 Flash on Workers AI thinks before every answer, even at reasoning "none" and chat-shaped: completions sit at max_tokens
   with the content empty or cut (writer replays, median 5-24 s) → short structured writing on Llama 3.3 70B fast (15/15, 1.3 s,
-  no refusals on explicit scenes) (2026-10-13). Writer words that draw wrong: "thumb extended toward the camera" → a jab at the lens,
+  no refusals on explicit scenes) (2026-10-13). Her own replies too: the thinking (`reasoning_content`, ~150-300 tokens) counts in
+  max_tokens, so TEXT 220 came back cut or empty 3/3 → the owner saw short, cut replies and "wifi died" right after a deploy that
+  didn't touch the chat path (cf-probe 38355964346). A behaviour change at the provider can look like a deploy bug: probe the live
+  call shape first (2026-10-13). Writer words that draw wrong: "thumb extended toward the camera" → a jab at the lens,
   "pinched with worry" → a glare or wince, a top with nothing named below → jeans in bed (RUNWARE.DRESSED_BOTTOM) (Step C bench).
