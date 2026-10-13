@@ -49,6 +49,19 @@ Runware bench (`tools/face/bodywords-bench.mjs`; `runs/2026-10-13-body-words-run
 
 Cloudflare half (`face.yml` run 38359468394 on job.json at b1420e1: klein 4B, 576x1024, her face and the clothed body, V0 and V1 at seeds 101 and 202): refused by the job's day cap before any draw (the account had used 61,712 neurons today, above `day_neurons` 20000). No pictures yet.
 
+**Opus check (Opus 5.5, `claude-opus-5-5` per `get_session`, 2026-10-13):** the probe log read line by line (it matches the table above; the 8 finished answers end at a sentence, 279-668 chars; VOICE content 294-668 chars is cut to `VOICE.MAX_CHARS` 360 by `forSpeech`, so voice notes stay short). The golden diff checked by script: after mapping the old and new body phrases to one token, the old and new golden files are identical (only body words changed). All 12 Runware pictures read at full size, pair by pair (V0 today, V1 BODY_WORDS, same seed):
+
+| Case, seed | Fuller in the owner's shape? (V1 vs V0) | Face | New mistakes |
+|---|---|---|---|
+| clothed front 101 | barely: hips a touch wider at the jeans; arms, waist, shoulders the same | same | none |
+| clothed front 202 | barely: the same slim build in both | same | none |
+| nude front 101 | yes, a little: a more tapered waist, wider lower hips, an hourglass line; arms and bust the same | same woman, a slightly narrower face in V1 | none |
+| nude front 202 | a little: waist more defined, hips slightly wider | same | a small orange object by her ear behind the phone (V1) |
+| nude back 101 | barely: hips slightly wider; arms the same | same | none |
+| nude back 202 | yes: clearly wider hips, a bigger rounder bottom, a defined waist, arms a bit fuller | same | none |
+
+→ BODY_WORDS moves her the right way and never toward overweight, but only a little: clearly in 2 of 6 (nude front 101, nude back 202), barely in the rest, and the two clothed fronts hardly change (the clothed body picture, image 1, decides her build). Her arms stay as they were in 5 of 6; the shoulders don't change; the bust didn't shrink even though "full bust" is gone. Faces hold. Not tested: REFERENCE_CLOSE (faceless close-ups) now names shoulders and a bottom, which may widen those frames; the Cloudflare half. If the owner wants her clearly fuller in clothed pictures, words won't do it: that is Option B (a fuller clothed body picture).
+
 ## Belly check, 2026-10-10 (`drawPicture`, Runware klein 9B, the same picks; not a [live] run)
 
 The same custom prompt four times per arm ("fitted black tank top and high-waisted jeans, standing in the kitchen"), read on one sheet. Likeness not measured.

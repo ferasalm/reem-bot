@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-13 (forty-fourth session, Opus 5.5 (`claude-opus-5-5`, per `get_session` `session_context.model` and `last_served_model`)): the Opus check of Fix round 2 F1 and F2; dev only
+- F1 (`b13aece`) diff and probe run 38357963015 read line by line: sound; the cut and empty replies are gone, the latency is not (the owner's call). VOICE answers are longer now but `forSpeech` still caps a note at 360 chars.
+- F2 (`ba42045`): golden diff checked by script (only body words). The 12 Runware pictures read at full size: a little fuller in 2 of 6 pairs, barely in the rest, the clothed fronts hardly change; faces hold; no new mistakes but a small stray object (nude front V1 202). Verdict in QUALITY. No code changed.
+
 ## 2026-10-13 (forty-third session, Haiku 5.5): Fix round 2 F1 and F2 built, the probe and the bench; dev only, not deployed
 - Sync: the SessionStart report listed about 50 "work not here" branches. The clone was shallow (50 commits): `git fetch --unshallow origin` gave 380 commits, and the report then read clean ("this branch contains everything on origin/dev"). LESSONS §1 has the fix.
 - F1, `b13aece`: `LLM.THINK_TOKENS` 700 (a chat reply sends `max_tokens` = its MAX_TOKENS + 700; a task keeps +1500; the empty-answer retries unchanged); `LLM.TIMEOUT_MS` 20000 → 30000; unit row and panel row.

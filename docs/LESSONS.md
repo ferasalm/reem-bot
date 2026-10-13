@@ -85,7 +85,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   genitals only on a full-size crop (`convert -crop 400x400+x+y`): at 800 px a slit where her anus is looked right (round 6, Step 6).
 - Body words stack on the body picture: "curvier, wide hips, full thighs" on a heavier picture → overweight; no words → slimmer;
   belly words on a picture with a belly → a big belly (2026-10-10) → name image 1's own shape + "not slimmer", "full upper arms and
-  soft body" only, and grep DECISIONS for banned body words before writing a description (Step 5 slipped them back in).
+  soft body" only, and grep DECISIONS for banned body words before writing a description (Step 5 slipped them back in). The
+  owner's shape words (BODY_WORDS) moved nude pictures a little and clothed ones hardly at all: image 1 sets her build (Fix round 2).
 - Klein copies the place picture's light (night places `<key>_night`, no place picture on flash), framing and angle (three crops per
   place) and bathroom mirrors break (bedroom/hallway only). "natural light" at night drew daylight → `SCENE_NIGHT` (2026-10-03/05).
 - Image numbers in a prompt follow the pictures sent (ROOM's `{n}`). A 9:16 frame plus her face kept crotch close-ups framed from her

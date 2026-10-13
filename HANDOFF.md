@@ -4,43 +4,43 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Fix round 2", the current plan).
 
-**Last updated:** 2026-10-13 (forty-third session: Haiku 5.5, per `get_session` `session_context.model` and `last_served_model`; no subagents). Built Fix round 2 F1 and F2, the cf-probe and the Runware bench. Nothing deployed.
-**Deployed:** `main` = 79daf47 (Steps A-D), Version ID `4f30ebfd-6bbe-406b-9fa5-f4003830b6f0`, untouched this session. Rollback if ever needed: push `b42cac1` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**Branch:** `ccr-6aa4a139-eewbq5` (pushed) and `dev`: the same commit, pushed at the end of this session.
+**Last updated:** 2026-10-13 (forty-fourth session: Opus 5.5, `claude-opus-5-5` per `get_session` `session_context.model` and `last_served_model`; no subagents). The Opus check of Fix round 2 F1 and F2. No code changed; nothing deployed.
+**Deployed:** `main` = 79daf47 (Steps A-D), Version ID `4f30ebfd-6bbe-406b-9fa5-f4003830b6f0`, untouched. Rollback if ever needed: push `b42cac1` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**Branch:** `ccr-468e83c1-ci51w8` and `dev`: the same commit, pushed at the end of this session.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live (`main`): texts, memory, /auto on DeepSeek V4 Flash (Workers AI); voice Sulafat; hearing Gemini; pictures on Runware klein 9B (Nude/On) and Cloudflare klein 4B (/nsfw Off); the Llama picture writer; the Scout anatomy check.
-On `dev`, not deployed (WORKPLAN "Fix round 2"):
-- **F1, replies (`b13aece`):** `LLM.THINK_TOKENS` 700 on chat replies (`max_tokens` = the reply's length + 700; tasks keep +1500), `LLM.TIMEOUT_MS` 20 → 30 s. The cut and empty replies are gone in the probe; the latency is not (below).
-- **F2, her body (`ba42045`):** `PICTURE.BODY_WORDS` (the owner's list) in the 11 body lines; the belly and hourglass ban stays. Pictures benched, not judged.
-- **F3, redraw cost:** still the owner's pick; nothing built.
+On `dev`, not deployed (WORKPLAN "Fix round 2"), both checked by Opus this session (verdict in QUALITY):
+- **F1, replies (`b13aece`): sound.** `LLM.THINK_TOKENS` 700, `LLM.TIMEOUT_MS` 30 s. Probe 38357963015: no cut or empty answer (8 of 12 finished), but 4 of 12 got nothing in 60 s and finished ones took 4-6 s or 33-48 s. Voice notes stay capped at 360 spoken chars (`forSpeech`). Her replies are broken live until this ships.
+- **F2, her body (`ba42045`): right direction, small effect.** `PICTURE.BODY_WORDS` (the owner's list) in every body line; the golden diff is body words only (checked by script). Pictures: a little fuller in 2 of 6 pairs (nude front 101, nude back 202: wider hips, a defined waist, a bigger bottom), barely in the rest; the clothed fronts hardly change; arms and shoulders unchanged; never overweight; faces hold; no new anatomy mistakes (one small stray object by her ear, nude front V1 202).
+- **F3, the redraw cost:** the owner's pick; nothing built.
 
 ## Waiting on the owner
-- **Reply latency (F1).** Probe run 38357963015: 8 of 12 answers finished with content, none cut or empty, but 4 of 12 timed out at 60 s and the finished ones took 4-6 s or 33-48 s. At 30 s only about 4 in 12 would finish in time; the rest fall to the OpenRouter backup. Choose a longer timeout (longer waits per reply), or her chat on Llama 3.3 70B fast (1.3 s median on the writer replays; your model call). Not tuned here.
-- **F3, the redraw cost:** (a) stop redrawing when a try has the same single mistake as the try before it, (b) `ANATOMY.TRIES` 2, or (c) leave it.
-- **Cloudflare half of the body bench:** face.yml run 38359468394 was refused by the job's day cap before any draw (the account had used 61,712 neurons today; `day_neurons` 20000). Wait until 00:00 UTC, or say to raise it (about 500 neurons, ~$0.005).
-- **Persona body words:** SYSTEM_PROMPT "HOW YOU LOOK" still says "a full bust, soft, narrow, gently sloping shoulders and soft, full arms" and "rounded hips" (F2 left it, as the plan says). SPICY's frame line (165 cm, 71 kg, "not slim and not obese") was kept. Your call.
+- **F2 enough, or Option B?** The words make her only a little fuller, and clothed pictures barely change, because the clothed body picture (image 1) sets her build. For a clearly fuller her in clothed pictures, words won't do it: Option B = a fuller clothed body picture (a bench per body, and your pick of each picture). Ship F2 as is either way: it does no harm.
+- **Reply latency (F1).** At 30 s about a third of her answers finish in time; the rest go to the OpenRouter backup. Choose: a longer timeout (e.g. 60 s: slower replies, fewer backups), or her chat on Llama 3.3 70B fast (1.3 s median on the writer replays; your model call).
+- **F3, the redraw cost:** (a) stop redrawing when a try repeats the try before it's single mistake, (b) `ANATOMY.TRIES` 2, or (c) leave it (~+18%).
+- **Cloudflare half of the body bench:** face.yml run 38359468394 was refused by the day cap (`day_neurons` 20000); wait for 00:00 UTC or OK raising it (~500 neurons, ~$0.005).
+- **Persona body words:** SYSTEM_PROMPT "HOW YOU LOOK" still says "a full bust, soft, narrow, gently sloping shoulders and soft, full arms" and "rounded hips"; SPICY's frame line (165 cm, 71 kg) kept. Your call.
 - A Telegram test after any deploy (replies, body, pictures): the only live check.
 
 ## Verified this session
-- `node tools/check.mjs` 8 of 8 at `ba42045` (F2) and again at `b1420e1` before its push.
-- cf-probe run 38357963015: all 12 answers read in the job log (table in QUALITY).
-- Runware bench, 12 pictures (`face-candidates` runs/2026-10-13-body-words-runware, `008041c`): per run the V0 and V1 prompts differ only in the body words (checked by script). Spend $0.0495 by the Runware usage delta (balance 12.34433 → 12.29571), $0.0369 by the script's own sum (three 502s, all on V1, retried with the same seed and prompt).
-- Golden: 39 of 300 picture-plan strings changed, all only in the body words (string by string, by script).
-- Not verified: no picture judged (Opus and the owner do that at full size); no live bot check; `main` not touched.
+- F1 diff (`workersChat`, CONFIG, unit rows) read; probe log 38357963015 read line by line: Haiku's table is right.
+- F2 diff read; golden: old and new identical once the body phrases are mapped to one token (script).
+- All 12 Runware bench pictures (`face-candidates` runs/2026-10-13-body-words-runware) read at full size, V0 beside V1 at each seed.
+- `node tools/check.mjs` before the push (see the commit). Not verified: no live bot check; REFERENCE_CLOSE (faceless close-ups) now names shoulders and a bottom, not benched; the Cloudflare half.
 
 ## Next steps (in order; one chat each)
-1. **Opus check of F1 and F2:** the "Opus check prompt" in WORKPLAN, plus the probe's timing and the 12 Runware pictures at full size, each pair at the same seed (today vs BODY_WORDS). *Effort: medium.*
-2. **Cloudflare half of the bench** after 00:00 UTC (or with the owner's OK on `day_neurons`): run face.yml on this branch again (push `tools/face/job.json` again, or run its workflow), then read the 4 pictures at full size beside the Runware ones. Haiku runs it; Opus reads. *Effort: low.*
-3. **The owner's latency call (above),** then Opus sets `LLM.TIMEOUT_MS` or the model route. *Effort: medium.*
-4. **Deploy** when the owner says "deploy": F1 can go alone first (her replies are still broken live until then), then F2. Sonnet. *Effort: low.*
-5. **Later:** Step D's edge strays; `/setup`'s stale Pictures line; VISION.BACKUP_MODEL (Gemma 3 12B "not allowed"); old session branches. *Effort: medium.*
+1. **Deploy F1 (and F2)** when the owner says "deploy": both are on `dev`; F1 fixes her broken replies live. Sonnet. *Effort: low.*
+2. **The owner's latency call,** then set `LLM.TIMEOUT_MS` or the model route and probe once. Opus for a route change, Sonnet for a timeout. *Effort: medium.*
+3. **F3** once the owner picks: a small build in the anatomy loop (worker.js ~4561-4605) + a unit row. Sonnet. *Effort: medium.*
+4. **Option B** if the owner asks: fuller clothed body pictures, benched against the current one at the same seeds; Opus judges. *Effort: high.*
+5. **Cloudflare half of the bench** after 00:00 UTC: rerun face.yml on a session branch (push `tools/face/job.json`); Haiku runs it, Opus reads. *Effort: low.*
+6. **Later:** `PICTURE.BODY_WORDS` is copied into each body line, not inserted from CONFIG (a panel change wouldn't reach the prompts: build the lines from it); a REFERENCE_CLOSE bench; Step D's edge strays; `/setup`'s stale Pictures line; VISION.BACKUP_MODEL; old session branches. *Effort: medium.*
 
 ## Open questions for the owner
-- Reply latency and F3; the Cloudflare day cap (above).
-- Model names in records: the 2026-10-11 DECISIONS entry asks for the raw model ID next to the name, but this session's instructions forbid model identifiers in pushed files. Pushed records (HANDOFF, CHANGELOG, QUALITY, commits) name the model "Haiku 5.5" only; the raw ID is in the chat. Which rule wins?
+- F2 enough or Option B; latency; F3; the Cloudflare day cap (above).
 - OK to press Actions > Delete retired branches for `tools/retired-branches.txt`?
-- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? It happened again: the shallow clone listed about 50 branches as "not here"; after the unshallow, none.
+- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? It happened again this session: about 50 branches listed as "not here" until the unshallow.
 
 ## Prompt for the next chat
-Paste the "Opus check prompt" of WORKPLAN "Fix round 2" (pick Opus, effort medium) and add: "The probe is run 38357963015 (QUALITY); the Runware pictures are on `face-candidates` runs/2026-10-13-body-words-runware (`008041c`)." *Effort: medium.*
+If the owner says "deploy": "Deploy `dev` to `main` (F1 and F2 of Fix round 2), read the deploy run, /health and /setup, log it in DECISIONS." Pick Sonnet. *Effort: low.*
