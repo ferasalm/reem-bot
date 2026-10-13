@@ -784,22 +784,23 @@ section("pictures: his photos (Workers AI vision)");
     r = await turn("send me a pic", ["[selfie: her fucking herself on the bed]"], { history: APART });
     t = runware.calls.at(-1);
     yes(r.photos.length === 1 && /fucking herself/.test(t.positivePrompt) && t.positivePrompt.includes(R.POV_MAN) && Object.keys(R.NUDE_LORAS).every((k) => (t.lora || []).some((l) => l.model === k)), "SEX_ACTS on: the sex act drawn as written, POV_MAN and SNOFS added", t.positivePrompt.slice(0, 200));
-    runware.mode = "failFirst"; const n0 = runware.calls.length;
+    runware.mode = "failFirst"; const n0 = runware.calls.length; const cf0 = ai.filter((a) => a.model.includes("flux")).length;
     r = await turn("send me a selfie", ["[selfie: in the hallway in a gray sweater]"], { history: APART });
     const two = runware.calls.slice(n0);
-    yes(r.photos.length === 1 && two.length === 2 && two.every((c) => c.model === R.MODEL && c.inputs) && ai.at(-1).model === P.MODEL && /^<\d+ bytes>$/.test(ai.at(-1).fields.input_image_0), "klein fails: klein tries again, then Cloudflare klein draws it with her face (no TwinFlow: its words drew the belly, 2026-10-10)");
+    // owner 2026-10-13: at Nude/On pictures are Runware's only (was: Cloudflare klein drew it after the Runware tries, 2026-10-10)
+    yes(r.photos.length === 0 && two.length === 2 && two.every((c) => c.model === R.MODEL && c.inputs) && ai.filter((a) => a.model.includes("flux")).length === cf0, "klein fails: klein tries again, then no picture (Nude/On never draw on Cloudflare; no TwinFlow for her)");
     runware.mode = "draw"; P.ROUTE = "runware-twinflow";
     r = await turn("send me a selfie", ["[selfie: topless on the couch]"], { history: APART });
     t = runware.calls.at(-1);
     yes(r.photos.length === 1 && t.model === R.BACKUP_MODEL && !t.inputs && t.positivePrompt.includes(R.NAKED), "runware-twinflow: TwinFlow only, words only, NAKED added");
     const led = JSON.parse(store.get("pics")); led.rwUsd = R.DAILY_USD; store.set("pics", JSON.stringify(led));
-    const n1 = runware.calls.length, a1 = ai.length;
+    const n1 = runware.calls.length, a1 = ai.filter((a) => a.model.includes("flux")).length;
     r = await turn("send me a selfie", ["[selfie: on the couch with tea]"], { history: APART });
-    yes(runware.calls.length === n1 && ai.length > a1, "past RUNWARE.DAILY_USD: Cloudflare draws (Runware not called)");
+    yes(runware.calls.length === n1 && ai.filter((a) => a.model.includes("flux")).length === a1 && r.photos.length === 0, "past RUNWARE.DAILY_USD: no picture (Runware not called, Cloudflare neither: Nude/On are Runware's only)");
     runware.mode = "fail"; store.delete("pics"); P.ROUTE = "runware-klein";
-    const a2 = ai.length;
+    const a2 = ai.filter((a) => a.model.includes("flux")).length;
     r = await turn("send me a selfie", ["[selfie: on the couch with tea]"], { history: APART });
-    yes(ai.length > a2, "both Runware models fail: Cloudflare draws it");
+    yes(ai.filter((a) => a.model.includes("flux")).length === a2 && r.photos.length === 0, "both Runware models fail: no picture, nothing drawn on Cloudflare");
     const minorLed = runware.calls.length;
     await turn("lol btw i'm 16", ["oh. ok then, friends"], { history: APART });
     r = await turn("send me a selfie", ["[selfie: on the couch]"], { history: APART });
@@ -894,7 +895,7 @@ section("pictures: his photos (Workers AI vision)");
       r = await turn("send nudes", ["only because you asked nicely\n\n[selfie: naked on the bed]"], { history: APART });
       runware.mode = "draw"; env.AI = oldAI;
       const second = String((cf[1] || {}).prompt || "");
-      yes(r.photos.length === 1 && cf.length === 2 && /naked/.test(String(cf[0].prompt)) && P.WARDROBE.BOUDOIR.some((w) => second.includes(w.split("|")[0].trim())), "nude tier refused by Cloudflare (3030): drawn again in the boudoir wardrobe", second.slice(0, 200));
+      yes(r.photos.length === 0 && cf.length === 0 && !second, "a nude selfie Runware fails at On: not sent to Cloudflare (no picture; was: Cloudflare refused it and drew boudoir)", second.slice(0, 200));
     }
     // her own nude words pick the tier (Opus review of Step 2): nude where the level allows it, else boudoir (as before Step 2,
     // when "naked" was a BOUDOIR_ASK word); never a random everyday tier for a naked selfie

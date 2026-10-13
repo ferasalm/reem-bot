@@ -885,7 +885,8 @@ Changing the story
     // scene picture (SCENE_STYLE, or SCENE_ACT_STYLE on a sex act) with her face; alone: ALONE_STYLE, nobody's face. When the model
     // fails: her last reply as before (in person), else LOOK_APART
     LOOK: {
-      MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (as DAY.PLAN_MODEL)
+      // owner 2026-10-13 (Step C, "Llama for all"): Llama 3.3 70B fast, as WRITER.MODEL (was DeepSeek V4 Flash: 5-140 s, it thinks first)
+      MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
       CHAT_MESSAGES: 8,
       MAX_TOKENS: 300,
       // Step C (2026-10-13): the picture writer's rules (WRITER.RULES) and the clothes to name when the story names none ({clothes}: the
@@ -900,9 +901,14 @@ Changing the story
     // (framing + her words: D1 rows 13 and 14 had two poses, two smiles and a phone), SCENE writes her in-person moment from her
     // narration. The code still picks the references, LoRAs, framing, expression and light. Off, failed, slower than TIMEOUT_MS or
     // unusable (fewer than 4 words, a garment lost, nudity or a phone added, a level it may not draw): today's template. Claude's wording.
+    // Step C bench: "thumb extended toward the camera" drew a jab at the lens 2/2 and "expression pinched" a glare or wince 3/4; a
+    // t-shirt with nothing named below drew jeans in bed 2/2 (RUNWARE.DRESSED_BOTTOM) → RULES' hands, plain expression, below the waist
     WRITER: {
       ON: true,
-      MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (as LOOK.MODEL); reasoning "low" (a bare task prompt came back empty with "none")
+      // owner 2026-10-13 ("Llama for all"): Llama 3.3 70B fast on Workers AI, ~$0.00024 a call. Replays (writer-replay runs 38334730750,
+      // 38336511907, 38337486774): Llama 15/15 answered, median 1.3 s, every rule kept, no refusals on explicit cases; DeepSeek V4
+      // Flash thinks first even at "none" (median 5-24 s, most selfie calls past 25 s); Mistral Small 3.1 refuses reasoning_effort "none"
+      MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
       KINDS: ["selfie", "scene"],      // her own pictures it writes ("look" is LOOK.PROMPT's, always on)
       TIMEOUT_MS: 25000,               // then the template: her picture comes without waiting longer
       // "none": the instructions as the system message and GO as his turn (chat-shaped: no thinking; an empty answer is asked again,
@@ -913,7 +919,7 @@ Changing the story
       MAX_TOKENS: 160,
       CHAT_MESSAGES: 6,                // the chat it reads (newest last)
       MAX_WORDS: 60,                   // longer answers are cut back to whole sentences
-      RULES: "Call her \"she\", no names. He is the camera: the photo is what his own eyes see, so never write about the man, his body, his face, his hands or where he is (write \"facing the camera\" or \"close to the camera\"); every hand in your words is hers. Always say what she is wearing, garment by garment with colors, or that she is naked, or which clothes are off. If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; the man is named only as the one she does it with (\"she rides the man\"). No feelings, thoughts, sounds, dialogue or story; only what a camera sees.",
+      RULES: "Call her \"she\", no names. He is the camera: the photo is what his own eyes see, so never write about the man, his body, his face, his hands or where he is (write \"facing the camera\" or \"close to the camera\"); every hand in your words is hers, and her hands never point, reach or gesture toward the camera; nothing on his body (a cut, his shirt). Always say what she is wearing, garment by garment with colors and what she wears below the waist (sleep shorts, sweatpants, a skirt), or that she is naked, or which clothes are off. Her expression in plain everyday words (a worried look, a soft smile, a sleepy face). If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; the man is named only as the one she does it with (\"she rides the man\"). No feelings, thoughts, sounds, dialogue or story; only what a camera sees.",
       SELFIE: "You write the words of one photo for an image model. {her} is sending {him} a selfie. The code wrote this draft from her words, and it may contradict itself:\n{draft}\n\nWhat was said around it (newest last):\n{chat}\n\nRewrite the draft as one plain clause of at most 40 words with no subject, starting the way the draft starts: its framing and pose first, then what she is wearing, then where she is. Keep every garment and color the draft names, and its place. Drop: anything that contradicts the framing or the pose (a second pose, a second place), every expression, gaze, smile or laugh (they are added later), any phone or anything held in her hands, and the light. {rules} Answer with the clause only.",
       SCENE: "You write the words of one photo for an image model: what {him} sees with his own eyes right now, in person, in the roleplay story below. {her} is the woman in it.\n\nThe story so far (newest last):\n{chat}\n\nThe moment to draw is her last reply:\n{moment}\n\nWrite 1 or 2 plain sentences, at most 45 words: what she is doing and her pose, where each of her hands is (on her knee, in her hair, on the sheets; she holds only what the story puts in her hands, never a phone); what she is wearing (if the story names no clothes: {clothes}); the place and one or two things around her; her expression in a few words. The light only if the story names it (a lamp, candles). {rules} Answer with the sentences only.",
     },
@@ -3239,6 +3245,7 @@ function aiAffordable(ledger, kind, neurons) {
 
 // After a call: count it, or stop for the day when Cloudflare says the allocation is used up
 function aiSpent(ledger, neurons, error) {
+  if (error && error.runwareOnly) return; // nothing was drawn on Cloudflare (Nude/On are Runware's only, 2026-10-13)
   if (error && aiOutOfNeurons(error)) ledger.out = Date.now();
   else { ledger.out = false; ledger.neurons += neurons; }
 }
@@ -4595,6 +4602,14 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
       }
     }
   }
+  // owner 2026-10-13: "cloudflare's klein 4b works only when /nsfw is off, when /nsfw is nude or on, generation goes to runware despite
+  // of picture type": with a Runware key, a Nude/On picture Runware didn't draw (every try failed, or the day's RUNWARE.DAILY_USD is
+  // spent) is not drawn at all. No ledger (/face, /health) and no key stay on Cloudflare.
+  if (ledger && !planOnly && runwareRoute(nsfw) && env.RUNWARE_API_KEY) {
+    const e = new Error(`Runware didn't draw it (${runwareAffordable(env, ledger, nsfw) ? "every try failed" : "the day's Runware money is spent"}); at /nsfw ${nsfw} pictures are drawn on Runware only`);
+    e.runwareOnly = true;
+    throw e;
+  }
   // the studio's compose when Runware doesn't draw these words (/nsfw Off): the Cloudflare prompt, nothing drawn. Its references as the
   // studio names them: the 2x face (the studio draws on Runware) and the clothed body (body.jpg is its small copy)
   if (planOnly) {
@@ -4656,10 +4671,7 @@ async function sendPhoto(env, chatId, bytes, caption = "", sent = null) {
   }
 }
 
-// Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
-// or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
-// `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
-// Step C (picture overhaul, owner 2026-10-12 "Hybrid"): the picture writer (PICTURE.WRITER, DeepSeek on Workers AI) for her own
+// Step C (picture overhaul, owner 2026-10-12 "Hybrid"): the picture writer (PICTURE.WRITER, Llama 3.3 70B fast on Workers AI) for her own
 // pictures. Its raw answer, or null when it is off for this kind, fails or is slower than TIMEOUT_MS: the caller keeps the template.
 async function writePicture(env, kind, vars = {}) {
   const W = CONFIG.PICTURE.WRITER || {};
@@ -4754,6 +4766,9 @@ async function writtenScene(env, pic, want, { history = [], level = CONFIG.PICTU
 const writerChat = (history = []) => history.slice(-(Number((CONFIG.PICTURE.WRITER || {}).CHAT_MESSAGES) || 6))
   .map((m) => `${m.role === "user" ? "He" : CONFIG.CHARACTER.NAME}: ${String(m.content).slice(0, 600)}`).join("\n") || "(nothing yet)";
 
+// Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
+// or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
+// `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
 function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null, source = kind, nsfw = null, dayWear = null } = {}) {
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE || {};
@@ -4795,6 +4810,12 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       // Runware draws lingerie and nudity itself (PICTURE.ROUTE): a lingerie or spicier selfie in the real lingerie
       // wardrobe, no klein check, no Nano Banana
       const open = runwareAffordable(env, ledger, level);
+      // owner 2026-10-13: Nude/On are Runware's only (no Nano Banana, no Cloudflare klein) when the Worker has a Runware key
+      if (!open && runwareRoute(level) && env.RUNWARE_API_KEY) {
+        model = null;
+        await aiFailed(env, `no picture: the day's Runware money is spent, and at /nsfw ${level} pictures are drawn on Runware only`);
+        return null;
+      }
       if (open && kind === "selfie" && pic.args && L.ENABLED && (isSpicy(pic) || (L.TIERS || []).includes(pic.tier))) {
         pic = { ...composePicture({ ...lingerieArgs(pic), lingerie: true, level, wardrobeList: isSpicy(pic) && !lingerieWords(pic.args.words) ? L.SPICY_WARDROBE : null }), asked: pic.asked };
       }

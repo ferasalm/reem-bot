@@ -1,8 +1,8 @@
 // Step C bench (picture overhaul, 2026-10-13): the picture writer's words vs today's template, through the bot's own picture code
 // (Step B's harness). T = the template (WRITER off; /look: Step B's DeepSeek text as logged), W = the writer's answer as DeepSeek gave it
 // in the free replay (tools/face/stepc-answers.json, from writer-replay run logs), returned by a stubbed Workers AI. Cases: her selfies
-// from D1 rows 13 and 14 (two poses, two smiles, a phone), her in-person moments (the hurt scene, riding, the kitchen with him behind
-// her: no template picture today), /look 484 and "PoV of spooning". Seeds 101 and 202; Math.random seeded by (seed, case).
+// from D1 rows 13 and 14 (two poses, two smiles, a phone), her in-person moments the template can't draw (the hurt scene, the kitchen
+// with him behind her), /look 484 and "PoV of spooning". Seeds 101 and 202; Math.random seeded by (seed, case).
 //   node tools/face/stepc-bench.mjs --dry               no network, $0: every run's plan
 //   NODE_USE_ENV_PROXY=1 node tools/face/stepc-bench.mjs --run <outdir>   paid: klein 9B on Runware, stops at $0.12 (BUDGET_USD)
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -91,12 +91,10 @@ const look = (oldText) => async (env, ledger, v) => {
 const L484 = "The man sits on the edge of a bed, and she is right beside him, their shoulders touching. She leans toward him, her fingers resting on his jaw, her brow furrowed as she studies the cut above his eye. A glass of water and a blister pack sit on the nightstand, lit by a warm bedside lamp in the quiet room.";
 const KITCHEN = "*You wrap your arms around her waist and she leans back into you, stirring the pot, her black ribbed tank top and gray sweatpants dusted with flour.* \"you're in my way.\" *She tilts her head so you can kiss her neck.*";
 const HURT = "*She sits beside you, close, her old gray cardigan wrapped tight over a simple black top, and tips your chin toward the bedside lamp. A glass of water and a blister pack wait on the nightstand.* \"a scratch. sure.\" *Her thumb hovers near the cut above your brow, her face pinched with worry.*";
-const RIDING = "*She rides you slowly, her hands braced on your chest, head thrown back, hair spilling down her back.* \"fuck—right there.\"";
 const CASES = [
   { id: "s13-counter", run: selfie({ tier: "everyday", shot: "counter-sit", words: "she's leaning against the kitchen counter, one leg bent up, wearing her father's old gray cardigan over a black cami, hair messily twisted up with a pencil, phone in hand, a small smirk" }) },
-  { id: "s14-close", run: selfie({ tier: "everyday", shot: "close", words: "biting back a smile, looking down at her phone, hair falling forward, a small smile at the corner of her mouth" }) },
-  { id: "c-hurt", run: scene([him("*sits on the edge of your bed* it's just a scratch")], HURT) },
-  { id: "c-riding", run: scene([her("*She straddles you on the sofa, already naked, guiding you inside her.*"), him("*grabs your hips*")], RIDING) },
+  { id: "s14-close", run: selfie({ tier: "everyday", shot: "close", words: "biting back a smile, looking down at her phone, hair falling forward, a small smile at the corner of her mouth, wearing a red silk blouse with the top buttons open and black jeans" }) },
+  { id: "c-hurt", run: scene([him("*sits on the edge of your bed* it's just a scratch")], HURT), wOnly: true },
   { id: "c-kitchen", run: scene([him("*comes up behind you at the stove*")], KITCHEN), wOnly: true },
   { id: "l484-hurt", run: look(L484) },
   { id: "l-spooning", run: look(""), wOnly: true },

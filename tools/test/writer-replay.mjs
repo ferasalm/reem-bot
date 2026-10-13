@@ -1,7 +1,7 @@
 // Step C (2026-10-13): the picture writer (PICTURE.WRITER, LOOK.PROMPT) replayed on the real DeepSeek on Workers AI, free of
 // pictures: /look stories (D1 rows 2-4, 8, 483-484 rebuilt), her selfies with her words (D1 rows 9-14) and her in-person moments.
 // Prints every raw answer, the words drawn and the seconds each call took. Runs in .github/workflows/writer-replay.yml (the container
-// can't reach api.cloudflare.com); RUNS=n asks each case n times (default 2). Writes writer-replay.json for the bench.
+// can't reach api.cloudflare.com); RUNS=n asks each case n times (default 2; the workflow asks once). Writes writer-replay.json for the bench.
 import { writeFileSync } from "node:fs";
 import { loadWorker } from "./load-worker.mjs";
 

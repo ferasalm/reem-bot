@@ -1,1 +1,21 @@
-{"s13-counter":{"any":"Sitting up on the counter in her kitchen, legs dangling, wearing her father's old gray cardigan over a black cami."},"c-hurt":{"any":"She sits close on the edge of her bed, one hand in her lap, wearing an old gray cardigan over a black top, a worried look."},"l-spooning":{"any":"She lies on her side under the duvet, her back to the camera."}}
+{
+ "_source": "DeepSeek V4 Flash on Workers AI, writer-replay runs 38334730750 (reasoning low) and 38336511907 (none); c-hurt uses its /look answer for the same moment (the scene call timed out)",
+ "s13-counter": {
+  "any": "Sitting up on the counter, legs dangling, leaning back on one hand, camera at eye level, wearing her father's old gray cardigan over a black cami, hair messily twisted up with a pencil, in her kitchen."
+ },
+ "s14-close": {
+  "any": "Close-up of her face and shoulders, camera at eye level, hair falling forward, wearing a red silk blouse with top buttons open and black jeans."
+ },
+ "c-hurt": {
+  "any": "She leans close to the camera, thumb hovering near the cut, other hand on her knee, wearing an old gray cardigan over a black top and gray sweatpants, a lamp and glass of water on the nightstand behind her, face pinched with worry."
+ },
+ "c-kitchen": {
+  "any": "She stands at the stove, back to the camera, one hand stirring a pot, the other resting on the counter, head tilted to the side, wearing a black ribbed tank top and gray sweatpants dusted with flour."
+ },
+ "l484-hurt": {
+  "any": "She sits close, facing the camera, one hand on the bedspread, the other raised, thumb extended toward the camera. She wears a worn gray cardigan over a plain black top, expression pinched. A lamp glows beside a glass of water and a blister pack."
+ },
+ "l-spooning": {
+  "any": "She lies on her side facing away from the camera, curled under the duvet, her hands tucked near her chest. She wears a faded grey old t-shirt, the lamp low on the bedside table, her eyes closed, face relaxed."
+ }
+}

@@ -151,7 +151,7 @@ const cases = (W) => {
     { name: "/look alone: car window at night", run: (env, ledger) => W.lookPicture(env, ledger, "the view out of my car window at night", false) },
     { name: "/look with her: couch, old cardigan", run: (env, ledger) => W.lookPicture(env, ledger, "She sits on his couch in her old cardigan, laughing", true) },
     { name: "/pic nude belfie in the bedroom mirror", run: pic("nude belfie in the bedroom mirror") },
-    { name: "Runware fails twice: Cloudflare draws", fail: true, run: selfie("in the kitchen, gray cardigan").run },
+    { name: "Runware fails twice: no picture (Nude/On are Runware's only)", fail: true, run: selfie("in the kitchen, gray cardigan").run },
     { name: "nsfw Off: naked on the bed (no nudity, checkContent on)", run: picAt("naked on the bed", "off") },
     { name: "nsfw Nude: naked on the bed (the On plan)", run: picAt("naked on the bed", "nude") },
     { name: "nsfw Nude: topless, jeans on, mirror selfie", run: picAt("topless, jeans on, mirror selfie", "nude") },

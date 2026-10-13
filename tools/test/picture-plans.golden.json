@@ -718,16 +718,9 @@
         }
       ]
     },
-    "Runware fails twice: Cloudflare draws": {
-      "cloudflare": [
-        {
-          "height": 1024,
-          "model": "@cf/black-forest-labs/flux-2-klein-4b",
-          "prompt": "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, an unimpressed deadpan look, in the kitchen, gray cardigan, bright afternoon daylight. Behind her is the part of her room shown in image 2, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Natural skin texture, slight grain.",
-          "width": 576
-        }
-      ],
-      "drawn": true,
+    "Runware fails twice: no picture (Nude/On are Runware's only)": {
+      "cloudflare": [],
+      "drawn": false,
       "runware": [
         {
           "CFGScale": 2,
