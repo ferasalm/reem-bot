@@ -321,7 +321,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const plain = await draw("on the couch reading a book");
     const n0 = plain.inputs.referenceImages.length;
     eq(n0, 2, "a clothed picture sends her face and the clothed body (2026-10-12)");
-    eq(!!(plain.positivePrompt.includes("not image 1's black bra and thong") && plain.positivePrompt.includes("full upper arms and soft body")), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out, full upper arms and a soft body");
+    eq(!!(plain.positivePrompt.includes("not image 1's black bra and thong") && plain.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS)), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out, the owner's body words (Fix round 2)");
     const named = (words) => W.runwarePlan(`{who} ${words}`, { ref: new Uint8Array([1]), rwFace: new Uint8Array([1]), faceName: "face-2x", who: (w, a, b) => w }).tries[0];
     eq(named("on the couch reading a book").refs.map((r) => r.name), ["face-2x", "body-v11-clothed"], "clothed: image 1 is v11-clothed");
     const belfie = named("a belfie in tight jeans, looking over her shoulder");
@@ -425,7 +425,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const part = await prompt("missionary sex, naked from the waist down, still wearing her black bra over her breasts");
     yes(part.includes(R.PARTIAL_TOP) && part.includes("A thick, untrimmed dark bush") && !part.includes(R.NAKED) && !part.includes("natural breasts"), "partly naked in a sex act, a bra kept on: PARTIAL_TOP + the bush, not NAKED (round 7, Step 5)", part.slice(-300));
     const dog = await prompt("the man fucking her doggy style on the bed");
-    yes(dog.includes(R.NAKED_BACK) && !dog.includes(R.NAKED) && dog.includes("seen from behind: the same back") && !/breast/i.test(dog) && W.runwareBody("back"), "doggy: from behind, no breasts (round 7)", dog);
+    yes(dog.includes(R.NAKED_BACK) && !dog.includes(R.NAKED) && dog.includes("seen from behind:") && dog.includes(W.CONFIG.PICTURE.BODY_WORDS) && !/breast/i.test(dog) && W.runwareBody("back"), "doggy: from behind, no breasts (round 7)", dog);
     const nude = await prompt("naked on the bed, her pussy in view");
     yes(nude.includes(R.NAKED) && !nude.includes(R.POV_MAN), "nude, no act: NAKED, no POV_MAN");
     eq(W.scenePicturePrompt("*She straddles you on the couch, riding you slowly, her hands on your chest.*"), "She straddles the man on the couch, riding the man slowly, her hands on the man's chest.", "scene: a sex-act sentence about him stays, he is the man");
@@ -529,10 +529,17 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   } finally { globalThis.fetch = realFetch; [P.ROUTE, R.SEX_ACTS] = keep; }
 }
 {
-  // owner 2026-10-10 ("where does the big belly come from"): her body words carry no belly, hip or thigh clauses and no hourglass
+  // owner 2026-10-10 ("where does the big belly come from"): her body words carry no belly and no hourglass; hips, thighs and bottom only as BODY_WORDS (Fix round 2, 2026-10-13)
   const P = W.CONFIG.PICTURE, R = P.RUNWARE;
-  const bodyWords = { "REFERENCE": P.REFERENCE, "LOOKS": P.LOOKS, "RUNWARE REFERENCE": R.REFERENCE, "RUNWARE LOOKS": R.LOOKS, "LINGERIE WHO": P.LINGERIE.WHO, "LINGERIE SPICY": P.LINGERIE.SPICY_PROMPT };
-  for (const [name, text] of Object.entries(bodyWords)) eq(/belly|hourglass|wide hips|rounded hips|full thighs|round full bottom/i.test(String(text)), false, `${name}: no belly, hip or thigh words (2026-10-10)`);
+  const bodyWords = { "REFERENCE": P.REFERENCE, "LOOKS": P.LOOKS, "RUNWARE REFERENCE": R.REFERENCE, "RUNWARE LOOKS": R.LOOKS, "RUNWARE REFERENCE_CLOTHED": R.REFERENCE_CLOTHED, "RUNWARE REFERENCE_CLOTHED_BACK": R.REFERENCE_CLOTHED_BACK, "RUNWARE REFERENCE_NOBODY": R.REFERENCE_NOBODY, "RUNWARE REFERENCE_BACK": R.REFERENCE_BACK, "RUNWARE REFERENCE_CLOSE": R.REFERENCE_CLOSE, "LINGERIE WHO": P.LINGERIE.WHO, "LINGERIE SPICY": P.LINGERIE.SPICY_PROMPT };
+  const BW = W.CONFIG.PICTURE.BODY_WORDS;
+  for (const [name, text] of Object.entries(bodyWords)) {
+    const s = String(text);
+    eq(/belly|hourglass/i.test(s), false, `${name}: no belly or hourglass words (2026-10-10)`);
+    eq(/wide hips|rounded hips|full thighs|round full bottom/i.test(s.replace(BW, "")), false, `${name}: hip, thigh and bottom words only as BODY_WORDS (Fix round 2)`);
+    eq([s.includes(BW), /not slimmer|full upper arms|soft body/.test(s)], [true, false], `${name}: carries BODY_WORDS, no old body line (Fix round 2)`);
+  }
+  eq(BW, "narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves", "PICTURE.BODY_WORDS is the owner's list (2026-10-13, Fix round 2)");
   eq(typeof JSON.parse(P.LINGERIE.SPICY_PROMPT), "object", "LINGERIE SPICY_PROMPT: still valid JSON after the cut");
   eq(R.KLEIN_TRIES, 2, "her pictures: klein tried twice, then Cloudflare klein (no TwinFlow)");
 }
@@ -727,7 +734,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     P.ROUTE = "runware-klein"; P.HAIR_CHANCE = 0; Math.random = () => 0;
     R.BODY_PARTIAL = "none";
     const none = await draw("naked from the waist down, black sports bra, sitting on the bed", { location: "bedroom" });
-    eq([none.inputs.referenceImages.length, none.positivePrompt.includes(R.REFERENCE_NOBODY.slice(0, 60).replace("same face and hair", "same face, hair color")) || none.positivePrompt.includes("full upper arms and a soft body"), /as in image 1\b/.test(none.positivePrompt)], [2, true, true], "BODY_PARTIAL none: face and place only, REFERENCE_NOBODY, the place is image 1");
+    eq([none.inputs.referenceImages.length, none.positivePrompt.includes(R.REFERENCE_NOBODY.slice(0, 60).replace("same face and hair", "same face, hair color")) || none.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS), /as in image 1\b/.test(none.positivePrompt)], [2, true, true], "BODY_PARTIAL none: face and place only, REFERENCE_NOBODY, the place is image 1");
     R.BODY_PARTIAL = "nude";
     eq((await draw("naked from the waist down, black sports bra, sitting on the bed")).inputs.referenceImages.length, 2, "BODY_PARTIAL nude: face and the nude body");
     P.HAIR_CHANCE = 1; // a hairstyle is picked, and left out of the close-up's words and pictures
