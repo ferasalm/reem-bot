@@ -1,0 +1,39 @@
+name: Step D bench
+
+# Step D (2026-10-13): her pictures through the bot's own startPicture (writer, draw, anatomy check, redraws) on Cloudflare klein 4B at
+# /nsfw Off and Runware at On (tools/face/stepd-bench.mjs). Every try and check answer goes to face-candidates
+# runs/2026-10-13-stepD-bench-<run id>. Runs when the script or this file changes (never on dev/main), or by hand.
+on:
+  push:
+    branches-ignore: [dev, main, face-candidates]
+    paths: [tools/face/stepd-bench.mjs, .github/workflows/stepd-bench.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/face/stepd-bench.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          RUNWARE_API_KEY: ${{ secrets.RUNWARE_API_KEY }}
+          OUT: ${{ runner.temp }}/stepd
+          RUNS: "2"
+      - name: Push the pictures to face-candidates
+        if: always()
+        run: |
+          git config user.name "face-bot"
+          git config user.email "face-bot@users.noreply.github.com"
+          dir="runs/2026-10-13-stepD-bench-${{ github.run_id }}"
+          git fetch origin face-candidates
+          git checkout -B face-candidates origin/face-candidates
+          mkdir -p "$dir" && cp "$RUNNER_TEMP"/stepd/* "$dir/" 2>/dev/null || true
+          git add runs && git commit -m "Step D bench: run ${{ github.run_id }}" && git push origin face-candidates || echo "nothing to push"
