@@ -10,6 +10,8 @@ const account = process.env.CLOUDFLARE_ACCOUNT_ID;
 const token = process.env.CLOUDFLARE_API_TOKEN;
 if (!account || !token) throw new Error("CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are needed");
 const RUNS = Number(process.env.RUNS) || 2;
+if (process.env.WRITER_REASONING) W.CONFIG.PICTURE.WRITER.REASONING = process.env.WRITER_REASONING;
+console.log(`reasoning: ${W.CONFIG.PICTURE.WRITER.REASONING}`);
 const calls = [];
 const store = new Map();
 const env = {

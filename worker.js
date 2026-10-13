@@ -905,6 +905,11 @@ Changing the story
       MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (as LOOK.MODEL); reasoning "low" (a bare task prompt came back empty with "none")
       KINDS: ["selfie", "scene"],      // her own pictures it writes ("look" is LOOK.PROMPT's, always on)
       TIMEOUT_MS: 25000,               // then the template: her picture comes without waiting longer
+      // "none": the instructions as the system message and GO as his turn (chat-shaped: no thinking; an empty answer is asked again,
+      // the third time with "low"); "low": one user message, it thinks first. Replay run 38334730750 with "low": median 24 s, 20 of
+      // 48 calls over 25 s, most spent all 1,660 tokens thinking and came back empty. /look (LOOK.PROMPT) asks the same way
+      REASONING: "none",
+      GO: "Write it now.",
       MAX_TOKENS: 160,
       CHAT_MESSAGES: 6,                // the chat it reads (newest last)
       MAX_WORDS: 60,                   // longer answers are cut back to whole sentences
@@ -4666,7 +4671,7 @@ async function writePicture(env, kind, vars = {}) {
   const signal = AbortSignal.timeout(ms);
   const slow = new Promise((resolve) => signal.addEventListener("abort", () => resolve(null)));
   try {
-    const out = await Promise.race([callModel(env, [{ role: "user", content: prompt }], { temperature: 0.4, max_tokens: Number(W.MAX_TOKENS) || 160 }, { model: W.MODEL, timeoutMs: ms, attempts: 1, task: true }), slow]);
+    const out = await Promise.race([callModel(env, writerMessages(prompt), { temperature: 0.4, max_tokens: Number(W.MAX_TOKENS) || 160 }, { model: W.MODEL, timeoutMs: ms, attempts: 1, task: W.REASONING === "low" }), slow]);
     if (out == null) await aiFailed(env, `picture writer (${kind}): no answer in ${Math.round(ms / 1000)} s; drew the template`);
     return out == null ? null : String(out);
   } catch (e) {
@@ -4674,6 +4679,12 @@ async function writePicture(env, kind, vars = {}) {
     return null;
   }
 }
+
+// The writer's prompt as messages (WRITER.REASONING): "low" = one user message; else the instructions as the system message and GO
+const writerMessages = (prompt) => {
+  const W = CONFIG.PICTURE.WRITER || {};
+  return W.REASONING === "low" ? [{ role: "user", content: prompt }] : [{ role: "system", content: prompt }, { role: "user", content: W.GO || "Write it now." }];
+};
 
 // The writer's answer as picture words: one line, no labels, quotes or asterisks, her name → she, at most WRITER.MAX_WORDS (whole
 // sentences), and he is the camera (asCamera). "" when fewer than 4 words are left.
@@ -5117,7 +5128,7 @@ async function lookWrite(env, history, settings, args = "", clothes = "") {
   const prompt = fill(L.PROMPT, { him, her, chat: chat || "(nothing yet)", ask: words ? fill(L.ASK || "", { words }) : "", rules: (P.WRITER || {}).RULES || "", clothes: clothes || P.SCENE_WEARING || "" });
   let out;
   try {
-    out = await callModel(env, [{ role: "user", content: prompt }], { temperature: 0.7, max_tokens: Number(L.MAX_TOKENS) || 300 }, { model: L.MODEL, timeoutMs: 40000, attempts: 2, task: true });
+    out = await callModel(env, writerMessages(prompt), { temperature: 0.7, max_tokens: Number(L.MAX_TOKENS) || 300 }, { model: L.MODEL, timeoutMs: 40000, attempts: 2, task: (P.WRITER || {}).REASONING === "low" });
   } catch (e) {
     await aiFailed(env, `/look description: ${aiText_(e)}`);
     return null;

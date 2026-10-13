@@ -848,7 +848,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   answer = "Sitting up on the counter in her kitchen, legs dangling, leaning back on one hand, wearing her father's old gray cardigan over a black cami.";
   const ws = await W.writtenSelfie(env, pic, { history: [{ role: "user", content: "send me a pic" }] });
   const sent = asked.at(-1);
-  eq([sent.model, sent.input.reasoning_effort], [Wr.MODEL, "low"], "writer: DeepSeek on Workers AI, reasoning low (bare task prompts come back empty with none)");
+  eq([sent.model, sent.input.reasoning_effort, sent.input.messages.map((m) => m.role)], [Wr.MODEL, "none", ["system", "user"]], "writer: DeepSeek on Workers AI, chat-shaped with no thinking (replay: \"low\" thought through all 1,660 tokens, median 24 s)");
   yes(sent.input.messages[0].content.includes(pic.parts.draft) && sent.input.messages[0].content.includes(Wr.RULES) && sent.input.messages[0].content.includes("He: send me a pic"), "writer: reads the draft, the rules and the chat");
   yes(ws && ws.prompt.startsWith(`${W.CONFIG.PICTURE.SELFIE_STYLE} {who} ${W.CONFIG.PICTURE.SELFIE_PHONE} Sitting up on the counter`) && ws.prompt.includes(`black cami, ${pic.parts.expression}, ${pic.parts.light}.`) && !/phone in hand|small smirk/.test(ws.prompt) && ws.written === answer, "writer: the selfie's phone line, its clause, then the code's one expression and light", ws && ws.prompt);
   for (const [bad, why] of [["Sitting up on the counter in her kitchen, legs dangling.", "a garment lost"], ["Sitting up on the counter in her kitchen, completely naked.", "nudity added"], ["ok.", "too short"]]) {
