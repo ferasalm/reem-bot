@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-13 (fortieth session, Opus 5.5 (`claude-opus-5-5`, per `get_session` `session_context.model` and `last_served_model`)): picture overhaul Steps C and D; dev only
+- Cloudflare back to klein 4B at 576x1024 (owner); cf-lora-probe run 38333810448: klein 4B refuses LoRAs too (anatomy fixer 4B, amateur selfies 4B); dropped (owner).
+- Step C: `PICTURE.WRITER` (`writePicture`, `writtenWords`, `writtenSelfie`, `writtenScene`) words her selfies and in-person moments; LOOK.PROMPT under the same RULES with `{clothes}`; template when off, failed, slow (25 s) or unusable; the writer also draws in-person moments the template can't. Model: Llama 3.3 70B fast (owner) after writer-replay runs 38334730750, 38336511907, 38337486774, 38340121905. Bench `tools/face/stepc-bench.mjs`: 18 Runware pictures, +$0.05148 by the script; `face-candidates` e2df29a runs/2026-10-13-stepC-bench (QUALITY "Step C").
+- Nude/On pictures are Runware's only (owner): no Cloudflare klein, no Nano Banana when Runware can't draw; `error.runwareOnly` not charged as neurons. Golden: "Runware fails twice: no picture".
+- Step D: `PICTURE.ANATOMY` (`anatomyCheck`, `anatomyVerdict`), `drawPicture` redraws up to 3 pictures, fewest mistakes sent, each try logged. Probes runs 38340313839, 38340521232, 38341298420 (QUALITY "Step D"); bench `tools/face/stepd-bench.mjs` run 38341404459.
+
 ## 2026-10-13 (thirty-ninth session, Opus 5.5 (`claude-opus-5-5`)): picture overhaul Step B; dev only
 - `get_session`: `session_context.model` and `last_served_model` both `claude-opus-5-5`. No subagents.
 - Owner: Cloudflare klein 9B at 768x1344 (picked after the price: ~$0.0165 a picture); Lenovo UltraReal on Cloudflare's SFW pictures (DECISIONS).

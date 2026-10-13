@@ -17,8 +17,10 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   `d1_database_query` (several statements in one call) on the Cloudflare MCP (2026-10-11).
 - Prices and limits: the Cloudflare MCP's `search_cloudflare_documentation` (klein 4B 26.05 neurons per 512² output tile; klein 9B
   1,363.64 neurons for the first megapixel, billed whole, + 181.82 per input megapixel: 768x1344 costs what 576x1024 does, 2026-10-13).
-  runware.ai and fal.ai are blocked: WebSearch finds their prices. Workers AI LoRAs are text models only: klein 9B answers
-  "MODEL_NOT_SUPPORTED ... not supported for finetunes" and ignores a `lora` form field (same bytes, run 38330056690, 2026-10-13).
+  runware.ai and fal.ai are blocked: WebSearch finds their prices. Workers AI LoRAs are text models only: klein 9B and 4B answer
+  "MODEL_NOT_SUPPORTED ... not supported for finetunes" (runs 38330056690, 38333810448, 2026-10-13). On this account Gemma 3 12B is
+  "not allowed" (5018: VISION.BACKUP_MODEL can't answer), Llama 3.2 11B Vision wants a one-time `{prompt: "agree"}`, Mistral Small
+  3.1 rejects `reasoning_effort: "none"` (the bot always sends it) (2026-10-13).
 - Judging pictures: 300 px contact sheets can't say "same face" (owner, 2026-10-03) → each picture at full size, one at a time, with
   per-picture checks (face, age, outfit, phone rule, room, framing, hands, a second person).
 - Test pictures on Cloudflare: push `tools/face/job.json` to your branch (never `dev`: face.yml skips dev/main and its own edits);
@@ -54,6 +56,9 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   on every push that changes `tools/face/bench.json`: edit it only for an owner-approved bench.
 
 ## 2. Known traps (pictures)
+- A vision check of drawn pictures (Step D probes, 2026-10-13): one open checklist → "ok" on most mistakes; one question per mistake
+  works better (Scout 5/7). On POV sex acts Scout counts the man as a second head even on clean pictures (checked at full size) → don't
+  count heads there. Label each probe picture by reading it at full size first; a "good" label was right where the model was wrong.
 - Klein draws a person for every body or position the words give someone (Step A, Step B 2026-10-13): "his hands on her hips" → a
   second man's head 3/4 (third person 1/2 again in Step B); "The man sits on the edge of a bed, she is beside him" → the man 2/2;
   "her hand raised to his jaw", "the cut above his brow" → a second woman; first person ("I sit… beside me") → a second woman 2/2,
@@ -108,6 +113,9 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   Reactions only apart, never OOC; stored on her entry so /retry, /rewind and his edits clear them; Telegram's fixed emoji list only.
 - Free-plan limits still in code (50 outside calls per run, ~1000 KV writes a day). A reply can take 4 OpenRouter calls.
   `LLM.CONTEXT_TOKENS` 32768; history folds into notes at 40 messages, keeping 24.
+- The tests make `setTimeout` instant (scenarios, e2e): a deadline race on it always loses → `AbortSignal.timeout` (as aiRun); Node
+  doesn't stay alive for it (exit 13, "unsettled top-level await") → hold a `setInterval` in that test row. Unit rows that call AI
+  need `W.budget.reset()` first (earlier rows spend the per-request subrequest budget) (2026-10-13).
 - Tests: `CONFIG_OVERRIDES` is cached per run (set `W.CONFIG`); voice chances are 0 in e2e and scenarios; a unit row comparing a plan's
   refs must leave out random picks; rerun a new test file ~10 times. A per-picture neuron change (klein 9B: 115 → 1,500) made the
   scenarios reach PICTURE_SHARE mid-run → reset the test ledger before late picture blocks (Step B, 2026-10-13).
@@ -143,7 +151,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   levels by name (`actsOff`), never `level !== "on"`; `grep -n` every reader of a pattern before editing it (2026-10-11).
 - Before writing "deployed" in HANDOFF, read the remote: `git ls-remote origin main` and the deploy runs for `main` (2026-10-09).
 - A free probe before building on a doc's promise: one push-triggered workflow answered the LoRA question in 2 minutes and 3 pictures
-  (2026-10-13).
+  (2026-10-13). Comparing models: a workflow `matrix`, one job each, in parallel (writer-replay: 3 models in 5 minutes, 2026-10-13).
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
 - Before any model switch, replay `OWNER_CHAT` with `model`. Examples teach as strongly as rules: an example's "bring him back" drifted
@@ -155,3 +163,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   prompt rule (3/9): POV slips need a code guard (`toYou`). (2026-10-05/06)
 - /look's DeepSeek text makes the man a subject with a body ("The man sits on the edge of a bed", D1 484) despite "he is the camera":
   code rewrites it (`asCamera`) and LOOK.PROMPT now forbids it (Step B, not yet seen live).
+- DeepSeek V4 Flash on Workers AI thinks before every answer, even at reasoning "none" and chat-shaped: completions sit at max_tokens
+  with the content empty or cut (writer replays, median 5-24 s) → short structured writing on Llama 3.3 70B fast (15/15, 1.3 s,
+  no refusals on explicit scenes) (2026-10-13). Writer words that draw wrong: "thumb extended toward the camera" → a jab at the lens,
+  "pinched with worry" → a glare or wince, a top with nothing named below → jeans in bed (RUNWARE.DRESSED_BOTTOM) (Step C bench).

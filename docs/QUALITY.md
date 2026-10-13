@@ -623,3 +623,17 @@ Golden plans: 38 cases match (the Runware requests are unchanged by Step 7). `to
 - **Light:** /look 483 lamp light only 2/2 (was lamp + "bright afternoon daylight").
 - **Slips:** "an intense, hungry stare" drew a worried frown 2/2 → replaced; "PoV of spooning" drew no spooning pose (Step C).
 - **Cloudflare klein 9B, 768x1344, Off prompts:** kitchen and bedroom mirror outfits as named, rooms right, natural photos; mirror arms slimmer than image 1 (1/2); /look 483 lamp light; "PoV of spooning" refused (3030). No bra or thong in any. Lenovo on Cloudflare: refused (finetunes not supported on klein 9B).
+
+## Step C: the picture writer (2026-10-13, Opus 5.5 `claude-opus-5-5`; `tools/test/writer-replay.mjs`, `tools/face/stepc-bench.mjs`, `face-candidates` runs/2026-10-13-stepC-bench)
+Replays on Workers AI, every answer read (no pictures): DeepSeek V4 Flash "low" (run 38334730750) median 24 s, 20 of 48 calls over 25 s, completions at the 1,660-token cap (all thinking); "none" chat-shaped (38336511907) median 4.9 s, still thinking (answers cut at the cap); "none" + 1,000 tokens (38337486774) median 14.5 s, 9 of 15 cases in time, once WITH_HER for a scene without her; Llama 3.3 70B fast 15/15, median 1.3 s, no refusals (then with the tightened rules, 38340121905: 15/15, 1.3 s, plain expressions, below the waist named; kept "her thumb near a cut"); Mistral Small 3.1 refused reasoning_effort "none". Bench (DeepSeek's words, 18 Runware pictures read at full size, +$0.05148 by the script):
+- **Selfies (D1 rows 13, 14):** writer 4/4 right; template 1/4 (a phone in her hand 3/4, a broken leg 1, one not a selfie).
+- **Moments the template can't draw (hurt, kitchen):** writer drew 4/4 in the right clothes; "face pinched with worry" → a wince 1/2.
+- **/look 484:** writer 0/2 ("thumb extended toward the camera" → a jab, "pinched" → a glare); Step B's text 0/2 (a phone; standing). Spooning 1/2 a real spooning view. Jeans in bed 2/2 (nothing named below a t-shirt) → RULES: no gestures at the camera, plain expressions, below the waist named.
+
+## Step D: the anatomy check (2026-10-13, Opus 5.5 `claude-opus-5-5`; `tools/face/anatomy-probe.mjs`, 18 labelled pictures: 7 bad, 11 good)
+| Probe | Scout (Llama 4 Scout) | Others |
+|---|---|---|
+| v1, one open checklist (38340313839) | 4/7 caught, 7/11 passed; outside acts 1 of 4 real catches; "2 people" on every act | Gemma 3 12B: "not allowed" on this account (5018); Llama 3.2 Vision: needs "agree" |
+| v2, one question per mistake (38340521232) | 5/7, 9/11, ~4.6 s, ~63 neurons; second head 2/2, bare + jeans legs; a laugh read as a distorted face | Llama 3.2 11B Vision 3/7, 9/11, 6.5 s; Mistral Small 3.1 1/7, 7/11 |
+| v3, the edges + "a laugh is not a mistake" (38341298420) | 5/7, 9/11; no laugh alarm; "2 heads" on 3/3 clean act pictures (checked at full size: no second head) → heads don't count on acts | — |
+Missed by every version: 2 of 3 klein 4B stray hands at the left edge, stray toes on a missionary picture.
