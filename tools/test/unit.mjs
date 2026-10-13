@@ -169,14 +169,14 @@ W.applyOverrides({ CONFIG_OVERRIDES: JSON.stringify({ VOICE: { PRONUNCIATIONS: {
 eq(Object.keys(W.CONFIG.VOICE.PRONUNCIATIONS), ["ya3ni"], "pronunciations replaced whole");
 eq(W.forSpeech("ya3ni 7abibi"), "Yani habibi.", "override + fallback");
 // OpenRouter routing: LLM.PROVIDER/REASONING with LLM.MODEL (DeepSeek), LLM.BACKUP_* with the backup (Nemo)
-eq(W.CONFIG.LLM.MODEL, "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "chat model: Llama 3.3 70B fast on Workers AI (owner 2026-10-13, branch chat-llama)");
+eq(W.CONFIG.LLM.MODEL, "@cf/deepseek-ai/deepseek-v4-flash-0731", "chat model: DeepSeek on Workers AI first (owner 2026-10-06)");
 eq(W.CONFIG.LLM.BACKUP_MODEL, "deepseek/deepseek-v4-flash", "backup: DeepSeek on OpenRouter (owner 2026-10-06)");
 const ds = W.openRouterBody(W.CONFIG.LLM.BACKUP_MODEL, [], { max_tokens: 5 });
 eq({ model: ds.model, provider: ds.provider, reasoning: ds.reasoning }, { model: "deepseek/deepseek-v4-flash", provider: { order: ["novita", "baidu", "relace", "streamlake"], ignore: ["azure", "alibaba", "atlas-cloud", "deepinfra"], allow_fallbacks: false }, reasoning: { enabled: false } }, "OpenRouter backup: DeepSeek's providers + reasoning off");
 eq(W.CONFIG.HEARING.OR_FIRST, true, "hearing: Gemini (OpenRouter) first, Whisper when it fails (owner 2026-10-06)");
 eq(W.CONFIG.PICTURE.LINGERIE.ENABLED, false, "Nano Banana removed (owner 2026-10-06)");
 eq(Object.keys(W.openRouterBody("sao10k/l3-lunaris-8b", [], { max_tokens: 5 })), ["model", "messages", "max_tokens"], "another model: no routing");
-eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === "@cf/deepseek-ai/deepseek-v4-flash-0731"), true, "memory and /auto stay on DeepSeek on Workers AI (owner 2026-10-13: only her chat on Llama)");
+eq([W.CONFIG.MEMORY.MODEL, W.CONFIG.AUTO.MODEL].every((m) => m === W.CONFIG.LLM.MODEL), true, "memory and /auto use DeepSeek (the chat model's routing)");
 {
   const saved = structuredClone(W.CONFIG.LLM);
   W.CONFIG.LLM.BACKUP_PROVIDER.ignore = [];
@@ -263,7 +263,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   for (const mode of ["TEXT", "SCENE", "VOICE"]) await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS[mode] }, { model: M, timeoutMs: 5000, attempts: 1 });
   await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS.TEXT }, { model: M, timeoutMs: 5000, attempts: 1, task: true });
   eq(seen, [["none", L.MAX_TOKENS.TEXT + L.THINK_TOKENS], ["none", L.MAX_TOKENS.SCENE + L.THINK_TOKENS], ["none", L.MAX_TOKENS.VOICE + L.THINK_TOKENS], ["low", L.MAX_TOKENS.TEXT + 1500]], "chat replies: MAX_TOKENS + THINK_TOKENS; a task keeps +1500 (Fix round 2)");
-  eq([L.THINK_TOKENS, L.TIMEOUT_MS], [700, 30000], "LLM.THINK_TOKENS 700 and LLM.TIMEOUT_MS 30 s (Fix round 2)");
+  eq([L.THINK_TOKENS, L.TIMEOUT_MS], [700, 60000], "LLM.THINK_TOKENS 700 and LLM.TIMEOUT_MS 60 s (branch chat-timeout, owner 2026-10-13)");
   seen.length = 0;
   await W.askModel(env, msgs, { max_tokens: L.MAX_TOKENS.TEXT }, { model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", timeoutMs: 5000, attempts: 1 });
   eq(seen.map((x) => x[1]), [L.MAX_TOKENS.TEXT], "a model that doesn't think (Llama) gets no thinking room (LLM.THINKING_MODELS)");
@@ -273,7 +273,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   // OpenRouter, his photos seen on Cloudflare, her pictures on Runware klein
   const C = W.CONFIG;
   eq([C.LLM.MODEL, C.MEMORY.MODEL, C.AUTO.MODEL, C.VOICE.PROVIDER, C.VOICE.OR_MODEL, C.VOICE.OR_VOICE, C.HEARING.OR_FIRST, C.HEARING.OR_MODEL, C.VISION.MODEL.startsWith("@cf/"), C.PICTURE.ROUTE, C.PICTURE.RUNWARE.MODEL],
-    ["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/deepseek-ai/deepseek-v4-flash-0731", "@cf/deepseek-ai/deepseek-v4-flash-0731", "openrouter", "google/gemini-3.8-flash-tts", "Sulafat", true, "google/gemini-3.8-flash", true, "runware-klein", "runware:400@2"],
+    ["@cf/deepseek-ai/deepseek-v4-flash-0731", "@cf/deepseek-ai/deepseek-v4-flash-0731", "@cf/deepseek-ai/deepseek-v4-flash-0731", "openrouter", "google/gemini-3.8-flash-tts", "Sulafat", true, "google/gemini-3.8-flash", true, "runware-klein", "runware:400@2"],
     "the owner's main routes");
 }
 {

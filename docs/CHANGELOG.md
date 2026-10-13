@@ -4,6 +4,9 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-13 (forty-fifth session, Sonnet 5.5 (`claude-sonnet-5-5`, per `get_session` `session_context.model` "sonnet" and `last_served_model`); no subagents): the switch to chat-timeout
+- Owner: "switch to chat-timeout deepseek". Done on `dev` by hand: `LLM.MODEL` DeepSeek, `CONTEXT_TOKENS` 32768, `TIMEOUT_MS` 60000 (unit.mjs and the panel from `origin/chat-timeout`); `check.mjs` 8 of 8. Not deployed (`main` = cabafb8, Llama).
+
 ## 2026-10-13 (forty-fourth session, Opus 5.5 (`claude-opus-5-5`, per `get_session` `session_context.model` and `last_served_model`)): the Opus check of Fix round 2, the owner's picks, deploy
 - Owner: F2 enough; F3 (a) built (`2e0d800`, `PICTURE.ANATOMY.STOP_ON_REPEAT`, with `LLM.THINKING_MODELS`); two latency branches: `chat-llama` (`2e193c5`, her chat on Llama 3.3 70B fast, CONTEXT_TOKENS 20000) and `chat-timeout` (DeepSeek, TIMEOUT_MS 60000, not deployed).
 - Llama replay test.yml 38361339464: 48/48, 0 broken (QUALITY). Deploy run 38361955420: `main` = cabafb8, Version ID `8095dafd-3991-4889-9d49-265a796d0c8c`; /health and /setup all ok (DECISIONS).

@@ -296,10 +296,8 @@ const CONFIG = {
 
   /* ---------------- Brain (OpenRouter) ---------------- */
   LLM: {
-    // owner 2026-10-13 (branch chat-llama, deployed for his test): her chat on Llama 3.3 70B fast (1.3 s median on the writer replays;
-    // DeepSeek took 4-6 s or 33-48 s and 4 of 12 got nothing in 60 s, cf-probe 38357963015). The alternative: branch chat-timeout.
-    // Memory and /auto stay on DeepSeek (their own MODEL keys). Was:
-    MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", // owner 2026-10-06: DeepSeek on Workers AI first ("it succeeds even with explicit texts"),
+    // owner 2026-10-13: her chat back on DeepSeek with a 60 s limit (branch chat-timeout) after his Llama test; Llama is branch chat-llama.
+    MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // owner 2026-10-06: DeepSeek on Workers AI first ("it succeeds even with explicit texts"),
                                        // the same DeepSeek on OpenRouter as the backup (BACKUP_MODEL with BACKUP_PROVIDER)
     // Novita, Baidu and StreamLake ignore min_p; Relace and the backup model use it
     SAMPLING: { temperature: 0.95, min_p: 0.1, repetition_penalty: 1.05, max_tokens: 420 },
@@ -325,13 +323,13 @@ const CONFIG = {
     THINKING_MODELS: ["deepseek"],
     // How much of the chat is sent with each reply, in tokens. The oldest messages are left out so the
     // prompt always fits. DeepSeek V4 Flash reads far more; this keeps replies fast and cheap.
-    CONTEXT_TOKENS: 20000,             // Llama 3.3 70B fast reads 24,000 tokens (Cloudflare's model page); DeepSeek took 32768
+    CONTEXT_TOKENS: 32768,
     // The same for the backup model: when it answers, older messages
     // are left out first, so OpenRouter never cuts the middle (her rules) out silently.
     BACKUP_CONTEXT_TOKENS: 32768,
     CHARS_PER_TOKEN: 3.5,              // rough estimate used for both (lower = safer)
     RETRY_TEMPERATURE: 1.05,           // the second try, when her first reply repeated herself
-    TIMEOUT_MS: 30000,                 // thinking replies took 4-10 s, some 37-60 s (cf-probe 38355964346); was 20 s
+    TIMEOUT_MS: 60000,                 // owner 2026-10-13 (option 1, branch chat-timeout): DeepSeek finished in 4-6 s or 33-48 s (cf-probe 38357963015); was 30 s
     ATTEMPTS: 2,                       // tries per reply when the model fails
     RETRY_DELAY_MS: 1500,
   },
