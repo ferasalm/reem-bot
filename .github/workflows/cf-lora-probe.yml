@@ -1,6 +1,6 @@
 name: Cloudflare LoRA probe
 
-# Owner 2026-10-13 (Step B): does Workers AI's FLUX.2 klein 9B take a LoRA (Lenovo UltraReal)? tools/face/cf-lora-probe.sh prints
+# Owner 2026-10-13: does Workers AI's FLUX.2 klein take a LoRA? (Step B: 9B + Lenovo, refused; Step C: 4B + anatomy fixer and amateur selfies) tools/face/cf-lora-probe.sh prints
 # Cloudflare's answers; the pictures go to face-candidates (runs/<run id>-cf-lora-probe). Runs when the script changes.
 on:
   push:
