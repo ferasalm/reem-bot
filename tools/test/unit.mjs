@@ -1,6 +1,7 @@
 // Unit tests: node tools/test/unit.mjs (expects the default CONFIG; uses the real clock for quiet-hour checks)
 import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker();
+W.CONFIG.PICTURE.WRITER.ON = false; // the picture writer (Step C): its own rows turn it on
 let fails = 0;
 const eq = (got, want, label) => { const ok = JSON.stringify(got) === JSON.stringify(want); if (!ok) fails++; console.log(ok ? "ok  " : "FAIL", label, ok ? "" : `\n     got:  ${JSON.stringify(got)}\n     want: ${JSON.stringify(want)}`); };
 // Arabizi
@@ -831,6 +832,60 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq(tryOf("sitting on top of the counter, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "\"on top\" is no top: no bottom line");
   // fix round review (2026-10-11): real bottoms (briefs, joggers) and outfits that show her legs on purpose get no bottom line
   for (const w of ["a black lace bralette and matching high-waisted lace briefs", "a gray zip-up hoodie half open over a white crop tank and joggers", "an oversized gray tee that barely reaches mid-thigh", "his oversized flannel shirt, unbuttoned low, and bare legs"]) eq(tryOf(`a mirror selfie, wearing ${w}, in the bedroom`).text.includes(R.DRESSED_BOTTOM), false, `no bottom line: ${w}`);
+}
+
+// Step C (2026-10-13): the picture writer (PICTURE.WRITER, DeepSeek on Workers AI) words her own pictures; the code keeps the framing,
+// expression, light and references; anything unusable, slow or off is today's template
+{
+  const Wr = W.CONFIG.PICTURE.WRITER;
+  const yes = (ok, label, got) => eq(!!ok, true, ok ? label : `${label} ${String(got || "").slice(0, 600)}`);
+  const asked = [];
+  let answer = "";
+  const env = { AI: { async run(model, input) { asked.push({ model, input }); return answer === "never" ? new Promise(() => {}) : { choices: [{ message: { content: answer } }] }; } } };
+  Wr.ON = true;
+  // D1 row 13: the counter-sit template plus her words (a second pose, a second smile, a phone)
+  const pic = W.composePicture({ tier: "everyday", shot: "counter-sit", words: "she's leaning against the kitchen counter, one leg bent up, wearing her father's old gray cardigan over a black cami, phone in hand, a small smirk", hour: 15 });
+  answer = "Sitting up on the counter in her kitchen, legs dangling, leaning back on one hand, wearing her father's old gray cardigan over a black cami.";
+  const ws = await W.writtenSelfie(env, pic, { history: [{ role: "user", content: "send me a pic" }] });
+  const sent = asked.at(-1);
+  eq([sent.model, sent.input.reasoning_effort], [Wr.MODEL, "low"], "writer: DeepSeek on Workers AI, reasoning low (bare task prompts come back empty with none)");
+  yes(sent.input.messages[0].content.includes(pic.parts.draft) && sent.input.messages[0].content.includes(Wr.RULES) && sent.input.messages[0].content.includes("He: send me a pic"), "writer: reads the draft, the rules and the chat");
+  yes(ws && ws.prompt.startsWith(`${W.CONFIG.PICTURE.SELFIE_STYLE} {who} ${W.CONFIG.PICTURE.SELFIE_PHONE} Sitting up on the counter`) && ws.prompt.includes(`black cami, ${pic.parts.expression}, ${pic.parts.light}.`) && !/phone in hand|small smirk/.test(ws.prompt) && ws.written === answer, "writer: the selfie's phone line, its clause, then the code's one expression and light", ws && ws.prompt);
+  for (const [bad, why] of [["Sitting up on the counter in her kitchen, legs dangling.", "a garment lost"], ["Sitting up on the counter in her kitchen, completely naked.", "nudity added"], ["ok.", "too short"]]) {
+    answer = bad;
+    eq(await W.writtenSelfie(env, pic, {}), null, `writer: unusable selfie answer → the template (${why})`);
+  }
+  answer = "Sitting up on the counter in her kitchen, phone in hand, wearing her father's old gray cardigan over a black cami.";
+  yes(!/phone in hand/.test((await W.writtenSelfie(env, pic, {})).prompt), "writer: a phone clause kept from her words is cut (the selfie's lead line has the phone rule)");
+  const n = asked.length;
+  eq(await W.writtenSelfie(env, W.composePicture({ tier: "everyday", shot: "selfie", hour: 15 }), {}), null, "writer: a template with none of her words is not sent to it");
+  Wr.KINDS = ["scene"];
+  answer = "Sitting up on the counter in her kitchen, wearing her father's old gray cardigan over a black cami.";
+  eq([await W.writtenSelfie(env, pic, {}), asked.length], [null, n], "writer: a kind outside WRITER.KINDS is never asked");
+  Wr.KINDS = ["selfie", "scene"];
+  // in person: he is the camera (asCamera), the code's clothes when it names none, no act her narration hadn't
+  const scene = { prompt: "x", location: null, wearing: "a gray knit cardigan over a black tank top", act: false };
+  answer = "The man sits on the edge of the bed, and she kneels close beside him on the rumpled sheets, one hand in her hair, a soft smile.";
+  let sc = await W.writtenScene(env, scene, "*She kneels on the bed beside you, one hand in her hair.*", {});
+  yes(sc && sc.prompt.startsWith(W.CONFIG.PICTURE.SCENE_STYLE) && !/the man sits/i.test(sc.prompt) && sc.prompt.includes("close beside the camera") && sc.prompt.includes("She is wearing a gray knit cardigan over a black tank top."), "writer (scene): where he sits goes, the camera stays; no clothes named → the scene's clothes", sc && sc.prompt);
+  yes(asked.at(-1).input.messages[0].content.includes("one hand in her hair.*") && asked.at(-1).input.messages[0].content.includes("if the story names no clothes: a gray knit cardigan over a black tank top"), "writer (scene): reads her reply and the clothes to name");
+  answer = "She rides the man on the sofa, naked, her hands on his chest.";
+  eq(await W.writtenScene(env, scene, "*She sits on the sofa.*", {}), null, "writer (scene): a sex act her narration hadn't → the template");
+  answer = "She rides the man on the sofa, naked, her hands braced on the cushions.";
+  sc = await W.writtenScene(env, { ...scene, act: true }, "*She sinks onto you.*", {});
+  yes(sc && sc.prompt.startsWith(W.CONFIG.PICTURE.SCENE_ACT_STYLE) && !sc.prompt.includes("She is wearing"), "writer (scene): an act the code saw: the act style, no clothes line");
+  // slow: the template, without waiting past TIMEOUT_MS
+  answer = "never";
+  const keep = Wr.TIMEOUT_MS; Wr.TIMEOUT_MS = 50;
+  const t0 = Date.now();
+  const hold = setInterval(() => {}, 10); // AbortSignal.timeout's timer doesn't keep Node running (a Worker waits for it)
+  eq(await W.writePicture(env, "scene", { chat: "", moment: "x", clothes: "" }), null, "writer: slower than TIMEOUT_MS → null (the template draws)");
+  clearInterval(hold);
+  yes(Date.now() - t0 < 2000, "...after TIMEOUT_MS, not the model's own time limit");
+  Wr.TIMEOUT_MS = keep;
+  eq(W.writtenWords("Clause: She sits on the sofa,\n\"wearing a red dress\"."), "She sits on the sofa, wearing a red dress", "writtenWords: one line, no label or quotes");
+  Wr.ON = false;
+  eq(await W.writePicture(env, "scene", {}), null, "writer off: nothing asked");
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

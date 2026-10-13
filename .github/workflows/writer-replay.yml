@@ -1,0 +1,23 @@
+name: Picture writer replay
+
+# Step C (2026-10-13): the picture writer (PICTURE.WRITER, LOOK.PROMPT) on the real DeepSeek on Workers AI, no pictures
+# (tools/test/writer-replay.mjs prints every answer). Runs when the script or this file changes (never on dev/main), or by hand.
+on:
+  push:
+    branches-ignore: [dev, main, face-candidates]
+    paths: [tools/test/writer-replay.mjs, .github/workflows/writer-replay.yml]
+  workflow_dispatch:
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/test/writer-replay.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          RUNS: "2"

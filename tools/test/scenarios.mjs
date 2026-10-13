@@ -12,6 +12,7 @@ import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker();
 W.CONFIG.PICTURE.ROUTE = "cloudflare"; W.CONFIG.PICTURE.LINGERIE.ENABLED = true; // Nano Banana is off since 2026-10-06; its code is still tested // the default is Runware klein (owner 2026-10-06); these were written for the Cloudflare route, the Runware section switches it itself
 W.CONFIG.DAY.WEATHER = false; W.CONFIG.DAY.PLAN = false; // her real day (DAY) is tested on its own: these count AI calls
+W.CONFIG.PICTURE.WRITER.ON = false; // the picture writer (Step C) is tested on its own: these stubs never answer it
 { const L = W.CONFIG.LLM; // the defaults are DeepSeek on Workers AI first, OpenRouter's the backup (owner 2026-10-06); these flows mock OpenRouter as the main
   Object.assign(L, { MODEL: L.BACKUP_MODEL, PROVIDER: L.BACKUP_PROVIDER, REASONING: L.BACKUP_REASONING, BACKUP_MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", BACKUP_PROVIDER: {}, BACKUP_REASONING: {} });
   W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL; W.CONFIG.HEARING.OR_FIRST = true; }
@@ -399,7 +400,7 @@ W.CONFIG.REACTIONS.CHANCE = 0.25;
 
 section("pictures: his photos (Workers AI vision)");
 {
-  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false; let filterNext = false; let seenOutfit = "a black lace bodysuit and thigh-high stockings"; let lookAnswer = null;
+  const ai = []; let pictureNo = 0; let drawError = null; let visionError = null; let sameBytes = false; let filterNext = false; let seenOutfit = "a black lace bodysuit and thigh-high stockings"; let lookAnswer = null; let writerAnswer = null; const writerAsked = [];
   const formOf = async (input) => Object.fromEntries([...(await new Response(input.multipart.body, { headers: { "content-type": input.multipart.contentType } }).formData())].map(([k, v]) => [k, typeof v === "string" ? v : `<${v.size} bytes>`]));
   env.AI = { async run(model, input) {
     if (model.includes("flux")) {
@@ -411,6 +412,11 @@ section("pictures: his photos (Workers AI vision)");
     }
     ai.push({ model, input });
     if (input.messages && input.messages[0].content[0].text === W.CONFIG.PICTURE.LINGERIE.CHECK_PROMPT) return { response: seenOutfit }; // klein's lingerie, checked
+    if (input.messages && String(input.messages[0].content).startsWith("You write the words of one photo")) { // the picture writer (Step C)
+      writerAsked.push(String(input.messages[0].content));
+      if (writerAnswer == null) throw new Error("7000: writer down");
+      return { response: writerAnswer };
+    }
     if (input.messages && String(input.messages[0].content).startsWith("You describe one photo")) { // /look's description (PICTURE.LOOK)
       if (lookAnswer == null) throw new Error("7000: look model down");
       return { response: lookAnswer };
@@ -457,7 +463,7 @@ section("pictures: his photos (Workers AI vision)");
   yes(W.placePictures("hallway").length === 3 && W.placePictures("hallway").map((b) => `<${W.fromBase64(b).length} bytes>`).includes(f1.input_image_2), "the place picture is one of its three crops (owner 2026-10-05: not the same angle every time)");
   yes(/^<\d+ bytes>$/.test(f1.input_image_1 || "") && f1.prompt.includes("exactly the body of image 1"), "her body shape is image 1, named in the prompt");
   yes(f1.prompt.includes(W.CONFIG.PICTURE.REFERENCE) && !f1.prompt.includes(W.CONFIG.PICTURE.LOOKS) && /^<\d+ bytes>$/.test(f1.input_image_0), "drawn from her built-in face (face.js) as input_image_0");
-  eq([f1.width, f1.height], ["768", "1344"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (klein 9B: the first megapixel's price, Step B)");
+  eq([f1.width, f1.height], ["576", "1024"], "drawn at PICTURE.WIDTH x HEIGHT, 9:16 (klein 4B: 4 tiles, the price of 640x640; Step C)");
   eq(r.photos[0].photo, "<blob>", "a freshly drawn picture is uploaded (never a reused file)");
   eq(r.saved.content, "here 😏\n\n[selfie: mirror, in the hallway, black slip dress]", "history: her words and [selfie: type, what]");
   yes(typeof r.saved.parts.at(-1).id === "number", "the picture has its message id, so /rewind and /retry delete it");
@@ -913,6 +919,21 @@ section("pictures: his photos (Workers AI vision)");
   r = await turn("*sits on the couch*", ["*Reem curls up at the other end of the couch, tucking her bare feet under a gray knit cardigan.* \"comfy?\""], { history: SCENE });
   eq(r.photos.length, 1, "in person on SCENE_CHANCE (like the voice clip)");
   W.CONFIG.PICTURE.SCENE_CHANCE = 0;
+  // Step C: the picture writer words her in-person moment; the code keeps the style, her face and the light
+  {
+    W.CONFIG.PICTURE.WRITER.ON = true;
+    writerAnswer = "She leans against the doorframe of her hallway, one hand resting on the frame and the other in her hair, wearing a gray knit cardigan over a black tank top and soft gray sweatpants, a slow smile.";
+    const w0 = writerAsked.length;
+    r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\" *Her eyes move over you.*"], { history: SCENE });
+    const fw = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
+    yes(r.photos.length === 1 && writerAsked.length === w0 + 1 && writerAsked.at(-1).includes("dark waves loose over one shoulder") && writerAsked.at(-1).includes(W.CONFIG.PICTURE.WRITER.RULES), "in person: the writer reads her reply and the rules", writerAsked.at(-1));
+    yes(fw.prompt.startsWith(W.CONFIG.PICTURE.SCENE_STYLE) && fw.prompt.includes("resting on the frame and the other in her hair") && !fw.prompt.includes("She is wearing") && /^<\d+ bytes>$/.test(fw.input_image_0 || ""), "...its words drawn with her face, the scene style, no second clothes line", fw.prompt);
+    writerAnswer = null;
+    r = await turn("*steps closer* let me see you", ["*She leans against the doorframe, her dark waves loose over one shoulder, a slow smile on her lips.* \"like what you see?\""], { history: SCENE });
+    const ft = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
+    yes(r.photos.length === 1 && ft.prompt.includes("She leans against the doorframe, her dark waves"), "the writer down: today's template draws it", ft.prompt);
+    W.CONFIG.PICTURE.WRITER.ON = false;
+  }
   // owner 2026-10-05: lingerie in person came out as nothing (klein refuses "bra" in the scene's clothes)
   {
     banana.mode = "draw";

@@ -780,18 +780,18 @@ Changing the story
   PICTURE: {
     ENABLED: true,
     // Which model draws her pictures (owner 2026-10-06: "different versions with different models all ready to deploy"):
-    // "cloudflare" = klein 9B on Workers AI (MODEL; 4B until Step B), lingerie on Nano Banana (LINGERIE), never nude: today's route;
+    // "cloudflare" = klein 4B on Workers AI (MODEL; 9B in Step B only), lingerie on Nano Banana (LINGERIE), never nude: today's route;
     // "runware-klein" = FLUX.2 klein 9B on Runware with her face and body (RUNWARE.MODEL), safety check off, nudity
     // allowed (owner 2026-10-06), TwinFlow when it fails; "runware-twinflow" = TwinFlow Z-Image-Turbo on Runware,
     // text only (RUNWARE.LOOKS: no face picture). Both Runware routes need the Worker secret RUNWARE_API_KEY.
     ROUTE: "runware-klein",            // owner 2026-10-06: "Switch on the runware klein for all pictures" (was "cloudflare")
-    // Step B (owner 2026-10-12 "klein 9B + new prompts", 2026-10-13 "9B at 768x1344"): klein 9B, ~1,500 neurons ($0.0165) a picture:
-    // Cloudflare bills its first megapixel whole, so 768x1344 costs what 576x1024 did. Was klein 4B (~115 neurons). Fixed 4 steps.
-    MODEL: "@cf/black-forest-labs/flux-2-klein-9b", // draws from her reference face
+    // Step C (owner 2026-10-13: "revert cloudflare to Klein 4B"): klein 4B, ~115 neurons a picture at 576x1024. Step B had klein 9B
+    // at 768x1344 (~1,500 neurons, $0.0165). Fixed 4 steps.
+    MODEL: "@cf/black-forest-labs/flux-2-klein-4b", // draws from her reference face
     BACKUP_MODEL: "@cf/black-forest-labs/flux-1-schnell", // when MODEL is unavailable: no reference, LOOKS instead
     BACKUP_STEPS: 6,                   // 1 to 8
-    WIDTH: 768,                        // pixels, 9:16 (owner 2026-10-04: "all pictures should have 9:16 aspect ratio"); Runware's size.
-    HEIGHT: 1344,                      // klein 9B on Cloudflare: the first megapixel is billed whole (768x1344 = 1.03 MP of 1.05)
+    WIDTH: 576,                        // pixels, 9:16 (owner 2026-10-04: "all pictures should have 9:16 aspect ratio").
+    HEIGHT: 1024,                      // Klein 4B is priced per 512x512 tile, rounded up: 576x1024 = 4 tiles, as 768x1024 was
     TIMEOUT_MS: 120000,                // klein took 9-238 s on 2026-10-03 (most under 60 s; 2 of 25 over 2 min)
     CHANCE: 0.1,                       // apart, per reply (voice: 0.1). Owner 2026-10-03: more pictures (was 0.05)
     CHANCE_AFTER_PHOTO: 0.45,          // ...when he just sent a photo (voice: 0.6 after his voice note)
@@ -888,10 +888,29 @@ Changing the story
       MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (as DAY.PLAN_MODEL)
       CHAT_MESSAGES: 8,
       MAX_TOKENS: 300,
-      PROMPT: "You describe one photo: exactly what {him} sees right now with his own eyes in the roleplay story below, as if he took a picture of it this second. {her} is the woman in the story.\n\nThe story so far (newest last):\n{chat}\n\n{ask}Write the first line as WITH_HER if {her} is in front of him and in view, else ALONE. Then 1 to 3 plain sentences for an image model, nothing else: what is in the frame, seen from his eyes; the place, the light, the things around. If she is in view: what she is doing, her pose, what she is wearing (or that she is naked, or which clothes are off), her expression; call her \"she\" and him \"the man\"; he is the camera, so only his own hands or body may show, never his face; never make the man the subject of a sentence or say where he sits or stands (write \"she sits close beside the camera\", not \"the man sits on the bed and she sits beside him\"). If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; say she is naked unless clothes are still on, and name those. No dialogue, no feelings, no names.",
+      // Step C (2026-10-13): the picture writer's rules (WRITER.RULES) and the clothes to name when the story names none ({clothes}: the
+      // scene's own, else the day's outfit); Step B's free text put him in the room (D1 484) and a phone in her hands (Step B bench)
+      PROMPT: "You describe one photo: exactly what {him} sees right now with his own eyes in the roleplay story below, as if he took a picture of it this second. {her} is the woman in the story.\n\nThe story so far (newest last):\n{chat}\n\n{ask}Write the first line as WITH_HER if {her} is in front of him and in view, else ALONE.\nIf she is in view, then 1 or 2 plain sentences, at most 45 words, for an image model: what she is doing and her pose, where each of her hands is (on her knee, in her hair, on the sheets; she holds only what the story puts in her hands, never a phone); what she is wearing (if the story names no clothes: {clothes}); the place and one or two things around her; her expression in a few words. {rules}\nIf she is not in view: 1 to 3 plain sentences of what is in front of him: the place, the light, the things around; no people; his own hands only if they hold or touch something. No dialogue, no feelings, no names.",
       ASK: "His request for this photo (it wins over the story): {words}\n\n",
       // "...the phone is the camera" drew a man holding a phone, seen from outside (1/1)
       ALONE_STYLE: "Realistic candid first-person photo taken from the man's own eyes (no person in the picture; no phone and no hands unless described):",
+    },
+    // Step C (picture overhaul, owner 2026-10-12: "Hybrid (Recommended)"): DeepSeek on Workers AI writes only the words of the moment
+    // (action, pose, clothes, place) of /look (LOOK.PROMPT, under RULES) and of her own pictures: SELFIE tidies the code's draft
+    // (framing + her words: D1 rows 13 and 14 had two poses, two smiles and a phone), SCENE writes her in-person moment from her
+    // narration. The code still picks the references, LoRAs, framing, expression and light. Off, failed, slower than TIMEOUT_MS or
+    // unusable (fewer than 4 words, a garment lost, nudity or a phone added, a level it may not draw): today's template. Claude's wording.
+    WRITER: {
+      ON: true,
+      MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", // Workers AI (as LOOK.MODEL); reasoning "low" (a bare task prompt came back empty with "none")
+      KINDS: ["selfie", "scene"],      // her own pictures it writes ("look" is LOOK.PROMPT's, always on)
+      TIMEOUT_MS: 25000,               // then the template: her picture comes without waiting longer
+      MAX_TOKENS: 160,
+      CHAT_MESSAGES: 6,                // the chat it reads (newest last)
+      MAX_WORDS: 60,                   // longer answers are cut back to whole sentences
+      RULES: "Call her \"she\", no names. He is the camera: the photo is what his own eyes see, so never write about the man, his body, his face, his hands or where he is (write \"facing the camera\" or \"close to the camera\"); every hand in your words is hers. Always say what she is wearing, garment by garment with colors, or that she is naked, or which clothes are off. If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; the man is named only as the one she does it with (\"she rides the man\"). No feelings, thoughts, sounds, dialogue or story; only what a camera sees.",
+      SELFIE: "You write the words of one photo for an image model. {her} is sending {him} a selfie. The code wrote this draft from her words, and it may contradict itself:\n{draft}\n\nWhat was said around it (newest last):\n{chat}\n\nRewrite the draft as one plain clause of at most 40 words with no subject, starting the way the draft starts: its framing and pose first, then what she is wearing, then where she is. Keep every garment and color the draft names, and its place. Drop: anything that contradicts the framing or the pose (a second pose, a second place), every expression, gaze, smile or laugh (they are added later), any phone or anything held in her hands, and the light. {rules} Answer with the clause only.",
+      SCENE: "You write the words of one photo for an image model: what {him} sees with his own eyes right now, in person, in the roleplay story below. {her} is the woman in it.\n\nThe story so far (newest last):\n{chat}\n\nThe moment to draw is her last reply:\n{moment}\n\nWrite 1 or 2 plain sentences, at most 45 words: what she is doing and her pose, where each of her hands is (on her knee, in her hair, on the sheets; she holds only what the story puts in her hands, never a phone); what she is wearing (if the story names no clothes: {clothes}); the place and one or two things around her; her expression in a few words. The light only if the story names it (a lamp, candles). {rules} Answer with the sentences only.",
     },
     // Runware (PICTURE.ROUTE "runware-klein" / "runware-twinflow"): every picture, lingerie and nudity included, with her
     // real words (no FILTER_WORDS, no NOT_DRAWN, no SAFE). Benched 2026-10-06 (docs/QUALITY.md): klein 9B kept her face and
@@ -1472,11 +1491,11 @@ Changing the story
    */
   AI_BUDGET: {
     DAILY_NEURONS: 50000,              // stop here: 10,000 free + 40,000 paid ($0.44) at most a day (owner 2026-10-04: "Raise the daily cap")
-    PICTURE_SHARE: 0.6,                // pictures stop at this share of DAILY_NEURONS (~20 Cloudflare klein 9B pictures a day), so voice notes, hearing and photos keep 20,000
-    PICTURE_NEURONS: 1500,             // klein 9B (Step B): 1,363.64 for the first megapixel (768x1344) + 181.82 per input megapixel (face, body, place: ~0.6 MP); was 115 on klein 4B
+    PICTURE_SHARE: 0.6,                // pictures stop at this share of DAILY_NEURONS (~140 Cloudflare klein 4B pictures a day), so voice notes, hearing and photos keep 20,000
+    PICTURE_NEURONS: 115,              // FLUX.2 klein 4B: 4 output tiles (576x1024) ~104 + 5.4 per reference image (face, place); 640x640 measured 91-106 (2026-10-02). Step B's klein 9B was 1,500 (back to 4B, Step C)
     BACKUP_PICTURE_NEURONS: 65,        // FLUX.1 schnell, 640x640, 6 steps (1.56 x 4.8 + 6 x 9.6)
     PHOTO_NEURONS: 60,                 // seeing one of his photos
-    HEALTH_NEURONS: 1450,              // one /health check: a 256x256 klein 9B picture is billed a whole first megapixel (Step B), + seeing it
+    HEALTH_NEURONS: 40,                // one /health check (klein 4B again, Step C; 1,450 on Step B's klein 9B)
     HEARING_NEURONS_PER_MIN: 47,
     VOICE_NEURONS_PER_1000_CHARS: 2728, // aura-2: $0.03 per 1,000 characters at $0.011 per 1,000 neurons       // Whisper large v3 turbo: 46.63 neurons per audio minute (Cloudflare's price list)
     // Owner 2026-10-06 (Cloudflare idea 3): every Workers AI call goes through this AI Gateway, which logs its cost,
@@ -3575,7 +3594,12 @@ function composePicture({ tier = "everyday", shot = "selfie", words = "", doing 
   const shown = named(words || [doing, clothes && `wearing ${clothes}`, place].filter(Boolean).join(", "));
   // In history and her recent pictures as "type, what" (just "what" when it already names the type)
   const what = shown && shotNamed(shown) === shot ? shown : [shot, shown].filter(Boolean).join(", ");
-  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", safeLine(level)].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args };
+  // Step C: the same picture without its phone line, expression and light, for the picture writer (writtenSelfie) to tidy
+  const lead = (chosen.match(/\{(selfie|mirror|pov)\}/) || [])[1];
+  const draft = named(chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? (["selfie", "mirror", "pov", "expression", "light"].includes(k) ? "" : String(vars[k] || "")) : m)))
+    .replace(/(?:,\s*)+(?=[,.]|$)/g, "").replace(/\s+([,.])/g, "$1").replace(/\s{2,}/g, " ").replace(/^[\s,]+/, "").trim();
+  const parts = { lead: lead ? String(vars[lead] || "") : "", draft, expression: vars.expression || "", light: vars.light || "" };
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", safeLine(level)].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args, parts };
 }
 
 // Her time of day (PICTURE.TIMES) at this hour
@@ -4630,6 +4654,95 @@ async function sendPhoto(env, chatId, bytes, caption = "", sent = null) {
 // Starts drawing her picture for this reply (in parallel with her typing). Resolves to { bytes, what, shot, ... }
 // or null; never rejects. kind "selfie": `want` is what she wrote in [selfie: ...] (or null), `said` her words,
 // `plan` the shot the code decided (planShot), `asked` his message when he asked; "scene": `want` is the scene.
+// Step C (picture overhaul, owner 2026-10-12 "Hybrid"): the picture writer (PICTURE.WRITER, DeepSeek on Workers AI) for her own
+// pictures. Its raw answer, or null when it is off for this kind, fails or is slower than TIMEOUT_MS: the caller keeps the template.
+async function writePicture(env, kind, vars = {}) {
+  const W = CONFIG.PICTURE.WRITER || {};
+  const template = W[String(kind).toUpperCase()];
+  if (!W.ON || !(W.KINDS || []).includes(kind) || !template || !W.MODEL || !env.AI) return null;
+  const ms = Number(W.TIMEOUT_MS) || 25000;
+  const prompt = fill(template, { him: "he", her: CONFIG.CHARACTER.NAME, rules: W.RULES || "", ...vars });
+  // as aiRun: AbortSignal.timeout, not setTimeout (the tests make setTimeout instant)
+  const signal = AbortSignal.timeout(ms);
+  const slow = new Promise((resolve) => signal.addEventListener("abort", () => resolve(null)));
+  try {
+    const out = await Promise.race([callModel(env, [{ role: "user", content: prompt }], { temperature: 0.4, max_tokens: Number(W.MAX_TOKENS) || 160 }, { model: W.MODEL, timeoutMs: ms, attempts: 1, task: true }), slow]);
+    if (out == null) await aiFailed(env, `picture writer (${kind}): no answer in ${Math.round(ms / 1000)} s; drew the template`);
+    return out == null ? null : String(out);
+  } catch (e) {
+    await aiFailed(env, `picture writer (${kind}): ${aiText_(e)}; drew the template`);
+    return null;
+  }
+}
+
+// The writer's answer as picture words: one line, no labels, quotes or asterisks, her name → she, at most WRITER.MAX_WORDS (whole
+// sentences), and he is the camera (asCamera). "" when fewer than 4 words are left.
+function writtenWords(raw, settings = {}) {
+  const max = Number((CONFIG.PICTURE.WRITER || {}).MAX_WORDS) || 60;
+  let t = String(raw || "").replace(/[*"“”]/g, "").split("\n").map((x) => x.trim()).filter(Boolean)
+    .map((x) => x.replace(/^(?:WITH[_ ]HER|ALONE|clause|sentences?|answer|photo|picture|draft)\s*[:.-]\s*/i, "")).filter(Boolean).join(" ");
+  if (wordsOf(t).length > max) {
+    const kept = [];
+    for (const x of sentencesOf(t)) if (!kept.length || wordsOf([...kept, x].join(" ")).length <= max) kept.push(x.trim());
+    t = kept.join(" ");
+    if (wordsOf(t).length > max) t = t.split(/\s+/).slice(0, max).join(" ").replace(/[,;:\s]+$/, "");
+  }
+  t = asCamera(t, settings);
+  return wordsOf(t).length >= 4 ? t : "";
+}
+
+// Step C: her selfie's draft (composePicture's framing + her words) tidied by the writer, as a full prompt; null keeps the template.
+// Only when her own words went into the draft (a template alone has no contradictions). The answer must keep every garment the draft
+// names (or its nudity) and add no nudity or sex act the draft hadn't, and pass the level; a clause with a phone is cut.
+async function writtenSelfie(env, pic, { history = [], level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
+  const P = CONFIG.PICTURE;
+  const parts = pic && pic.parts;
+  const a = (pic && pic.args) || {};
+  if (!parts || !parts.draft || !(String(a.words || "").trim() || String(a.doing || "").trim())) return null;
+  const raw = await writePicture(env, "selfie", { draft: parts.draft, chat: writerChat(history) });
+  // a phone in her hands is never in a selfie's words (the lead line says where the phone is: D1 rows 13, 14)
+  const text = raw && writtenWords(raw).split(",").filter((seg) => !/\bphones?\b/i.test(seg)).join(",").replace(/[.\s]+$/, "");
+  if (!text) return null;
+  const draft = parts.draft;
+  const lost = (namesClothes(draft) && !namesClothes(text) && !nudeWords(text)) || (nudeWords(draft) && !nudeWords(text) && !namesClothes(text));
+  const added = (nudeWords(text) && !nudeWords(draft)) || (sexAct(text, level) && !sexAct(draft, level));
+  if (lost || added || !mayDraw(text, level)) {
+    await aiFailed(env, `picture writer (selfie): unusable (${lost ? "a garment lost" : "added what the draft hadn't"}): ${text.slice(0, 120)}; drew the template`);
+    return null;
+  }
+  const body = [text.charAt(0).toUpperCase() + text.slice(1), parts.expression, parts.light].filter(Boolean).join(", ");
+  return { ...pic, prompt: [P.SELFIE_STYLE, "{who}", parts.lead, `${body}.`, pic.location && "{room}", safeLine(level)].filter(Boolean).join(" "), written: raw };
+}
+
+// Step C: her in-person moment (kind "scene") written by the writer from her reply and the chat, as a full prompt; null keeps the
+// template. The code still decides the act (her narration's SEX_CUES or the act words), the clothes when it names none, the light and
+// the place picture.
+async function writtenScene(env, pic, want, { history = [], level = CONFIG.PICTURE.NSFW.DEFAULT, dayWear = null } = {}) {
+  const P = CONFIG.PICTURE;
+  if (!pic || !want) return null;
+  const clothes = pic.wearing || sceneWearing(want, history, level, dayWear) || P.SCENE_WEARING || "";
+  const raw = await writePicture(env, "scene", { chat: writerChat(history), moment: String(want).slice(0, 1500), clothes });
+  const text = raw && writtenWords(raw);
+  if (!text) return null;
+  if (!mayDraw(text, level) || (sexAct(text, level) && !pic.act)) {
+    await aiFailed(env, `picture writer (scene): unusable (${!mayDraw(text, level) ? "not at this level" : "a sex act her narration hadn't"}): ${text.slice(0, 120)}; drew the template`);
+    return null;
+  }
+  const act = !!pic.act || sexAct(text, level);
+  const wearing = act || namesClothes(text) || nudeWords(text) ? "" : clothes;
+  const location = locationOf(text) || pic.location || null;
+  const night = timeOfDay() === "night";
+  const lightText = lightFor(text, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]), level);
+  const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
+  const wornSafe = filterSafe(wearing, level);
+  const prompt = [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(text, level).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", safeLine(level)].filter(Boolean).join(" ");
+  return { ...pic, prompt, location, night: night || isDark(undefined, lightText || ""), written: raw };
+}
+
+// The chat as the writer reads it (WRITER.CHAT_MESSAGES, newest last; his lines as "He")
+const writerChat = (history = []) => history.slice(-(Number((CONFIG.PICTURE.WRITER || {}).CHAT_MESSAGES) || 6))
+  .map((m) => `${m.role === "user" ? "He" : CONFIG.CHARACTER.NAME}: ${String(m.content).slice(0, 600)}`).join("\n") || "(nothing yet)";
+
 function startPicture(env, ledger, kind, want, { said = "", plan = null, history = [], asked = "", chat = null, source = kind, nsfw = null, dayWear = null } = {}) {
   const P = CONFIG.PICTURE;
   const L = P.LINGERIE || {};
@@ -4650,7 +4763,7 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
     const lightText = lightFor(what, night ? P.SCENE_NIGHT : pickOne((P.LIGHT || {})[timeOfDay().toUpperCase()]), level);
     const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
     const wornSafe = filterSafe(wearing, level);
-    pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what, level).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", safeLine(level)].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing };
+    pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what, level).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", safeLine(level)].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing, act };
     if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
       pic.lingerie = true;
       pic.spicy = spicyWords(`${asked} ${wearing}`);
@@ -4674,6 +4787,14 @@ function startPicture(env, ledger, kind, want, { said = "", plan = null, history
       }
       const spicy = !open && nanoBanana && L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
       const lingerie = !open && L.ENABLED && (kind === "selfie" ? !!pic.args && (L.TIERS || []).includes(pic.tier) : !!pic.lingerie);
+      // Step C: the picture writer words her own picture (never Nano Banana's or klein's lingerie-check pictures); null = the template
+      if (!spicy && !lingerie) {
+        const w = kind === "selfie" ? await writtenSelfie(env, pic, { history, level }) : kind === "scene" ? await writtenScene(env, pic, want, { history, level, dayWear }) : null;
+        if (w) {
+          pic = w;
+          log.llmText = w.written;
+        }
+      }
       let kleinPic = null;
       let kleinRefused = null;
       if (lingerie && L.KLEIN_FIRST && !spicy) {
@@ -4956,7 +5077,10 @@ async function lookCommand(env, chatId, args = "") {
   const level = nsfwLevel(settings); // /nsfw (Step 2)
   if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
-  const seen = await lookWrite(env, history, settings, args);
+  // Step C: the clothes LOOK.PROMPT names when the story names none: the scene's own, else the day's outfit
+  const dayWear = await dayOutfits(env);
+  const lastHers = (history.filter((m) => m.role === "assistant" && !m.ooc).at(-1) || {}).content || "";
+  const seen = await lookWrite(env, history, settings, args, sceneWearing(lastHers, history, level, dayWear));
   // a description the level doesn't allow is not drawn (at On it is drawn as before)
   if (seen && level !== "on" && !mayDraw(seen.text, level)) return nsfwRefusal(env, chatId, seen.text, level);
   if (seen && seen.withHer) {
@@ -4971,12 +5095,12 @@ async function lookCommand(env, chatId, args = "") {
   const hers = history.filter((m) => m.role === "assistant" && !m.ooc).slice(-3).map((m) => m.content).filter(inPerson);
   const text = [hers.at(-1), hers.slice(-2).join("\n"), hers.join("\n")].find((t) => t && scenePicturePrompt(t, level));
   if (!text) return notice(env, chatId, M.LOOK_NONE);
-  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { dayWear: await dayOutfits(env), history, chat: chatId, asked: args, source: "look", nsfw: level }));
+  const sent = await deliverPicture(env, chatId, ledger, startPicture(env, ledger, "scene", text, { dayWear, history, chat: chatId, asked: args, source: "look", nsfw: level }));
   if (!sent) return notice(env, chatId, M.LOOK_FAILED);
 }
 
 // /look's picture in words (PICTURE.LOOK.MODEL): { withHer, text } or null when the model fails or says nothing usable
-async function lookWrite(env, history, settings, args = "") {
+async function lookWrite(env, history, settings, args = "", clothes = "") {
   const P = CONFIG.PICTURE;
   const L = P.LOOK || {};
   if (!L.MODEL || !L.PROMPT) return null;
@@ -4984,7 +5108,7 @@ async function lookWrite(env, history, settings, args = "") {
   const her = CONFIG.CHARACTER.NAME;
   const chat = history.slice(-(Number(L.CHAT_MESSAGES) || 8)).map((m) => `${m.role === "user" ? him : her}: ${String(m.content).slice(0, 800)}`).join("\n");
   const words = String(args || "").trim();
-  const prompt = fill(L.PROMPT, { him, her, chat: chat || "(nothing yet)", ask: words ? fill(L.ASK || "", { words }) : "" });
+  const prompt = fill(L.PROMPT, { him, her, chat: chat || "(nothing yet)", ask: words ? fill(L.ASK || "", { words }) : "", rules: (P.WRITER || {}).RULES || "", clothes: clothes || P.SCENE_WEARING || "" });
   let out;
   try {
     out = await callModel(env, [{ role: "user", content: prompt }], { temperature: 0.7, max_tokens: Number(L.MAX_TOKENS) || 300 }, { model: L.MODEL, timeoutMs: 40000, attempts: 2, task: true });

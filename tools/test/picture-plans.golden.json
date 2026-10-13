@@ -721,10 +721,10 @@
     "Runware fails twice: Cloudflare draws": {
       "cloudflare": [
         {
-          "height": 1344,
-          "model": "@cf/black-forest-labs/flux-2-klein-9b",
+          "height": 1024,
+          "model": "@cf/black-forest-labs/flux-2-klein-4b",
           "prompt": "Realistic candid smartphone photo she took herself: The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, an unimpressed deadpan look, in the kitchen, gray cardigan, bright afternoon daylight. Behind her is the part of her room shown in image 2, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: a narrow kitchen: white cabinets, butcher-block counters, a white farmhouse sink under a wooden window with pots of herbs on the sill, open wooden shelves with mismatched mugs, an old white gas stove with a kettle, warm under-cabinet light. Natural skin texture, slight grain.",
-          "width": 768
+          "width": 576
         }
       ],
       "drawn": true,
@@ -1059,10 +1059,10 @@
     "nsfw Off: naked on the bed (no nudity, checkContent on)": {
       "cloudflare": [
         {
-          "height": 1344,
-          "model": "@cf/black-forest-labs/flux-2-klein-9b",
+          "height": 1024,
+          "model": "@cf/black-forest-labs/flux-2-klein-4b",
           "prompt": "Realistic candid photo: The woman from image 0, with exactly the same face, clearly the same woman (her hair, makeup, clothes, pose and framing are as described below, not as in image 0), and exactly the body of image 1, not slimmer: the same full bust, full upper arms and soft body, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult. Naked on the bed. Behind her is the part of her room shown in image 2, with the same walls and furniture, close behind her, lit by this picture's own light as described above; she fills most of the frame. The room: a calm bedroom in an old Boston-area apartment: a low bed with rumpled white linen sheets and a cream knit throw, a black iron bedside lamp on a small wooden nightstand with books, a tall arched black floor mirror leaning on the wall, sheer white curtains on a wide old wooden sash window, a white radiator, a jute rug on dark worn wood floors. Lit by dappled sunlight through the leaves outside the window. Natural skin texture, slight grain.",
-          "width": 768
+          "width": 576
         }
       ],
       "drawn": true,
