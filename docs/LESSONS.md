@@ -9,7 +9,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   with only a prompt; reference images under 512x512 (ours: 480). The container can't reach api.cloudflare.com, openrouter.ai or
   workers.dev (network policy; the owner can allow a host): a Cloudflare question goes to a small workflow that runs on a push of its
   script to your branch (`cf-lora-probe.yml`, 2026-10-13). Deleting branches, `gh run download` and a KV dump workflow are refused;
-  reading `tools/face/` images works. Read Actions logs with the GitHub MCP (`actions_list` / `get_job_logs`, `per_page` small).
+  reading `tools/face/` images works. Read Actions logs with the GitHub MCP (`actions_list` / `get_job_logs`, `per_page` small); a job still running answers 404 for its log: wait for it to complete (2026-10-13).
 - The ElevenLabs MCP needs any voice description and sample line from the owner; transcribing a TTS node only echoes its prompt
   (upload the MP3 as an asset).
 - Read the live Worker after a deploy: the deploy log's Version ID, `/health` and `/setup` (`workers_get_worker_code` is the ~5 MB
@@ -24,7 +24,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Judging pictures: 300 px contact sheets can't say "same face" (owner, 2026-10-03) → each picture at full size, one at a time, with
   per-picture checks (face, age, outfit, phone rule, room, framing, hands, a second person).
 - Test pictures on Cloudflare: push `tools/face/job.json` to your branch (never `dev`: face.yml skips dev/main and its own edits);
-  pictures land on `face-candidates`; past 7,000 neurons it refuses (set `day_neurons`); `model` and `keep_full` pick klein 9B at
+  pictures land on `face-candidates`; past `day_neurons` it refuses, and the count is the whole account's neurons today (61,712 on 2026-10-13: wait for 00:00 UTC, or raise it); `model` and `keep_full` pick klein 9B at
   full size (2026-10-13). A 3030 there falls back to Pollinations (watermarked: never a reference).
 - The sync report lists "N commits not here" for old branches on a shallow clone: `git fetch --unshallow origin`, rerun
   `node tools/sync-check.mjs`; `git cherry origin/dev origin/<b>` counts what's really missing. Deploy = `git push origin origin/dev:main`.
@@ -42,8 +42,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   higher), 1008x1792 up to $0.0042; steps 4-6, acceleration and CFG 1-2 don't change it. Calls past ~60 s die at the proxy
   (`deliveryMethod: "async"`). `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture(...)` benches the bot's own code from the
   container (calls ~4 s apart; wrap `fetch` to fix `seed`). A 502 "no picture" is often billed (4 of 4, Step B; 2026-10-11, 2026-10-13):
-  read `usage`, not the script's sum, and budget ~20% over.
-- Picture bench harness (rounds 5-Step B): seed `Math.random` per case (MOODS/GAZES/place picks) so variants differ only by the change;
+  read `usage`, not the script's sum ($0.0495 by usage vs $0.0369 by the script, Fix round 2), and budget ~20% over.
+- Picture bench harness (rounds 5-Step B): seed `Math.random` per case (MOODS/GAZES/place picks) so variants differ only by the change (plan-only calls too: unseeded, the light differed per variant, 2026-10-13);
   give `env` an `AI` stub; mixed sizes: `convert ... -resize x700 +append`, not `montage`. Find causes free by stubbing
   `globalThis.fetch` and printing each Runware request (Belly, 2026-10-10).
 - /setup is a web page (owner, 2026-10-06): never tell him to send it; its "send /restart" line wipes her memory: don't repeat it.
@@ -171,3 +171,4 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   didn't touch the chat path (cf-probe 38355964346). A behaviour change at the provider can look like a deploy bug: probe the live
   call shape first (2026-10-13). Writer words that draw wrong: "thumb extended toward the camera" → a jab at the lens,
   "pinched with worry" → a glare or wince, a top with nothing named below → jeans in bed (RUNWARE.DRESSED_BOTTOM) (Step C bench).
+- DeepSeek on Workers AI with a thinking room of 700 (`LLM.THINK_TOKENS`, cf-probe 3d1ab33, 2026-10-13): 8 of 12 answers finished with content (none cut or empty), but latency is bimodal: 4-6 s or 33-48 s, and 4 of 12 timed out at 60 s, with no link to the reasoning length. A 30 s bot limit keeps about a third: read the timing with the cut check.

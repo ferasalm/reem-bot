@@ -33,6 +33,22 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## 2026-10-13 Fix round 2 (Haiku 5.5): F1 probe and F2 bench; not `[live]`, not deployed
+
+Workers AI DeepSeek V4 Flash as her replies ask for them (`tools/test/cf-probe.mjs`, run 38357963015, commit 3d1ab33, 06:39-06:47 UTC): her persona and a 3-message chat, reasoning "none", max_tokens = LLM.MAX_TOKENS + LLM.THINK_TOKENS (700). Every answer read in the job log.
+
+| Length (max_tokens) | calls | finished with content (finish=stop) | timed out at 60 s | seconds of the finished calls | completion tokens | reasoning chars |
+|---|---|---|---|---|---|---|
+| TEXT (920) | 4 | 1 | 3 | 48.0 | 217 | 356 |
+| SCENE (1080) | 4 | 3 | 1 | 37.7, 4.4, 3.9 | 274, 245, 221 | 721, 314, 572 |
+| VOICE (820) | 4 | 4 | 0 | 5.3, 32.7, 36.9, 5.5 | 321, 289, 258, 173 | 636, 650, 451, 435 |
+
+→ 8 of 12 finished, each with content and finish=stop: none cut, none empty (the F1 cut and empty check passes). 4 of 12 got no answer in 60 s. The finished times are 4-6 s or 33-48 s, with no link to the reasoning length. At LLM.TIMEOUT_MS 30 s only 4 of 12 would finish in time: the latency is the owner's question (HANDOFF), not tuned here.
+
+Runware bench (`tools/face/bodywords-bench.mjs`; `runs/2026-10-13-body-words-runware` on `face-candidates`, 008041c): 12 pictures, klein 9B at 768x1344; three cases (a clothed front, a nude front, a nude back) x seeds 101 and 202 x today's body lines (V0, commit 3d1ab33) and PICTURE.BODY_WORDS (V1, commit ba42045). Per run the prompts differ only in the body words (checked by script). Spend $0.0495 by the Runware usage delta (balance 12.34433 → 12.29571); the script's own sum is $0.0369, the difference being three 502 "no picture" answers (all V1), each retried with the same seed and prompt. Not judged here: Opus and the owner read them at full size (WORKPLAN "Opus check prompt").
+
+Cloudflare half (`face.yml` run 38359468394 on job.json at b1420e1: klein 4B, 576x1024, her face and the clothed body, V0 and V1 at seeds 101 and 202): refused by the job's day cap before any draw (the account had used 61,712 neurons today, above `day_neurons` 20000). No pictures yet.
+
 ## Belly check, 2026-10-10 (`drawPicture`, Runware klein 9B, the same picks; not a [live] run)
 
 The same custom prompt four times per arm ("fitted black tank top and high-waisted jeans, standing in the kitchen"), read on one sheet. Likeness not measured.

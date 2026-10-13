@@ -4,6 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-13 (forty-third session, Haiku 5.5): Fix round 2 F1 and F2 built, the probe and the bench; dev only, not deployed
+- Sync: the SessionStart report listed about 50 "work not here" branches. The clone was shallow (50 commits): `git fetch --unshallow origin` gave 380 commits, and the report then read clean ("this branch contains everything on origin/dev"). LESSONS §1 has the fix.
+- F1, `b13aece`: `LLM.THINK_TOKENS` 700 (a chat reply sends `max_tokens` = its MAX_TOKENS + 700; a task keeps +1500; the empty-answer retries unchanged); `LLM.TIMEOUT_MS` 20000 → 30000; unit row and panel row.
+- Probe, `3d1ab33` (cf-probe run 38357963015, 06:39-06:47 UTC): 8 of 12 finished with content (finish=stop), none cut or empty; 4 timed out at 60 s; finished times 3.9-48 s. QUALITY has the table. The latency is open (HANDOFF).
+- F2, `ba42045`: `PICTURE.BODY_WORDS` (the owner's list) in the 11 body lines: PICTURE REFERENCE and LOOKS, REFERENCE_CLOTHED, _CLOTHED_BACK, _NOBODY, RUNWARE REFERENCE, _BACK, LOOKS and _CLOSE, LINGERIE WHO, and SPICY_PROMPT (body.upper, body.waist and body.arms became body.shape). The belly and hourglass ban stays; "fair olive skin", the persona (SYSTEM_PROMPT) and the frame line (165 cm, 71 kg) are untouched. Golden: 39 of 300 strings changed, each only in the body words (checked string by string). Unit rows 312, 718, 520-526 and the doggy row follow the words. `check.mjs` 8 of 8.
+- Bench, `b1420e1` (job and bench seeding) and `008041c` (pictures): Runware 12 pictures, V0 today vs V1 BODY_WORDS, on `face-candidates` runs/2026-10-13-body-words-runware; spend $0.0495 by usage. The Cloudflare half (face.yml run 38359468394) was refused by the day cap and is not drawn.
+- Commits: `b13aece` F1, `3d1ab33` probe, `ba42045` F2, `b1420e1` bench job, `008041c` pictures, then this records commit. Not deployed: `main` stays 79daf47.
+
 ## 2026-10-13 (forty-second session, Opus 5.5 (`claude-opus-5-5`, per `get_session` `session_context.model` and `last_served_model`); two subagents, Opus 5.5 `claude-opus-5-5` per their transcripts): diagnosis after the deploy; dev only
 - Owner: short, cut replies and "disconnects" after the deploy; her body not full enough; did picture cost go up? Plan: WORKPLAN "Fix round 2" (F1 replies, F2 body words, F3 redraw cost) with a Haiku prompt.
 - cf-probe now runs on a push of `tools/test/cf-probe.mjs` to a session branch; it asks as the bot does. Run 38355964346: DeepSeek on Workers AI thinks even at "none", and the thinking fills max_tokens (QUALITY). Runs 38355405129 (hung, no fetch timeout) and 38355952392 ran at the same time.
