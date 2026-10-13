@@ -33,6 +33,14 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## 2026-10-13 Llama 3.3 70B fast as her chat model (Opus 5.5, `claude-opus-5-5`): replay before the deploy
+
+test.yml run 38361339464 (workflow_dispatch on `chat-llama` 2e193c5, `model` @cf/meta/llama-3.3-70b-instruct-fp8-fast, 2 runs each; no OpenRouter call). Every reply read in the job log.
+
+| Date | Run | Commit | Calls | Broken | Notes | Slips fixed by code | Watch |
+|---|---|---|---|---|---|---|---|
+| 2026-10-13 | 38361339464 (Llama chat) | 2e193c5 | 96 (79 Llama, 17 bge-m3) | 0 | 48/48 answered, none empty or cut, no refusal; texts 11-31 tokens, scenes 54-117 (shorter and plainer than DeepSeek); REVIEW: flirting after "i'm 16" 1 (owner: ignore), "didn't go to him" 2 | acted in an OOC answer 2, text before [voice] 1 | scenes open with "Reem's eyes..." (her name, third person) in most scenes; "[whispers]" mid-sentence in voice; repeated lines across runs ("Took... you... long... enough." 2/2); not tested: explicit sex scenes (the owner's Telegram test) |
+
 ## 2026-10-13 Fix round 2 (Haiku 5.5): F1 probe and F2 bench; not `[live]`, not deployed
 
 Workers AI DeepSeek V4 Flash as her replies ask for them (`tools/test/cf-probe.mjs`, run 38357963015, commit 3d1ab33, 06:39-06:47 UTC): her persona and a 3-message chat, reasoning "none", max_tokens = LLM.MAX_TOKENS + LLM.THINK_TOKENS (700). Every answer read in the job log.
