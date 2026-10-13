@@ -50,6 +50,7 @@ W.CONFIG.VOICE.PROVIDER = "aura"; // the default is OpenRouter (Sulafat); the fl
 W.CONFIG.PICTURE.ROUTE = "cloudflare"; // the default is Runware klein (owner 2026-10-06); these flows were written for the Cloudflare route
 W.CONFIG.DAY.WEATHER = false; W.CONFIG.DAY.PLAN = false; // her real day (DAY) is tested on its own: these count AI calls
 W.CONFIG.PICTURE.WRITER.ON = false; // the picture writer (Step C) is tested on its own: these stubs never answer it
+W.CONFIG.PICTURE.ANATOMY.ON = false; // the anatomy check (Step D) is tested on its own
 { const L = W.CONFIG.LLM; // the defaults are DeepSeek on Workers AI first, OpenRouter's the backup (owner 2026-10-06); these flows mock OpenRouter as the main
   Object.assign(L, { MODEL: L.BACKUP_MODEL, PROVIDER: L.BACKUP_PROVIDER, REASONING: L.BACKUP_REASONING, BACKUP_MODEL: "@cf/deepseek-ai/deepseek-v4-flash-0731", BACKUP_PROVIDER: {}, BACKUP_REASONING: {} });
   W.CONFIG.MEMORY.MODEL = L.MODEL; W.CONFIG.AUTO.MODEL = L.MODEL; W.CONFIG.HEARING.OR_FIRST = true; }

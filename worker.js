@@ -4256,7 +4256,7 @@ function pictureRow(prompt, L, rec, ok) {
     ms: Date.now() - rec.ms0,
     attempts: rec.attempts,
     ok: ok ? 1 : 0,
-    error: ok ? null : rec.error || null,
+    error: ok ? rec.note || null : rec.error || null, // a drawn picture: the anatomy check's mistakes (Step D)
   };
 }
 
@@ -4551,24 +4551,49 @@ async function studioImage(env, id, size) {
 // reference. `log` = { source, chat, asked, herWords, llmText, nsfw } for the log. Every call is logged, drawn or not, and
 // prints one line of JSON. Plan (runwarePlan) → draw (drawRunware, then Cloudflare) → log.
 // Step 2: `nsfw` = the chat's /nsfw level ("off" | "nude" | "on"; default PICTURE.NSFW.DEFAULT); it is the log row's nsfw
+// Step D (2026-10-13): her pictures (ANATOMY.KINDS, with a ledger) are checked (anatomyCheck); one with mistakes is drawn again with another
+// seed, ANATOMY.TRIES pictures at most, and the one with the fewest mistakes is returned. Each try is its own log row ("anatomy: ..." in
+// its error column when the check found mistakes). A failed first draw throws as before; a failed redraw keeps the best so far.
 async function drawPicture(env, prompt, opts = {}) {
+  const P = CONFIG.PICTURE;
+  const A = P.ANATOMY || {};
   const L = opts.log || {};
-  const nsfw = opts.nsfw || CONFIG.PICTURE.NSFW.DEFAULT;
-  const rec = { ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: pictureFlags(prompt, opts.herself !== false, nsfw).kind, model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "", nsfw };
-  if (opts.planOnly) return drawPictureNow(env, prompt, { ...opts, nsfw }, rec); // the studio's compose: the plan only (nothing drawn or logged)
-  let out = null;
-  let failure = null;
-  try {
-    out = await drawPictureNow(env, prompt, { ...opts, nsfw }, rec);
-  } catch (e) {
-    failure = e;
-    rec.error = aiText_(e);
+  const nsfw = opts.nsfw || P.NSFW.DEFAULT;
+  const newRec = () => ({ ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: pictureFlags(prompt, opts.herself !== false, nsfw).kind, model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "", note: "", nsfw });
+  if (opts.planOnly) return drawPictureNow(env, prompt, { ...opts, nsfw }, newRec()); // the studio's compose: the plan only (nothing drawn or logged)
+  const kind = L.source === "look" ? "look" : opts.kind || (opts.custom ? "pic" : "");
+  const checking = !!(A.ON && opts.ledger && opts.herself !== false && (A.KINDS || []).includes(kind));
+  const tries = checking ? Math.max(1, Math.floor(Number(A.TRIES) || 1)) : 1;
+  let best = null;
+  let seed = Number(opts.seed) || 0;
+  for (let i = 0; i < tries; i++) {
+    const rec = newRec();
+    let out = null;
+    let failure = null;
+    try {
+      out = await drawPictureNow(env, prompt, { ...opts, nsfw, seed }, rec);
+    } catch (e) {
+      failure = e;
+      rec.error = aiText_(e);
+    }
+    // a redraw on Cloudflare is counted here (the callers count one picture)
+    if (i && opts.ledger && rec.model && !String(rec.model).startsWith("runware:")) aiSpent(opts.ledger, rec.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, failure);
+    // his eyes: sex acts, scenes and /look, and a /pic with him (POV_CLOTHED); her selfies are hers
+    const view = rec.kind === "act" ? "act" : kind === "selfie" ? "" : kind === "pic" ? (P.POV_CLOTHED && String(prompt).includes(P.POV_CLOTHED) ? "pov" : "") : "pov";
+    const verdict = !failure && checking ? await anatomyCheck(env, opts.ledger, out.bytes, view) : null;
+    if (verdict && !verdict.ok) rec.note = `anatomy (try ${i + 1} of ${tries}): ${verdict.mistakes.join(", ")}`;
+    const logId = await logPicture(env, pictureRow(prompt, L, rec, !failure));
+    console.log(JSON.stringify({ picture: logId, source: L.source || "other", model: rec.model || null, kind: rec.kind, loras: rec.loras.length, cost: rec.cost, ms: Date.now() - rec.ms0, ok: !failure, ...(verdict ? { anatomy: verdict.ok ? "ok" : verdict.mistakes } : {}) }));
+    if (failure) {
+      if (!best) throw failure;
+      break;
+    }
+    const mistakes = verdict ? verdict.mistakes.length : 0;
+    if (!best || mistakes < best.mistakes) best = { out: { ...out, logId }, mistakes };
+    if (!verdict || verdict.ok) break;
+    seed = ((((Number(rec.seed) || 1) - 1 + 7919) % 2147483646) + 1); // another picture, not the same one again
   }
-  const logId = await logPicture(env, pictureRow(prompt, L, rec, !failure));
-  console.log(JSON.stringify({ picture: logId, source: L.source || "other", model: rec.model || null, kind: rec.kind, loras: rec.loras.length, cost: rec.cost, ms: Date.now() - rec.ms0, ok: !failure }));
-  if (failure) throw failure;
-  out.logId = logId;
-  return out;
+  return best.out;
 }
 
 // drawPicture's draw: the Runware tries (runwarePlan), then Cloudflare. `rec` keeps what was sent, for the log.
@@ -4986,6 +5011,28 @@ function anatomyVerdict(text) {
     } catch {}
   }
   return null;
+}
+
+// Step D: asks ANATOMY.MODEL whether a drawn picture has anatomy mistakes. view: "act" (sex from his eyes), "pov" (his eyes) or "".
+// { ok, mistakes, people, text } or null when it can't be checked (off, no AI or budget, an error, slower than TIMEOUT_MS, no JSON):
+// then the picture is sent as drawn. Counted as one of his photos (AI_BUDGET.PHOTO_NEURONS; ~60 neurons measured, run 38340313839).
+async function anatomyCheck(env, ledger, bytes, view = "") {
+  const A = CONFIG.PICTURE.ANATOMY || {};
+  if (!A.ON || !A.MODEL || !A.PROMPT || !env.AI || !bytes || (ledger && !aiAffordable(ledger, "photo")) || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return null;
+  const prompt = fill(A.PROMPT, { attached: view ? A.ATTACHED || "" : "", pov: view === "pov" ? A.POV || "" : "", act: view === "act" ? A.ACT || "" : "" });
+  let error = null;
+  try {
+    const input = { messages: [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(bytes)}` } }] }], max_tokens: Number(A.MAX_TOKENS) || 300 };
+    const text = String(aiText(await aiRun(env, A.MODEL, input, Number(A.TIMEOUT_MS) || 20000)) || "").trim();
+    const v = anatomyVerdict(text);
+    return v && { ...v, text };
+  } catch (e) {
+    error = e;
+    await aiFailed(env, `anatomy check (${A.MODEL}): ${aiText_(e)}; sent the picture as drawn`);
+    return null;
+  } finally {
+    if (ledger) aiSpent(ledger, CONFIG.AI_BUDGET.PHOTO_NEURONS, error);
+  }
 }
 
 // May this picture go to PICTURE.LINGERIE (Nano Banana) today?

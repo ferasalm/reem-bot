@@ -2,6 +2,7 @@
 import { loadWorker } from "./load-worker.mjs";
 const W = await loadWorker();
 W.CONFIG.PICTURE.WRITER.ON = false; // the picture writer (Step C): its own rows turn it on
+W.CONFIG.PICTURE.ANATOMY.ON = false; // the anatomy check (Step D): its own rows turn it on
 let fails = 0;
 const eq = (got, want, label) => { const ok = JSON.stringify(got) === JSON.stringify(want); if (!ok) fails++; console.log(ok ? "ok  " : "FAIL", label, ok ? "" : `\n     got:  ${JSON.stringify(got)}\n     want: ${JSON.stringify(want)}`); };
 // Arabizi
@@ -886,6 +887,58 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq(W.writtenWords("Clause: She sits on the sofa,\n\"wearing a red dress\"."), "She sits on the sofa, wearing a red dress", "writtenWords: one line, no label or quotes");
   Wr.ON = false;
   eq(await W.writePicture(env, "scene", {}), null, "writer off: nothing asked");
+}
+
+// Step D (2026-10-13): the anatomy check (PICTURE.ANATOMY) and drawPicture's redraws
+{
+  const A = W.CONFIG.PICTURE.ANATOMY;
+  const yes = (ok, label, got) => eq(!!ok, true, ok ? label : `${label} ${String(got || "").slice(0, 400)}`);
+  const verdict = (o) => `I looked.\n${JSON.stringify({ heads: 1, stray_parts: false, bad_hands: false, bad_limbs: false, mismatched_legs: false, bad_face: false, ...o })}`;
+  let answers = [];
+  const draws = [];
+  const asked = [];
+  const kv = { get: async () => null, put: async () => {}, delete: async () => {} };
+  const env = { REEM_KV: kv, AI: { async run(model, input) {
+    if (input && input.multipart) { draws.push(model); return { image: btoa(`picture ${draws.length}`) }; }
+    asked.push({ model, text: input.messages[0].content[0].text });
+    const a = answers.shift();
+    if (a instanceof Error) throw a;
+    return { response: a ?? "" };
+  } } };
+  const ledger = () => ({ day: "", neurons: 0, out: false, rwUsd: 0, recent: [], shots: [] });
+  const draw = (o = {}) => W.drawPicture(env, "Realistic candid smartphone photo she took herself: {who} Chest-up, a gray sweater.", { ledger: o.ledger || ledger(), kind: "selfie", nsfw: "off", ...o });
+  const reset = (a) => { answers = a; draws.length = 0; asked.length = 0; W.budget.reset(); }; // a new request's subrequest budget
+  A.ON = true;
+  reset([verdict({ stray_parts: true }), verdict({})]);
+  let out = await draw();
+  eq([new TextDecoder().decode(out.bytes), draws.length, asked.length], ["picture 2", 2, 2], "anatomy: a stray hand → drawn again, the clean second picture sent");
+  yes(asked[0].model === A.MODEL && asked[0].text.includes("heads or faces") && !asked[0].text.includes(A.ATTACHED) && !asked[0].text.includes(A.POV), "anatomy: her selfie is checked without the his-eyes lines", asked[0].text);
+  reset([verdict({ bad_hands: true, bad_limbs: true }), verdict({ heads: 2 }), verdict({ bad_hands: true, stray_parts: true })]);
+  out = await draw();
+  eq([new TextDecoder().decode(out.bytes), draws.length], ["picture 2", A.TRIES], "anatomy: TRIES pictures at most, the one with the fewest mistakes sent");
+  reset(["I can't tell."]);
+  out = await draw();
+  eq([draws.length, asked.length], [1, 1], "anatomy: an answer with no JSON passes the picture");
+  reset([new Error("3040: capacity")]);
+  out = await draw();
+  eq([new TextDecoder().decode(out.bytes), draws.length], ["picture 1", 1], "anatomy: the check failing passes the picture");
+  reset([verdict({ stray_parts: true }), verdict({})]);
+  await W.drawPicture(env, "Realistic candid first-person photo from the man's own eyes, caught in the middle of the act, not posing: {who} She rides the man on the sofa, naked.", { ledger: ledger(), kind: "scene", nsfw: "off" });
+  yes(asked[0].text.includes(A.ATTACHED) && (asked[0].text.includes(A.ACT) || asked[0].text.includes(A.POV)), "anatomy: an in-person picture is checked from his eyes (his parts belong to him, his head never shows)", asked[0].text);
+  reset([verdict({ stray_parts: true })]);
+  await W.drawPicture(env, "A dim room, a lamp.", { ledger: ledger(), kind: "scene", herself: false, face: false, nsfw: "off", log: { source: "look" } });
+  eq([draws.length, asked.length], [1, 0], "anatomy: /look without her is not checked");
+  reset([verdict({ stray_parts: true })]);
+  await W.drawPicture(env, "x {who}", { kind: "selfie", nsfw: "off" });
+  eq(asked.length, 0, "anatomy: no ledger (/face, /health) → not checked");
+  const led = ledger();
+  reset([verdict({ stray_parts: true }), verdict({ stray_parts: true }), verdict({})]);
+  await draw({ ledger: led });
+  eq(led.neurons, W.CONFIG.AI_BUDGET.PICTURE_NEURONS * 2 + W.CONFIG.AI_BUDGET.PHOTO_NEURONS * 3, "anatomy: the 2 Cloudflare redraws and the 3 checks are counted (the first picture is its caller's)");
+  A.ON = false;
+  reset([verdict({ stray_parts: true })]);
+  await draw();
+  eq([draws.length, asked.length], [1, 0], "anatomy off: one picture, no check");
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

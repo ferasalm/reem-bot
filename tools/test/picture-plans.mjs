@@ -215,6 +215,7 @@ function differences(a, b, path, out) {
 const mode = process.argv.includes("--write") ? "write" : "check";
 const W = await loadWorker();
 W.CONFIG.PICTURE.WRITER.ON = false; // golden plans are the templates (Step C: the writer has its own scenarios section)
+W.CONFIG.PICTURE.ANATOMY.ON = false; // ...and one draw each (Step D: the anatomy check has its own unit rows)
 // the bot logs each picture as one line of JSON and the failed tries as errors: not wanted in this check's output
 const say = console.log;
 const complain = console.error;

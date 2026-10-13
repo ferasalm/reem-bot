@@ -33,6 +33,7 @@ function mulberry32(seed) {
 
 const W = await loadWorker();
 W.CONFIG.PICTURE.WRITER.ON = false; // the picture writer (Step C) is tested in scenarios
+W.CONFIG.PICTURE.ANATOMY.ON = false; // the anatomy check (Step D) is tested in unit
 const TOKEN = "123456:studio-test";
 const NOW = FROZEN;
 const TINY = Buffer.from("fake jpeg bytes").toString("base64");
