@@ -4,6 +4,15 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-15 (fifty-first session): Rebuild Step 1, the module split (dev only)
+- Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); one haiku-worker (Haiku 5.5, `claude-haiku-5-5` per its
+  transcript) drafted the declaration → module classification (369 rows from names, references and CONFIG columns; Opus moved 3 and
+  fixed one invalid module name). `tools/split/split.mjs` (acorn + eslint-scope) wrote 38 modules from bcbe21c's worker.js: text and
+  comments kept, every declaration exported, imports computed, no write to an imported binding (studioHost got `setStudioHost`), no
+  load-time use inside an import cycle. Then `can()` (28 call sites), per-chat ledger/budget keys, `LANGUAGE`, docs. $0 spent.
+- Proof: CONFIG deep-equal to the old; golden plans byte-identical (39 cases); check.mjs 8/8; `wrangler deploy --dry-run` bundle
+  imported in Node (fetch, queue, scheduled). The old header's history is in the appendix at the end of this file.
+
 ## 2026-10-15 (fiftieth session): Rebuild Step 0 built (dev only)
 - Sonnet 5.5 (`claude-sonnet-5-5`, configured and served per get_session), no subagents, $0 spent (no pictures drawn). Done: events table,
   per-update/command try/catch with her line (401/402 too), budget fix + 10,000 limit, fold on the cron, upload_photo pulse, Runware

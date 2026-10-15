@@ -40,6 +40,10 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   +append` for sheets; stub `globalThis.fetch` and print each Runware request to find causes for free (2026-10-10, 2026-10-13).
 - /setup is a web page (owner, 2026-10-06): never tell him to send it; its "send /restart" line wipes her memory: don't repeat it.
   A new CONFIG key needs a hand-written row in `tools/settings-panel.html` `SECTIONS` (the unit test names missing ones).
+- Moving code between modules (2026-10-15): acorn + eslint-scope are in `/opt/node-tools/node_modules` (createRequire); `node
+  tools/split/fix-imports.mjs` recomputes every module's imports. ES imports are read-only (a `let` set from another module needs a setter)
+  and a load-time use of a binding from a module in the same import cycle is a TDZ error: CONFIG stays a leaf. Prove a move with the golden
+  plans, a sorted deep compare of CONFIG, and the `wrangler deploy --dry-run` bundle imported in Node.
 - Skills/agents go in the repo's `.claude/` (`~/.claude` is wiped); a new agents folder needs a new chat (2026-10-11).
 - Browser checks: global Playwright (`createRequire` on `/opt/node22/lib/node_modules/playwright`), `executablePath:
   "/opt/pw-browsers/chromium"`; `allHeaders()` shows Set-Cookie; the browser's own `/favicon.ico` 404 is not the page's (2026-10-11).

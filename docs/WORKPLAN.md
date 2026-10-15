@@ -1170,6 +1170,15 @@ Records:
   - the sampler is chosen by reading first, then a short list.
 - MAP, LESSONS and HANDOFF are rewritten at each step.
 
+### Step 1 build (Opus 5.5 `claude-opus-5-5` + haiku-worker Haiku 5.5 `claude-haiku-5-5`, 2026-10-15): done, on dev
+- As specified, with these choices: modules are finer than the target where the old code had no Step 2 home yet (pictures: shots,
+  compose, plan, refs, draw, writer, anatomy, lingerie, deliver, commands; spec/interpret/frames/lint/loras are Step 2's new files).
+  `src/vision.js` and `src/setup.js` stand alone; `src/internals.js` is the test barrel.
+- Persona CONFIG paths: the list in `tools/split/manifest.json` (`personaConfig`). RUNWARE's reference lines and MOODS moved; the
+  writer, LOOK and ANATOMY prompts stayed engine (Step 2 rewrites them). MINOR_PATTERN stays engine (a safety rule).
+- `can()` takes `who` = { env, settings, ledger, ooc, level }; Step 2 code should call `can()`, never the rule functions.
+- After moving code between modules, `node tools/split/fix-imports.mjs` fixes the imports; rerun the golden plans.
+
 ### Issues and bugs found (existing or likely), to fix in the step named
 
 1. The double `budget.used++` at four call sites, and the 50-call free-plan limit on a Paid account. (0)
