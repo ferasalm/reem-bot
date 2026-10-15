@@ -32,7 +32,7 @@ const refB64 = (n) => REF[n] || (n.startsWith("place:") && PLACES.PLACE_JPEG_BAS
 const FACE_WORDS = process.env.FACE_WORDS || "Her face as in image 0: thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips.";
 const FACE_FULL = process.env.FACE_FULL ? readFileSync(process.env.FACE_FULL).toString("base64") : null;
 if (FACE_FULL) REF["face-full"] = FACE_FULL;
-const G_WORDS = process.env.G_WORDS || "her face exactly image 0's: thick dark arched brows, light hazel-green eyes (clearly green, not brown) with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips";
+const G_WORDS = process.env.G_WORDS || "her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips";
 const G_LIGHT = process.env.G_LIGHT || " The lamp light falls on her face, so her green eyes show.";
 const PLACE_LINE = /\s*Behind her, her room as in image \d+, in this picture's own light\./;
 const ANATOMY = "myaiprojectsqqq:3@2";

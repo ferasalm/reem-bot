@@ -324,11 +324,11 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const plain = await draw("on the couch reading a book");
     const n0 = plain.inputs.referenceImages.length;
     eq(n0, 2, "a clothed picture sends her face and the clothed body (2026-10-12)");
-    eq(!!(plain.positivePrompt.includes("not image 1's black bra and briefs") && plain.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS_CLOTHED + ",") && !plain.positivePrompt.includes("voluptuous")), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out, the owner's body words (Fix round 2)");
+    eq(!!(plain.positivePrompt.includes("she wears only the clothes described here.") && !/soft feminine curves|not brown/.test(plain.positivePrompt) && plain.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS_CLOTHED + ",") && !plain.positivePrompt.includes("voluptuous")), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out in affirmative words, the owner's body words without \"soft feminine curves\" (Fix round 2; owner 2026-10-15)");
     const named = (words) => W.runwarePlan(`{who} ${words}`, { ref: new Uint8Array([1]), rwFace: new Uint8Array([1]), faceName: "face-2x", who: (w, a, b) => w }).tries[0];
     eq(named("on the couch reading a book").refs.map((r) => r.name), ["face-2x", "body-v13-clothed"], "clothed: image 1 is v13-clothed");
     const belfie = named("a belfie in tight jeans, looking over her shoulder");
-    eq([belfie.refs.map((r) => r.name), belfie.text.includes("Image 1 shows her body naked: she is not naked here")], [["face-2x", "body-v13-back"], true], "a clothed back view: image 1 is the nude back v13-back, dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15)");
+    eq([belfie.refs.map((r) => r.name), belfie.text.includes("here she is fully dressed, in only the clothes described here")], [["face-2x", "body-v13-back"], true], "a clothed back view: image 1 is the nude back v13-back, dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15)");
     // the place's image number follows the pictures really sent (Step 5: "none" said "image 2" with only face and place sent)
     const roomN = async () => ((await draw("making coffee {room}", { location: "kitchen" })).positivePrompt.match(/as in image (\d)/) || [])[1];
     eq(await roomN(), "2", "with a body picture the place is image 2");
