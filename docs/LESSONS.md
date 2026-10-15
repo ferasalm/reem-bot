@@ -47,7 +47,9 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Skills/agents go in the repo's `.claude/` (`~/.claude` is wiped); a new agents folder needs a new chat (2026-10-11).
 - Browser checks: global Playwright (`createRequire` on `/opt/node22/lib/node_modules/playwright`), `executablePath:
   "/opt/pw-browsers/chromium"`; `allHeaders()` shows Set-Cookie; the browser's own `/favicon.ico` 404 is not the page's (2026-10-11).
-- `image-bench.yml` runs (paid) on every push that changes `tools/face/bench.json`: only for an owner-approved bench. Stop a background
+- Paid workflows run on any push that changes a file in their `paths` (stt-bench.yml: `tools/voice/stt-bench.mjs` → an OpenRouter run,
+  ~$0.03, 2026-10-15, against the owner's no-OpenRouter rule): before pushing an edit under `tools/`, `grep -n paths .github/workflows/*.yml`.
+  `image-bench.yml` runs (paid) on every push that changes `tools/face/bench.json`: only for an owner-approved bench. Stop a background
   workflow (TaskStop) before running its steps by hand.
 
 ## 2. Known traps (pictures)

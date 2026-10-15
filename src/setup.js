@@ -198,7 +198,7 @@ export async function setup(url, env) {
     // the picture route (PICTURE.ROUTE): Runware needs its key; no test picture here (it would cost on every reload)
     if (runwareRoute()) {
       const R = PIC.RUNWARE || {};
-      add(!!env.RUNWARE_API_KEY, `Pictures: Runware (${PIC.ROUTE})`, env.RUNWARE_API_KEY ? `${PIC.ROUTE === "runware-klein" ? `${R.MODEL} with her face, retried, then Cloudflare klein` : R.BACKUP_MODEL}; nudity allowed${PIC.NSFW.OFF_ROUTE === "cloudflare" ? "; at /nsfw Off: Cloudflare klein" : ""}. Today about ${usd(ledger.rwUsd)} of ${usd(R.DAILY_USD)}; past it Cloudflare draws.` : "The Worker secret RUNWARE_API_KEY is missing: Cloudflare draws every picture (never nude).");
+      add(!!env.RUNWARE_API_KEY, `Pictures: Runware (${PIC.ROUTE})`, env.RUNWARE_API_KEY ? `${PIC.ROUTE === "runware-klein" ? `${R.MODEL} with her face, retried on a 5xx or timeout; at /nsfw Nude and On Runware only (no picture when it fails)` : R.BACKUP_MODEL}; nudity allowed${PIC.NSFW.OFF_ROUTE === "cloudflare" ? "; at /nsfw Off: Cloudflare klein" : ""}. Today about ${usd(ledger.rwUsd)} of ${usd(R.DAILY_USD)}; past it no Nude/On pictures until 00:00 UTC.` : "The Worker secret RUNWARE_API_KEY is missing: Cloudflare draws every picture (never nude).");
     } else add(null, "Pictures: Cloudflare", "klein on Workers AI, lingerie on Nano Banana; never nude. Switch PICTURE.ROUTE to a Runware route on the settings panel.");
     if (L.ENABLED && env.OPENROUTER_API_KEY && !runwareRoute()) {
       // a real picture would cost USD_PER_PICTURE on every reload: only that the model is there
