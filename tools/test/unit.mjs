@@ -314,7 +314,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
 }
 {
   // owner 2026-10-10: a hairstyle with a picture (RUNWARE.STYLE_PICTURES) sends that picture as the next image, after face, body and place,
-  // and names it. 2026-10-12 (owner): the outfit pictures are retired and the clothed body is v12-clothed (lace bra + panties, 2026-10-15), or for a back view the nude back
+  // and names it. 2026-10-12 (owner): the outfit pictures are retired and the clothed body is v13-clothed (lace bra + panties, 2026-10-15), or for a back view the nude back
   const P = W.CONFIG.PICTURE, R = P.RUNWARE, realFetch = globalThis.fetch, keep = [P.ROUTE, P.HAIR_CHANCE], r0 = Math.random;
   let sent = [];
   globalThis.fetch = async (url, init) => { sent.push(JSON.parse(init.body)[0]); return new Response(JSON.stringify({ data: [{ imageBase64Data: "AAAA", cost: 0.001 }] })); };
@@ -324,11 +324,11 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const plain = await draw("on the couch reading a book");
     const n0 = plain.inputs.referenceImages.length;
     eq(n0, 2, "a clothed picture sends her face and the clothed body (2026-10-12)");
-    eq(!!(plain.positivePrompt.includes("not image 1's black lace bra and panties") && plain.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS)), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out, the owner's body words (Fix round 2)");
+    eq(!!(plain.positivePrompt.includes("not image 1's black bra and briefs") && plain.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS)), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out, the owner's body words (Fix round 2)");
     const named = (words) => W.runwarePlan(`{who} ${words}`, { ref: new Uint8Array([1]), rwFace: new Uint8Array([1]), faceName: "face-2x", who: (w, a, b) => w }).tries[0];
-    eq(named("on the couch reading a book").refs.map((r) => r.name), ["face-2x", "body-v12-clothed"], "clothed: image 1 is v12-clothed");
+    eq(named("on the couch reading a book").refs.map((r) => r.name), ["face-2x", "body-v13-clothed"], "clothed: image 1 is v13-clothed");
     const belfie = named("a belfie in tight jeans, looking over her shoulder");
-    eq([belfie.refs.map((r) => r.name), belfie.text.includes("Image 1 shows her body naked: she is not naked here")], [["face-2x", "body-v12-back"], true], "a clothed back view: image 1 is the nude back v12-back, dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15)");
+    eq([belfie.refs.map((r) => r.name), belfie.text.includes("Image 1 shows her body naked: she is not naked here")], [["face-2x", "body-v13-back"], true], "a clothed back view: image 1 is the nude back v13-back, dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15)");
     // the place's image number follows the pictures really sent (Step 5: "none" said "image 2" with only face and place sent)
     const roomN = async () => ((await draw("making coffee {room}", { location: "kitchen" })).positivePrompt.match(/as in image (\d)/) || [])[1];
     eq(await roomN(), "2", "with a body picture the place is image 2");
@@ -336,9 +336,8 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq([camel.inputs.referenceImages.length, camel.positivePrompt.includes("wearing exactly image 1's clothes")], [2, false], "a retired outfit picture's words: face + clothed body, no outfit picture (2026-10-12)");
     P.HAIR_CHANCE = 1;
     const hair = await draw("on the couch");
-    eq(hair.inputs.referenceImages.length, n0 + 1, "a hairstyle with a picture (the first one, picked at chance 1): one more image");
-    eq(hair.positivePrompt.includes("styled exactly as in image"), true, "a hairstyle picture is named in the prompt");
-    eq([W.stylePicture("x a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan", null), (W.stylePicture("x", R.STYLE_PICTURES["hair-long-waves"]) || {}).key], [null, "hair-long-waves"], "stylePicture: hairstyles only (2026-10-12), else null");
+    // 2026-10-15 (owner: retire the old references): no hairstyle pictures, so a hairstyle adds words, not an image
+    eq([hair.inputs.referenceImages.length, hair.positivePrompt.includes("styled exactly as in image"), Object.keys(R.STYLE_PICTURES || {}).length, W.stylePicture("x", "long, loose dark waves")], [n0, false, 0, null], "hairstyles: words only, no style picture (retired 2026-10-15)");
   } finally { globalThis.fetch = realFetch; [P.ROUTE, P.HAIR_CHANCE] = keep; Math.random = r0; }
 }
 {
@@ -389,10 +388,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const prompt = async (words) => { sent = []; await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); return sent[0].positivePrompt; };
   try {
     P.ROUTE = "runware-klein"; R.SEX_ACTS = true;
-    eq(R.BODY, "v12", "Runware's body picture: the owner's 2026-10-15 nude front");
-    eq(R.BODY_BACK, "v12-back", "acts from behind: the owner's 2026-10-15 nude back");
+    eq(R.BODY, "v13", "Runware's body picture: the owner's 2026-10-15 nude front");
+    eq(R.BODY_BACK, "v13-back", "acts from behind: the owner's 2026-10-15 nude back");
     yes(W.runwareBody() && W.runwareBody().length > 10000, "the nude front picture is built into face.js");
-    eq([R.BODY_CLOTHED, R.BODY_CLOTHED_BACK], ["v12-clothed", "v12-back"], "clothed pictures: the owner's 2026-10-15 lace bra-and-panties front; clothed back views on the nude back");
+    eq([R.BODY_CLOTHED, R.BODY_CLOTHED_BACK], ["v13-clothed", "v13-back"], "clothed pictures: the owner's 2026-10-15 lace bra-and-panties front; clothed back views on the nude back");
     yes(W.runwareBody("back") && W.runwareBody("back").length !== W.runwareBody(true).length, "acts from behind: the body seen from behind (round 7)");
     yes(W.runwareBody(false).length !== W.runwareBody(true).length, "nude body only on nude/sex-act pictures");
     const clothed = await prompt("on the couch reading a book");
@@ -426,7 +425,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const act = await prompt("riding the man on the bed");
     yes(act.includes(R.POV_MAN) && act.includes(R.NAKED), "a sex act: POV_MAN added, and she is naked (round 7)", act.slice(-200));
     const part = await prompt("missionary sex, naked from the waist down, still wearing her black bra over her breasts");
-    yes(part.includes(R.PARTIAL_TOP) && part.includes("Smooth and shaved") && !part.includes(R.NAKED) && !part.includes("natural breasts"), "partly naked in a sex act, a bra kept on: PARTIAL_TOP + the bush, not NAKED (round 7, Step 5)", part.slice(-300));
+    yes(part.includes(R.PARTIAL_TOP) && part.includes("A natural dark bush") && !part.includes(R.NAKED) && !part.includes("natural breasts"), "partly naked in a sex act, a bra kept on: PARTIAL_TOP + the bush, not NAKED (round 7, Step 5)", part.slice(-300));
     // 2026-10-15 (D1 614): clothes the words say are off don't count as worn ("wide pants are off" kept the pants on her legs)
     const off = W.pictureFlags("She is missionary with the man. She wears a cropped top, wide pants are off.", true, "on");
     yes(off.partial && off.top && !off.bottom, "\"pants are off\": the top stays, the pants don't (stillWorn)", JSON.stringify(off));
@@ -496,13 +495,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const refsOf = (words) => planAll(words).tries[0].refs.map((r) => r.name);
     c = await call("missionary anal on the bed", "pic");
     let refs = refsOf("missionary anal on the bed");
-    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && refs.includes("body-v12") && !refs.includes("body-v12-back") && c.text.includes("his penis inside her anus, low between her buttocks") && !c.text.includes("inside her vagina"), "missionary anal: front body, Lenovo + NSFW Unlocked (2026-10-12: POV Doggy Anal only on doggy), the anal text", { loras: c.loras, refs });
+    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && refs.includes("body-v13") && !refs.includes("body-v13-back") && c.text.includes("his penis inside her anus, low between her buttocks") && !c.text.includes("inside her vagina"), "missionary anal: front body, Lenovo + NSFW Unlocked (2026-10-12: POV Doggy Anal only on doggy), the anal text", { loras: c.loras, refs });
     c = await call("anal reverse cowgirl on the bed", "pic");
     refs = refsOf("anal reverse cowgirl on the bed");
-    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && refs.includes("body-v12-back") && !c.text.includes("r3v3rs3_c0wg1rl") && c.text.includes("inside her anus") && !c.text.includes("inside her vagina"), "anal reverse cowgirl: back body, Lenovo + NSFW Unlocked (2026-10-12), no Flux 4 Play trigger", { loras: c.loras, refs });
+    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && refs.includes("body-v13-back") && !c.text.includes("r3v3rs3_c0wg1rl") && c.text.includes("inside her anus") && !c.text.includes("inside her vagina"), "anal reverse cowgirl: back body, Lenovo + NSFW Unlocked (2026-10-12), no Flux 4 Play trigger", { loras: c.loras, refs });
     c = await call("prone bone anal on the bed", "pic");
     refs = refsOf("prone bone anal on the bed");
-    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && refs.includes("body-v12-back") && c.text.includes("lies flat on her stomach"), "prone bone anal: back body, Lenovo + NSFW Unlocked (2026-10-12), the prone text", { loras: c.loras, refs });
+    yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && refs.includes("body-v13-back") && c.text.includes("lies flat on her stomach"), "prone bone anal: back body, Lenovo + NSFW Unlocked (2026-10-12), the prone text", { loras: c.loras, refs });
     c = await call("anal, doggy style on the bed", "pic");
     yes(JSON.stringify(c.loras) === JSON.stringify(actSet) && c.text.includes("fucking her in the ass doggy style"), "anal, doggy style: Lenovo + NSFW Unlocked (2026-10-13), the doggy anal text", c.loras);
     c = await call("anal riding the man", "pic");
@@ -714,7 +713,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
 {
   // Step 5 (2026-10-11): partly dressed and close-ups
   const P = W.CONFIG.PICTURE, R = P.RUNWARE, keep = [P.ROUTE, R.BODY_PARTIAL, P.HAIR_CHANCE], realFetch = globalThis.fetch, r0 = Math.random;
-  eq([R.NAKED, R.NAKED_BREASTS, R.NAKED_BUSH].join(" "), "She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, smooth and shaved, a real vulva when in view.", "NAKED's three parts join to the text before the split");
+  eq([R.NAKED, R.NAKED_BREASTS, R.NAKED_BUSH].join(" "), "She is completely naked, no clothing of any kind: natural breasts with soft brown areolas, a natural dark bush, a real vulva when in view.", "NAKED's three parts join to the text before the split");
   const f = (t, level = "on") => { const x = W.pictureFlags(t, true, level); return [x.partial, x.top, x.bottom, x.close]; };
   eq(f("pussy close up, covered breasts"), [true, true, false, true], "covered breasts: partly naked, top on, a close-up (they were drawn bare: no clothes word)");
   eq(f("naked from the waist down, black sports bra, sitting on the bed"), [true, true, false, false], "a sports bra: partly naked, top on");
@@ -823,9 +822,9 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const onRunware = /^runware/.test(P.ROUTE);
     eq([W.runwareRoute("off"), W.runwareRoute("nude"), W.runwareRoute("on")], [P.NSFW.OFF_ROUTE === "cloudflare" ? false : onRunware, onRunware, onRunware], "the route: Off on Cloudflare (NSFW.OFF_ROUTE), Nude and On as before");
     eq([W.safeLine("on"), W.safeLine("off")], [onRunware ? "" : P.SAFE, P.SAFE], "SAFE at Off on Cloudflare, not on Runware");
-    eq(/\bbra\b|\bpanties\b/i.test(W.filterSafe("a black lace bra and panties", "off")), false, "filterSafe at Off: the lingerie words are filter-safe");
+    eq(/\bbra\b|\bpanties\b/i.test(W.filterSafe("a black bra and briefs", "off")), false, "filterSafe at Off: the lingerie words are filter-safe");
     const ledger = { rwUsd: 0, rwFailed: 0, usd: 0, recent: [], shots: [] };
-    const c = W.customPicture("a black lace bra and panties, in the kitchen", undefined, null, "off");
+    const c = W.customPicture("a black bra and briefs, in the kitchen", undefined, null, "off");
     const drawn = await W.drawPicture(env, c.prompt, { custom: true, ledger, nsfw: "off", location: c.location, night: c.night });
     eq(runware.length, 0, "Off: no Runware request");
     eq(klein.length, 1, "Off: one klein picture on Workers AI");
@@ -837,7 +836,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(drawn.model === P.MODEL, true, "Off: the picture is klein's");
     eq(rows.map((r) => [String(r.model).startsWith("@cf/"), r.nsfw]), [[true, "off"]], "Off: the log row is the Cloudflare model at nsfw off");
     const before = urls.length;
-    const lingerie = await W.startPicture(env, { rwUsd: 0, rwFailed: 0, usd: 0, recent: [], shots: [] }, "selfie", "a black lace bra and panties", { nsfw: "off", asked: "send me a pic in the lace bra and panties", said: "sending you one now" });
+    const lingerie = await W.startPicture(env, { rwUsd: 0, rwFailed: 0, usd: 0, recent: [], shots: [] }, "selfie", "a black bra and briefs", { nsfw: "off", asked: "send me a pic in the lace bra and panties", said: "sending you one now" });
     eq(!!(lingerie && lingerie.bytes), true, "Off: a lingerie selfie is drawn (klein)");
     eq(urls.slice(before).some((u) => u.includes("openrouter.ai")) || runware.length > 0, false, "Off: a lingerie selfie makes no OpenRouter (Nano Banana) and no Runware call");
     eq(kleinPrompts().slice(1).some((p) => /\b(?:bra|panties)\b/i.test(p)), false, "Off: the lingerie selfie's klein prompts are filter-safe");
@@ -853,7 +852,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   const tryOf = (words) => W.runwarePlan(words, { herself: true, kind: "selfie", ref: FAKE, rwFace: FAKE, faceName: "face-2x", width: 576, height: 1024, who: (w) => w, level: "on" }).tries[0];
   const row13 = tryOf("her father's old gray cardigan over a black cami, in the kitchen");
   eq(row13.text.includes(R.DRESSED_BOTTOM), true, "row 13: a cardigan over a cami, no bottom: the bottom line is in the prompt");
-  eq(row13.refs.map((r) => r.name).filter((n) => !n.startsWith("style:hair-")), ["face-2x", "body-v12-clothed"], "row 13: her face and the clothed body as image 1 (2026-10-12; the random hairstyle picture aside)");
+  eq(row13.refs.map((r) => r.name).filter((n) => !n.startsWith("style:hair-")), ["face-2x", "body-v13-clothed"], "row 13: her face and the clothed body as image 1 (2026-10-12; the random hairstyle picture aside)");
   eq(tryOf("a fitted black tank top and high-waisted jeans, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "a bottom named: no bottom line");
   eq(tryOf("a black cami under a long dress, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "a one-piece named (a dress): no bottom line");
   eq(tryOf("sitting on top of the counter, in the kitchen").text.includes(R.DRESSED_BOTTOM), false, "\"on top\" is no top: no bottom line");
