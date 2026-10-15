@@ -1,7 +1,7 @@
 // Why nude pictures come out slimmer than the v13 body pictures (2026-10-15): the nude front mirror selfie and the nude belfie through
 // the bot's own /pic path on Runware klein 9B, one change per variant at a fixed seed and fixed random picks:
 // V0 as built, V1 no NSFW Unlocked (NUDE_LORAS), V2 no LoRAs, V3 no place picture, V4 no BODY_WORDS in the body line, V5 no Lenovo,
-// V6 no Anatomy Fixer, V7 NSFW Unlocked at 0.5, V8 Lenovo at 0.8. SEED=202 for a second seed.
+// V6 no Anatomy Fixer, V7 NSFW Unlocked at 0.5, V8 Lenovo at 0.8, V9 Lenovo 0.8 + NSFW Unlocked 0.5 + no Anatomy Fixer. SEED=202 for a second seed.
 //   NODE_USE_ENV_PROXY=1 node tools/face/slim-bench.mjs <outdir> [V0,V1,...]   paid: ~$0.008 a picture, stops at BUDGET_USD ($0.12)
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -26,6 +26,7 @@ const VARIANTS = {
   V6: { ANATOMY_LORAS: {} },
   V7: { NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.5 } },
   V8: { LORAS: { "ferasalm:lenovoc@1": 0.8 } },
+  V9: { LORAS: { "ferasalm:lenovoc@1": 0.8 }, NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.5 }, ANATOMY_LORAS: {} },
   V4: { REFERENCE: saved.REFERENCE.replace(`, ${BW},`, ","), REFERENCE_BACK: saved.REFERENCE_BACK.replace(`: ${BW},`, ":") },
 };
 const CASES = [

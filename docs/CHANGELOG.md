@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-15 (forty-seventh session, end): v13 dropped; hairstyle faces blurred
+- `dev` code and pictures back to e0e78ac (the deployed v12 set); originals 17-19 removed again. `tools/face/slim-bench.mjs` (the LoRA finding, QUALITY) and `tools/face/hair-check.mjs` kept.
+- `tools/face/style/hair-*.jpg`: each face blurred inside an oval (hair, hairline, bangs kept); face.js rebuilt.
+
 ## 2026-10-15 (forty-seventh session, continued): deploy of the v12 set; the v13 bodies on `dev`
 - Deploy: main 2c18113 → e0e78ac, run 38674596701, Version `b38605e3-2bd8-4c13-a778-328125822737`; /health and /setup read in the job log.
 - v13 bodies (originals 17-19), the words matched (bush, bra and briefs, 65 kg, soft belly, natural bust); golden plans rewritten (only these changes); four Runware pictures, $0.0276.

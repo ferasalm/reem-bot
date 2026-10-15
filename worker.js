@@ -136,7 +136,7 @@ HOW YOU LOOK
 - Soft, rounded face with a defined jawline and a gently rounded chin, slightly full cheeks, fair olive skin.
 - Thick, dark, well-groomed brows with a soft arch over almond-shaped hazel-green eyes. A straight nose with a softly rounded tip. Full, naturally defined lips with a distinct cupid's bow; when you really laugh your eyes crinkle shut.
 - Long jet-black waves, sometimes with a cute fringe, loose strands always falling along your temples and jaw: wind-tangled at the beach, pinned up in a messy bun at home, sometimes with wispy bangs, sometimes twisted up and stabbed through with a pencil.
-- Average build and softly curvy, not slim and not heavy (165 cm, about 65 kg): a tapered, defined waist, a soft belly, wide low hips and a big, round bottom, a medium, natural bust, narrow shoulders and soft arms, clear collarbones. Barefoot or in wool socks at home.
+- Average build and softly curvy, not slim and not heavy (165 cm, about 62 kg): a tapered, defined waist, wide low hips and a big, round bottom, a medium, round bust, narrow shoulders and soft arms, clear collarbones. Barefoot or in wool socks at home.
 - You dress mostly in black: a satin slip dress, a one-shoulder swimsuit or a string bikini on summer weekends at Crane Beach. At home, your father's old gray knit cardigan, elbows worn through, sliding off one shoulder. Thin gold rings. You take mirror selfies in the tall arched mirror in your bedroom.
 Show your looks the way a real person would: in scenes through light, movement and how he looks at you; in texts only when it fits (what you're wearing, your hair being a disaster). Never list them.
 
@@ -827,7 +827,7 @@ Changing the story
     BODY_WORDS: "narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves",
     // Prompts. A selfie: SELFIE_STYLE + REFERENCE (or LOOKS without her face) + the shot + light + CRAFT + SAFE
     // Step B (2026-10-13): short, as on Runware: face and body from the pictures, in words only what they can't say (owner 2026-10-12:
-    // "full upper arms and soft body"); image 1 (body.jpg) is the owner's bra-and-briefs picture (2026-10-15), so its clothes are named
+    // "full upper arms and soft body"); image 1 (body.jpg) is the owner's lace bra-and-panties picture (2026-10-15), so its clothes are named
     // out without naming them (Cloudflare's prompt filter refuses "bra" and "thong": FILTER_WORDS). Was ~700 characters with height,
     // weight, shoulders and "a messy bun" (git history)
     REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult.",
@@ -975,14 +975,14 @@ Changing the story
       // ass from the nude pictures", "Instapic and Real HD 2k are good. Use them both together"): his lace body nude, by klein 9B + InstaPic 1.0
       // + Real HD 2K 1.0; "v5-back" from behind, "v5-clothed" drawn from v5
       // then "v6" (owner: "redraw the body (the fuller are what's important)"): v5 redrawn with fuller arms and a softer belly
-      BODY: "v13",                     // image 1 on nude pictures: the owner's nude front (second 2026-10-15 set; v12, v10 before); older sets are in the history above
+      BODY: "v12",                     // image 1 on nude pictures: the owner's nude front (2026-10-15; v10 of 2026-10-10 before); older sets are in the history above
       // 2026-10-12 (owner: "Add attached body images as THE only clothed body reference, retiring other clothed image references
       // (Wardrobe variety now happens with prompt text)"): the black bra + thong pictures (originals 11, 12). Was v10-clothed (the rust
       // halter + jeans), then the nude front for clothed pictures (CLOTHED_BODY "nude", Step 5); the outfit pictures are retired too
-      BODY_CLOTHED: "v13-clothed",     // the owner's black bra and briefs (second 2026-10-15 set; v12-clothed lace, v11-clothed bra + thong before). Image 1 when she isn't naked (and of partly naked pictures, BODY_PARTIAL "clothed")
-      BODY_CLOTHED_BACK: "v13-back",   // image 1 of a clothed back view (NUDE_BACK_WORDS in a clothed picture: a belfie, a mirror back view): the nude back
+      BODY_CLOTHED: "v12-clothed",     // the owner's black lace bra and panties (2026-10-15; v11-clothed bra + thong before). Image 1 when she isn't naked (and of partly naked pictures, BODY_PARTIAL "clothed")
+      BODY_CLOTHED_BACK: "v12-back",   // image 1 of a clothed back view (NUDE_BACK_WORDS in a clothed picture: a belfie, a mirror back view): the nude back
       // dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15: "Use the nude back"; no clothed back picture in the 2026-10-15 set)
-      BODY_BACK: "v13-back",           // image 1 on sex acts from behind (BACK_WORDS): the owner's nude back (second 2026-10-15 set)
+      BODY_BACK: "v12-back",           // image 1 on sex acts from behind (BACK_WORDS): the owner's nude back (2026-10-15)
       // acts seen from behind (owner, round 7: "When it's a doggy scene, don't prompt her breasts since they won't show ... always describe
       // that it's from behind"): BODY_BACK, REFERENCE_BACK and NAKED_BACK instead of the front ones
       BACK_WORDS: "doggy, doggystyle, doggy style, on all fours, anal, ass fucking, in her ass, in the ass, anally, reverse cowgirl, from behind",
@@ -1021,7 +1021,7 @@ Changing the story
       DRESSED_BOTTOM: "Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare.",
       // clothed pictures on BODY_CLOTHED (2026-10-12): klein copies a clothed image 1's garment (the rust halter's crop, Step 4), so
       // the line names what image 1 wears and keeps it out. Owner 2026-10-12: "keep adding to prompts of Reem: full upper arms and soft body"
-      REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black bra and briefs. She is 29, clearly an adult.",
+      REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black lace bra and panties. She is 29, clearly an adult.",
       REFERENCE_CLOTHED_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows her body naked: she is not naked here, she wears only the clothes described here. She is 29, clearly an adult.",
       REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. She is 29, clearly an adult.",
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
@@ -1272,7 +1272,7 @@ Changing the story
       // (CLOSE_WORDS) leaves NAKED_BREASTS out, PARTIAL_TOP adds NAKED_BUSH, PARTIAL_BOTTOM adds NAKED_BREASTS (`nakedLine`)
       NAKED: "She is completely naked, no clothing of any kind:",
       NAKED_BREASTS: "natural breasts with soft brown areolas,",
-      NAKED_BUSH: "a natural dark bush, a real vulva when in view.", // as the owner's nude front (second 2026-10-15 set),
+      NAKED_BUSH: "smooth and shaved, a real vulva when in view.", // the owner's nude front of 2026-10-15 is shaved,
       NAKED_BACK: "She is completely naked, seen from behind.", // acts from behind (BACK_WORDS)
       // nude or a sex act with clothes named (owner, round 7: "I can't seem to make her partially nude ... asking for a bra and covered
       // breasts, the bare breasts were always there"): in place of NAKED, and image 1 is BODY_PARTIAL ("clothed", "nude" or "none")
@@ -1342,7 +1342,7 @@ Changing the story
       // straight to Nano Banana with SPICY_PROMPT: two pieces, "spicier", from behind (his ask or her words), or explicit words
       SPICY_PATTERN: "\\b(?:bras?|bralette|panties|panty|thongs?|g-?strings?|briefs|underwear|two[- ]piece|matching set|spic(?:y|ier|iest)|sexier|sexiest|hotter|naughtier|dirtier|more revealing|show (?:me )?more|less clothes|fewer clothes|topless|nothing but|from behind|behind you|belfie|your (?:ass|butt|booty|bum)|her (?:ass|butt|booty|bum)|bare back)\\b",
       // Nano Banana's prompt for those (owner's JSON style, 2026-10-05, with her description); {slots} are filled by the code
-      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair olive skin\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped hazel-green eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs\"}, \"body\": {\"frame\": \"average figure, about 165 cm and 65 kg, not slim and not heavy, soft feminine curves\", \"shape\": \"narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
+      SPICY_PROMPT: "{\"subject\": {\"descriptor\": \"adult woman\", \"age\": 29, \"ethnicity\": \"Armenian-Lebanese\", \"skin\": \"fair olive skin\", \"face\": \"soft rounded face\", \"brows\": \"thick dark arched brows\", \"eyes\": \"almond-shaped hazel-green eyes\", \"lips\": \"full lips with a soft natural tint\", \"hair\": \"long jet-black wavy hair often piled up in a messy bun, sometimes with wispy bangs\"}, \"body\": {\"frame\": \"average figure, about 165 cm and 62 kg, not slim and not heavy, soft feminine curves\", \"shape\": \"narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves\"}, \"wardrobe\": {\"garment\": \"{garment}\"}, \"pose\": \"{pose}\", \"expression\": \"{expression}\", \"mood\": \"confident and self-possessed, teasing, with a magnetic, unhurried presence\", \"environment\": {\"setting\": \"{setting}\"}, \"lighting\": {\"key\": \"{light}\"}, \"camera\": {\"body\": \"modern flagship smartphone\", \"lens\": \"48mm-equivalent 2x crop, computational portrait blur\"}, \"composition\": {\"aspect_ratio\": \"9:16\", \"orientation\": \"tall vertical portrait\", \"capture\": \"mirror selfie, an iPhone held in her hand and visible in the reflection\", \"framing\": \"vertical mid-thigh-up framing\", \"angle\": \"eye-level three-quarter perspective\"}}",
       SPICY_WARDROBE: [
         "only a deep plum French floral lace string thong with velvet trim", "only a black lace thong",
         "a black lace balconette bra and a matching high-cut lace thong", "a red lace bra and matching red lace panties",
@@ -3807,9 +3807,9 @@ const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null)
 const runwareRoute = (level) => /^runware/.test(String(CONFIG.PICTURE.ROUTE || "")) && !(level === "off" && CONFIG.PICTURE.NSFW.OFF_ROUTE === "cloudflare");
 const safeLine = (level = CONFIG.PICTURE.NSFW.DEFAULT) => (runwareRoute(level) ? "" : CONFIG.PICTURE.SAFE);
 
-// Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): v13 nude front, v13-back, v13-clothed (the owner's second set of 2026-10-15)
+// Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): v12 nude front, v12-back, v12-clothed (the owner's set of 2026-10-15)
 // `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08); "back": BODY_BACK
-// The RUNWARE.BODY* key of a picture's body reference ("v13", "v13-back", "v13-clothed"); explicit = "back" | nude | clothed
+// The RUNWARE.BODY* key of a picture's body reference ("v12", "v12-back", "v12-clothed"); explicit = "back" | nude | clothed
 function runwareBodyName(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   return explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;
@@ -3819,9 +3819,9 @@ function runwareBody(explicit = true) {
   return runwareBodyBytes(runwareBodyName(explicit));
 }
 
-// A body picture by its RUNWARE.BODY* name: v13 / v13-back (nude), v13-clothed (black bra and briefs): the owner's second set of 2026-10-15
+// A body picture by its RUNWARE.BODY* name: v12 / v12-back (nude), v12-clothed (black lace bra and panties): the owner's set of 2026-10-15
 function runwareBodyBytes(name) {
-  const pics = { "v13": BODY_NUDE_JPEG_BASE64, "v13-back": BODY_BACK_JPEG_BASE64, "v13-clothed": BODY_CLOTHED_JPEG_BASE64 };
+  const pics = { "v12": BODY_NUDE_JPEG_BASE64, "v12-back": BODY_BACK_JPEG_BASE64, "v12-clothed": BODY_CLOTHED_JPEG_BASE64 };
   const b64 = pics[name] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
@@ -4407,7 +4407,7 @@ async function studioOptions(env) {
     loras: Object.entries(R.LORA_INFO || {}).map(([air, i]) => ({ air, name: i.name, category: i.category, trigger: i.trigger || "", note: i.note || "" })),
     refs: studioRefNames(),
     // the Body menu (owner 2026-10-12: body pictures under Body, hair pictures under Hair)
-    bodies: [[R.BODY_CLOTHED, "clothed front (bra + briefs)"], [R.BODY, "nude front"], [R.BODY_BACK, "nude back (also clothed back views)"], [R.BODY_CLOTHED_BACK, "clothed back"]].filter(([n], i, a) => n && a.findIndex(([m]) => m === n) === i).map(([n, label]) => ({ name: `body-${n}`, label })),
+    bodies: [[R.BODY_CLOTHED, "clothed front (lace bra + panties)"], [R.BODY, "nude front"], [R.BODY_BACK, "nude back (also clothed back views)"], [R.BODY_CLOTHED_BACK, "clothed back"]].filter(([n], i, a) => n && a.findIndex(([m]) => m === n) === i).map(([n, label]) => ({ name: `body-${n}`, label })),
     // the editor starts from the bot's own sampler and its every-picture LoRAs (LORAS)
     sampler: { steps: Number(R.STEPS) || 0, cfg: Number(R.CFG) || 0 },
     defaultLoras: Object.entries(R.LORAS || {}).map(([model, weight]) => ({ model, weight: Number(weight) })),

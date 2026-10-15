@@ -33,6 +33,23 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## 2026-10-15 Why nude pictures are slimmer (slim-bench, v13 bodies) and the hairstyle faces (hair-check) (Opus 5.5, `claude-opus-5-5`; not [live])
+slim-bench: the nude front mirror selfie and the belfie, one change per variant, fixed picks; seed 101 V0-V9, seed 202 V0, V1, V2, V6, V8, V9 ($0.1525 by Runware's answers). Read at full size beside the body picture.
+
+| Variant | Seed 101 | Seed 202 |
+|---|---|---|
+| V0 as built (Lenovo 1.3 + NSFW Unlocked 0.8 + Anatomy Fixer 0.7) | slimmer hips, thighs, arms; smaller bottom | the same |
+| V1 no NSFW Unlocked | front a little wider | no change |
+| V2 no LoRAs | wide hips, full thighs, soft belly, fuller bottom: closest to the body | the same: closest |
+| V3 no place picture | no change (the back still got a place) | — |
+| V4 no BODY_WORDS | no change | — |
+| V5 no Lenovo / V6 no Anatomy Fixer / V8 Lenovo 0.8 | V5 slimmer; V6, V8 a little wider | V6, V8 no change |
+| V7 NSFW Unlocked 0.5 / V9 all three weaker | a little wider | V9 no change |
+
+Cause: the LoRA stack together. The owner kept the deployed set and its LoRAs (DECISIONS).
+
+hair-check: a chest-up white-tee selfie with each hairstyle forced, old style pictures (a whole other face) vs the face blurred out; the hairstyle came through the same in both, and her face did not take the style picture's face in either.
+
 ## 2026-10-15 Second body set (v13) bot check (Opus 5.5, `claude-opus-5-5`; `tools/face/newref-check.mjs`, Runware klein 9B, seed 101; not a [live] run)
 Same four cases, $0.0276 by Runware's answers, each read at full size. Likeness not measured.
 
