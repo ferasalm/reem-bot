@@ -5,13 +5,18 @@ import { CONFIG } from "../config/index.js";
 /*  Outside calls: counted, because the free plan allows 50 per run    */
 /* ------------------------------------------------------------------ */
 
+// `used` is this run's outside calls, the cap; byChat counts them per chat (`chat`: the chat being answered, set by handleBatch),
+// ready for per-chat limits with paid tiers (Rebuild Step 1)
 export const budget = {
   used: 0,
-  reset() { this.used = 0; },
+  chat: null,
+  byChat: {},
+  reset() { this.used = 0; this.chat = null; this.byChat = {}; },
   left() { return CONFIG.LIMITS.SUBREQUEST_LIMIT - this.used; },
 };
 export function xfetch(url, init) {
   budget.used++;
+  if (budget.chat != null) budget.byChat[budget.chat] = (budget.byChat[budget.chat] || 0) + 1;
   return fetch(url, init);
 }
 export const withTimeout = (p, ms, what) => {

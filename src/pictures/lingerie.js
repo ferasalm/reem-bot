@@ -1,9 +1,10 @@
 // Lingerie and spicy pictures (Nano Banana / klein).
 import { herHour } from "../chat/day.js";
 import { CONFIG } from "../config/index.js";
+import { can } from "../gate.js";
 import { isDark, locationOf, timeOfDay } from "./compose.js";
 import { pickOne } from "./shots.js";
-import { aiAffordable, aiRun, aiSpent, aiText } from "../platform/ai.js";
+import { aiRun, aiSpent, aiText } from "../platform/ai.js";
 import { budget, fromBase64, toBase64, xfetch } from "../platform/http.js";
 
 // A spicier selfie (PICTURE.LINGERIE.SPICY_PATTERN in his ask or her words, or explicit words): Nano Banana's job
@@ -34,7 +35,7 @@ export function lingerieArgs(pic) {
 export async function lingerieSeen(env, ledger, bytes) {
   const L = CONFIG.PICTURE.LINGERIE || {};
   const V = CONFIG.VISION;
-  if (!L.CHECK || !L.WORDS || !env.AI || !aiAffordable(ledger, "photo") || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return { ok: true, text: "" };
+  if (!L.CHECK || !L.WORDS || !env.AI || !can({ ledger }, "ai", "photo") || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return { ok: true, text: "" };
   let error = null;
   try {
     const input = { messages: [{ role: "user", content: [{ type: "text", text: L.CHECK_PROMPT }, { type: "image_url", image_url: { url: `data:image/jpeg;base64,${toBase64(bytes)}` } }] }], max_tokens: 60 };

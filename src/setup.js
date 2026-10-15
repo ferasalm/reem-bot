@@ -2,9 +2,10 @@
 import { FACE_JPEG_BASE64 } from "../assets/face.js";
 import { commandFor } from "./chat/batch.js";
 import { applyOverrides, CONFIG, fill } from "./config/index.js";
+import { can } from "./gate.js";
 import { composePicture } from "./pictures/compose.js";
 import { drawPicture, runwareRoute } from "./pictures/draw.js";
-import { aiAffordable, aiRun, aiSpent, aiText, aiText_, askModel, openRouterBody } from "./platform/ai.js";
+import { aiRun, aiSpent, aiText, aiText_, askModel, openRouterBody } from "./platform/ai.js";
 import { toBase64, xfetch } from "./platform/http.js";
 import { loadLedger, saveLedger } from "./platform/kv.js";
 import { tg, webhookSecret } from "./platform/telegram.js";
@@ -25,7 +26,7 @@ export async function health(env) {
   if (kv) await kv.put("health_at", String(Date.now()));
   const ledger = await loadLedger(env);
   result.neurons_today = ledger.neurons;
-  if (!aiAffordable(ledger, "health")) return { ...result, skipped: "today's Workers AI budget is used up" };
+  if (!can({ ledger }, "ai", "health")) return { ...result, skipped: "today's Workers AI budget is used up" };
   let error = null;
   try {
     const t0 = Date.now();

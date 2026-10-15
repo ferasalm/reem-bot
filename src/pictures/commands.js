@@ -5,7 +5,7 @@ import { herHour } from "../chat/day.js";
 import { sceneOf } from "../chat/respond.js";
 import { inPerson } from "../chat/shape.js";
 import { CONFIG, fill } from "../config/index.js";
-import { levelFor, mayDraw, NSFW_LEVELS, nsfwLevel, picturesAllowed } from "../gate.js";
+import { can, levelFor, NSFW_LEVELS, nsfwLevel } from "../gate.js";
 import { asCamera, isDark, locationOf, scenePicturePrompt, sceneWearing, timeOfDay } from "./compose.js";
 import { deliverPicture, startPicture } from "./deliver.js";
 import { drawPicture, filterSafe, safeLine } from "./draw.js";
@@ -13,7 +13,7 @@ import { pictureFlags } from "./plan.js";
 import { faceBytes } from "./refs.js";
 import { dayOutfits, hasWord, lightFor, namesClothes, nudeWords, pickOne, sexAct, wordsOf } from "./shots.js";
 import { writerMessages } from "./writer.js";
-import { aiAffordable, aiFailed, aiSpent, aiText_, callModel } from "../platform/ai.js";
+import { aiFailed, aiSpent, aiText_, callModel } from "../platform/ai.js";
 import { escapeRegex, toBase64, xfetch } from "../platform/http.js";
 import { loadLedger, saveLedger } from "../platform/kv.js";
 import { sendPhoto, tg } from "../platform/telegram.js";
@@ -40,12 +40,12 @@ export async function spendCommand(env, chatId) {
     }) : null,
     env.AI && env.REEM_KV ? line("Cloudflare Workers AI", async () => {
       const B = CONFIG.AI_BUDGET;
-      const l = await loadLedger(env);
+      const l = await loadLedger(env, chatId);
       const paid = Math.max(0, l.neurons - 10000) * 0.011 / 1000;
       return `about ${Math.round(l.neurons).toLocaleString("en-US")} of ${B.DAILY_NEURONS.toLocaleString("en-US")} neurons counted by the bot (${usd(paid)} past the free 10,000; pictures, photos, voice and hearing; the backup texts, plan and memory are in the gateway's figures)`;
     }) : null,
   ]);
-  const today = await loadLedger(env).catch(() => null);
+  const today = await loadLedger(env, chatId).catch(() => null);
   const failed = env.RUNWARE_API_KEY ? `• Runware attempts that failed today: ${(today && today.rwFailed) || 0} (klein tries again, then Cloudflare draws; never TwinFlow for her pictures)` : "";
   const lines = [or, rw, cf, failed].filter(Boolean).join("\n") || "• no accounts connected";
   return notice(env, chatId, M.SPEND, { day: new Date().toISOString().slice(0, 10), lines });
@@ -76,17 +76,17 @@ export async function lookCommand(env, chatId, args = "") {
   const M = CONFIG.MESSAGES;
   const P = CONFIG.PICTURE;
   const kv = env.REEM_KV;
-  const [history, settings, ledger] = await Promise.all([kv.get(`h:${chatId}`, "json").then((h) => h || []), getSettings(kv, chatId), loadLedger(env)]);
+  const [history, settings, ledger] = await Promise.all([kv.get(`h:${chatId}`, "json").then((h) => h || []), getSettings(kv, chatId), loadLedger(env, chatId)]);
   const together = sceneOf(history, "") === "together";
   const level = nsfwLevel(settings); // /nsfw (Step 2)
-  if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
+  if (!can({ env, ooc: false, settings, ledger }, "pictures")) return notice(env, chatId, M.LOOK_OFF);
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   // Step C: the clothes LOOK.PROMPT names when the story names none: the scene's own, else the day's outfit
   const dayWear = await dayOutfits(env);
   const lastHers = (history.filter((m) => m.role === "assistant" && !m.ooc).at(-1) || {}).content || "";
   const seen = await lookWrite(env, history, settings, args, sceneWearing(lastHers, history, level, dayWear));
   // a description the level doesn't allow is not drawn (at On it is drawn as before)
-  if (seen && level !== "on" && !mayDraw(seen.text, level)) return nsfwRefusal(env, chatId, seen.text, level);
+  if (seen && level !== "on" && !can({ level: level }, "draw", seen.text)) return nsfwRefusal(env, chatId, seen.text, level);
   if (seen && seen.withHer) {
     const sent = await deliverPicture(env, chatId, ledger, lookPicture(env, ledger, seen.text, true, { chat: chatId, asked: args, llmText: seen.raw }, level));
     return sent ? undefined : notice(env, chatId, M.LOOK_FAILED);
@@ -179,12 +179,12 @@ export function firstPerson(text) {
 export async function picCommand(env, chatId, args) {
   const P = CONFIG.PICTURE;
   const M = CONFIG.MESSAGES;
-  const [settings, ledger] = await Promise.all([getSettings(env.REEM_KV, chatId), loadLedger(env)]);
+  const [settings, ledger] = await Promise.all([getSettings(env.REEM_KV, chatId), loadLedger(env, chatId)]);
   const level = nsfwLevel(settings); // /nsfw (Step 2)
   const words = picWords(args, level, settings);
   if (!words) return notice(env, chatId, M.PIC_HELP);
-  if (!picturesAllowed(env, { ooc: false, settings, ledger })) return notice(env, chatId, M.LOOK_OFF);
-  if (!mayDraw(words, level)) return nsfwRefusal(env, chatId, words, level);
+  if (!can({ env, ooc: false, settings, ledger }, "pictures")) return notice(env, chatId, M.LOOK_OFF);
+  if (!can({ level: level }, "draw", words)) return nsfwRefusal(env, chatId, words, level);
   const { prompt, location, night } = customPicture(words, undefined, await dayOutfits(env), level);
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const drawing = (async () => {
@@ -287,10 +287,10 @@ export async function faceCommand(env, chatId, args, msg = {}) {
   if (now) await sendPhoto(env, chatId, now, M.NOTICE_PREFIX + fill(M.FACE_NOW, { source: (await kv.get("face")) ? "picked with /face" : "built in", cmd, count }));
   else await notice(env, chatId, M.FACE_NONE, { cmd, count });
   if (!env.AI) return notice(env, chatId, M.FACE_NO_AI);
-  const ledger = await loadLedger(env);
+  const ledger = await loadLedger(env, chatId);
   try {
     for (let n = 1; n <= count; n++) {
-      if (!aiAffordable(ledger, "picture")) break;
+      if (!can({ ledger }, "ai", "picture")) break;
       await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
       let drawn;
       try {

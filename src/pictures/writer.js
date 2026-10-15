@@ -1,7 +1,7 @@
 // The picture writer (Llama 3.3 70B fast): the scene sentence of her pictures.
 import { sentencesOf } from "../chat/shape.js";
 import { CONFIG, fill } from "../config/index.js";
-import { mayDraw } from "../gate.js";
+import { can } from "../gate.js";
 import { asCamera, isDark, locationOf, sceneWearing, timeOfDay } from "./compose.js";
 import { filterSafe, safeLine } from "./draw.js";
 import { lightFor, namesClothes, nudeWords, pickOne, sexAct, wordsOf } from "./shots.js";
@@ -64,7 +64,7 @@ export async function writtenSelfie(env, pic, { history = [], level = CONFIG.PIC
   const draft = parts.draft;
   const lost = (namesClothes(draft) && !namesClothes(text) && !nudeWords(text)) || (nudeWords(draft) && !nudeWords(text) && !namesClothes(text));
   const added = (nudeWords(text) && !nudeWords(draft)) || (sexAct(text, level) && !sexAct(draft, level));
-  if (lost || added || !mayDraw(text, level)) {
+  if (lost || added || !can({ level: level }, "draw", text)) {
     await aiFailed(env, `picture writer (selfie): unusable (${lost ? "a garment lost" : "added what the draft hadn't"}): ${text.slice(0, 120)}; drew the template`);
     return null;
   }
@@ -81,8 +81,8 @@ export async function writtenScene(env, pic, want, { history = [], level = CONFI
   const raw = await writePicture(env, "scene", { chat: writerChat(history), moment: String(want).slice(0, 1500), clothes });
   const text = raw && writtenWords(raw);
   if (!text) return null;
-  if (!mayDraw(text, level) || (sexAct(text, level) && !pic.act)) {
-    await aiFailed(env, `picture writer (scene): unusable (${!mayDraw(text, level) ? "not at this level" : "a sex act her narration hadn't"}): ${text.slice(0, 120)}; drew the template`);
+  if (!can({ level: level }, "draw", text) || (sexAct(text, level) && !pic.act)) {
+    await aiFailed(env, `picture writer (scene): unusable (${!can({ level: level }, "draw", text) ? "not at this level" : "a sex act her narration hadn't"}): ${text.slice(0, 120)}; drew the template`);
     return null;
   }
   const act = !!pic.act || sexAct(text, level);

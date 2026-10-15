@@ -1,7 +1,8 @@
 // Seeing his photos (Workers AI vision).
 import { CONFIG, fill } from "./config/index.js";
+import { can } from "./gate.js";
 import { cutAtSentence } from "./persona/index.js";
-import { aiAffordable, aiFailed, aiRun, aiSpent, aiText, aiText_, aiUnavailable } from "./platform/ai.js";
+import { aiFailed, aiRun, aiSpent, aiText, aiText_, aiUnavailable } from "./platform/ai.js";
 import { budget, toBase64, xfetch } from "./platform/http.js";
 import { loadLedger, saveLedger } from "./platform/kv.js";
 import { tg } from "./platform/telegram.js";
@@ -14,7 +15,7 @@ export async function describePhoto(env, sizes, ledger = null) {
   if (!V.ENABLED || !env.AI || !Array.isArray(sizes) || !sizes.length) return "";
   if (budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return "";
   ledger = ledger || (await loadLedger(env));
-  if (!aiAffordable(ledger, "photo")) return "";
+  if (!can({ ledger }, "ai", "photo")) return "";
   let error = null;
   try {
     // Telegram lists sizes small to big: the biggest that fits MAX_SIDE, else the smallest

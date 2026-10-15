@@ -3,7 +3,7 @@ import { hisName } from "../chat/commands.js";
 import { herHour } from "../chat/day.js";
 import { inPerson, sentencesOf } from "../chat/shape.js";
 import { CONFIG } from "../config/index.js";
-import { actsOff, mayDraw, nudeTierOk, testPattern } from "../gate.js";
+import { can, testPattern } from "../gate.js";
 import { filterSafe, runwareRoute, safeLine } from "./draw.js";
 import { pictureFlags } from "./plan.js";
 import {
@@ -53,7 +53,7 @@ export function selfieSubject(want, recent = [], said = "", level = CONFIG.PICTU
   if (shot) words = words.split(",").filter((seg) => !(shotNamed(seg) === shot && wordsOf(seg.replace(/\b(?:shot|pic|photo|picture|selfie)\b/gi, " ")).every((w) => Object.hasOwn(P.SHOTS, w) || w === "back"))).join(",").trim();
   words = words.replace(/^(?:an?\s+)?selfie\b[\s,:-]*/i, "").replace(/^(?:her|she)\s+(?=(?:in|on|at|with|wearing|by|lying|sitting)\b)/i, "");
   let explicit = false;
-  if (words && !mayDraw(words, level)) {
+  if (words && !can({ level: level }, "draw", words)) {
     words = "";
     explicit = true;
   }
@@ -64,7 +64,7 @@ export function selfieSubject(want, recent = [], said = "", level = CONFIG.PICTU
     const sentence = String(said).split(/\n+|(?<=[.!?])\s+/).map((x) => x.trim())
       .find((x) => wordsOf(x).length >= 3 && DOING.test(x)) || "";
     const d = aboutHer(sentence).replace(/[?!.,]+$/, "");
-    if (d && d.length <= 160 && mayDraw(d, level) && !recent.some((r) => overlap(d, r) > P.SIMILAR)) doing = d;
+    if (d && d.length <= 160 && can({ level: level }, "draw", d) && !recent.some((r) => overlap(d, r) > P.SIMILAR)) doing = d;
   }
   return { shot, words: words.replace(/[.\s]+$/, ""), doing, explicit };
 }
@@ -155,7 +155,7 @@ export function selfiePicture({ want = null, said = "", plan = null, history = [
   const s = selfieSubject(want, recent, said, level);
   // her own nude words (NUDE_ASK_PATTERN): the nude tier where the level allows it, else boudoir (as before Step 2)
   const nudeSaid = !!s.words && testPattern("NUDE_ASK_PATTERN", s.words);
-  let tier = nudeSaid && nudeTierOk(level) ? "nude" : s.explicit || nudeSaid || (s.words && testPattern("BOUDOIR_ASK_PATTERN", s.words)) ? "boudoir" : null;
+  let tier = nudeSaid && can({ level: level }, "nude") ? "nude" : s.explicit || nudeSaid || (s.words && testPattern("BOUDOIR_ASK_PATTERN", s.words)) ? "boudoir" : null;
   // the shot he named wins over the type she writes (seen live: a belfie asked, drawn as a plain mirror shot)
   let shot = plan && plan.named ? plan.shot : s.shot;
   if (!tier && plan && plan.named) tier = plan.tier;
@@ -172,7 +172,7 @@ export function selfiePicture({ want = null, said = "", plan = null, history = [
 // The act her narration shows (SEX_CUES, first match) as the words ACT_WORDS/ACT_SCENES know, or ""; Runware with SEX_ACTS on only
 export function sexCue(sceneText, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  if (actsOff(level) || !runwareRoute(level) || R.SEX_ACTS !== true) return "";
+  if (!can({ level: level }, "acts") || !runwareRoute(level) || R.SEX_ACTS !== true) return "";
   const narration = [...String(sceneText).matchAll(/\*([^*]+)\*/g)].map((m) => m[1]).join(" ");
   try {
     if (CONFIG.PICTURE.SEX_CONTEXT && !new RegExp(CONFIG.PICTURE.SEX_CONTEXT, "i").test(narration)) return "";
@@ -197,7 +197,7 @@ export function scenePicturePrompt(sceneText, level = CONFIG.PICTURE.NSFW.DEFAUL
     // a lowercase start is a speech tag cut from its line ("she murmurs, a teasing edge to her voice")
     // with SEX_ACTS on (Runware), a nude or sex-act sentence about him stays: he is "the man" (POV_MAN)
     .map((x) => (x && (explicitWords(x, level) || (cue && sexCue(`*${x}*`, level))) ? theMan(x.replace(/\byours\b/gi, "the man's")).replace(/^the/, "The") : x))
-    .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && mayDraw(x, level))
+    .filter((x) => x && /^[^a-z]/.test(x) && !/\b(?:you|your|yours|he|him|his|they|them|their|each other)\b/i.test(x) && can({ level: level }, "draw", x))
     // nothing a camera sees: her voice, a pause (seen live: "Her voice drops, mock-soft.")
     .filter((x) => !/\b(?:voice|voices|pause|says|said|whispers|murmurs|tone)\b/i.test(x))
     .map((x) => x.replace(new RegExp(`\\b(?:${names})['’]s\\b`, "gi"), "Her").replace(new RegExp(`\\b(?:${names})\\b`, "gi"), "She"));
@@ -236,7 +236,7 @@ export function sceneWearing(sceneText, history = [], level = CONFIG.PICTURE.NSF
       for (const list of about) {
         const m = list.map((x) => x.match(re)).find((x) => x && !(/^his\b/i.test(x[x.length - 1]) && !/^(?:wearing|into|pulls on|has on)$/i.test(x[1])));
         const what = m && m[m.length - 1].replace(/^the\s+/i, "her ").trim();
-        if (what && mayDraw(what, level)) return underLayers(filterSafe(what, level).replace(/\b(\w+)\s+\1\b/gi, "$1"));
+        if (what && can({ level: level }, "draw", what)) return underLayers(filterSafe(what, level).replace(/\b(\w+)\s+\1\b/gi, "$1"));
       }
     }
   }

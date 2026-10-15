@@ -4,7 +4,40 @@ Read before any code change: where each thing lives and how to check it. Not loa
 `tools/doc-check.mjs` fails if a source file isn't named here.
 
 ## File map
-- `worker.js`: everything. SETTINGS on top (`SYSTEM_PROMPT`, `INTRO_MESSAGE`, `MEMORY_PROMPT`, `CONFIG`), then code:
+Since Rebuild Step 1 (2026-10-15) the code lives in modules; `worker.js` is only the entry point. Find a function's module with
+`grep -rn "function name\|const name" src` (every top-level name is exported once; `src/internals.js` re-exports them all for tests).
+- `worker.js`: entry only: `export default { fetch, queue, scheduled }` (wrangler `main` unchanged).
+- `src/config/index.js`: `CONFIG` = `src/config/engine.js` (`ENGINE`: models, routes, limits, budgets, timing, the picture engine) merged with
+  `src/persona/reem-en/config.js` (`PERSONA_CONFIG`: her words, looks, wardrobe, places, hairstyles, moods, body/reference picture names,
+  MESSAGES, NUDGES, the English patterns); a key set by both throws at start-up. `applyOverrides`, `fill`, the per-instance `cache`.
+  CONFIG must stay a leaf: config and engine import nothing that imports back (load-time cycles are TDZ errors).
+- `src/persona/`: `index.js` = the active persona (every module imports persona code through it; `src/config/index.js` imports
+  `reem-en/config.js` directly to stay a leaf). `reem-en/prompts.js` (SYSTEM_PROMPT, INTRO_MESSAGE, MEMORY_PROMPT), `reem-en/config.js`,
+  `reem-en/language.js` (`LANGUAGE` (CODE, FOREIGN_SCRIPT: read by live.mjs), `tidySpoken`, `sayArabizi`, `forSpeech`, `ENGLISH_NUMBER`,
+  `EMOJI`, `TAG_MARK`). An Arabic SFW persona = `src/persona/reem-ar-sfw/` with the same exports + a wrangler `[env.ar]` (WORKPLAN Rebuild).
+- `src/platform/`: `http.js` (`budget`: `used` the cap, `byChat` per chat; `xfetch`, base64, `sleep`), `telegram.js` (`tg`, `sendText`,
+  `sendBubbles`, `sendVoice`, `sendPhoto`, `act`, `webhookSecret`), `kv.js` (state, history, owner, seen, the ledger: `loadLedger(env, chatId)`,
+  `spend(ledger, field, amount)` adds to the day's total and to `byChat[chat]`; `saveLedger`), `ai.js` (`callModel`, `askModel`, `workersChat`,
+  `aiRun`, `aiAffordable`, `aiSpent`), `log.js` (D1: `logPicture`, `logEvent`, the trace).
+- `src/gate.js`: **`can(who, feature, detail)`**, the one door for every rule: "pictures" (`picturesAllowed`), "runware"
+  (`runwareAffordable`), "draw" (`mayDraw`), "nude" (`nudeTierOk`), "acts" (`!actsOff`), "ai" (`aiAffordable`); `who` = { env, settings,
+  ledger, ooc, level }. Also `nsfwLevel`, `levelFor`, `saysMinor`/`noteMinor`. Paid tiers add their checks inside `can()`.
+- `src/chat/`: `batch.js` (`handleBatch`, `failed`, `parseCommand`, QUICK/STORY actions), `commands.js` (`runCommand`, name/about, retry,
+  rewind, edit, buttons), `auto.js`, `respond.js` (`reply`, `respond`, `replyMode`, timing, `saveTurn`), `think.js`, `shape.js`
+  (`shapeReply` and its helpers), `memory.js` (`remember`, the fold on the cron), `recall.js`, `day.js`, `proactive.js`.
+- `src/voice/`: `tts.js`, `hearing.js`, `tags.js`. `src/vision.js` (his photos).
+- `src/pictures/`: `shots.js` (tiers, shots, heat, word helpers, the day's outfits, hair, light), `compose.js` (Cloudflare prompt, selfies,
+  scenes, `asCamera`, `ownHands`), `plan.js` (`runwarePlan`, `pictureFlags`, `nakedLine`, `runwareLoras`), `refs.js` (reference bytes),
+  `draw.js` (`drawPicture`, `drawRunware`), `writer.js`, `anatomy.js`, `lingerie.js`, `deliver.js` (`startPicture`, `deliverPicture`,
+  `whileDrawing`), `commands.js` (/look, /pic, /pics, /album, /spend, /face, /nsfw).
+- `src/studio/routes.js` (`studioRoute`, the API; `setStudioHost` from the webhook) and `src/studio/page.js` (`STUDIO_HTML`). `src/setup.js`
+  (/setup, /health).
+- One serial queue (max concurrency 1) answers every chat: fine for one user; paid tiers will need per-chat queues (Durable Objects or
+  per-chat locks), and per-chat limits can read `budget.byChat` and the ledger's `byChat`.
+- `tools/split/` (Rebuild Step 1): `split.mjs` + `manifest.json` made the split from bcbe21c's worker.js (kept as the record; needs acorn and
+  eslint-scope from /opt/node-tools); `fix-imports.mjs` recomputes a module's imports after code moves (`node tools/split/fix-imports.mjs`).
+
+Function notes by topic (written when everything was in worker.js; the names are unchanged):
   - entry points: `fetch` (/setup, /webhook → queue; answers button taps and `isQuickCommand` commands at once), `queue`, `scheduled`
     (cron → `proactiveChat` → queue task)
   - `handleBatch`: messages, `edited_message` (`onEdited`), `callback_query` (`onButton`), commands
@@ -98,7 +131,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
   - picture overhaul Step A (2026-10-12): clothed pictures on BODY_CLOTHED (back views by NUDE_BACK_WORDS on BODY_CLOTHED_BACK) with REFERENCE_CLOTHED(_BACK); `runwareLoras` = LORAS (Lenovo) + NUDE_LORAS (NSFW Unlocked) + act (none today) + HANDS_LORAS (HANDS_WORDS; empty today) + ANATOMY_LORAS (`act` false), cut to MAX_LORAS; ANAL_LORAS only for a position the words name (`analNamed`). Studio: `studioOptions` `bodies`, `sampler`, `defaultLoras`; `studioCompose` at Off returns `cloudflare` (drawPictureNow's planOnly Cloudflare prompt).
   - picture overhaul Step B (2026-10-13): `asCamera(text, settings)` (/pic via `picWords(args, level, settings)`, /look via `lookPicture`): his name (`hisName`) and I/me → the man, my → his, her name → she/her, you → her (`aboutHer`); a clause opening with him as its subject loses him ("Feras having sex with Reem" → "Having sex with her"). `involvesHim` → PICTURE.POV_CLOTHED on a /pic picture that isn't a sex act (`customPicture`); acts keep RUNWARE.POV_MAN ("never his face or head"). `firstPerson` (PICTURE.CAMERA "first": the man/he/him/his → I/me/my in the final prompt; "third" leaves it). `ownHands` (every bare "hand(s)" → hers, "one hand" → "one of her hands"; owners, "no hands" and compounds left alone) and `firstPerson` run on every Runware try's text (`runwarePlan`) and on the Cloudflare text (`cloudflareText`: + CRAFT; the callers no longer add CRAFT, and SAFE is ""). `runwarePlan`: no DRESSED on the clothed body; a shot's own EXPRESSIONS pick counts as naming her face (no second MOODS pick). Cloudflare: klein 9B at 768x1344 (PICTURE.MODEL/WIDTH/HEIGHT, AI_BUDGET.PICTURE_NEURONS 1,500); Workers AI takes no LoRA on it (cf-lora-probe).
   - picture overhaul Step C (2026-10-13): the picture writer `CONFIG.PICTURE.WRITER` (DeepSeek on Workers AI, reasoning "low"). `writePicture(env, kind, vars)` (off for a kind outside WRITER.KINDS, failed or slower than TIMEOUT_MS (AbortSignal.timeout: the tests make setTimeout instant) → null) → `writtenWords` (one line, ≤ MAX_WORDS, `asCamera`). `startPicture` (not on the Nano Banana / klein-check lingerie paths): `writtenSelfie` (only when her words or `doing` went into the draft: `composePicture` returns `parts` {lead, draft, expression, light}; the clause must keep every garment and add no nudity or act; phone clauses cut) and `writtenScene` (her reply + `writerChat`; the code's clothes when it names none, the act style only when her narration or the words have the act); `log.llmText` = the writer's raw answer. /look: LOOK.PROMPT takes `{rules}` (WRITER.RULES) and `{clothes}` (`sceneWearing` of her last reply, else the day's outfit) from `lookCommand` → `lookWrite`. Klein 4B again on Cloudflare (576x1024, 115 neurons); Workers AI refuses LoRAs on 4B and 9B (cf-lora-probe).
-  - clothed on the nude body (fix round): `runwarePlan`'s `topOnly` (a top in the words, no BOTTOM_WORDS, no ONE_PIECE_WORDS, no BARE_LEGS_WORDS (fix round review), CLOTHED_BODY "nude") adds RUNWARE.DRESSED_BOTTOM ("Below the waist ... never bare") after DRESSED_FULL. Panel rows for both keys.
+  - clothed on the nude body (fix round): `runwarePlan`'s `topOnly` (a top in the words, no BOTTOM_WORDS, no ONE_PIECE_WORDS, no BARE_LEGS_WORDS (fix round review), CLOTHED_BODY "nude") adds RUNWARE.DRESSED_BOTTOM ("Below the waist ... never bare") after DRESSED (DRESSED_FULL no longer exists). Panel rows for both keys.
   - pictures: `describePhoto` (`aiRun` + `aiOutOfNeurons`/`aiUnavailable`/`aiBusy`, `aiText`, `tidyDescription`,
     `photoLine`); ledger `loadLedger`/`saveLedger`/`aiAffordable`/`aiSpent` (KV `pics`); `picturesAllowed`,
     `pictureMode`; `takeSelfie` (in `shapeReply`); `startPicture` (`selfieSubject` or `scenePicturePrompt` →
@@ -118,13 +151,12 @@ Read before any code change: where each thing lives and how to check it. Not loa
     `a:<chat>` /auto draft `{id, text, idea}`, `pics` {day (UTC), neurons, out, hashes, recent}, `face` (base64, from
     /face keep), `face_draft:<message id>` (a day), `health`/`health_at`, `owner`, `seen`, `voice_error`,
     `ai_error`; his photo parts carry `photo: true` and `seen` (the description); settings also `morePics`, `minor`
-- `mp3.js`: the lamejs MP3 encoder (LGPL, minified, never open it), imported by worker.js: `pcmToMp3` turns Gemini TTS's raw PCM (`VOICE.OR_FORMAT` "pcm") into the MP3 `sendVoice` takes (~0.2 s for 5 s of speech); test loader and build-panel copy it.
-- `studio.js` (Step 7, 2026-10-11): the prompt studio's page (`STUDIO_HTML`: vanilla JS and CSS inline, light and dark, phone first;
-  tabs Log, Editor, Presets; it calls only `/studio/api/*`). Served by worker.js (`studioRoute`); imported by worker.js; the test
-  loader and build-panel copy it next to their worker copy.
+- `assets/mp3.js`: the lamejs MP3 encoder (LGPL, minified, never open it), imported by src/voice/tts.js: `pcmToMp3` turns Gemini TTS's raw PCM (`VOICE.OR_FORMAT` "pcm") into the MP3 `sendVoice` takes (~0.2 s for 5 s of speech).
+- `src/studio/page.js` (Step 7, 2026-10-11; was studio.js): the prompt studio's page (`STUDIO_HTML`: vanilla JS and CSS inline, light and
+  dark, phone first; tabs Log, Editor, Presets; it calls only `/studio/api/*`). Served by `studioRoute` (src/studio/routes.js).
 - `tools/options.mjs` → `docs/OPTIONS.md` (round 7): every command, picture kind, nude/sex word, act camera, shot, outfit, hairstyle, light,
   place, expression and LoRA (when, weight, trigger, cost), all from CONFIG; rerun after a picture CONFIG change.
-- `face.js`: GENERATED by `tools/face/build-face.mjs` (never edit or open it): her reference pictures as base64, the owner's set of 2026-10-15 (originals in `tools/face/originals/`, 13 and 17-19 only; the older originals were deleted 2026-10-15): `reference.jpg` / `reference-2x.jpg` (her face, picture 13), `body.jpg` (the Cloudflare route's image 1: the clothed front, small), `body-nude.jpg` / `body-back.jpg` (Runware BODY "v13" / BODY_BACK "v13-back", pictures 19 and 18: `runwareBody`), `body-clothed.jpg` (BODY_CLOTHED "v13-clothed", picture 17, black bra and briefs: `runwarePlan`'s clothed pictures); clothed back views use the nude back (BODY_CLOTHED_BACK "v13-back", REFERENCE_CLOTHED_BACK dresses it), `tools/face/style/*.jpg` (`STYLE_JPEG_BASE64`: the hairstyles sent as the next image, their faces blurred out, then retired 2026-10-15 (none left), `RUNWARE.STYLE_PICTURES`, `stylePicture`, HAIR_LINE; the outfit pictures were retired 2026-10-12); imported by worker.js; the test loader and build-panel copy it next to their worker copy.
+- `assets/face.js` and `assets/places.js`: GENERATED by `tools/face/build-face.mjs` and `build-places.mjs` (never edit or open it): her reference pictures as base64, the owner's set of 2026-10-15 (originals in `tools/face/originals/`, 13 and 17-19 only; the older originals were deleted 2026-10-15): `reference.jpg` / `reference-2x.jpg` (her face, picture 13), `body.jpg` (the Cloudflare route's image 1: the clothed front, small), `body-nude.jpg` / `body-back.jpg` (Runware BODY "v13" / BODY_BACK "v13-back", pictures 19 and 18: `runwareBody`), `body-clothed.jpg` (BODY_CLOTHED "v13-clothed", picture 17, black bra and briefs: `runwarePlan`'s clothed pictures); clothed back views use the nude back (BODY_CLOTHED_BACK "v13-back", REFERENCE_CLOTHED_BACK dresses it), `tools/face/style/*.jpg` (`STYLE_JPEG_BASE64`: the hairstyles sent as the next image, their faces blurred out, then retired 2026-10-15 (none left), `RUNWARE.STYLE_PICTURES`, `stylePicture`, HAIR_LINE; the outfit pictures were retired 2026-10-12); imported by worker.js; the test loader and build-panel copy it next to their worker copy.
   `tools/face/` (`draw.mjs`, `job.json`, `shots.mjs` writes a
   pictures v3 grid job with the bot's own prompts) + `.github/workflows/face.yml`:
   draws face candidates or a consistency check through the Cloudflare REST API (runs when the job changes),
@@ -223,7 +255,7 @@ Read before any code change: where each thing lives and how to check it. Not loa
   `OWNER_CHAT` replays the owner's Telegram chat of 2026-10-06 (REVIEW: a word or two, "habibti" to him, a copied example,
   not going to him). By hand (Actions > Tests > Run workflow): `runs`, `only` (ids) and `model` (another OpenRouter model
   in LLM.MODEL's place, to compare; the backup model keeps its own providers).
-- Locally: `node tools/build-panel.mjs && node --check worker.js && node tools/test/unit.mjs &&
+- Locally: `node tools/build-panel.mjs && node --check worker.js (and every src/ file) && node tools/test/unit.mjs &&
   node tools/test/scenarios.mjs && node tools/test/e2e.mjs > /dev/null`.
 - All local checks in one command: `node tools/check.mjs` (the chain above plus `tools/doc-check.mjs`; ok/FAIL per
   step, the failing step's last lines printed, exit 1 on any failure).

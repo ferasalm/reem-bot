@@ -3,6 +3,7 @@ import { onButton, onEdited, runCommand } from "./commands.js";
 import { textFirst } from "./proactive.js";
 import { lineDropped, reply } from "./respond.js";
 import { CONFIG, fill } from "../config/index.js";
+import { budget } from "../platform/http.js";
 import { isOwner, onlyNew } from "../platform/kv.js";
 import { logEvent } from "../platform/log.js";
 import { sendBubbles, sendText } from "../platform/telegram.js";
@@ -18,12 +19,14 @@ export async function handleBatch(updates, env, ctx, deadline) {
     if (!convo.length) return;
     const c = convo;
     convo = [];
+    budget.chat = c[0].chat.id;
     await reply(env, ctx, c, deadline);
   };
   for (const u of updates) {
     if (!u) continue;
     // one update that throws never takes the rest of the batch with it: she says the line was dropped and the next one is handled
     try {
+      budget.chat = ((u.message || u.edited_message || (u.callback_query && u.callback_query.message) || {}).chat || {}).id ?? null;
       const cq = u.callback_query;
       if (cq) {
         const chat = cq.message && cq.message.chat;
@@ -65,6 +68,7 @@ export async function handleBatch(updates, env, ctx, deadline) {
   await flush().catch((e) => failed(env, lastChat, e, deadline, "update"));
   // Nothing from him in this run: she may text first, if a cron check asked for it
   const task = updates.find((u) => u && u.proactive);
+  if (task && !heardFromHim) budget.chat = String(task.chat_id);
   if (task && !heardFromHim) await textFirst(env, ctx, String(task.chat_id), deadline).catch((e) => failed(env, null, e, deadline, "proactive"));
 }
 // Commands that change the chat history (her answer to earlier messages comes first)

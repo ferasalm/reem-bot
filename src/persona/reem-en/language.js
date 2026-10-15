@@ -2,6 +2,9 @@
 import { CONFIG } from "../../config/index.js";
 import { audioTagRe, audioTagsOn, isV3 } from "../../voice/tags.js";
 
+// The persona's language (Rebuild Step 1): what she writes in, and the scripts that can only be garbled output in it. Checks that
+// depend on the language read it from here (tools/test/live.mjs), so an Arabic persona brings its own.
+export const LANGUAGE = { CODE: "en", FOREIGN_SCRIPT: /[\u0590-\u08FF\u0400-\u04FF\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]/ }; // Arabic/Persian, Hebrew, Cyrillic, CJK, Hangul
 export const EMOJI = /[\p{Extended_Pictographic}\p{Emoji_Modifier}\u{FE0F}\u{200D}]/gu;
 // Placeholders that hold audio tags while a line is tidied (no letters or digits, so nothing touches them)
 export const TAG_MARK = /[\uE000-\uE0FF]/g;

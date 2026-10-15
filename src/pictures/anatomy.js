@@ -1,6 +1,7 @@
 // The anatomy check (Llama 4 Scout) and the redraw verdict.
 import { CONFIG, fill } from "../config/index.js";
-import { aiAffordable, aiFailed, aiRun, aiSpent, aiText, aiText_ } from "../platform/ai.js";
+import { can } from "../gate.js";
+import { aiFailed, aiRun, aiSpent, aiText, aiText_ } from "../platform/ai.js";
 import { budget, toBase64 } from "../platform/http.js";
 
 // Step D: the anatomy check's answer (PICTURE.ANATOMY.PROMPT) as { ok, mistakes, people }: its last JSON object; ok only with no flag
@@ -28,7 +29,7 @@ export function anatomyVerdict(text, { heads: countHeads = true } = {}) {
 // then the picture is sent as drawn. Counted as one of his photos (AI_BUDGET.PHOTO_NEURONS; ~60 neurons measured, run 38340313839).
 export async function anatomyCheck(env, ledger, bytes, view = "") {
   const A = CONFIG.PICTURE.ANATOMY || {};
-  if (!A.ON || !A.MODEL || !A.PROMPT || !env.AI || !bytes || (ledger && !aiAffordable(ledger, "photo")) || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return null;
+  if (!A.ON || !A.MODEL || !A.PROMPT || !env.AI || !bytes || (ledger && !can({ ledger }, "ai", "photo")) || budget.left() < CONFIG.LIMITS.SUBREQUEST_RESERVE + 3) return null;
   const prompt = fill(A.PROMPT, { attached: view ? A.ATTACHED || "" : "", pov: view === "pov" ? A.POV || "" : "", act: view === "act" ? A.ACT || "" : "" });
   let error = null;
   try {

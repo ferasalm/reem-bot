@@ -2,6 +2,7 @@
 import { thinksFirst, trimUnfinished } from "../chat/think.js";
 import { CONFIG } from "../config/index.js";
 import { budget, sleep, xfetch } from "./http.js";
+import { spend } from "./kv.js";
 import { trace, traceCall } from "./log.js";
 
 export class ApiError extends Error {
@@ -189,7 +190,7 @@ export function aiAffordable(ledger, kind, neurons) {
 export function aiSpent(ledger, neurons, error) {
   if (error && error.runwareOnly) return; // nothing was drawn on Cloudflare (Nude/On are Runware's only, 2026-10-13)
   if (error && aiOutOfNeurons(error)) ledger.out = Date.now();
-  else { ledger.out = false; ledger.neurons += neurons; }
+  else { ledger.out = false; spend(ledger, "neurons", neurons); }
 }
 // Workers AI models answer in different shapes
 export function aiText(out) {

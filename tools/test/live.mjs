@@ -157,7 +157,7 @@ function slips(raw, scene, ooc) {
 
 // What must never reach him, in what is actually sent (texts, the voice note's words)
 const NAME = new RegExp(`(?<!\\p{L})(?:${W.CONFIG.CHARACTER.NAME_PREFIXES.join("|")})(?!\\p{L})`, "iu");
-const FOREIGN = /[֐-ࣿЀ-ӿ぀-ヿ一-鿿가-힯]/; // Arabic/Persian, Hebrew, Cyrillic, CJK, Hangul
+const FOREIGN = W.LANGUAGE.FOREIGN_SCRIPT; // the persona's language: scripts that are garbled output in it
 function broken(s, kinds, scene, pictureDecided = false) {
   const bad = [];
   if (!kinds.includes(s.kind)) bad.push(`sent as ${s.kind}, expected ${kinds.join("/")}`);

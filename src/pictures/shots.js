@@ -1,7 +1,7 @@
 // Which picture: tiers, shots, heat, words, the day's outfits, hair and light.
 import { herDay, herHour, inHours } from "../chat/day.js";
 import { CONFIG } from "../config/index.js";
-import { actsOff, nudeTierOk, testPattern } from "../gate.js";
+import { can, testPattern } from "../gate.js";
 import { runwareRoute } from "./draw.js";
 import { flashAsked } from "./plan.js";
 import { escapeRegex } from "../platform/http.js";
@@ -26,7 +26,7 @@ export const nudeWords = (text) => ((CONFIG.PICTURE.RUNWARE || {}).NUDE_WORDS ||
 // A sex act (a RUNWARE.NOT_DRAWN word) in words drawn on Runware with SEX_ACTS on; not at Off or Nude
 export function sexAct(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  return !actsOff(level) && runwareRoute(level) && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
+  return can({ level: level }, "acts") && runwareRoute(level) && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
 }
 // Nude or a sex act on Runware (NUDE_WORDS, or sexAct)
 export const explicitWords = (text, level = CONFIG.PICTURE.NSFW.DEFAULT) => sexAct(text, level) || (runwareRoute(level) && nudeWords(text));
@@ -74,7 +74,7 @@ export function chatHeat(history = [], said = "", hour = herHour()) {
 export function pickTier({ asked = "", heat = 0, shot = null, level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
   const P = CONFIG.PICTURE;
   let weights = { ...((P.TIER_WEIGHTS || {})[["CALM", "WARM", "HOT"][heat] || "CALM"] || {}) };
-  const nudeOk = nudeTierOk(level);
+  const nudeOk = can({ level: level }, "nude");
   if (!nudeOk) weights.nude = 0;
   if (testPattern("NUDE_ASK_PATTERN", asked)) weights = nudeOk ? { nude: 1 } : { boudoir: 1 };
   else if (testPattern("BOUDOIR_ASK_PATTERN", asked)) weights = { boudoir: 1 };

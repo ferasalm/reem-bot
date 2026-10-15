@@ -5,6 +5,28 @@ import { hasWord, nudeWords } from "./pictures/shots.js";
 import { aiAffordable } from "./platform/ai.js";
 import { budget } from "./platform/http.js";
 
+// can(who, feature, detail): the one door every rule goes through (Rebuild Step 1, 2026-10-15). Today it asks the rules below,
+// unchanged; paid tiers (a D1 users table) will add their checks here, so no caller changes. `who` holds what the caller has:
+// env, settings (s:<chat>), ledger (the day's spend), ooc, and level (a /nsfw level the caller already chose; without it, the
+// chat's level from settings). Features:
+//   "pictures"  a picture with this reply at all (not OOC, not a minor, money and outside calls left)
+//   "runware"   Runware may draw today (its key, RUNWARE.DAILY_USD)
+//   "draw"      these words may be drawn at the level (detail: the words)
+//   "nude"      the nude tier at the level;  "acts": sex acts at the level
+//   "ai"        Workers AI neurons left for a kind of call (detail: picture, photo, hearing, voice, health; extra: the neurons)
+export function can(who, feature, detail, extra) {
+  const level = "level" in who ? who.level : nsfwLevel(who.settings);
+  switch (feature) {
+    case "pictures": return picturesAllowed(who.env, { ooc: who.ooc, settings: who.settings, ledger: who.ledger });
+    case "runware": return runwareAffordable(who.env, who.ledger, level);
+    case "draw": return mayDraw(detail, level);
+    case "nude": return nudeTierOk(level);
+    case "acts": return !actsOff(level);
+    case "ai": return aiAffordable(who.ledger, detail, extra);
+    default: throw new Error(`can(): unknown feature ${feature}`);
+  }
+}
+
 /* --- who may get pictures, and when --- */
 
 export const testPattern = (name, text) => {

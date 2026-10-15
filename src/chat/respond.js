@@ -7,7 +7,7 @@ import { recallFind, recallSave } from "./recall.js";
 import { ACTION, inPerson, isOoc, shapeReply, splitBubbles } from "./shape.js";
 import { think } from "./think.js";
 import { CONFIG, fill } from "../config/index.js";
-import { noteMinor, nsfwLevel, pictureMode, picturesAllowed } from "../gate.js";
+import { can, noteMinor, nsfwLevel, pictureMode } from "../gate.js";
 import { forSpeech } from "../persona/index.js";
 import { deliverPicture, startPicture } from "../pictures/deliver.js";
 import { dayOutfits, planShot } from "../pictures/shots.js";
@@ -105,8 +105,8 @@ export async function respondNow(env, ctx, chatId, state, { heard, userParts = n
   const said = userParts ? userParts.map((p) => (p.photo ? p.text.replace(p.seen || "\u0000", "") : p.text)).join("\n") : heard;
   if (!proactive) await noteMinor(env, chatId, settings, said);
   // Pictures follow the voice rules (pictureMode next to replyMode), within the day's Workers AI budget
-  const ledger = env.AI ? await loadLedger(env) : null;
-  const canPicture = picturesAllowed(env, { ooc, settings, ledger });
+  const ledger = env.AI ? await loadLedger(env, chatId) : null;
+  const canPicture = can({ env, ooc, settings, ledger }, "pictures");
   const picture = canPicture ? pictureMode({ scene, said, proactive, cameAsPhoto: !!(userParts && userParts.some((p) => p.photo)), morePics: !!settings.morePics }) : null;
   // A selfie the code decided: its shot and tier are picked now, so she's told which one she sends
   const asked = picture && picture.asked ? said : "";

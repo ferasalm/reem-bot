@@ -2,10 +2,11 @@
 import { Mp3Encoder } from "../../assets/mp3.js";
 import { voiceFailed } from "../chat/respond.js";
 import { CONFIG, fill } from "../config/index.js";
+import { can } from "../gate.js";
 import { TAG_MARK } from "../persona/index.js";
-import { aiAffordable, aiFailed, aiRun, aiSpent, aiText_ } from "../platform/ai.js";
+import { aiFailed, aiRun, aiSpent, aiText_ } from "../platform/ai.js";
 import { budget, xfetch } from "../platform/http.js";
-import { loadLedger, saveLedger } from "../platform/kv.js";
+import { loadLedger, saveLedger, spend } from "../platform/kv.js";
 import { audioTagRe, isV3 } from "./tags.js";
 
 export const voiceId = (env) => String(env.VOICE_ID || CONFIG.VOICE.ID).trim();
@@ -27,7 +28,7 @@ export async function auraTts(env, text, ledger = null) {
   if (env.AI && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
     ledger = ledger || (await loadLedger(env));
     const neurons = Math.ceil((said.length / 1000) * CONFIG.AI_BUDGET.VOICE_NEURONS_PER_1000_CHARS);
-    if (aiAffordable(ledger, "voice", neurons)) {
+    if (can({ ledger }, "ai", "voice", neurons)) {
       let error = null;
       try {
         const out = await aiRun(env, V.AURA_MODEL, { text: said, speaker: V.AURA_SPEAKER, encoding: "opus", container: "ogg" }, CONFIG.LIMITS.HTTP_TIMEOUT_MS, true, { returnRawResponse: true });
@@ -57,7 +58,7 @@ export async function openRouterTts(env, text, ledger = null) {
   if (env.OPENROUTER_API_KEY && (ledger.voiceUsd || 0) + usd <= (Number(V.OR_DAILY_USD) || 0) && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
     try {
       const bytes = await orSpeech(env, said);
-      ledger.voiceUsd = (ledger.voiceUsd || 0) + usd;
+      spend(ledger, "voiceUsd", usd);
       await saveLedger(env, ledger);
       return bytes;
     } catch (e) {

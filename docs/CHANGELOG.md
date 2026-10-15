@@ -792,3 +792,131 @@ Fixes: one integrated branch; this file as the only source of truth with a dated
 by every session; `tools/sync-check.mjs` at session start and in CI; a stricter live check; e2e fails on any false
 check; scenario rows for every slip seen.
 
+
+## Appendix: worker.js header before the module split (word for word, moved 2026-10-15, Rebuild Step 1)
+Its setup notes were already stale (free plan, OpenRouter as the brain); the current ones are in worker.js and docs/MAP.md.
+
+```
+/**
+ * Reem (@reem_nabot): roleplay companion on Cloudflare Workers (free plan)
+ *
+ *   Brain:  DeepSeek V4 Flash via OpenRouter (writes every text and every voice note, folds memory, drafts /auto;
+ *           CONFIG.LLM). DeepSeek on Workers AI answers when OpenRouter fails (LLM.BACKUP_MODEL).
+ *   Ears:   Workers AI Whisper large v3 turbo (speech-to-text), ElevenLabs Scribe v2 as the backup
+ *   Voice:  ElevenLabs text-to-speech (eleven_v3), voice "Reem" designed for her (works on the free plan)
+ *
+ * What you add in Cloudflare (nothing to edit in this file):
+ *   Secrets (Settings > Variables and Secrets):
+ *     TELEGRAM_BOT_TOKEN, OPENROUTER_API_KEY, ELEVENLABS_API_KEY
+ *     OWNER_ID   (optional) your numeric Telegram user ID. Locks the bot to you for good.
+ *     SETUP_KEY  (optional) any password. If set, /setup only opens as /setup?key=YOUR_PASSWORD
+ *     VOICE_ID   (optional) another ElevenLabs voice ID. Free plan: built-in or your own designed voices only.
+ *     CONFIG_OVERRIDES (optional) JSON that changes any value in CONFIG below without a redeploy, e.g.
+ *                {"VOICE": {"SPEED": 1.05}, "TIMING": {"TYPING_CHARS_PER_MIN": 200}}
+ *                Only the values you list change; /setup tells you if a name was misspelled.
+ *   Bindings (Settings > Bindings):
+ *     KV namespace   REEM_KV     ->  "reem"
+ *     Queue          REEM_QUEUE  ->  "reem-inbox"   (lets her take minutes, not seconds, to reply)
+ *   Queue consumer (Storage & Databases > Queues > reem-inbox > Settings > Consumers):
+ *     this Worker, batch size 10, max wait 5 s, retries 0, max concurrency 1
+ *   Cron trigger (set by wrangler.toml on deploy): every 15 minutes, for texting first
+ * Then open  https://<your-worker>.workers.dev/setup  once, and send /restart in Telegram.
+ *
+ * v4 changes:
+ *   1. Human timing: she types slowly, with a realistic delay before she even reads you.
+ *      Replies run on a free Cloudflare Queue (15 min per run instead of 30 s).
+ *      Messages you send close together are answered together, like a real person catching up.
+ *   2. Free tier only: built-in ElevenLabs voice; stays under the free plan's 50 calls per run.
+ *   3. Persona: romance moves fast, with push-pull, moods and a guarded side. When they are
+ *      together in person she writes the moment as a short scene (actions in italics), Zeta-style.
+ *
+ * v5 changes:
+ *   1. She types 3x faster: about 150 characters a minute (was 50).
+ *   2. No more duplicate texts:
+ *      - each Telegram update is handled once, even if Telegram or the queue delivers it twice
+ *      - any line she already sent (in this reply or her last few) is dropped before sending;
+ *        if a whole reply is a repeat, she writes a new one
+ *      - a message is only re-sent as plain text when Telegram clearly refused it, never on a
+ *        network hiccup where the first copy may already have arrived
+ *      - stronger repetition penalty, and the prompt tells her never to repeat herself
+ *
+ * v6 changes:
+ *   1. New persona (SYSTEM_PROMPT): "Sweet Challenge" dynamic, high physical drive, vulnerability
+ *      underneath, three channels (texting, voice notes, in-person scenes). Pasted in as written.
+ *   2. /restart opens with a scene (INTRO_MESSAGE), sent as one message with the actions in italics.
+ *   3. TEXTURE nudges now include dares and "he rattled you" moments to match the new dynamic.
+ *   Everything else (timing, queue, duplicate protection, memory) is unchanged from v5.
+ *
+ * v7 changes:
+ *   Every adjustable value now lives in the SETTINGS section right below: character name, models,
+ *   voice (ID, speed, stability...), speech-to-text, timing, Telegram commands, every message she
+ *   or the bot sends, prompt nudges and limits. Edit them there, or override any of them from the
+ *   Cloudflare dashboard with CONFIG_OVERRIDES. Behaviour with the default values is unchanged.
+ *
+ * v8 changes (more human, more immersive; same AI model):
+ *   1. Persona rewritten: a life outside him (work, Nour, Dina, Zamalek), moods and agency, real
+ *      texting habits, light Egyptian-Arabic, voice notes that match the time of day, an intimacy
+ *      section that lets things turn explicit naturally. LIMITS & OOC unchanged, word for word.
+ *   2. Scenes: she knows whether you're together or apart, stays in the scene, and never sends a
+ *      voice note mid-scene. Scenes arrive faster than typed texts.
+ *   3. Her day (CHARACTER.SCHEDULE): what she's probably doing and how quickly she notices you.
+ *      Mid-conversation she answers fast; after a gap she's slower and sometimes busy.
+ *   4. She texts first (PROACTIVE): every 15 minutes a cron check may let her start a chat.
+ *   5. Voice: Arabizi like "ya3ni" is said "yaani", never with the number. Livelier settings.
+ *   6. She hears your voice notes (Whisper; Scribe, the backup, also hears (laughs) and sighs); your language is detected automatically.
+ *   7. Replies cut off by the length limit end at the last full sentence. Varied fallbacks.
+ *   Sampling: temperature 0.95, repetition penalty 1.05, longer replies allowed.
+ *
+ * v9 changes:
+ *   1. Expressive voice notes on eleven_v3: she can [laugh], [sigh] or [whisper] (VOICE.ALLOWED_TAGS).
+ *      Texts never show the tags.
+ *   2. Emoji reactions (REACTIONS): sometimes she reacts to his message, with or without a reply.
+ *
+ * v10 changes:
+ *   1. Chat and memory model: DeepSeek V4 Flash with reasoning off (LLM.REASONING), on approved
+ *      providers only (LLM.PROVIDER: order, ignore, no other fallbacks). Lunaris answers instead
+ *      when DeepSeek is down (LLM.BACKUP_MODEL). See tools/model-bench/FINDINGS.md.
+ *   2. Nudges: in-person scenes in third person, the act itself when he invites it, [voice] first
+ *      and audio tags only in voice notes. LIMITS & OOC unchanged, word for word.
+ *   3. Format enforced in code (shapeReply), whatever the model wrote:
+ *      - Narration before [voice] ("*She picks up her phone and records...*") is dropped and the note is
+ *        still sent as a voice note; words she typed before it go out as a text first. *laughs* or
+ *        (laughs) in a note becomes the [laughs] audio tag.
+ *      - Texts while apart never carry *actions*, emotes or narration lines; *emphasis* stays as a word.
+ *      - In person: never a voice note or reaction; plain words after he acts become "dialogue";
+ *        quoted dialogue counts as in person; an OOC exchange no longer ends the scene.
+ *      - OOC: one plain message, no voice note, no reaction, its own nudge (NUDGES.OOC).
+ *      - Model leaks cut: chat tokens, his next line written for him, {{char}}/{{user}},
+ *        "(OOC: ...)" or "(Note: ...)" asides. A reply with nothing sendable is asked again.
+ *   4. Prompt: one format per reply, spelled out; [voice] must come first; explicit intimacy wording.
+ *      Voice nudges and phone-only textures (PERSONA.TEXTURE_APART) only while apart.
+ *   5. Commands: /help, /name (she knows your name; Telegram first name by default), /about (what she
+ *      knows about you), /auto (drafts your next message: Send / Another buttons), /edit, /rewind, /retry.
+ *      Editing your own message the normal Telegram way makes her answer the new version.
+ *      History entries remember their Telegram message ids, so all of this stays in sync with her memory.
+ *   6. Voice notes: the code decides when a reply is a voice note (VOICE.CHANCE..., always when he asks for
+ *      one); she may still pick one herself with [voice]. Failures show on /setup.
+ *   7. Writing: the chat sent to the model fits its context (LLM.CONTEXT_TOKENS), a short format reminder
+ *      comes right before she writes (NUDGES.FORMAT_*), reply length per kind (LLM.MAX_TOKENS), and
+ *      narration is repaired (scenes get *italics*, stage directions become audio tags, narrated texts are
+ *      cut back to what she'd actually type or say; a story-like reply is asked again once).
+ *   8. Her looks (HOW YOU LOOK in the persona).
+ *
+ * v11 persona (2026-10-05, docs/REEM-BIBLE.md): Reem Nabot, Armenian-Lebanese bookkeeper in a Watertown
+ *   triple-decker across the landing from him; deflect-then-interrogate, cold reads through the wall, no polite
+ *   filler, one question a reply. Basbousa dropped (owner).
+ */
+
+/* ================================================================== */
+/*  SETTINGS: everything you may want to adjust is in this section.     */
+/*  The code after "End of settings" reads from here; no need to touch  */
+/*  it to change a value.                                               */
+/*                                                                      */
+/*  Texts may contain {placeholders}. {name} (CHARACTER.NAME) works in  */
+/*  every short text; the extra ones a text understands are listed      */
+/*  next to it.                                                         */
+/* ================================================================== */
+
+// Her personality and rules: the system prompt sent with every reply
+// Her reference face for pictures (see CONFIG.PICTURE and /face): a JPEG, base64, chosen once
+```

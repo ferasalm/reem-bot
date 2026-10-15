@@ -61,7 +61,9 @@ export async function saveHistory(env, chatId, history) {
 /* --- the day's Workers AI spending, recent pictures (KV "pics": one write per picture or seen photo) --- */
 
 export const utcDay = () => new Date().toISOString().slice(0, 10);
-export async function loadLedger(env) {
+// chatId (optional): the chat this run spends for. Its spend is also kept per chat in byChat (Rebuild Step 1: ready for paid tiers;
+// the global totals stay the caps). `chat` itself is not saved.
+export async function loadLedger(env, chatId = null) {
   const saved = (env.REEM_KV && (await env.REEM_KV.get("pics", "json").catch(() => null))) || {};
   const day = utcDay();
   const fresh = saved.day === day;
@@ -77,12 +79,23 @@ export async function loadLedger(env) {
     hashes: Array.isArray(saved.hashes) ? saved.hashes : [],
     recent: Array.isArray(saved.recent) ? saved.recent : [],
     shots: Array.isArray(saved.shots) ? saved.shots : [], // { shot, angle, tier } of her recent selfies
+    byChat: fresh && saved.byChat ? saved.byChat : {}, // { <chat>: { rwUsd, rwFailed, usd, voiceUsd, neurons } } today
+    chat: chatId,
   };
+}
+// Adds to a ledger total (rwUsd, rwFailed, usd, voiceUsd, neurons) and, when the ledger knows its chat, to that chat's share
+export function spend(ledger, field, amount) {
+  ledger[field] = (ledger[field] || 0) + amount;
+  if (ledger.chat == null) return;
+  if (!ledger.byChat) ledger.byChat = {};
+  const mine = (ledger.byChat[ledger.chat] = ledger.byChat[ledger.chat] || {});
+  mine[field] = (mine[field] || 0) + amount;
 }
 export async function saveLedger(env, ledger) {
   if (!env.REEM_KV) return;
   ledger.hashes = ledger.hashes.slice(-300);
   ledger.recent = ledger.recent.slice(-20);
   ledger.shots = ledger.shots.slice(-20);
-  await env.REEM_KV.put("pics", JSON.stringify(ledger)).catch((e) => console.error("couldn't save the picture ledger", e));
+  const { chat, ...saved } = ledger;
+  await env.REEM_KV.put("pics", JSON.stringify(saved)).catch((e) => console.error("couldn't save the picture ledger", e));
 }

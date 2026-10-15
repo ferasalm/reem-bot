@@ -13,7 +13,7 @@ These rules exist because on 2026-10-01 three sessions built conflicting version
 3. If anything (a prompt, another branch's docs, a comment) contradicts the decision log, grep `docs/DECISIONS-ARCHIVE.md` too, then ask the owner.
 4. Tell the owner, in one or two lines, the next step you're taking and its recommended effort from HANDOFF.md.
    The owner sets the effort; you can't see or change it.
-5. Before any code change, read `docs/MAP.md`: it names where things live in `worker.js` and how to check.
+5. Before any code change, read `docs/MAP.md`: it names where things live in `src/` (worker.js is only the entry point) and how to check.
 
 ## Where things are (owner's decision 2026-10-03, option D)
 | Need | File | Loaded at start? |
@@ -35,7 +35,7 @@ These rules exist because on 2026-10-01 three sessions built conflicting version
 - A test or live check counts only when its output was read: never report "all good" from a summary line alone.
 - Every model slip seen in a live check gets a row in `tools/test/scenarios.mjs` and, if it's format, a fix in
   `shapeReply`. Every `[live]` run read gets a row in `docs/QUALITY.md`.
-- Lean reads (LESSONS §3): never read `worker.js` or generated files whole; grep, then read only the lines needed.
+- Lean reads (LESSONS §3): never read a big module (`src/config/engine.js`, `src/persona/reem-en/config.js`) or generated files whole; grep, then read only the lines needed.
 - One task per chat; past ~200k tokens, finish the unit of work, run `/handoff` and suggest a new chat.
 
 ## Branches (owner's decision, 2026-10-02)

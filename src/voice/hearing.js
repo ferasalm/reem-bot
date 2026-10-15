@@ -1,6 +1,7 @@
 // Hearing his voice notes: Gemini, Whisper, Scribe.
 import { CONFIG } from "../config/index.js";
-import { aiAffordable, aiFailed, aiRun, aiSpent, aiText_, ApiError, RETRYABLE } from "../platform/ai.js";
+import { can } from "../gate.js";
+import { aiFailed, aiRun, aiSpent, aiText_, ApiError, RETRYABLE } from "../platform/ai.js";
 import { budget, toBase64, xfetch } from "../platform/http.js";
 import { loadLedger, saveLedger } from "../platform/kv.js";
 import { tg } from "../platform/telegram.js";
@@ -42,7 +43,7 @@ export async function transcribe(env, fileId, mime, seconds) {
   if (H.MODEL && env.AI && budget.left() > CONFIG.LIMITS.SUBREQUEST_RESERVE + 2) {
     const ledger = await loadLedger(env);
     const neurons = Math.ceil((Math.max(Number(seconds) || 0, 1) / 60) * CONFIG.AI_BUDGET.HEARING_NEURONS_PER_MIN);
-    if (aiAffordable(ledger, "hearing", neurons)) {
+    if (can({ ledger }, "ai", "hearing", neurons)) {
       let error = null;
       try {
         const input = { audio: toBase64(bytes), task: "transcribe", vad_filter: true };

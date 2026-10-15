@@ -1,6 +1,6 @@
 // Drawing: Runware first at Nude/On, Cloudflare klein at Off; the filter words.
 import { CONFIG } from "../config/index.js";
-import { runwareAffordable } from "../gate.js";
+import { can } from "../gate.js";
 import { anatomyCheck } from "./anatomy.js";
 import { firstPerson } from "./commands.js";
 import { ownHands } from "./compose.js";
@@ -9,6 +9,7 @@ import { bodyBytes, faceBytes, imageBytes, placePictures } from "./refs.js";
 import { pickOne } from "./shots.js";
 import { aiFailed, aiFiltered, aiRun, aiSpent, aiText_, aiUnavailable } from "../platform/ai.js";
 import { escapeRegex, fromBase64, toBase64, xfetch } from "../platform/http.js";
+import { spend } from "../platform/kv.js";
 import { logPicture, pictureRow } from "../platform/log.js";
 
 // Her words, worded so Cloudflare's prompt filter lets them through (PICTURE.FILTER_WORDS, whole words, any case)
@@ -134,7 +135,7 @@ export async function drawPictureNow(env, prompt, { size = 0, width = size || CO
   // Runware (PICTURE.ROUTE): the plan's tries in order, each drawn with the same seed. Its spend goes in ledger.rwUsd; when
   // every try fails, Cloudflare draws it. (no ledger: /face's portrait and /health stay on Cloudflare)
   // /look without her (`herself` false): klein 9B from words, then TwinFlow; her pictures: klein with her face, body and place
-  if (ledger && runwareAffordable(env, ledger, nsfw)) {
+  if (ledger && can({ env, ledger, level: nsfw }, "runware")) {
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
     const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who, fix, level: nsfw });
@@ -154,13 +155,13 @@ export async function drawPictureNow(env, prompt, { size = 0, width = size || CO
         rec.seed = trySeed;
         const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, checkContent: t.checkContent });
         const cost = out.cost || Number(R.USD_PER_PICTURE) || 0;
-        ledger.rwUsd = (ledger.rwUsd || 0) + cost;
+        spend(ledger, "rwUsd", cost);
         rec.cost = cost;
         return { bytes: out.bytes, model: t.model };
       } catch (e) {
-        ledger.rwFailed = (ledger.rwFailed || 0) + 1; // failed Runware attempts today (/spend)
+        spend(ledger, "rwFailed", 1); // failed Runware attempts today (/spend)
         await aiFailed(env, `drawing with ${t.model} (Runware): ${aiText_(e)}`);
-        if (i === tries.length - 1 && extra > 0 && runwareRoute(nsfw) && transient(e) && runwareAffordable(env, ledger, nsfw)) {
+        if (i === tries.length - 1 && extra > 0 && runwareRoute(nsfw) && transient(e) && can({ env, ledger, level: nsfw }, "runware")) {
           extra--;
           tries.push(t);
         }
@@ -171,7 +172,7 @@ export async function drawPictureNow(env, prompt, { size = 0, width = size || CO
   // of picture type": with a Runware key, a Nude/On picture Runware didn't draw (every try failed, or the day's RUNWARE.DAILY_USD is
   // spent) is not drawn at all. No ledger (/face, /health) and no key stay on Cloudflare.
   if (ledger && !planOnly && runwareRoute(nsfw) && env.RUNWARE_API_KEY) {
-    const e = new Error(`Runware didn't draw it (${runwareAffordable(env, ledger, nsfw) ? "every try failed" : "the day's Runware money is spent"}); at /nsfw ${nsfw} pictures are drawn on Runware only`);
+    const e = new Error(`Runware didn't draw it (${can({ env, ledger, level: nsfw }, "runware") ? "every try failed" : "the day's Runware money is spent"}); at /nsfw ${nsfw} pictures are drawn on Runware only`);
     e.runwareOnly = true;
     throw e;
   }

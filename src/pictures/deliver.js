@@ -1,6 +1,6 @@
 // A picture from start to Telegram: startPicture, upload_photo while drawing, the album.
 import { CONFIG, fill } from "../config/index.js";
-import { runwareAffordable } from "../gate.js";
+import { can } from "../gate.js";
 import {
   composePicture, isDark, locationOf, scenePicturePrompt, sceneWearing, selfiePicture, sexCue, timeOfDay,
 } from "./compose.js";
@@ -12,7 +12,7 @@ import { lightFor, pickOne, sexAct } from "./shots.js";
 import { writtenScene, writtenSelfie } from "./writer.js";
 import { aiFailed, aiFiltered, aiSpent, aiText_ } from "../platform/ai.js";
 import { sha256 } from "../platform/http.js";
-import { saveLedger } from "../platform/kv.js";
+import { saveLedger, spend } from "../platform/kv.js";
 import { logSent } from "../platform/log.js";
 import { sendPhoto, tg } from "../platform/telegram.js";
 
@@ -59,7 +59,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
       // tamer; then klein's tamer picture; klein's filter-safe chain last
       // Runware draws lingerie and nudity itself (PICTURE.ROUTE): a lingerie or spicier selfie in the real lingerie
       // wardrobe, no klein check, no Nano Banana
-      const open = runwareAffordable(env, ledger, level);
+      const open = can({ env, ledger, level: level }, "runware");
       // owner 2026-10-13: Nude/On are Runware's only (no Nano Banana, no Cloudflare klein) when the Worker has a Runware key
       if (!open && runwareRoute(level) && env.RUNWARE_API_KEY) {
         model = null;
@@ -110,7 +110,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
           if (!wantsLingerie(env, ledger, pic, spicy || kind === "scene", level)) break;
           try {
             const bytes = await drawLingerie(env, lp);
-            ledger.usd = (ledger.usd || 0) + (Number(L.USD_PER_PICTURE) || 0);
+            spend(ledger, "usd", Number(L.USD_PER_PICTURE) || 0);
             model = null;
             return { ...lp, bytes, kind };
           } catch (e) {

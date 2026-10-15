@@ -117,8 +117,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   Gemini TTS answers only PCM (→ MP3 for sendVoice); Nova-3 turns Arabic into Devanagari. Vendoring an npm package needs the owner's OK.
 
 ## 3. Routes to avoid (and the cheaper route)
-- Never read `worker.js` whole (~450 KB, 2026-10-13): `grep -n` the function or CONFIG key (docs/MAP.md), then read only those lines.
-  Never open `face.js` or `tools/settings-panel.html` (generated: `node tools/build-panel.mjs`). Golden diffs: dump the prompts to a
+- Never read a big file whole: `src/config/engine.js` (~95 KB), `src/persona/reem-en/config.js` (~64 KB) (worker.js was ~500 KB before the
+  split, 2026-10-15): `grep -rn` the function or CONFIG key in `src` (docs/MAP.md), then read only those lines. Never open `assets/` or `tools/settings-panel.html` (generated: `node tools/build-panel.mjs`). Golden diffs: dump the prompts to a
   scratch file and read them, not `--check`'s whole-prompt output.
 - `docs/CHANGELOG.md` and `tools/model-bench/FINDINGS.md`: `grep -n`, don't read whole.
 - Mocked tests: trust the exit code and read the failing lines. `[live]` runs: read every reply in the job log, REVIEW lines included;

@@ -1,3 +1,17 @@
+/**
+ * Reem (@reem_nabot): a Telegram roleplay companion on Cloudflare Workers (Workers Paid). This file is only the entry point:
+ * fetch (/setup, /health, /studio, /webhook), queue (the replies, one run at a time) and scheduled (the 15-minute cron: the memory
+ * fold, then maybe she texts first). Everything else is in src/ (docs/MAP.md names where each thing lives):
+ *   src/config      CONFIG = the engine's settings + the persona's, then CONFIG_OVERRIDES (a dashboard variable, JSON)
+ *   src/persona     who she is: prompts, words, looks, language (reem-en today; a second persona is another folder)
+ *   src/platform    Telegram, KV, AI calls, outside-call counting, the D1 logs
+ *   src/gate.js     can(who, feature): every rule about what a chat may get
+ *   src/chat, src/voice, src/pictures, src/vision.js, src/studio, src/setup.js
+ *   assets/         generated pictures and the MP3 encoder (never edit by hand)
+ * Secrets: TELEGRAM_BOT_TOKEN, OPENROUTER_API_KEY, ELEVENLABS_API_KEY, RUNWARE_API_KEY; optional OWNER_ID, SETUP_KEY,
+ * CONFIG_OVERRIDES. Bindings (wrangler.toml): REEM_KV, REEM_QUEUE, AI, MEMORY_INDEX, STUDIO_DB.
+ * History (v4-v11 and every change since): docs/CHANGELOG.md.
+ */
 import { failed, handleBatch, isQuickCommand } from "./src/chat/batch.js";
 import { foldWaiting } from "./src/chat/memory.js";
 import { proactiveChat } from "./src/chat/proactive.js";

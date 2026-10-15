@@ -1051,5 +1051,64 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   }
 }
 
+// Rebuild Step 1 (2026-10-15): every rule goes through can() (gate.js), with the same answers as the rules themselves
+{
+  const yes = (v, label) => eq(!!v, true, label);
+  const texts = ["her kitchen, gray cardigan", "fully naked on the bed", "blowjob on her knees", "lace bra and panties", ""];
+  let same = 0, all = 0;
+  for (const level of [...W.NSFW_LEVELS, undefined]) {
+    for (const t of texts) { all++; if (W.can({ level }, "draw", t) === W.mayDraw(t, level)) same++; }
+    if (level) {
+      all += 2;
+      if (W.can({ level }, "nude") === W.nudeTierOk(level)) same++;
+      if (W.can({ level }, "acts") === !W.actsOff(level)) same++;
+    }
+  }
+  eq(`${same}/${all}`, `${all}/${all}`, "can(): draw, nude and acts answer as mayDraw, nudeTierOk and actsOff at every level");
+  yes(W.can({ settings: { nsfw: "off" } }, "draw", "fully naked on the bed") === W.mayDraw("fully naked on the bed", "off"), "can(): the chat's level comes from its settings");
+  const env = { RUNWARE_API_KEY: "k", AI: {} };
+  const ledger = { day: "x", neurons: 0, rwUsd: 0 };
+  for (const settings of [{}, { minor: true }, { nsfw: "off" }]) {
+    for (const ooc of [false, true]) eq(W.can({ env, ooc, settings, ledger }, "pictures"), W.picturesAllowed(env, { ooc, settings, ledger }), `can(): pictures as picturesAllowed (${JSON.stringify(settings)}, ooc ${ooc})`);
+  }
+  eq(W.can({ env, ledger, level: "on" }, "runware"), W.runwareAffordable(env, ledger, "on"), "can(): runware as runwareAffordable");
+  eq(W.can({ ledger }, "ai", "photo"), W.aiAffordable(ledger, "photo"), "can(): ai as aiAffordable");
+  let threw = false; try { W.can({}, "fly"); } catch { threw = true; }
+  yes(threw, "can(): an unknown feature throws (never a silent yes)");
+}
+// The test barrel re-exports every module (a new module left out of src/internals.js would hide its functions from the tests)
+{
+  const { readFileSync, readdirSync } = await import("node:fs");
+  const src = new URL("../../src/", import.meta.url);
+  const list = (dir) => readdirSync(new URL(dir, src), { withFileTypes: true }).flatMap((e) => e.isDirectory() ? list(dir + e.name + "/") : e.name.endsWith(".js") ? [dir + e.name] : []);
+  const barrel = readFileSync(new URL("internals.js", src), "utf8");
+  const missing = list("").filter((f) => f !== "internals.js" && f !== "persona/index.js" && !barrel.includes(`"./${f}"`));
+  eq(missing, [], "src/internals.js re-exports every module");
+}
+// Per-chat spend (Rebuild Step 1): the global totals stay the caps; a ledger that knows its chat also keeps that chat's share
+{
+  const saved = {};
+  const env = { REEM_KV: { get: async (k) => saved[k] ? JSON.parse(saved[k]) : null, put: async (k, v) => { saved[k] = v; } } };
+  const l = await W.loadLedger(env, 7);
+  W.spend(l, "rwUsd", 0.003); W.spend(l, "rwUsd", 0.002); W.spend(l, "rwFailed", 1);
+  await W.saveLedger(env, l);
+  const g = await W.loadLedger(env);
+  eq([Math.round(g.rwUsd * 1000), g.rwFailed, Math.round(g.byChat["7"].rwUsd * 1000), g.byChat["7"].rwFailed, g.chat], [5, 1, 5, 1, null], "ledger: spend adds to the total and to the chat's share; the chat itself isn't saved");
+  W.spend(g, "rwUsd", 0.001);
+  eq([Math.round(g.rwUsd * 1000), Math.round(g.byChat["7"].rwUsd * 1000)], [6, 5], "ledger: a ledger with no chat (/health, /face's portrait) adds to the total only");
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response("ok");
+  try {
+    W.budget.reset(); W.budget.chat = 7;
+    await W.xfetch("https://example.test/"); await W.xfetch("https://example.test/");
+    W.budget.chat = 8; await W.xfetch("https://example.test/");
+    eq([W.budget.used, W.budget.byChat], [3, { 7: 2, 8: 1 }], "budget: outside calls counted per chat, the total stays the cap");
+    W.budget.reset();
+    eq([W.budget.used, W.budget.chat, W.budget.byChat], [0, null, {}], "budget: reset clears the per-chat counts");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+}
+
 console.log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);

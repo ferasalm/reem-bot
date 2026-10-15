@@ -4,7 +4,7 @@ import { planNow, scheduleNow } from "./day.js";
 import { saidBefore } from "./memory.js";
 import { REACT_TAG, SELFIE_TAG, shapeReply, VOICE_TAG_ALL } from "./shape.js";
 import { CONFIG, fill } from "../config/index.js";
-import { nsfwLevel, nudeTierOk } from "../gate.js";
+import { can } from "../gate.js";
 import { shotVars, tierShots } from "../pictures/shots.js";
 import { callModel } from "../platform/ai.js";
 import { audioTagsOn, offeredTags } from "../voice/tags.js";
@@ -46,7 +46,7 @@ export async function think(env, history, notes, userText, { mode = "text", scen
     // Pictures: told when this reply comes with one (like FORMAT_VOICE); otherwise, apart, she may choose one
     const PIC = CONFIG.PICTURE;
     if (picture && picture.kind === "selfie") extra += fill(picture.asked ? PIC.FORMAT_ASKED : PIC.FORMAT, shotVars(picture.plan));
-    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE, { everyday: tierShots("everyday").join(", "), flirty: tierShots("flirty").join(", "), nude: nudeTierOk(nsfwLevel(settings)) ? PIC.NSFW.SELF_NUDE : "" });
+    else if (canPicture && apart && PIC.SELF_CHOICE) extra += fill(PIC.SELF_CHOICE, { everyday: tierShots("everyday").join(", "), flirty: tierShots("flirty").join(", "), nude: can({ settings }, "nude") ? PIC.NSFW.SELF_NUDE : "" });
     if (((picture && picture.kind === "selfie") || (canPicture && apart)) && recentPictures.length) {
       extra += fill(PIC.RECENT, { list: recentPictures.slice(-(Number(PIC.REMEMBER) || 8)).map((r) => `"${r}"`).join(", ") });
     }
