@@ -542,7 +542,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(/wide hips|rounded hips|full thighs|round full bottom/i.test(s.replace(BW, "")), false, `${name}: hip, thigh and bottom words only as BODY_WORDS (Fix round 2)`);
     eq([s.includes(BW), /not slimmer|full upper arms|soft body/.test(s)], [true, false], `${name}: carries BODY_WORDS, no old body line (Fix round 2)`);
   }
-  eq(BW, "narrow shoulders, wide low hips, a tapered defined waist, a big round bubbly bottom, soft feminine curves", "PICTURE.BODY_WORDS is the owner's list (2026-10-13, Fix round 2; \"full arms\" out 2026-10-15: follow the new pictures)");
+  eq(BW, "narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves", "PICTURE.BODY_WORDS is the owner's list (2026-10-13, Fix round 2; \"full arms\" back and \"a full bust\" added 2026-10-15, owner)");
   eq(typeof JSON.parse(P.LINGERIE.SPICY_PROMPT), "object", "LINGERIE SPICY_PROMPT: still valid JSON after the cut");
   eq(R.KLEIN_TRIES, 2, "her pictures: klein tried twice, then Cloudflare klein (no TwinFlow)");
 }
