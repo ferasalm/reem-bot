@@ -18,7 +18,7 @@ const SEED = Number(process.env.SEED) || 101;
 const W = await loadWorker();
 const R = W.CONFIG.PICTURE.RUNWARE;
 const BW = W.CONFIG.PICTURE.BODY_WORDS;
-const saved = { NUDE_LORAS: R.NUDE_LORAS, LORAS: R.LORAS, ANATOMY_LORAS: R.ANATOMY_LORAS, REFERENCE: R.REFERENCE, REFERENCE_BACK: R.REFERENCE_BACK };
+const saved = { NUDE_LORAS: R.NUDE_LORAS, LORAS: R.LORAS, ANATOMY_LORAS: R.ANATOMY_LORAS, REFERENCE: R.REFERENCE, REFERENCE_BACK: R.REFERENCE_BACK, REFERENCE_CLOTHED: R.REFERENCE_CLOTHED };
 const SHAPE = process.env.SHAPE_WORDS || "her hips much wider than her shoulders, full thick thighs";
 const bodyFirst = (line) => line.replace(`, ${BW},`, ",").replace(`: ${BW},`, ":").replace(", with exactly the same face", `, her body exactly image 1's, the same fullness: ${BW}, with exactly the same face`);
 const VARIANTS = {
@@ -33,12 +33,15 @@ const VARIANTS = {
   V9: { LORAS: { "ferasalm:lenovoc@1": 0.8 }, NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.5 }, ANATOMY_LORAS: {} },
   V11: { ANATOMY_LORAS: {}, REFERENCE: bodyFirst(saved.REFERENCE), REFERENCE_BACK: bodyFirst(saved.REFERENCE_BACK) },
   V12: { ANATOMY_LORAS: {}, REFERENCE: saved.REFERENCE.replace(BW, `${BW}, ${SHAPE}`), REFERENCE_BACK: saved.REFERENCE_BACK.replace(BW, `${BW}, ${SHAPE}`) },
+  // V14 (2026-10-15, owner's test): SHAPE_WORDS after BODY_WORDS in the nude, back and clothed lines, with today's LoRAs
+  V14: { REFERENCE: saved.REFERENCE.replace(BW, `${BW}, ${SHAPE}`), REFERENCE_BACK: saved.REFERENCE_BACK.replace(BW, `${BW}, ${SHAPE}`), REFERENCE_CLOTHED: saved.REFERENCE_CLOTHED.replace(BW, `${BW}, ${SHAPE}`) },
   V13: { ANATOMY_LORAS: {}, LORAS: { "ferasalm:lenovoc@1": 1.0 }, NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.6 } },
   V4: { REFERENCE: saved.REFERENCE.replace(`, ${BW},`, ","), REFERENCE_BACK: saved.REFERENCE_BACK.replace(`: ${BW},`, ":") },
 };
 const CASES = [
   ["nude-front", "naked, standing, a mirror selfie in the bedroom mirror, full body"],
   ["nude-back", "a belfie, naked, standing in the bedroom"],
+  ...(process.env.CLOTHED ? [["clothed-front", "a mirror selfie, standing, full body, a fitted black tank top and high-waisted jeans, her arms visible"]] : []),
 ];
 const FROZEN = Date.parse("2026-10-15T18:00:00Z");
 const RealDate = Date;

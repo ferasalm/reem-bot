@@ -33,6 +33,9 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## 2026-10-15 The owner's test: "thick arms, thick thighs, voluptuous" after BODY_WORDS (Opus 5.5, `claude-opus-5-5`; slim-bench V0 vs V14, CLOTHED=1; not [live])
+Today's dev code (v13 bodies, face first, two LoRAs), seeds 101 and 202, the words added to the nude, back and clothed lines only for the test (not in the bot). Read beside the body pictures: nude front a little fuller arms and thighs on 202, about the same on 101; nude back hips a little wider on both; clothed front about the same on 101, a little fuller arms on 202. No overweight look, no other change. All still a little slimmer than the nude body pictures through hips and thighs. $0.0702.
+
 ## 2026-10-15 Two LoRAs and other body fixes (Opus 5.5, `claude-opus-5-5`; slim-bench V0, V6, V11-V13 on the v13 bodies; newref-check; not [live])
 Nude front and belfie, seeds 101 and 202 (read beside the body pictures): V0 three LoRAs = V6 two (no Anatomy Fixer) = V11 body words first; V12 "her hips much wider than her shoulders, full thick thighs": a little wider on 202; V13 Lenovo 1.0 + NSFW Unlocked 0.6: a little. All slimmer than the body picture through hips and thighs, the back most. Final bot check (v13, face first, two LoRAs): clothed front and back dressed, her brows and fuller face; nude front with the bush; nude back a little slim. Spent $0.0785 + $0.0468 + $0.0234.
 
