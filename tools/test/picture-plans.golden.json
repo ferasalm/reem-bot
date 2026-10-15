@@ -693,10 +693,34 @@
         }
       ]
     },
-    "Runware fails twice: no picture (Nude/On are Runware's only)": {
+    "Runware 500s: two tries and one more on a 5xx, then no picture (Nude/On are Runware's only)": {
       "cloudflare": [],
       "drawn": false,
       "runware": [
+        {
+          "CFGScale": 2,
+          "acceleration": "none",
+          "height": 1344,
+          "lora": [
+            {
+              "model": "ferasalm:lenovoc@1",
+              "weight": 1.3
+            },
+            {
+              "model": "myaiprojectsqqq:3@2",
+              "weight": 0.7
+            }
+          ],
+          "model": "runware:400@2",
+          "positivePrompt": "Realistic candid smartphone photo she took herself: The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face, hair color, and exactly the body of image 1, seen from behind: narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, thick arms, thick thighs, fair olive skin. Image 1 shows only her body shape: here she is fully dressed, in only the clothes described here. She is 29, clearly an adult. Her hair: blown out straight and glossy. Seen straight from her phone's front camera at arm's length, so the phone itself is never in the picture; her hands are out of the frame. Chest-up, shot over her shoulder as she glances back at the camera, an unimpressed deadpan look, in the kitchen, gray cardigan, bright afternoon daylight. Behind her, her room as in image 2, in this picture's own light. Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare. Unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color; only the phone's own flaws (grain in dim light, slight motion blur).",
+          "refs": [
+            "face-2x",
+            "body-v13-back",
+            "place:kitchen~2"
+          ],
+          "steps": 6,
+          "width": 768
+        },
         {
           "CFGScale": 2,
           "acceleration": "none",

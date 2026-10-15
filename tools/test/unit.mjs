@@ -598,7 +598,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const second = await W.drawPicture(env, "{who} selfie in her kitchen, gray cardigan.", { ledger, kind: "selfie", log: { source: "selfie" } });
     const row = columns(db.inserts[0]);
     eq([db.execs, db.inserts.length], [1, 2], "studio: schema applied once, one row per picture");
-    eq([db.schema.length, db.schema.every((q) => /^CREATE (TABLE|INDEX) IF NOT EXISTS/.test(q) && !q.includes(";"))], [3, true], "studio: the schema as three single statements");
+    eq([db.schema.length, db.schema.every((q) => /^CREATE (TABLE|INDEX) IF NOT EXISTS/.test(q) && !q.includes(";"))], [5, true], "studio: the schema as five single statements (pictures, presets, events and their indexes)");
     eq([first.logId, second.logId], [1, 2], "studio: drawPicture returns the row id");
     eq([row.ok, row.source, row.chat, row.asked, row.model, row.kind], [1, "selfie", "7", "send a pic", "runware:400@2", "clothed"], "studio row: ok, source, chat, his words, model, kind");
     eq([row.seed === sentTasks[0].seed, typeof row.seed === "number" && row.seed >= 1], [true, true], "studio row: the seed sent to Runware");
@@ -978,6 +978,77 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   reset([verdict({ stray_parts: true })]);
   await draw();
   eq([draws.length, asked.length], [1, 0], "anatomy off: one picture, no check");
+}
+
+// Rebuild Step 0 (2026-10-15): the outside-call count, the extra Runware try, the events log, the in-character line
+{
+  const realFetch = globalThis.fetch;
+  const PIX = "iVBORw0KGgo=";
+  let mode = "ok"; let status = 500; const runwareCalls = []; const tgCalls = [];
+  globalThis.fetch = async (url, init) => {
+    url = String(url);
+    if (url === "https://api.runware.ai/v1") {
+      runwareCalls.push(JSON.parse(init.body)[0]);
+      if (mode === "fail" || (mode === "failOnce" && runwareCalls.length === 1)) return new Response(JSON.stringify({ errors: [{ code: "stub" }] }), { status });
+      return new Response(JSON.stringify({ data: [{ imageBase64Data: PIX, cost: 0.0025 }], errors: [] }), { status: 200 });
+    }
+    if (url.includes("api.telegram.org")) { tgCalls.push({ method: url.split("/").pop(), body: init && init.body ? JSON.parse(init.body) : null }); return new Response(JSON.stringify({ ok: true, result: { message_id: 1 } })); }
+    if (url === "https://example.test/") return new Response("ok");
+    throw new Error(`unit: unexpected request to ${url}`);
+  };
+  const rows = [];
+  const db = { batch: async (st) => st.map(() => ({ success: true })), prepare: (sql) => ({ bind: (...args) => ({ run: async () => { rows.push({ sql, args }); return { meta: { last_row_id: rows.length } }; } }) }) };
+  const env = { RUNWARE_API_KEY: "unit-key", TELEGRAM_BOT_TOKEN: "t", STUDIO_DB: db };
+  try {
+    eq(W.CONFIG.LIMITS.SUBREQUEST_LIMIT, 10000, "budget: the Workers Paid limit of 10,000 subrequests (Cloudflare docs, 2026-02-11)");
+    W.budget.reset();
+    await W.drawRunware(env, W.CONFIG.PICTURE.RUNWARE.MODEL, "x", [], 768, 1344);
+    eq(W.budget.used, 1, "budget: one Runware call counts once (was twice)");
+    W.budget.reset();
+    await W.xfetch("https://example.test/");
+    eq(W.budget.used, 1, "budget: xfetch counts once");
+    W.budget.reset();
+
+    // the extra try: a 5xx (or a timeout) at On gets one more; any other error does not
+    const draw = () => W.drawPicture(env, "{who} selfie in her kitchen, gray cardigan.", { ledger: { rwUsd: 0, rwFailed: 0 }, kind: "selfie", nsfw: "on", log: { source: "selfie" } });
+    mode = "fail"; status = 500; runwareCalls.length = 0;
+    const failed1 = await draw().then(() => null, (e) => e);
+    eq([runwareCalls.length, !!(failed1 && failed1.runwareOnly)], [3, true], "Runware 500 at On: the two klein tries and one more, then no picture");
+    eq(new Set(runwareCalls.map((t) => t.seed)).size, 3, "the extra try has its own seed");
+    mode = "fail"; status = 400; runwareCalls.length = 0;
+    await draw().catch(() => {});
+    eq(runwareCalls.length, 2, "Runware 400 at On: not retried past KLEIN_TRIES");
+    mode = "failOnce"; status = 503; runwareCalls.length = 0;
+    const ok1 = await draw();
+    eq([runwareCalls.length, !!ok1.bytes], [2, true], "Runware 503 once: the retry draws it");
+    W.CONFIG.PICTURE.RUNWARE.TRANSIENT_RETRIES = 0;
+    mode = "fail"; status = 500; runwareCalls.length = 0;
+    await draw().catch(() => {});
+    eq(runwareCalls.length, 2, "TRANSIENT_RETRIES 0: no extra try");
+    W.CONFIG.PICTURE.RUNWARE.TRANSIENT_RETRIES = 1;
+
+    // a failure: one in-character line, the real error in the events log, never a "(setup)" notice
+    rows.length = 0; tgCalls.length = 0;
+    const err = new Error("OpenRouter 402: insufficient credits"); err.retryable = false;
+    await W.failed(env, 7, err, Date.now() + 60000, "reply");
+    const ev = rows.find((r) => r.sql.startsWith("INSERT INTO events"));
+    const cols = ev && ev.sql.match(/\((.*?)\) VALUES/)[1].split(", ");
+    const evRow = ev && Object.fromEntries(cols.map((c, i) => [c, ev.args[i]]));
+    eq([evRow && evRow.kind, evRow && evRow.outcome, evRow && evRow.chat, evRow && /402/.test(evRow.error)], ["reply", "error", "7", true], "events: a 402 is logged with its error");
+    const sent = tgCalls.filter((c) => c.method === "sendMessage").map((c) => c.body.text);
+    const lines = W.CONFIG.MESSAGES.LINE_DROPPED.flat().map((l) => W.fill(l));
+    eq([sent.length > 0, sent.every((t) => lines.includes(t)), sent.some((t) => /setup/.test(t))], [true, true, false], "a 402: only her \"wifi died\" lines go out, no (setup) notice");
+    // already logged by respond: not logged twice
+    rows.length = 0;
+    const logged = new Error("x"); logged.logged = true;
+    await W.failed(env, 7, logged, Date.now() + 60000, "reply");
+    eq(rows.filter((r) => r.sql.startsWith("INSERT INTO events")).length, 0, "events: an error respond already logged is not logged again");
+    // no binding: nothing breaks
+    await W.failed({ TELEGRAM_BOT_TOKEN: "t" }, 7, new Error("x"), Date.now() + 60000);
+    eq(await W.logEvent({}, { kind: "reply", outcome: "ok" }), null, "events: no D1 binding = no log, no error");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

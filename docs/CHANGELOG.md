@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-15 (fiftieth session): Rebuild Step 0 built (dev only)
+- Sonnet 5.5 (`claude-sonnet-5-5`, configured and served per get_session), no subagents, $0 spent (no pictures drawn). Done: events table,
+  per-update/command try/catch with her line (401/402 too), budget fix + 10,000 limit, fold on the cron, upload_photo pulse, Runware
+  5xx/timeout retry, studio cards. Tests: unit (budget, retry, events, 402), scenarios (throwing command, update in a batch of three, 402),
+  e2e (fold queued then folded), golden (one case: a third Runware try), Playwright 390 px (`tools/test/studio-cards.mjs`). D1 10-14:
+  no rows = most likely quiet (writes worked on 10-13 and 10-15, nothing deployed or committed on 10-14). Not deployed.
+
 ## 2026-10-15 (forty-ninth session): the rebuild plan (no code)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session) with three read-only Explore subagents (two Sonnet, one
   Haiku) and an Opus advisor: inventory of every Runware prompt string, the disconnect and failed-picture causes (D1 `pictures`

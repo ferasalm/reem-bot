@@ -38,9 +38,10 @@ button:disabled { opacity: 0.5; }
 .bar label { margin: 0; }
 .bar input { width: auto; flex: 1; min-width: 160px; }
 .row { display: flex; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin: 10px 0; }
-.thumb { width: 96px; height: 96px; flex: none; object-fit: cover; border-radius: 8px; background: var(--chip); }
-.nope { display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); text-align: center; }
-img.full { width: 100%; max-width: 360px; height: auto; border-radius: 10px; }
+.row.stack { flex-direction: column; }
+.thumb { width: 96px; height: auto; aspect-ratio: 1 / 1; max-height: 176px; flex: none; align-self: flex-start; object-fit: contain; border-radius: 8px; background: var(--chip); }
+.nope { height: 96px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); text-align: center; }
+img.full { width: 100%; max-width: 360px; height: auto; align-self: flex-start; border-radius: 10px; }
 .meta { min-width: 0; flex: 1; }
 .head { font-weight: 600; font-size: 13px; overflow-wrap: anywhere; }
 .sub, .words { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
@@ -276,7 +277,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
   }
   function resultCard(p, body) {
     var src = p.id ? "/studio/img/" + p.id + "?size=full" : p.data;
-    return el("article", { cls: "row" }, [
+    return el("article", { cls: "row stack" }, [
       el("img", { src: src, alt: "", cls: "full" }),
       el("div", { cls: "meta" }, [
         el("div", { cls: "head", text: (p.id ? "#" + p.id + " · " : "") + "seed " + p.seed + " · " + money(p.cost) }),
@@ -303,6 +304,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
   function logRow(row) {
     var loras = parseJSON(row.loras, []);
     var thumb = el("img", { src: "/studio/img/" + row.id + "?size=thumb", alt: "", loading: "lazy", cls: "thumb" });
+    if (row.width > 0 && row.height > 0) thumb.style.aspectRatio = row.width + " / " + row.height; // the picture's own shape, never cropped
     thumb.onerror = function () { thumb.replaceWith(el("div", { cls: "thumb nope", text: "not kept" })); };
     var sizeLine = [row.model, row.width && row.height && (row.width + "x" + row.height), row.steps && (row.steps + " steps"), row.cfg && ("CFG " + row.cfg), row.seed && ("seed " + row.seed), money(row.cost)].filter(Boolean).join(" · ");
     var head = "#" + row.id + " · " + when(row.at) + " · " + row.source + (row.kind ? " · " + row.kind : "") + (row.nsfw ? " · " + row.nsfw : "");

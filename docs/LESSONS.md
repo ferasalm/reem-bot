@@ -94,12 +94,15 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - A link opened from another app: a 302 setting `SameSite=Strict` loses the cookie → answer the page with `SameSite=Lax`; reproduce
   over https from a different site (`tools/test/studio-browser.mjs`, 2026-10-11).
 - History before v10 has no `parts` (no /edit or /rewind: NOT_FOUND); older chat is in `m:` notes (TOO_OLD). Telegram deletes bot
-  messages only for 48 h. A `VOICE_ID` Worker secret overrides `VOICE.ID`: remove it. Cron runs must finish in 30 s (`scheduled` queues).
+  messages only for 48 h. A `VOICE_ID` Worker secret overrides `VOICE.ID`: remove it. A cron run (`scheduled`) has 15 min of wall time on Workers Paid (the 30 s is CPU time): the memory fold runs there, not in the reply queue (2026-10-15).
 - `clean()` strips `[...]` at line starts except audio tags; `dropCues()` anywhere; `tidySpoken()` the rest before TTS. eleven_v3: no
   `<break>`, tags only with `AUDIO_TAGS`. Reactions only apart, never OOC, stored on her entry. History folds into notes at 40, keeping 24.
 - The tests make `setTimeout` instant (scenarios, e2e): a deadline race on it always loses → `AbortSignal.timeout` (as aiRun); Node
   doesn't stay alive for it (exit 13, "unsettled top-level await") → hold a `setInterval` in that test row. Unit rows that call AI
   need `W.budget.reset()` first (earlier rows spend the per-request subrequest budget) (2026-10-13).
+- Outside-call count: `xfetch` already counts; a `budget.used++` before it counted Runware, Nano Banana, Gemini hearing and Sulafat twice.
+  Workers Paid allows 10,000 subrequests an invocation (free: 50); the count is a guard, not a budget (2026-10-15). `failed()` is the one
+  place an error becomes her line; real errors go to D1 `events` (read it: `SELECT kind, outcome, error, ms, late_ms FROM events`).
 - Tests: `CONFIG_OVERRIDES` is cached per run (set `W.CONFIG`); voice chances are 0 in e2e and scenarios; a unit row comparing a plan's
   refs must leave out random picks; rerun a new test file ~10 times. A per-picture neuron change (klein 9B: 115 → 1,500) made the
   scenarios reach PICTURE_SHARE mid-run → reset the test ledger before late picture blocks (Step B, 2026-10-13).

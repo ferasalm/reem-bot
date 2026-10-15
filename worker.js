@@ -1013,6 +1013,7 @@ Changing the story
       ASPECTS: { ORAL: { "1:1": 0.8, "16:9": 0.2 }, ACT: { "9:16": 0.4, "1:1": 0.4, "16:9": 0.2 } },
       WIDE: "Only one woman is in the picture.",
       BIG_FACE: true,                  // her face reference 2x (896x960, Runware upscaler) instead of the 460x480 one (Cloudflare's limit)
+      TRANSIENT_RETRIES: 1,            // at /nsfw Nude and On (Runware only): this many more tries when the last one failed with a Runware 5xx or a timeout (never on another error)
       KLEIN_TRIES: 2,                  // her pictures: klein 9B tries (2 = one retry), then Cloudflare klein with the same references; TwinFlow never draws her (words only: its LOOKS drew the belly, 2026-10-10)
       // owner 2026-10-10: these hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when picked (about
       // $0.0009 more). The four outfit pictures were retired 2026-10-12 (owner): outfits are words only
@@ -1572,7 +1573,7 @@ Changing the story
   /* ---------------- Limits ---------------- */
   LIMITS: {
     HTTP_TIMEOUT_MS: 20000,            // ElevenLabs and Telegram file downloads
-    SUBREQUEST_LIMIT: 50,              // free plan: at most 50 outside calls per run
+    SUBREQUEST_LIMIT: 10000,           // Workers Paid: 10,000 subrequests per invocation (Cloudflare docs, 2026-02-11); the free plan allows 50
     SUBREQUEST_RESERVE: 6,             // kept free for the actual messages
     SEEN_KEEP: 200,                    // how many recent Telegram update IDs to remember
   },
@@ -1732,17 +1733,23 @@ export default {
     applyOverrides(env);
     for (const m of batch.messages) m.ack(); // never redeliver: a retry would mean a duplicate reply
     budget.reset();
+    const updates = batch.messages.map((m) => m.body);
     try {
-      await handleBatch(batch.messages.map((m) => m.body), env, ctx, Date.now() + CONFIG.TIMING.QUEUE_BUDGET_MS);
+      await handleBatch(updates, env, ctx, Date.now() + CONFIG.TIMING.QUEUE_BUDGET_MS);
     } catch (e) {
-      console.error(e);
+      // handleBatch guards each update itself; this is anything outside them (the seen list, the KV): say so in the chat
+      const u = updates.find((x) => x && (x.message || x.edited_message || (x.callback_query && x.callback_query.message)));
+      const chat = u && (u.message || u.edited_message || u.callback_query.message).chat;
+      await failed(env, chat && chat.id, e, Date.now() + CONFIG.TIMING.FALLBACK_BUDGET_MS, "queue").catch((e2) => console.error(e2));
     }
   },
 
-  // Cron (every 15 min, see wrangler.toml): maybe she texts first. The message itself is written in
-  // a queue run, which may take minutes; cron runs this often must finish within 30 seconds.
+  // Cron (every 15 min, see wrangler.toml): first the memory fold of any chat whose backlog is waiting (a separate invocation, so it
+  // never holds the reply queue), then maybe she texts first. The message itself is written in a queue run, which may take minutes.
   async scheduled(event, env, ctx) {
     applyOverrides(env);
+    budget.reset();
+    await foldWaiting(env).catch((e) => console.error("memory fold (cron) failed", e));
     budget.reset();
     try {
       const chatId = await proactiveChat(env);
@@ -1819,6 +1826,7 @@ async function handleBatch(updates, env, ctx, deadline) {
   updates = await onlyNew(env, updates);
   let convo = [];
   let heardFromHim = false;
+  let lastChat = null;
   const flush = async () => {
     if (!convo.length) return;
     const c = convo;
@@ -1827,43 +1835,50 @@ async function handleBatch(updates, env, ctx, deadline) {
   };
   for (const u of updates) {
     if (!u) continue;
-    const cq = u.callback_query;
-    if (cq) {
-      const chat = cq.message && cq.message.chat;
-      if (!chat || !CONFIG.TELEGRAM.CHAT_TYPES.includes(chat.type) || !(await isOwner(env, cq.from.id))) continue;
-      heardFromHim = true;
-      await flush();
-      await onButton(env, ctx, cq, deadline);
-      continue;
-    }
-    const m = u.message || u.edited_message;
-    if (!m || !m.chat || !m.from || !CONFIG.TELEGRAM.CHAT_TYPES.includes(m.chat.type)) continue;
-    if (!(await isOwner(env, m.from.id))) continue; // strangers get total silence
-    heardFromHim = true;
-    if (u.edited_message) {
-      // Still waiting for her answer: just use the new version
-      const waiting = convo.findIndex((x) => x.message_id === m.message_id);
-      if (waiting >= 0) convo[waiting] = m;
-      else {
+    // one update that throws never takes the rest of the batch with it: she says the line was dropped and the next one is handled
+    try {
+      const cq = u.callback_query;
+      if (cq) {
+        const chat = cq.message && cq.message.chat;
+        if (!chat || !CONFIG.TELEGRAM.CHAT_TYPES.includes(chat.type) || !(await isOwner(env, cq.from.id))) continue;
+        heardFromHim = true;
         await flush();
-        await onEdited(env, ctx, m, deadline);
+        await onButton(env, ctx, cq, deadline);
+        continue;
       }
-      continue;
+      const m = u.message || u.edited_message;
+      if (!m || !m.chat || !m.from || !CONFIG.TELEGRAM.CHAT_TYPES.includes(m.chat.type)) continue;
+      if (!(await isOwner(env, m.from.id))) continue; // strangers get total silence
+      heardFromHim = true;
+      lastChat = m.chat.id;
+      if (u.edited_message) {
+        // Still waiting for her answer: just use the new version
+        const waiting = convo.findIndex((x) => x.message_id === m.message_id);
+        if (waiting >= 0) convo[waiting] = m;
+        else {
+          await flush();
+          await onEdited(env, ctx, m, deadline);
+        }
+        continue;
+      }
+      const text = (m.text || (m.photo && m.caption) || "").trim();
+      if (text.startsWith("/")) {
+        const { action, args } = parseCommand(text);
+        if (action === "restart") convo = []; // anything before a restart is forgotten
+        else if (STORY_ACTIONS.has(action)) await flush();
+        await runCommand(env, m.chat.id, action, { args, msg: m, ctx, deadline });
+        continue;
+      }
+      convo.push(m);
+    } catch (e) {
+      const chat = (u.message || u.edited_message || (u.callback_query && u.callback_query.message) || {}).chat;
+      await failed(env, chat && chat.id, e, deadline, "update");
     }
-    const text = (m.text || (m.photo && m.caption) || "").trim();
-    if (text.startsWith("/")) {
-      const { action, args } = parseCommand(text);
-      if (action === "restart") convo = []; // anything before a restart is forgotten
-      else if (STORY_ACTIONS.has(action)) await flush();
-      await runCommand(env, m.chat.id, action, { args, msg: m, ctx, deadline });
-      continue;
-    }
-    convo.push(m);
   }
-  await flush();
+  await flush().catch((e) => failed(env, lastChat, e, deadline, "update"));
   // Nothing from him in this run: she may text first, if a cron check asked for it
   const task = updates.find((u) => u && u.proactive);
-  if (task && !heardFromHim) await textFirst(env, ctx, String(task.chat_id), deadline);
+  if (task && !heardFromHim) await textFirst(env, ctx, String(task.chat_id), deadline).catch((e) => failed(env, null, e, deadline, "proactive"));
 }
 
 // Commands that change the chat history (her answer to earlier messages comes first)
@@ -1906,7 +1921,16 @@ async function getSettings(kv, chatId) {
   return (await kv.get(`s:${chatId}`, "json")) || {};
 }
 
-async function runCommand(env, chatId, action, { args = "", msg = {}, ctx, deadline = Date.now() + CONFIG.TIMING.FALLBACK_BUDGET_MS } = {}) {
+// A command that throws: one in-character line and an `events` row, never silence (Rebuild Step 0, 2026-10-15)
+async function runCommand(env, chatId, action, opts = {}) {
+  try {
+    await runCommandNow(env, chatId, action, opts);
+  } catch (e) {
+    await failed(env, chatId, e, opts.deadline, `command:${action || "?"}`);
+  }
+}
+
+async function runCommandNow(env, chatId, action, { args = "", msg = {}, ctx, deadline = Date.now() + CONFIG.TIMING.FALLBACK_BUDGET_MS } = {}) {
   const kv = env.REEM_KV;
   const M = CONFIG.MESSAGES;
   if (action === "restart") return openStory(env, chatId);
@@ -2194,13 +2218,18 @@ async function onEdited(env, ctx, m, deadline) {
   }
 }
 
-// When she can't answer: "wifi died" in character for a passing outage, a plain notice otherwise
-async function failed(env, chatId, e, deadline) {
+// When she can't answer: "wifi died" in character, whatever the error (a passing outage, a 401 or 402 from a provider, a throw in
+// a command): never silence and never a "(setup)" notice in the chat (owner, Rebuild 2026-10-15). The real error goes in the `events` log.
+async function failed(env, chatId, e, deadline, kind = "error") {
   console.error(e);
-  if (e && e.retryable) {
-    await sendBubbles(env, chatId, lineDropped(), { deadline: Math.min(deadline, Date.now() + CONFIG.TIMING.LINE_DROPPED_BUDGET_MS) });
-  } else {
-    await notice(env, chatId, CONFIG.MESSAGES.ERROR, { error: String((e && e.message) || e).slice(0, CONFIG.MESSAGES.ERROR_MAX_CHARS) });
+  if (!(e && e.logged)) {
+    await logEvent(env, { chat: chatId == null ? null : String(chatId), kind, outcome: e && e.retryable ? "dropped" : "error", error: (e && e.message) || String(e) });
+  }
+  if (chatId == null) return;
+  try {
+    await sendBubbles(env, chatId, lineDropped(), { deadline: Math.min(deadline || Infinity, Date.now() + CONFIG.TIMING.LINE_DROPPED_BUDGET_MS) });
+  } catch (e2) {
+    console.error("couldn't send the dropped line", e2);
   }
 }
 
@@ -2362,7 +2391,20 @@ async function reply(env, ctx, convo, deadline) {
 // Replies and texting first both end here: she thinks, waits like a person, then sends a text,
 // a scene or a voice note. `heard` is what he sent (or, when she texts first, her instruction);
 // `userParts` are his Telegram messages behind it. Saved once it's delivered, with the message ids.
-async function respond(env, ctx, chatId, state, { heard, userParts = null, cameAsVoice = false, waitUntil, proactive = false, reactTo }, deadline) {
+async function respond(env, ctx, chatId, state, opts, deadline) {
+  const t = startTrace();
+  t.chat = chatId;
+  try {
+    await respondNow(env, ctx, chatId, state, opts, deadline);
+    await logEvent(env, traceRow(opts.proactive ? "proactive" : "reply", "ok"));
+  } catch (e) {
+    await logEvent(env, traceRow(opts.proactive ? "proactive" : "reply", e && e.retryable ? "dropped" : "error", (e && e.message) || e));
+    if (e && typeof e === "object") e.logged = true; // failed() doesn't log it a second time
+    throw e;
+  }
+}
+
+async function respondNow(env, ctx, chatId, state, { heard, userParts = null, cameAsVoice = false, waitUntil, proactive = false, reactTo }, deadline) {
   const { settings, history, notes } = state;
   const level = nsfwLevel(settings); // /nsfw (Step 2): Off, Nude or On for this chat's pictures
   const ooc = !proactive && isOoc(heard);
@@ -2371,6 +2413,7 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
   const canReact = !proactive && !ooc && !!reactTo && R.ENABLED && scene === "apart";
   const offerReaction = canReact && Math.random() < R.CHANCE;
   const mode = replyMode({ scene, heard, proactive, ooc, cameAsVoice, moreVoice: !!settings.moreVoice });
+  if (trace) trace.mode = mode;
   // His own words: not what the vision model saw in his photos ("a selfie of a man..." isn't him asking)
   const said = userParts ? userParts.map((p) => (p.photo ? p.text.replace(p.seen || "\u0000", "") : p.text)).join("\n") : heard;
   if (!proactive) await noteMinor(env, chatId, settings, said);
@@ -2391,8 +2434,10 @@ async function respond(env, ctx, chatId, state, { heard, userParts = null, cameA
 
   const typingStarted = Date.now();
   await tg(env, "sendChatAction", { chat_id: chatId, action: mode === "voice" ? "record_voice" : "typing" });
+  const raw = await replyPromise;
+  if (trace) trace.lateMs = Date.now() - Math.min(waitUntil, deadline - CONFIG.TIMING.REPLY_MARGIN_MS); // > 0: she was ready late
   // The format rules are enforced here, whatever the model wrote (see shapeReply)
-  const out = shapeReply(await replyPromise, { scene, mode, ooc, canReact, canSelfie: canPicture, history, heard: proactive ? "" : heard, lastResort: true });
+  const out = shapeReply(raw, { scene, mode, ooc, canReact, canSelfie: canPicture, history, heard: proactive ? "" : heard, lastResort: true });
   // Her picture starts drawing now, while she types: a selfie when the code decided one (she may have left
   // [selfie] out) or she wrote one herself; in person, the moment from the scene
   let drawing = null;
@@ -2755,7 +2800,9 @@ async function saveTurn(env, chatId, history, notes, userEntry, herEntry) {
   const cut = history.length - CONFIG.MEMORY.HISTORY_KEEP;
   await kv.put(`h:${chatId}`, JSON.stringify(history.slice(cut)));
   await recallSave(env, chatId, history.slice(0, cut)).catch((e) => console.error("recall: couldn't save", aiText_(e)));
-  await remember(env, chatId, notes, history.slice(0, cut));
+  // The fold into notes (a model call that can take a minute or two) no longer holds the reply queue: the folded messages wait in the
+  // backlog (`b:`) and the 15-minute cron folds them (foldWaiting). Rebuild Step 0, 2026-10-15.
+  await queueFold(env, chatId, history.slice(0, cut));
 }
 
 // mode: "text", "voice" or "scene" (from replyMode). The format reminder for that mode goes after
@@ -2958,6 +3005,32 @@ function longAgo(at) {
   return `${Math.round(days / 30)} months ago`;
 }
 
+// Folded-out messages wait in the chat's backlog until the cron has folded them into the notes
+async function queueFold(env, chatId, overflow) {
+  const kv = env.REEM_KV;
+  const backlog = (await kv.get(`b:${chatId}`, "json")) || [];
+  await kv.put(`b:${chatId}`, JSON.stringify([...backlog, ...overflow].slice(-CONFIG.MEMORY.BACKLOG_MAX)));
+}
+
+// The cron's job: every chat whose backlog is waiting gets it folded into its notes. A failure leaves the backlog for the next run.
+async function foldWaiting(env) {
+  const kv = env.REEM_KV;
+  if (!kv || !kv.list) return;
+  const { keys } = await kv.list({ prefix: "b:" });
+  for (const { name } of keys || []) {
+    const chatId = name.slice(2);
+    const t = startTrace();
+    t.chat = chatId;
+    try {
+      const notes = (await kv.get(`m:${chatId}`)) || "";
+      await remember(env, chatId, notes, []);
+      await logEvent(env, traceRow("fold", "ok"));
+    } catch (e) {
+      await logEvent(env, traceRow("fold", "error", (e && e.message) || e));
+    }
+  }
+}
+
 async function remember(env, chatId, oldNotes, overflow) {
   const kv = env.REEM_KV;
   const M = CONFIG.MEMORY;
@@ -2965,6 +3038,7 @@ async function remember(env, chatId, oldNotes, overflow) {
   const backlog = (await kv.get(`b:${chatId}`, "json")) || [];
   const pending = [...backlog, ...overflow].slice(-M.BACKLOG_MAX);
   try {
+    if (!pending.length) return;
     if (budget.left() < 2) throw new Error("out of calls this run; folding memory next time");
     const transcript = pending
       .map((m) => `${m.role === "user" ? C.USER_LABEL : C.NAME}: ${m.content}`)
@@ -2977,10 +3051,16 @@ async function remember(env, chatId, oldNotes, overflow) {
     const notes = await callModel(env, messages, M.SAMPLING, { model: M.MODEL, timeoutMs: M.TIMEOUT_MS, attempts: M.ATTEMPTS, backup: CONFIG.LLM.BACKUP_MODEL, task: true });
     const lines = notes.split("\n").map((l) => l.trim()).filter((l) => l.startsWith("-"));
     if (!lines.length) throw new Error("memory notes came back off-format");
+    // /restart during the fold wiped the backlog and the notes: don't bring them back
+    const now = await kv.get(`b:${chatId}`, "json");
+    if (backlog.length && !now) return;
     await kv.put(`m:${chatId}`, lines.join("\n").slice(0, M.MAX_CHARS));
-    if (backlog.length) await kv.delete(`b:${chatId}`);
+    // what folded is removed; messages queued while the model worked stay for the next fold
+    const rest = (now || []).slice(backlog.length);
+    if (rest.length) await kv.put(`b:${chatId}`, JSON.stringify(rest));
+    else await kv.delete(`b:${chatId}`);
   } catch (e) {
-    await kv.put(`b:${chatId}`, JSON.stringify(pending));
+    if (overflow.length) await kv.put(`b:${chatId}`, JSON.stringify(pending)); // a cron fold leaves the backlog as it is
     throw e;
   }
 }
@@ -3019,6 +3099,7 @@ async function callModel(env, messages, sampling, { model = CONFIG.LLM.MODEL, ti
   } catch (e) {
     if (!backup || backup === model) throw e;
     console.error(`${model} failed, trying ${backup}:`, e.message);
+    if (trace) trace.backup = true;
     const fitted = fitMessages(messages, CONFIG.LLM.BACKUP_CONTEXT_TOKENS, sampling.max_tokens);
     return askModel(env, fitted, sampling, { model: backup, timeoutMs, attempts: 1, trimCut, task });
   }
@@ -3041,9 +3122,22 @@ function fitMessages(messages, contextTokens, maxTokens = 0) {
   return out;
 }
 
-async function askModel(env, messages, sampling, { model, timeoutMs, attempts, trimCut, task = false }) {
+async function askModel(env, messages, sampling, opts) {
+  const t0 = Date.now();
+  try {
+    const out = await askModelTries(env, messages, sampling, opts);
+    traceCall(opts.model, t0);
+    return out;
+  } catch (e) {
+    traceCall(opts.model, t0, e);
+    throw e;
+  }
+}
+
+async function askModelTries(env, messages, sampling, { model, timeoutMs, attempts, trimCut, task = false }) {
   let lastErr;
   for (let attempt = 0; attempt < attempts; attempt++) {
+    if (trace) trace.attempts++;
     if (attempt) await sleep(CONFIG.LLM.RETRY_DELAY_MS);
     // a Workers AI model (@cf/...): the AI binding instead of OpenRouter (owner 2026-10-06: the backup on Cloudflare)
     if (/^@cf\//.test(model)) {
@@ -4003,7 +4097,6 @@ async function drawRunware(env, model, prompt, refs, width, height, { loras = []
   if (steps > 0) task.steps = steps;
   if (cfg >= 1) task.CFGScale = cfg;
   if (acceleration) task.acceleration = String(acceleration);
-  budget.used++;
   let res;
   try {
     res = await xfetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${env.RUNWARE_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify([task]), signal: AbortSignal.timeout(Number(R.TIMEOUT_MS) || 60000) });
@@ -4230,6 +4323,9 @@ CREATE TABLE IF NOT EXISTS pictures (id INTEGER PRIMARY KEY AUTOINCREMENT, at TE
   error TEXT, tg_thumb TEXT, tg_full TEXT);
 CREATE INDEX IF NOT EXISTS pictures_at ON pictures(at);
 CREATE TABLE IF NOT EXISTS presets (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, author TEXT, name TEXT, body TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, chat TEXT, kind TEXT NOT NULL, mode TEXT,
+  outcome TEXT NOT NULL, error TEXT, model TEXT, calls TEXT, attempts INTEGER, backup INTEGER, ms INTEGER, model_ms INTEGER, late_ms INTEGER, detail TEXT);
+CREATE INDEX IF NOT EXISTS events_at ON events(at);
 `;
 let studioSchema = null;
 function ensureStudioSchema(env) {
@@ -4261,6 +4357,45 @@ async function logPicture(env, row) {
     console.error("logPicture failed", e);
     return null;
   }
+}
+
+// The reliability log (Rebuild Step 0, 2026-10-15): one `events` row per reply, command, failure and memory fold: kind, outcome
+// (ok / error / dropped / skipped), the error, the chat model calls (model, ms, error), whether the backup answered, the total ms,
+// the ms spent in the model and how late the reply was against the time she meant to answer (late_ms). Never throws.
+async function logEvent(env, row) {
+  try {
+    if (!(await ensureStudioSchema(env))) return null;
+    const r = { at: new Date().toISOString(), ...row };
+    for (const k of Object.keys(r)) if (r[k] !== null && typeof r[k] === "object") r[k] = JSON.stringify(r[k]);
+    if (r.error != null) r.error = String(r.error).slice(0, 500);
+    const cols = Object.keys(r);
+    const res = await env.STUDIO_DB.prepare(`INSERT INTO events (${cols.join(", ")}) VALUES (${cols.map(() => "?").join(", ")})`).bind(...cols.map((c) => r[c] ?? null)).run();
+    return res?.meta?.last_row_id ?? null;
+  } catch (e) {
+    console.error("logEvent failed", e);
+    return null;
+  }
+}
+
+// What one reply collects on the way (the queue runs one reply at a time; a quick command that runs beside it adds a call at worst)
+let trace = null;
+function startTrace() {
+  trace = { t0: Date.now(), calls: [], attempts: 0, backup: false, lateMs: null, mode: null };
+  return trace;
+}
+function traceCall(model, t0, e) {
+  if (!trace || trace.calls.length >= 8) return;
+  trace.calls.push({ model, ms: Date.now() - t0, ...(e ? { error: String((e && e.message) || e).slice(0, 120) } : {}) });
+}
+function traceRow(kind, outcome, error) {
+  const t = trace || { t0: Date.now(), calls: [], attempts: 0, backup: false };
+  const chat = t.chat;
+  return {
+    chat: chat == null ? null : String(chat), kind, mode: t.mode || null, outcome, error: error || null,
+    model: (t.calls.find((c) => !c.error) || t.calls[0] || {}).model || null,
+    calls: t.calls.length ? t.calls : null, attempts: t.attempts || null, backup: t.backup ? 1 : 0,
+    ms: Date.now() - t.t0, model_ms: t.calls.reduce((n, c) => n + c.ms, 0) || null, late_ms: t.lateMs,
+  };
 }
 
 // Telegram's own copies of a logged picture (free, no re-upload): tg_thumb = the largest PhotoSize at most 400 px wide,
@@ -4676,7 +4811,13 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
     const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who, fix, level: nsfw });
     if (planOnly) return { plan: plan.tries };
-    for (const t of plan.tries) {
+    // At Nude and On a Runware failure means no picture (D1 row 705), so a 5xx or a timeout earns TRANSIENT_RETRIES more tries of the
+    // last plan try (the next seed each time); any other error (a refusal, a bad request) is not retried
+    const transient = (e) => /\bRunware 5\d\d\b|unreachable or too slow/.test(String((e && e.message) || e));
+    const tries = [...plan.tries];
+    let extra = Math.max(0, Number(R.TRANSIENT_RETRIES) || 0);
+    for (let i = 0; i < tries.length; i++) {
+      const t = tries[i];
       rec.attempts++;
       Object.assign(rec, { model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || null, cfg: t.cfg || null });
       try {
@@ -4691,6 +4832,10 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
       } catch (e) {
         ledger.rwFailed = (ledger.rwFailed || 0) + 1; // failed Runware attempts today (/spend)
         await aiFailed(env, `drawing with ${t.model} (Runware): ${aiText_(e)}`);
+        if (i === tries.length - 1 && extra > 0 && runwareRoute(nsfw) && transient(e) && runwareAffordable(env, ledger, nsfw)) {
+          extra--;
+          tries.push(t);
+        }
       }
     }
   }
@@ -5125,7 +5270,6 @@ async function drawLingerie(env, pic) {
   const room = where ? (P.ROOM_TEXT || "").replace("{look}", where.LOOK || "") : "";
   // Step B: CRAFT is no longer in the composed prompt (drawPictureNow adds it on Cloudflare); Nano Banana gets it here
   const prompt = pic.spicy ? pic.prompt : `${pic.prompt.replace("{room}", room).replace("{who}", `Realistic smartphone photo of ${L.WHO}`)} ${P.CRAFT || ""}`.replace(/\s{2,}/g, " ").trim();
-  budget.used++;
   let res;
   try {
     res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -5148,10 +5292,18 @@ async function drawLingerie(env, pic) {
   return fromBase64(url.slice(url.indexOf(",") + 1));
 }
 
+// "sending a photo..." in the chat for as long as the picture draws (Telegram shows an action for 5 s)
+function whileDrawing(env, chatId, drawing) {
+  const pulse = setInterval(() => tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" }).catch(() => {}), 4500);
+  const stop = () => clearInterval(pulse);
+  Promise.resolve(drawing).then(stop, stop);
+  return drawing;
+}
+
 // Sends a drawn picture, never one sent before (same bytes). Returns a history part, or null.
 async function deliverPicture(env, chatId, ledger, drawing) {
   const P = CONFIG.PICTURE;
-  const pic = drawing && (await drawing);
+  const pic = drawing && (await whileDrawing(env, chatId, drawing));
   try {
     if (!pic) return null;
     const hash = await sha256(pic.bytes);
@@ -5640,7 +5792,6 @@ async function transcribe(env, fileId, mime, seconds) {
 // His voice note heard by an audio model on OpenRouter (HEARING.OR_MODEL): the transcript, with (laughs) and the like
 async function hearWithGemini(env, bytes, format = "ogg") {
   const H = CONFIG.HEARING;
-  budget.used++;
   const res = await xfetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
@@ -5750,7 +5901,6 @@ async function openRouterTts(env, text, ledger = null) {
 // `said` spoken by VOICE.OR_MODEL on OpenRouter: MP3 bytes (Gemini's raw PCM encoded here), or an error
 async function orSpeech(env, said) {
   const V = CONFIG.VOICE;
-  budget.used++;
   const pcm = V.OR_FORMAT === "pcm";
   const body = { model: V.OR_MODEL, input: said, response_format: pcm ? "pcm" : "mp3" };
   if (V.OR_VOICE) body.voice = V.OR_VOICE;

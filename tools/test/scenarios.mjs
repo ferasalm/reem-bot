@@ -284,6 +284,7 @@ globalThis.fetch = async (url, init = {}) => {
     }
     if (!b.messages[0].content.includes("HOW YOU TALK")) return j({ choices: [{ message: { content: "- notes" }, finish_reason: "stop" }] });
     prompts.push(b);
+    if (orStatus) return j({ error: { message: "insufficient credits" } }, orStatus);
     const next = llm.shift() ?? "mhm";
     return j({ choices: [{ message: { content: next }, finish_reason: "stop" }] });
   }
@@ -296,9 +297,10 @@ globalThis.fetch = async (url, init = {}) => {
   if (method === "sendPhoto") return j({ ok: true, result: { message_id: 9000 + calls.length, photo: [{ file_id: "small" }, { file_id: `big${calls.length}` }] } });
   return j({ ok: true, result: {} });
 };
-let ttsFails = false;
+let ttsFails = false; let orStatus = 0; // orStatus: OpenRouter answers her chat with this error status
 const store = new Map();
-const kv = { async get(k, t) { const v = store.get(k); return v == null ? null : t === "json" ? JSON.parse(v) : v; }, async put(k, v) { store.set(k, v); }, async delete(k) { store.delete(k); } };
+let kvBreak = null; // Rebuild Step 0: a KV key pattern whose writes throw
+const kv = { async get(k, t) { const v = store.get(k); return v == null ? null : t === "json" ? JSON.parse(v) : v; }, async put(k, v) { if (kvBreak && kvBreak.test(k)) throw new Error("unit: KV is down"); store.set(k, v); }, async delete(k) { store.delete(k); } };
 const env = { TELEGRAM_BOT_TOKEN: "t", OPENROUTER_API_KEY: "o", ELEVENLABS_API_KEY: "e", REEM_KV: kv, OWNER_ID: "7", REEM_QUEUE: { async send() {} } };
 // No random voice notes: a reply is a voice note only when he asks or she writes [voice]
 Object.assign(W.CONFIG.VOICE, { CHANCE: 0, CHANCE_AFTER_VOICE: 0, CHANCE_MORE_VOICE: 0, SCENE_CHANCE: 0 });
@@ -1139,6 +1141,35 @@ yes(prompts.every((p) => p.messages[0].content.includes(LIMITS)), `in every repl
 r = await turn("lol btw i'm 16", ["wait what. ok... friends then. so how was school"], { history: APART });
 yes(r.system[0].includes("If he ever says he is under 18, stop all flirting"), "under-18 rule present when he states an age");
 yes(r.prompts[0].messages.filter((m) => m.role === "user").at(-1).content === "lol btw i'm 16", "his words reach the model unchanged");
+
+section("reliability (Rebuild Step 0): a throw never means silence");
+{
+  const dropped = W.CONFIG.MESSAGES.LINE_DROPPED.flat().map((l) => W.fill(l));
+  const sentTexts = (c0) => calls.slice(c0).filter((x) => x.method === "sendMessage").map((x) => x.body.text);
+  // a command that throws (its settings write fails): her "wifi died" line, no "(setup)" notice, no throw out of the queue
+  let c0 = calls.length; kvBreak = /^s:/;
+  await W.default.queue({ messages: [msg({ text: "/name Sam" })] }, env, ctx);
+  kvBreak = null;
+  let t = sentTexts(c0);
+  yes(t.length > 0 && t.every((x) => dropped.includes(x)), "a throwing command: only her dropped-line messages go out", JSON.stringify(t));
+  // a throwing update in a batch of three: the other two are still answered
+  c0 = calls.length; kvBreak = /^s:/; llm = ["got you"];
+  await W.default.queue({ messages: [msg({ text: "/name Sam" }), msg({ text: "/help" }), msg({ text: "hey you there" })] }, env, ctx);
+  kvBreak = null;
+  t = sentTexts(c0);
+  yes(t.some((x) => dropped.includes(x)), "a batch of three: the throwing command gets the dropped line");
+  yes(t.some((x) => x.includes("/help")) || t.some((x) => /\/name/.test(x)), "a batch of three: /help is still answered", JSON.stringify(t.map((x) => x.slice(0, 40))));
+  yes(t.includes("got you"), "a batch of three: his text is still answered");
+  // a 402 from the provider: her line, never "(setup)"
+  c0 = calls.length; orStatus = 402; llm = ["x", "x", "x", "x"];
+  await W.default.queue({ messages: [msg({ text: "are you there?" })] }, env, ctx);
+  orStatus = 0;
+  t = sentTexts(c0);
+  yes(t.length > 0 && t.every((x) => dropped.includes(x)) && !t.some((x) => /setup/i.test(x)), "a 402: her dropped line, no (setup) notice", JSON.stringify(t));
+  // the next message works again
+  r = await turn("ok try again", ["yes i'm here"], { history: APART });
+  eq(r.texts, ["yes i'm here"], "after a 402 she answers again");
+}
 
 console.log(fails ? `\n${fails} FAILED` : "\nall passed");
 process.exit(fails ? 1 : 0);

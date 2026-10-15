@@ -40,7 +40,7 @@ globalThis.fetch = async (url, init = {}) => {
   return j({ ok: true, result: true });
 };
 const store = new Map();
-const kv = { async get(k, t){ const v = store.get(k); return v==null?null: t==="json"?JSON.parse(v):v; }, async put(k,v){ store.set(k,v); }, async delete(k){ store.delete(k); } };
+const kv = { async get(k, t){ const v = store.get(k); return v==null?null: t==="json"?JSON.parse(v):v; }, async put(k,v){ store.set(k,v); }, async delete(k){ store.delete(k); }, async list({ prefix = "" } = {}){ return { keys: [...store.keys()].filter((k) => k.startsWith(prefix)).map((name) => ({ name })) }; } };
 const queued = [];
 const env = { TELEGRAM_BOT_TOKEN: "t", OPENROUTER_API_KEY: "o", ELEVENLABS_API_KEY: "e", REEM_KV: kv, OWNER_ID: "7",
   REEM_QUEUE: { async send(b){ queued.push(b); } }, CONFIG_OVERRIDES: JSON.stringify({ PROACTIVE: { CHANCE: 1 }, VOICE: { CHANCE: 0, CHANCE_AFTER_VOICE: 0, CHANCE_MORE_VOICE: 0, SCENE_CHANCE: 0 } }) };
@@ -255,13 +255,16 @@ await run(msg({ text: "Come over habibi" }));
 }
 W.CONFIG.TEXTING.VISIT_CHANCE = 0; clock += 3 * 3600e3;
 
-step("memory folding: same model and routing");
+step("memory folding: queued by the reply, folded by the cron (same model and routing)");
 const [hMax, hKeep] = [W.CONFIG.MEMORY.HISTORY_MAX, W.CONFIG.MEMORY.HISTORY_KEEP];
 W.CONFIG.MEMORY.HISTORY_MAX = 4; W.CONFIG.MEMORY.HISTORY_KEEP = 2;
 await run(msg({ text: "tell me about your day" }));
 W.CONFIG.MEMORY.HISTORY_MAX = hMax; W.CONFIG.MEMORY.HISTORY_KEEP = hKeep;
+const notFolded = prompts.filter(b => !b.messages[0].content.includes("HOW YOU TALK")).length;
+console.log("the reply did not fold:", notFolded === 0, "| backlog waits:", JSON.parse(store.get("b:7") || "[]").length > 0);
+await W.foldWaiting(env);
 const memoryCalls = prompts.filter(b => !b.messages[0].content.includes("HOW YOU TALK"));
-console.log("memory folds:", memoryCalls.length, "| all DeepSeek + routed:", memoryCalls.length > 0 && memoryCalls.every(b => b.model === "deepseek/deepseek-v4-flash" && b.provider?.allow_fallbacks === false && b.reasoning?.enabled === false));
+console.log("memory folds:", memoryCalls.length, "| all DeepSeek + routed:", memoryCalls.length > 0 && memoryCalls.every(b => b.model === "deepseek/deepseek-v4-flash" && b.provider?.allow_fallbacks === false && b.reasoning?.enabled === false), "| backlog cleared:", !store.has("b:7"), "| notes saved:", store.get("m:7") === "- notes");
 
 step("DeepSeek down: backup model answers");
 const realFetch = globalThis.fetch;

@@ -4,55 +4,60 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Rebuild (2026-10-15)", the current plan, with paste prompts).
 
-**Last updated:** 2026-10-15 (forty-ninth session: Opus 5.5, `claude-opus-5-5`, configured and served per get_session; read-only
-Explore subagents on Sonnet and Haiku, an Opus advisor). Planning only: the owner approved the rebuild plan. No code changed, $0 spent.
+**Last updated:** 2026-10-15 (fiftieth session: Sonnet 5.5, `claude-sonnet-5-5`, configured and served per get_session; no subagents).
+Rebuild Step 0 built on `dev`, $0 spent (no pictures drawn).
 **Deployed:** `main` = 72962ba, Version ID `5b39bfb2-933c-41a2-82ee-c29ee1e5c4b5`. Rollback: push `3da31c2`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**On `dev`:** 72962ba plus records commits (this plan); no undeployed code.
+**On `dev`, not deployed:** Step 0 (below). Nothing else undeployed.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: chat on DeepSeek V4 Flash (Workers AI, 60 s limit),
-voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off). Pictures today: face 13 + v13
-bodies, BODY_WORDS in the body lines, Lenovo 1.3 + NSFW Unlocked 0.8 / Anatomy Fixer, steps 6 CFG 2, no scheduler sent (Runware "Default").
-**The rebuild (owner, 2026-10-15):** the picture prompts fight the references and LoRAs (body words 4-5 times, "the man", "camera",
-out-of-frame things, negatives), and everything is one 490 KB file. Plan: WORKPLAN "Rebuild (2026-10-15)", steps 0-5, one chat each:
-0 reliability + studio fix → 1 split into `src/` modules (behaviour unchanged) → 2 picture core (ShotSpec, frame prompts in POV/lens
-words, lint, NSFW Unlocked only by a weight table, CFG 1 / 4 steps, sampler read-then-test) → 3 bench → 4 reference library + Studio
-References tab → 5 deploy. Budget $1.00 Runware in all.
+voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off). The rebuild plan (WORKPLAN
+"Rebuild (2026-10-15)", steps 0-5, one chat each): **0 done (dev)** → 1 split into `src/` modules → 2 picture core → 3 bench →
+4 reference library + Studio References tab → 5 deploy. Budget $1.00 Runware in all (none spent so far).
 
-## Found this session (to fix in the step named)
-- Disconnects (step 0): every message acked before work, no retries; `runCommand` mostly without try/catch (a throw drops the batch);
-  `budget.used++` + `xfetch` count 4 call kinds twice against a 50-call free-plan limit; the memory fold (up to ~135 s) holds the
-  single queue; chat waits up to 60 s per attempt (kept: owner, measure first); 401/402 shows "(setup) ⚠️".
-- Pictures (step 0): at Nude/On a Runware failure = no picture (D1 row 705); D1 has no rows at all on 2026-10-14 (quiet or broken?).
-- Studio (step 0): stretched picture + vertical seed text = one flex bug in `resultCard` (`studio.js` ~40-45, ~280).
-- Prompts (step 2): `ref0`'s replace makes CUSTOM.SAME_PERSON dead when a hairstyle is picked; REFERENCE_BACK names "a full bust";
-  random picks re-roll on anatomy redraws; all 8 anatomy flags since 10-13 were "2 or 3 heads" (likely false).
+## Step 0, built this session (dev, not deployed)
+- D1 `events` table (one row per reply, command, failure and fold: outcome, error, model calls, backup used, ms, model_ms, `late_ms`).
+  It is created on the first write after a deploy; read it with `SELECT kind, outcome, error, ms, late_ms FROM events ORDER BY id DESC`.
+- Every update and every command is guarded: a throw gives her "wifi died" line and an event row; 401/402 too (the "(setup) ⚠️"
+  notice is gone; the real error is in `events`). The other updates of the batch are still answered.
+- Budget: the four double `budget.used++` removed; `SUBREQUEST_LIMIT` 10,000 (Workers Paid, Cloudflare docs 2026-02-11).
+- Memory fold: `saveTurn` queues the folded messages in `b:<chat>`; the 15-minute cron folds them (`foldWaiting`; Cron Triggers get
+  15 min wall time). Her notes can lag up to 15 minutes behind a fold.
+- Pictures: `upload_photo` every 4.5 s while drawing; `RUNWARE.TRANSIENT_RETRIES` 1 (one more Runware try at Nude/On on a 5xx or
+  timeout only; 400s are not retried).
+- Studio: result cards stack (picture above text); Log thumbnails keep each picture's shape (`aspect-ratio`, `object-fit: contain`).
+- D1 had no rows on 2026-10-14: most likely a quiet day (writes worked 10-13 and 10-15 with the same code; no deploy or commit on
+  10-14). Can't be proven from D1; the events log settles it from now on.
+- Unchanged by design: chat model, 60 s timeout, no hedging (measure first: read `events` after a few days).
 
 ## Waiting on the owner
-- Nothing for step 0. Before step 4: the first candidate references to approve in /studio.
-- Earlier open: the clothed-picture checks of 72962ba (green eyes, image 1's bra) are folded into the rebuild (body and face words go).
+- Say "deploy" when ready to put Step 0 live; the first replies then fill `events` (I read it with the Cloudflare MCP).
+- Before Step 4: the first candidate references to approve in /studio.
 - Do not send `/restart` (the `/setup` page says to; it wipes her memory).
 
 ## Verified this session
-- Read-only: the Runware prompt build (`runwarePlan`, `runwareLoras`, every CONFIG prompt string), D1 `reem-studio.pictures` (1,654
-  rows since 10-11, 121 from the bot; one failure, row 705), Runware MCP `model_schema` for `runware:400@2` (4 refs, UUID refs,
-  scheduler enum, defaults steps 4 / CFG 3.5 / acceleration high).
-- The tools that read `worker.js` as text (for step 1): load-worker, build-panel, check.mjs and test.yml `node --check`, stt-bench.
-- Not verified: the studio bug in a browser (read in the CSS), Worker logs (not reachable), OpenRouter credit.
+- `node tools/check.mjs` 8 of 8, read line by line. New rows: unit (budget counts once, 10,000 limit, the 5xx/400/503/0-retry cases, events
+  row for a 402, no "(setup)"), scenarios (a throwing command, a throwing update among three, a 402, answers again after it), e2e (the
+  fold waits, then the cron folds it), golden (one case changed: a third Runware try on 5xx).
+- `tools/test/studio-cards.mjs` in Chromium at 390 px (1:1, 9:16, 16:9 cards and Log rows): 18 of 18; the same script fails 15 checks
+  on the old CSS. Screenshots read. `whileDrawing` checked by hand (2 pulses in 9.8 s, stops when done).
+- Not verified: anything on the live Worker (nothing deployed), `/health`, `/setup`, the first `events` rows (after the deploy).
 
 ## Next steps (in order; one chat each; paste prompts at the end of WORKPLAN "Rebuild")
-1. **Rebuild Step 0:** reliability + studio fix (events table, try/catch, budget fix, fold on the cron, upload_photo, a Runware
-   retry at Nude/On, studio cards, the 10-14 gap). Sonnet. *Effort: medium.*
+1. **Deploy Step 0** when the owner says "deploy", then `/health`, `/setup` and the first `events` rows from D1. Sonnet. *Effort: low.*
 2. **Rebuild Step 1:** the module split, golden plans byte-identical. Opus (haiku-worker for the classification). *Effort: high.*
 3. **Rebuild Step 2:** the picture core + sampler reading and short list (≤ $0.04). Opus. *Effort: high.*
 4. **Rebuild Step 3:** bench old vs new and the weight sweep (≤ $0.45). Haiku runs, Opus reads. *Effort: medium.*
 5. **Rebuild Step 4:** reference library + Studio References tab (≤ $0.40). Sonnet builds, Opus reviews. *Effort: medium.*
-6. **Later:** the Writer slip "her hands on the man" (folded into step 2's frames); Cloudflare bench at /nsfw Off; `/setup`'s
-   stale Pictures line; old session branches. *Effort: low.*
+6. **Later:** studio pictures expire from KV with no Telegram copy and `logSent` stores no real size (WORKPLAN issue 6); the Writer
+   slip "her hands on the man"; Cloudflare bench at /nsfw Off; `/setup`'s stale Pictures line; old session branches. *Effort: low.*
 
 ## Open questions for the owner
 - OK to press Actions > Delete retired branches for `tools/retired-branches.txt`?
-- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (false "work not here" branches again)
+- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (false "work not here" branches again; the
+  only real one left is `chat-timeout`, a superseded commit)
+- Should her line on a provider error stay "wifi died" for every error (done as the plan said), or should a 401/402 also ping you once
+  outside the chat (e.g. a Telegram notice to the owner only)? You no longer see "(setup)" in the chat.
 
 ## Prompt for the next chat
-The Step 0 paste prompt at the end of `docs/WORKPLAN.md` ("Rebuild", "Paste prompts"). Sonnet. *Effort: medium.*
+"Deploy Step 0 (dev → main) as I say 'deploy', then check /health, /setup and the first `events` rows." Or Step 1's paste prompt at the end of `docs/WORKPLAN.md`.
