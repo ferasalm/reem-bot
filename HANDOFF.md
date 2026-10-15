@@ -4,9 +4,9 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Fix round 2", the current plan).
 
-**Last updated:** 2026-10-15 (forty-seventh session: Opus 5.5, `claude-opus-5-5`, the configured model; no subagents). All of this session's picture work is deployed.
-**Deployed:** `main` = 451f008, run 38681909873, Version ID `9b124fe0-335e-4cec-ab60-1a3a45cc3bdf`. Rollback: push `d8ae8ff` (before today's last batch) to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**On `dev`:** 451f008 plus this docs-only records commit.
+**Last updated:** 2026-10-15 (forty-seventh session: Opus 5.5, `claude-opus-5-5`, the configured model; no subagents). Clothed pictures being toned down step by step (owner): step 1 (no "voluptuous" on clothed) deployed.
+**Deployed:** `main` = 901cefc, run 38682546526, Version ID `08c91244-3ae7-4c1c-b482-6d75d98c390a`. Rollback: push `451f008` (before step 1) or `d8ae8ff` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**On `dev`:** 901cefc plus this docs-only records commit.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: her chat on DeepSeek V4 Flash (Workers AI), 60 s limit (the owner's test passed); voice Sulafat; hearing Gemini; pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off).
@@ -14,7 +14,8 @@ Her references: face 13 + v13 bodies only (originals 17-19: black bra and briefs
 Known: nude pictures may still be a little slimmer than the body pictures (the LoRA stack; the owner keeps the LoRAs).
 
 ## Waiting on the owner
-- **Look at her pictures in Telegram** (face, eyes, body fullness, partly dressed acts): tell Claude what's off.
+- **Clothed pictures, step 1 live** (`PICTURE.BODY_WORDS_CLOTHED` = BODY_WORDS without "voluptuous"): the owner checks in Telegram, then says go for step 2 ("thick arms" out of BODY_WORDS_CLOTHED and the three clothed lines), then step 3 ("thick thighs"). The nude and sex pictures keep BODY_WORDS (the owner: "The nude ones are good").
+- **/setup showed ❌ Workers AI DeepSeek "8005: Internal server error"** at 04:40 UTC (Cloudflare's side; her chat falls back to OpenRouter). Reload /setup later; if it stays ❌, tell Claude.
 - Do not send `/restart` (the `/setup` page says to; it wipes her memory).
 
 ## Verified this session
@@ -25,7 +26,7 @@ Known: nude pictures may still be a little slimmer than the body pictures (the L
 - Not verified: her pictures in Telegram after 451f008. Likeness never measured, only judged by eye.
 
 ## Next steps (in order; one chat each)
-1. **The owner's picture check in Telegram:** no chat needed until the owner reports. *Effort: low.*
+1. **Clothed step 2, then 3** when the owner says: remove "thick arms" (then "thick thighs") from `PICTURE.BODY_WORDS_CLOTHED` and the same words from the three clothed lines (Cloudflare REFERENCE, RUNWARE.REFERENCE_CLOTHED, REFERENCE_CLOTHED_BACK); golden plans (only clothed cases change); `node tools/check.mjs`; deploy; read the log. Haiku or Sonnet. *Effort: low.*
 2. **Writer slip seen live:** "her hands holding the man", "her hands on the man" (D1 610, 611) give him a body; `asCamera`/`ownHands` should catch "on/holding the man". Sonnet. *Effort: low.*
 3. **Cloudflare half of the bench** after 00:00 UTC, with the new `body.jpg` at /nsfw Off. Haiku runs it, Opus reads. *Effort: low.*
 4. **Later:** BODY_WORDS and the face words built from CONFIG instead of copied into each line; a REFERENCE_CLOSE bench; `/setup`'s stale Pictures line; VISION.BACKUP_MODEL; old session branches. *Effort: medium.*
@@ -35,4 +36,4 @@ Known: nude pictures may still be a little slimmer than the body pictures (the L
 - Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? This session it showed 51 false "work not here" branches on a shallow clone.
 
 ## Prompt for the next chat
-"Read HANDOFF. Her pictures in Telegram: <what's off, or fine>. Fix what's off, then step 2." Sonnet (Opus if a picture problem needs root-causing). *Effort: low.*
+"Read HANDOFF. Clothed step 1 looks <fine / still too full>: do step <2 / 3 / none> and deploy." Sonnet. *Effort: low.*
