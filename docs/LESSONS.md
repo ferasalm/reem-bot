@@ -61,6 +61,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   2/2 (Step A-B) → removed. Test a lead by changing one thing at the same seed, after redrawing the original once.
 - Act LoRAs override the words with their own pose; vaginal-trained ones put the entry at her vulva even with "inside her anus" (0/9);
   only POV Doggy Anal drew anal. Judge genitals on a full-size crop (`convert -crop 400x400+x+y`), never at 800 px (round 6, Step 6).
+- A small, dim face (in-person scenes from across the room) loses her likeness even with her face picture: name her face in words too
+  (D1 611/612 replays, 2026-10-15). Replay a live picture from D1 (prompt, refs, LoRAs, seed: `tools/face/replay-bench.mjs`) before guessing.
 - The LoRA stack slims her nude body (Lenovo 1.3 + NSFW Unlocked 0.8 + Anatomy Fixer 0.7): no LoRAs matched the body picture on 2 seeds,
   one LoRA off or weaker barely helped (slim-bench, 2026-10-15) → test body fullness without LoRAs before blaming words or pictures.
 - Body words stack on the body picture (heavier picture + "curvier" → overweight; belly words → a big belly, 2026-10-10): image 1 sets

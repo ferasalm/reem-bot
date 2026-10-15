@@ -830,7 +830,7 @@ Changing the story
     // "full upper arms and soft body"); image 1 (body.jpg) is the owner's lace bra-and-panties picture (2026-10-15), so its clothes are named
     // out without naming them (Cloudflare's prompt filter refuses "bra" and "thong": FILTER_WORDS). Was ~700 characters with height,
     // weight, shoulders and "a messy bun" (git history)
-    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. She is 29, clearly an adult.",
+    REFERENCE: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, nothing of image 1's. Her face (image 0): thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips. She is 29, clearly an adult.",
     LOOKS: "A 29-year-old Lebanese woman, clearly an adult: soft rounded face, fair olive skin, thick dark softly arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thin gold rings.",
     SELFIE_STYLE: "Realistic candid smartphone photo she took herself:",
     // round 5: an in-person scene whose narration is a sex act (SEX_CUES): his eyes are the camera, he is in the picture
@@ -1021,9 +1021,9 @@ Changing the story
       DRESSED_BOTTOM: "Below the waist she wears what suits the outfit (jeans, a skirt, shorts or sweatpants); her hips and legs are never bare.",
       // clothed pictures on BODY_CLOTHED (2026-10-12): klein copies a clothed image 1's garment (the rust halter's crop, Step 4), so
       // the line names what image 1 wears and keeps it out. Owner 2026-10-12: "keep adding to prompts of Reem: full upper arms and soft body"
-      REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black lace bra and panties. She is 29, clearly an adult.",
-      REFERENCE_CLOTHED_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows her body naked: she is not naked here, she wears only the clothes described here. She is 29, clearly an adult.",
-      REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE_CLOTHED: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows only her body: she wears only the clothes described here, not image 1's black lace bra and panties. Her face (image 0): thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips. She is 29, clearly an adult.",
+      REFERENCE_CLOTHED_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Image 1 shows her body naked: she is not naked here, she wears only the clothes described here. Her face (image 0): thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips. She is 29, clearly an adult.",
+      REFERENCE_NOBODY: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt): narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Her face (image 0): thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips. She is 29, clearly an adult.",
       // LoRAs on klein 9B (MODEL only), AIR id = weight. Owner 2026-10-08: three Civitai LoRAs for klein 9B, uploaded to
       // Runware as ferasalm:...: realhd2k (Real HD 2k), phone2025 (Phone Photography 2000-2025), ultrareal5 (UltraReal V5 Pro)
       // owner 2026-10-08 "we want to try both": phone2025 + ultrareal5 at 0.6 each (bench run 37720473185: face kept 16/16);
@@ -1216,9 +1216,10 @@ Changing the story
       // 163 cm and 64 kg, an hourglass figure ... wide hips, full thighs", which on the heavier clothed body made her overweight
       // round 8: with only "the same build and proportions" clothed pictures came out slimmer than image 1 (narrow hips, thin arms 4/4):
       // image 1's own shape named, "not slimmer" (round 7's overweight came from "but curvier" on a heavier picture)
-      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. She is 29, clearly an adult.",
+      // 2026-10-15 (owner: the clothed scene pictures "don't look like her"): her face in words too; replays of D1 rows 611 and 612 at their seeds drew her eyeliner, brows and fuller face only with them (slim-bench's place/LoRA variants changed nothing)
+      REFERENCE: "The woman from image 0, with exactly the same face and hair (not image 0's expression or head tilt), and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Her face (image 0): thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips. She is 29, clearly an adult.",
       // a sex act from behind (BACK_WORDS): image 1 is BODY_BACK, no breasts named (owner: "don't prompt her breasts since they won't show")
-      REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE_BACK: "The woman from image 0, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, fair olive skin. Her face (image 0): thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips. She is 29, clearly an adult.",
       LOOKS: "Photo of a woman: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair olive skin, thick dark arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves. Her head is naturally sized for her body, about one seventh of her height.",
       // sex acts: never drawn on Runware while SEX_ACTS is off; with it on, they add NUDE_LORAS and POV_MAN
       NOT_DRAWN: ["sex", "fuck", "fucks", "fucked", "fucking", "masturbates", "masturbating", "orgasm", "cum", "penis", "cock", "dick", "blowjob", "blow job", "sucking", "sucks", "handjob", "riding", "rides", "doggy", "doggystyle", "missionary", "cowgirl", "penetration", "penetrated", "fingering", "fingers herself", "oral", "deepthroat", "deep throat", "deepthroating", "anal", "creampie", "cumshot", "titfuck", "69", "thrusts", "thrusting", "inside her", "sinks down onto the man", "lowers herself onto the man", "takes the man in her mouth", "reverse cowgirl", "on all fours", "doggy style"],
@@ -4007,6 +4008,18 @@ async function drawRunware(env, model, prompt, refs, width, height, { loras = []
   return { bytes: fromBase64(d.imageBase64Data), cost: Number(d.cost) || 0, pictures: pics.map((x) => ({ bytes: fromBase64(x.imageBase64Data), cost: Number(x.cost) || 0 })) };
 }
 
+// The words without the clothes they say are off (2026-10-15: /look's "She wears a cropped top, wide pants are off" kept the pants on
+// as a partly naked act, D1 row 614): "without/no X", "took/pulled/peeled off X", and a clause where something is "off", "removed" or
+// "gone" (not "off her shoulder", "off the bed": a place after it)
+function stillWorn(text) {
+  return String(text || "")
+    .replace(/\b(?:without|no|minus)\s+(?:her\s+|any\s+)?[\w-]+(?:\s+[\w-]+)?/gi, " ")
+    .replace(/\b(?:took|takes|taking|pulled|pulls|pulling|peeled|peels|peeling|stripped|strips|stripping|kicked|kicks|slid|slides|tugged|tugs|yanked|yanks)\s+off\b[^,.;]*/gi, " ")
+    .split(/(?<=[,.;])/)
+    .filter((c) => !/\b(?:off|removed|gone|discarded)\b(?!\s+(?:her|his|one|the|a|both|each|my|your)\b)/i.test(c))
+    .join("");
+}
+
 // What a picture's words ask for (no network, no random picks): a sex act (sexAct), its oral or back camera (ORAL_WORDS,
 // BACK_WORDS), nudity (NUDE_WORDS), partly naked (clothes named with nudity or an act: WEARING_WORDS). `kind` is the studio
 // log's: alone (/look without her) > act > partial > nude > clothed
@@ -4020,7 +4033,7 @@ function pictureFlags(prompt, herself = true, level = CONFIG.PICTURE.NSFW.DEFAUL
   const nude = !off && (R.NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(prompt, w));
   // a pose ("sitting back on her heels") is not shoes (WEARING_WORDS "heels"): the phrase is taken out before the check (Step 4);
   // nor is "on top" (riding) or "top of" a top (Step 5)
-  const worn = String(prompt).replace(/\bon (?:her|his|your) heels\b/gi, "").replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
+  const worn = stillWorn(prompt).replace(/\bon (?:her|his|your) heels\b/gi, "").replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
   const named = (list) => (list || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
   // Step 5: PARTIAL_WORDS count too; what stays on: a top (TOP_WORDS, not "topless"), a bottom (BOTTOM_WORDS, not "bottomless")
   const partial = (nude || act) && named([...(P.WEARING_WORDS || []), ...(R.PARTIAL_WORDS || [])]);
@@ -4168,7 +4181,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const lead = (w) => (loras.length && R.LORA_PREFIX && loras.some((l) => l.model === R.LORA_PREFIX_WITH) && !flash && !alone ? `${R.LORA_PREFIX} ${w.charAt(0).toLowerCase()}${w.slice(1)}` : w);
     // Task C: clothed, a top named and no bottom or one-piece: the bottom is her outfit's own, never bare ("on top" is no top). Since
     // 2026-10-12 image 1 wears underwear, so the line stays (a top alone would leave image 1's thong and bare legs)
-    const worn = String(prompt).replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
+    const worn = stillWorn(prompt).replace(/\b(?:on|from|at) (?:the )?top\b|\btop of\b/gi, "");
     const namedIn = (list) => (list || []).some((w) => String(w).trim() && (hasWord(worn, w) || hasWord(worn, `${w}s`)));
     const topOnly = !!clothedBody && namedIn(R.TOP_WORDS) && !namedIn(R.BOTTOM_WORDS) && !namedIn(R.ONE_PIECE_WORDS) && !namedIn(R.BARE_LEGS_WORDS);
     // Step B: no DRESSED on the clothed body (REFERENCE_CLOTHED already says "only the clothes described here"); DRESSED_BOTTOM stays

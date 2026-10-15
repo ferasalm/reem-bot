@@ -427,6 +427,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     yes(act.includes(R.POV_MAN) && act.includes(R.NAKED), "a sex act: POV_MAN added, and she is naked (round 7)", act.slice(-200));
     const part = await prompt("missionary sex, naked from the waist down, still wearing her black bra over her breasts");
     yes(part.includes(R.PARTIAL_TOP) && part.includes("Smooth and shaved") && !part.includes(R.NAKED) && !part.includes("natural breasts"), "partly naked in a sex act, a bra kept on: PARTIAL_TOP + the bush, not NAKED (round 7, Step 5)", part.slice(-300));
+    // 2026-10-15 (D1 614): clothes the words say are off don't count as worn ("wide pants are off" kept the pants on her legs)
+    const off = W.pictureFlags("She is missionary with the man. She wears a cropped top, wide pants are off.", true, "on");
+    yes(off.partial && off.top && !off.bottom, "\"pants are off\": the top stays, the pants don't (stillWorn)", JSON.stringify(off));
+    yes(W.stillWorn("her cardigan sliding off one shoulder") === "her cardigan sliding off one shoulder" && !/jeans/.test(W.stillWorn("without her jeans, riding him")) && !/bra/.test(W.stillWorn("she took off her bra, riding him")), "stillWorn: \"off one shoulder\" stays worn; without / took off drop the garment");
     const dog = await prompt("the man fucking her doggy style on the bed");
     yes(dog.includes(R.NAKED_BACK) && !dog.includes(R.NAKED) && dog.includes("seen from behind:") && dog.includes(W.CONFIG.PICTURE.BODY_WORDS) && !/breast/i.test(dog) && W.runwareBody("back"), "doggy: from behind, no breasts (round 7)", dog);
     const nude = await prompt("naked on the bed, her pussy in view");
