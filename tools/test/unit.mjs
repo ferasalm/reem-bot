@@ -324,7 +324,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const plain = await draw("on the couch reading a book");
     const n0 = plain.inputs.referenceImages.length;
     eq(n0, 2, "a clothed picture sends her face and the clothed body (2026-10-12)");
-    eq(!!(plain.positivePrompt.includes("not image 1's black bra and briefs") && plain.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS)), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out, the owner's body words (Fix round 2)");
+    eq(!!(plain.positivePrompt.includes("not image 1's black bra and briefs") && plain.positivePrompt.includes(W.CONFIG.PICTURE.BODY_WORDS_CLOTHED + ",") && !plain.positivePrompt.includes("voluptuous")), true, "clothed: REFERENCE_CLOTHED keeps image 1's underwear out, the owner's body words (Fix round 2)");
     const named = (words) => W.runwarePlan(`{who} ${words}`, { ref: new Uint8Array([1]), rwFace: new Uint8Array([1]), faceName: "face-2x", who: (w, a, b) => w }).tries[0];
     eq(named("on the couch reading a book").refs.map((r) => r.name), ["face-2x", "body-v13-clothed"], "clothed: image 1 is v13-clothed");
     const belfie = named("a belfie in tight jeans, looking over her shoulder");
@@ -543,8 +543,10 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   for (const [name, text] of Object.entries(bodyWords)) {
     const s = String(text);
     eq(/belly|hourglass/i.test(s), false, `${name}: no belly or hourglass words (2026-10-10)`);
-    eq(/wide hips|rounded hips|full thighs|round full bottom/i.test(s.replace(BW, "")), false, `${name}: hip, thigh and bottom words only as BODY_WORDS (Fix round 2)`);
-    eq([s.includes(BW), /not slimmer|full upper arms|soft body/.test(s)], [true, false], `${name}: carries BODY_WORDS, no old body line (Fix round 2)`);
+    eq(/wide hips|rounded hips|full thighs|round full bottom/i.test(s.replace(BW, "").replace(P.BODY_WORDS_CLOTHED, "")), false, `${name}: hip, thigh and bottom words only as BODY_WORDS (Fix round 2)`);
+    // 2026-10-15 (owner): the clothed lines carry BODY_WORDS_CLOTHED (toned down step by step), the others BODY_WORDS
+    const want = ["REFERENCE", "RUNWARE REFERENCE_CLOTHED", "RUNWARE REFERENCE_CLOTHED_BACK"].includes(name) ? P.BODY_WORDS_CLOTHED : BW;
+    eq([s.includes(want) && (want === BW || !s.includes(BW)), /not slimmer|full upper arms|soft body/.test(s)], [true, false], `${name}: carries its body words, no old body line (Fix round 2)`);
   }
   eq(BW, "narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous", "PICTURE.BODY_WORDS is the owner's list (2026-10-13, Fix round 2; \"full arms\" back and \"a full bust\" added 2026-10-15, owner)");
   eq(typeof JSON.parse(P.LINGERIE.SPICY_PROMPT), "object", "LINGERIE SPICY_PROMPT: still valid JSON after the cut");
