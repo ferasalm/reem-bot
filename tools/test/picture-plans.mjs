@@ -8,8 +8,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadWorker } from "./load-worker.mjs";
-import * as FACE from "../../face.js";
-import * as PLACES from "../../places.js";
+import * as FACE from "../../assets/face.js";
+import * as PLACES from "../../assets/places.js";
 
 const GOLDEN = join(dirname(fileURLToPath(import.meta.url)), "picture-plans.golden.json");
 const FROZEN = Date.parse("2026-10-11T18:00:00Z"); // 14:00 in Boston

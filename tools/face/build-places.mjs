@@ -27,7 +27,7 @@ const entries = files.map((f) => {
   }
   return `  ${JSON.stringify(f.replace(/^views\//, "").replace(/\.jpg$/, ""))}: ${JSON.stringify(b.toString("base64"))},`;
 });
-writeFileSync(new URL("../../places.js", import.meta.url), `// Her fixed places (CONFIG.PICTURE.LOCATIONS in worker.js): base64 JPEGs under 512x512, drawn by
+writeFileSync(new URL("../../assets/places.js", import.meta.url), `// Her fixed places (CONFIG.PICTURE.LOCATIONS in worker.js): base64 JPEGs under 512x512, drawn by
 // tools/face (places.mjs) and built by tools/face/build-places.mjs. Never open this file: it is pictures.
 export const PLACE_JPEG_BASE64 = {
 ${entries.join("\n")}

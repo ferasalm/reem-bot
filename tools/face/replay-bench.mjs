@@ -8,8 +8,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import * as FACE from "../../face.js";
-import * as PLACES from "../../places.js";
+import * as FACE from "../../assets/face.js";
+import * as PLACES from "../../assets/places.js";
 
 const OUT = process.argv[2];
 if (!OUT) throw new Error("usage: replay-bench.mjs <outdir> [variants]");

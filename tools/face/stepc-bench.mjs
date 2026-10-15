@@ -9,8 +9,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { loadWorker } from "../test/load-worker.mjs";
-import * as FACE from "../../face.js";
-import * as PLACES from "../../places.js";
+import * as FACE from "../../assets/face.js";
+import * as PLACES from "../../assets/places.js";
 
 const PACE_MS = 4000; // Runware answers 502 when calls come closer than ~4 s
 const SEEDS = [101, 202];

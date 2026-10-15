@@ -46,7 +46,8 @@ for (const l of job.lines) {
 }
 
 // 3. every hearer on every clip
-const hearingPrompt = (readFileSync("worker.js", "utf8").match(/HEARING: \{[^]*?PROMPT: "([^"]*)"/) || [])[1] || "";
+const { CONFIG } = await import("../../src/config/index.js");
+const hearingPrompt = CONFIG.HEARING.PROMPT || ""; // Whisper's initial prompt, as the bot sends it (src/voice/hearing.js)
 async function hear(h, c) {
   const model = pick(h);
   if (!model) return "no model listed";

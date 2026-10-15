@@ -315,7 +315,7 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
 
 // 22. The page's script parses (the page's behaviour was read in a browser: see docs/QUALITY.md)
 {
-  const { STUDIO_HTML } = await import("../../studio.js");
+  const { STUDIO_HTML } = await import("../../src/studio/page.js");
   const script = STUDIO_HTML.match(/<script>([\s\S]*)<\/script>/);
   let parsed = false;
   try {

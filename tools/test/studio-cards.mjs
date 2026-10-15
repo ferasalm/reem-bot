@@ -5,7 +5,7 @@
 //  - the Log's thumbnails keep each picture's shape (never cropped); no horizontal scroll; no console errors.
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
-import { STUDIO_HTML } from "../../studio.js";
+import { STUDIO_HTML } from "../../src/studio/page.js";
 const require = createRequire("/opt/node22/lib/node_modules/");
 const { chromium } = require("playwright");
 const out = process.argv[2] || "/tmp/studio-cards";

@@ -26,5 +26,5 @@ const out = [
   ...styles.map((f) => `  "${f.replace(/\.jpg$/, "")}": "${b64(join("style", f))}",\n`),
   "};\n",
 ];
-writeFileSync(join(dir, "..", "..", "face.js"), out.join(""));
+writeFileSync(join(dir, "..", "..", "assets", "face.js"), out.join(""));
 console.log(`face.js: ${styles.length} style pictures`);

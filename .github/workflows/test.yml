@@ -44,8 +44,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --check worker.js
-      - name: Settings panel matches worker.js CONFIG
+      - name: Every module parses
+        run: for f in worker.js $(git ls-files src); do node --check $f || exit 1; done
+      - name: Settings panel matches CONFIG (src/config)
         run: node tools/build-panel.mjs && git diff --exit-code tools/settings-panel.html
       - run: node tools/test/unit.mjs
       - run: node tools/test/scenarios.mjs
@@ -53,7 +54,7 @@ jobs:
       - run: node tools/test/picture-plans.mjs --check   # the golden picture plans: every Runware request as sent, nothing paid
       - name: Docs rules (HANDOFF/LESSONS size, dated decisions, effort per next step, every file in docs/MAP.md)
         run: node tools/doc-check.mjs
-      - name: The Worker builds (wrangler bundles face.js; the AI binding parses). Nothing is deployed.
+      - name: The Worker builds (wrangler bundles src/ and assets/; the AI binding parses). Nothing is deployed.
         run: npx --yes wrangler@4.145.0 deploy --dry-run --outdir dist
 
   live:
