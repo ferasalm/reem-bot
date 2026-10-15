@@ -9,7 +9,8 @@ New entries: when a session's HANDOFF "Where we are" item is finished, move its 
   per-update/command try/catch with her line (401/402 too), budget fix + 10,000 limit, fold on the cron, upload_photo pulse, Runware
   5xx/timeout retry, studio cards. Tests: unit (budget, retry, events, 402), scenarios (throwing command, update in a batch of three, 402),
   e2e (fold queued then folded), golden (one case: a third Runware try), Playwright 390 px (`tools/test/studio-cards.mjs`). D1 10-14:
-  no rows = most likely quiet (writes worked on 10-13 and 10-15, nothing deployed or committed on 10-14). Not deployed.
+  no rows = most likely quiet (writes worked on 10-13 and 10-15, nothing deployed or committed on 10-14). Deployed on "deploy": main ba540c9,
+  run 38822659565, Version ID `a6a82381-242a-432a-837f-5b352d0cf787`.
 
 ## 2026-10-15 (forty-ninth session): the rebuild plan (no code)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session) with three read-only Explore subagents (two Sonnet, one

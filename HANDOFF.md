@@ -6,8 +6,8 @@ History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Rebu
 
 **Last updated:** 2026-10-15 (fiftieth session: Sonnet 5.5, `claude-sonnet-5-5`, configured and served per get_session; no subagents).
 Rebuild Step 0 built on `dev`, $0 spent (no pictures drawn).
-**Deployed:** `main` = 72962ba, Version ID `5b39bfb2-933c-41a2-82ee-c29ee1e5c4b5`. Rollback: push `3da31c2`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**On `dev`, not deployed:** Step 0 (below). Nothing else undeployed.
+**Deployed:** `main` = ba540c9 (Step 0), Version ID `a6a82381-242a-432a-837f-5b352d0cf787`, run 38822659565; `/health` ok, `/setup` all ✅. Rollback: push `72962ba`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**On `dev`:** ba540c9 plus this records commit; no undeployed code.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: chat on DeepSeek V4 Flash (Workers AI, 60 s limit),
@@ -15,7 +15,7 @@ voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflar
 "Rebuild (2026-10-15)", steps 0-5, one chat each): **0 done (dev)** → 1 split into `src/` modules → 2 picture core → 3 bench →
 4 reference library + Studio References tab → 5 deploy. Budget $1.00 Runware in all (none spent so far).
 
-## Step 0, built this session (dev, not deployed)
+## Step 0, built and deployed this session
 - D1 `events` table (one row per reply, command, failure and fold: outcome, error, model calls, backup used, ms, model_ms, `late_ms`).
   It is created on the first write after a deploy; read it with `SELECT kind, outcome, error, ms, late_ms FROM events ORDER BY id DESC`.
 - Every update and every command is guarded: a throw gives her "wifi died" line and an event row; 401/402 too (the "(setup) ⚠️"
@@ -31,7 +31,7 @@ voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflar
 - Unchanged by design: chat model, 60 s timeout, no hedging (measure first: read `events` after a few days).
 
 ## Waiting on the owner
-- Say "deploy" when ready to put Step 0 live; the first replies then fill `events` (I read it with the Cloudflare MCP).
+- Nothing for Step 0 except using the bot: the first replies fill `events` (read it with the Cloudflare MCP).
 - Before Step 4: the first candidate references to approve in /studio.
 - Do not send `/restart` (the `/setup` page says to; it wipes her memory).
 
@@ -41,10 +41,11 @@ voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflar
   fold waits, then the cron folds it), golden (one case changed: a third Runware try on 5xx).
 - `tools/test/studio-cards.mjs` in Chromium at 390 px (1:1, 9:16, 16:9 cards and Log rows): 18 of 18; the same script fails 15 checks
   on the old CSS. Screenshots read. `whileDrawing` checked by hand (2 pulses in 9.8 s, stops when done).
-- Not verified: anything on the live Worker (nothing deployed), `/health`, `/setup`, the first `events` rows (after the deploy).
+- Deployed (owner: "Deploy"): run 38822659565 all steps success; `/health` drew and saw; `/setup` all ✅; `events` table exists with 0 rows.
+- Not verified: a reply in Telegram, the first `events` rows, the cron fold, `upload_photo` live.
 
 ## Next steps (in order; one chat each; paste prompts at the end of WORKPLAN "Rebuild")
-1. **Deploy Step 0** when the owner says "deploy", then `/health`, `/setup` and the first `events` rows from D1. Sonnet. *Effort: low.*
+1. **Read `events`** after a few days of use (slow replies, backup use, errors, `late_ms`) and decide hedging / timeout with the owner. Sonnet. *Effort: low.*
 2. **Rebuild Step 1:** the module split, golden plans byte-identical. Opus (haiku-worker for the classification). *Effort: high.*
 3. **Rebuild Step 2:** the picture core + sampler reading and short list (≤ $0.04). Opus. *Effort: high.*
 4. **Rebuild Step 3:** bench old vs new and the weight sweep (≤ $0.45). Haiku runs, Opus reads. *Effort: medium.*
@@ -60,4 +61,4 @@ voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflar
   outside the chat (e.g. a Telegram notice to the owner only)? You no longer see "(setup)" in the chat.
 
 ## Prompt for the next chat
-"Deploy Step 0 (dev → main) as I say 'deploy', then check /health, /setup and the first `events` rows." Or Step 1's paste prompt at the end of `docs/WORKPLAN.md`.
+"Read the D1 `events` rows and summarize slow replies, backup use and errors." Or Step 1's paste prompt at the end of `docs/WORKPLAN.md`.
