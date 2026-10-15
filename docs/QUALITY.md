@@ -33,6 +33,16 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## 2026-10-15 New reference set bot check (Opus 5.5, `claude-opus-5-5`; `tools/face/newref-check.mjs`, Runware klein 9B, seed 101; not a [live] run)
+Four pictures through the bot's own /pic path, $0.0234 by Runware's answers (one "200: no picture" retried on the first case), each read at full size. Likeness not measured.
+
+| Case | Image 1 | Result |
+|---|---|---|
+| clothed front: mirror selfie, black tank, high-waisted jeans | v12-clothed | dressed as asked, no lace from image 1; average arms, defined waist |
+| clothed back view (same outfit, "from behind, back view") | v12-back (nude) | fully dressed, nothing bare below the waist; round bottom in the jeans |
+| nude front mirror selfie | v12 | shaved as the new picture; body as image 1; breasts a little fuller than image 1 |
+| nude belfie | v12-back | the new back (wide hips, big round bottom, freckles); hazel-green eyes over the shoulder |
+
 ## 2026-10-13 Llama 3.3 70B fast as her chat model (Opus 5.5, `claude-opus-5-5`): replay before the deploy
 
 test.yml run 38361339464 (workflow_dispatch on `chat-llama` 2e193c5, `model` @cf/meta/llama-3.3-70b-instruct-fp8-fast, 2 runs each; no OpenRouter call). Every reply read in the job log.

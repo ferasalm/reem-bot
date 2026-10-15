@@ -240,7 +240,7 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("compose at Off: no Runware plan (tries []), the level is kept", offCompose.ok === true && offCompose.level === "off" && Array.isArray(offCompose.tries) && offCompose.tries.length === 0, JSON.stringify(offCompose).slice(0, 200));
   // 2026-10-12 (owner: compose "always returns Runware can't draw right now"): at Off the Cloudflare prompt and references come back
   const cf = offCompose.cloudflare || {};
-  check("compose at Off: the Cloudflare prompt, with the words, and the studio's reference names", String(cf.prompt || "").includes("black turtleneck") && JSON.stringify(cf.refs) === JSON.stringify(["face-2x", "body-v11-clothed", "place:porch"]), JSON.stringify(cf).slice(0, 300));
+  check("compose at Off: the Cloudflare prompt, with the words, and the studio's reference names", String(cf.prompt || "").includes("black turtleneck") && JSON.stringify(cf.refs) === JSON.stringify(["face-2x", "body-v12-clothed", "place:porch"]), JSON.stringify(cf).slice(0, 300));
   check("compose takes /pic words only", none.ok === false);
 }
 
@@ -306,10 +306,10 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   const o = await W.studioOptions(env);
   const bytes = await Promise.all(["face-2x", "face-1x", "body-cloudflare", ...o.bodies.map((b) => b.name)].map((n) => W.refBytes(env, n)));
   check("options: LoRAs, references and two models; every face and body name resolves", o.loras.length > 0 && o.refs.includes("face-2x") && o.models.length === 2 && bytes.every((b) => b && b.length > 1000), JSON.stringify({ loras: o.loras.length, models: o.models.length }));
-  // 2026-10-12 (owner): one face in the list, the four body pictures under Body, hair pictures only (no outfit pictures), and the bot's defaults
+  // 2026-10-12 (owner): one face in the list, the body pictures under Body (three since 2026-10-15), hair pictures only (no outfit pictures), and the bot's defaults
   const distinct = new Set(bytes.slice(3).map((b) => b.length)).size;
-  check("options: Body = clothed front/back and nude front/back (four different pictures), no face-1x, hair only, the bot's sampler and LoRAs",
-    JSON.stringify(o.bodies.map((b) => b.name)) === JSON.stringify(["body-v11-clothed", "body-v11-clothed-back", "body-v10", "body-v10-back"]) && distinct === 4 && !o.refs.includes("face-1x") && !o.refs.some((r) => r.startsWith("style:outfit-")) && o.sampler.steps === 6 && o.sampler.cfg === 2 && JSON.stringify(o.defaultLoras) === JSON.stringify([{ model: "ferasalm:lenovoc@1", weight: 1.3 }]),
+  check("options: Body = clothed front, nude front and nude back (three different pictures; clothed back views use the nude back, 2026-10-15), no face-1x, hair only, the bot's sampler and LoRAs",
+    JSON.stringify(o.bodies.map((b) => b.name)) === JSON.stringify(["body-v12-clothed", "body-v12", "body-v12-back"]) && distinct === 3 && !o.refs.includes("face-1x") && !o.refs.some((r) => r.startsWith("style:outfit-")) && o.sampler.steps === 6 && o.sampler.cfg === 2 && JSON.stringify(o.defaultLoras) === JSON.stringify([{ model: "ferasalm:lenovoc@1", weight: 1.3 }]),
     JSON.stringify({ bodies: o.bodies, distinct, sampler: o.sampler, defaultLoras: o.defaultLoras }));
 }
 

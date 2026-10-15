@@ -50,10 +50,9 @@ function knownReferences() {
   add("face-1x", FACE.FACE_JPEG_BASE64);
   add("face-2x", FACE.FACE_2X_JPEG_BASE64);
   add("body-cloudflare", FACE.BODY_JPEG_BASE64);
-  add("body-v10", FACE.BODY_NUDE_JPEG_BASE64);
-  add("body-v10-back", FACE.BODY_BACK_JPEG_BASE64);
-  add("body-v11-clothed", FACE.BODY_CLOTHED_JPEG_BASE64);
-  add("body-v11-clothed-back", FACE.BODY_CLOTHED_BACK_JPEG_BASE64);
+  add("body-v12", FACE.BODY_NUDE_JPEG_BASE64);
+  add("body-v12-back", FACE.BODY_BACK_JPEG_BASE64);
+  add("body-v12-clothed", FACE.BODY_CLOTHED_JPEG_BASE64);
   for (const [k, v] of Object.entries(FACE.STYLE_JPEG_BASE64 || {})) add(`style:${k}`, v);
   for (const [k, v] of Object.entries(PLACES.PLACE_JPEG_BASE64 || {})) add(`place:${k}`, v);
   return names;
