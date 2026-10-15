@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-15 (forty-seventh session, final): retired references, face first, two LoRAs, thick/voluptuous words; deploy 451f008
+- Live pictures (D1 611, 612, 614) replayed at their seeds: face named first and lit at night; `stillWorn`. v13 bodies only; hairstyle pictures and old originals retired; BODY_PARTIAL nude; MAX_LORAS 2 (+1 on an anatomy redraw); BODY_WORDS + thick arms, thick thighs, voluptuous.
+- Deploy run 38681909873, Version `9b124fe0-335e-4cec-ab60-1a3a45cc3bdf`; /health and /setup read in the job log.
+
 ## 2026-10-15 (forty-seventh session, last): BODY_WORDS with "a full bust" and "full arms"; deploy d8ae8ff
 - Owner: full bust and full arms back in BODY_WORDS (12 body lines, the persona's build line); DeepSeek at 60 s passed the owner's Telegram test.
 - Deploy run 38676885522, Version `7a9bd8d1-e8e4-43b9-880d-30686a300715`; /health and /setup read in the job log.
