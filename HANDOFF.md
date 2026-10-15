@@ -4,39 +4,38 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Fix round 2", the current plan).
 
-**Last updated:** 2026-10-15 (forty-seventh session: Opus 5.5, `claude-opus-5-5`, the configured model; no subagents). New face (13) + v12 bodies, BODY_WORDS with "a full bust" and "full arms", hairstyle pictures without the old face: all deployed.
-**Deployed:** `main` = d8ae8ff, run 38676885522, Version ID `7a9bd8d1-e8e4-43b9-880d-30686a300715`. Rollback: push `e0e78ac` to `main` (before the body words and the blurred hairstyles) or `2c18113` (the old face). Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**On `dev`:** d8ae8ff + her face named first in every body line and lit at night (SCENE_NIGHT) + `stillWorn` (clothes said to be off aren't kept on) + records. Not deployed.
+**Last updated:** 2026-10-15 (forty-seventh session: Opus 5.5, `claude-opus-5-5`, the configured model; no subagents). On `dev`, not deployed: the old references retired (v13 bodies, no hairstyle pictures, old originals gone), her face first and lit at night, at most two LoRAs, clothes said to be off not kept on.
+**Deployed:** `main` = d8ae8ff (face 13 + v12 bodies, full bust/arms words), run 38676885522, Version ID `7a9bd8d1-e8e4-43b9-880d-30686a300715`. Rollback: push `e0e78ac` or `2c18113` to `main`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**On `dev`:** everything above; nothing of it is live.
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: her chat on DeepSeek V4 Flash (Workers AI), 60 s limit, `LLM.THINK_TOKENS` 700 (the owner's Telegram test passed, 2026-10-15); memory, /auto and the day plan on DeepSeek; OpenRouter DeepSeek as the backup; voice Sulafat; hearing Gemini; pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off) with the owner's face of 2026-10-15 (hazel-green eyes) and the v12 bodies (nude front shaved, nude back, black lace bra + panties; clothed back views on the nude back); `PICTURE.BODY_WORDS` "narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves"; the Llama picture writer and /look; the Scout anatomy check.
-Known: nude pictures come out slimmer than the body picture because of the LoRA stack (Lenovo 1.3 + NSFW Unlocked 0.8 + Anatomy Fixer 0.7); no LoRAs matched the body on two seeds (slim-bench, QUALITY). The owner kept the LoRAs.
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: her chat on DeepSeek V4 Flash (Workers AI), 60 s limit (the owner's test passed); voice Sulafat; hearing Gemini; pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off).
+`dev` (not live): references = face 13 + v13 bodies (originals 17-19: black bra and briefs, nude back, nude front with a natural bush) only; no hairstyle pictures (words only); every body line opens with her face ("her face exactly image 0's: ... light hazel-green eyes (clearly green, not brown) with black winged eyeliner ..."), SCENE_NIGHT lights her face; MAX_LORAS 2 (nude: Lenovo + NSFW Unlocked; clothed: Lenovo + Anatomy Fixer; an anatomy redraw takes the Anatomy Fixer as a third); BODY_PARTIAL "nude"; `stillWorn`.
+Known: nude pictures are still a little slimmer than the body pictures through hips and thighs (the LoRA stack; no LoRAs matched; the owner keeps them).
 
 ## Waiting on the owner
-- **Deploy the face fix (face first, lit at night: hazel-green eyes, eyeliner, brows) and the clothes-off fix?** Say "deploy".
-- **Partly naked acts:** keep the lace-bra body as image 1 (BODY_PARTIAL "clothed": its bra replaces the named top) or the nude body ("nude": the named top drawn, 2/2)? Your call.
-- **Slimmer nude pictures:** the LoRA stack (slim-bench); the tested fix is no LoRAs on nude pictures that aren't sex acts. Your call.
+- **Deploy?** Say "deploy" to put everything on `dev` live.
+- **Slimmer nude bodies:** the remaining options, each a small gain at best: "her hips much wider than her shoulders, full thick thighs" in BODY_WORDS, or lighter weights (Lenovo 1.0, NSFW Unlocked 0.6). Your call; no LoRAs is the only full fix.
 - Do not send `/restart` (the `/setup` page says to; it wipes her memory).
 
 ## Verified this session
-- Two deploys, every step success, `/health` ok and `/setup` all ✅ read in each job log: run 38674596701 (e0e78ac, Version `b38605e3-…`) and run 38676885522 (d8ae8ff, Version `7a9bd8d1-e8e4-43b9-880d-30686a300715`); `git ls-remote`: main = d8ae8ff.
-- `node tools/check.mjs` 8 of 8 before each push; golden plans rewritten only after a substitution diff showed just the intended words.
-- Runware pictures through the bot's own code, read at full size: v12 check ($0.0234), v13 check ($0.0276, set dropped), slim-bench ($0.1525), hair-check ($0.0476). Likeness not measured.
-- The DeepSeek chat at 60 s: the owner's Telegram test passed.
-- The owner's live pictures (D1 611, 612, 614) replayed at their seeds: the face lost at a distance comes back with face words (2/2 twice); "pants are off" no longer keeps the pants (4/4). `node tools/check.mjs` 8 of 8.
-- The prompts were the cause (owner): face words first + her face lit at night brought her eyes, eyeliner and brows back in replays and in four bot pictures; cutting prompt parts didn't.
-- Not verified: a picture in Telegram after d8ae8ff; /nsfw Off pictures with the new `body.jpg`.
+- Deploys e0e78ac (run 38674596701) and d8ae8ff (run 38676885522): every step success, `/health` ok, `/setup` all ✅ (job logs); `git ls-remote`: main = d8ae8ff.
+- Live pictures (D1 611, 612, 614) replayed at their seeds: the generic, brown-eyed face came from the prompt (face never named, face unlit at night); face first + lit gave her eyes, eyeliner and brows. "pants are off" kept the pants: fixed (`stillWorn`, 4/4).
+- slim-bench on v13: two LoRAs draw as three; body words first, shape words, lighter weights: small or no gain.
+- Final bot check on `dev` (4 pictures): dressed when clothed, her brows and face, the bush; the nude back a little slim. Likeness not measured.
+- `node tools/check.mjs` 8 of 8 before each push; golden plans rewritten only after checking every difference.
+- Not verified: the bot in Telegram after these changes; /nsfw Off pictures with the new `body.jpg`.
 
 ## Next steps (in order; one chat each)
-1. **Deploy** the face fix and `stillWorn` when the owner says "deploy"; then the owner looks at her pictures in Telegram. Haiku. *Effort: low.*
-2. **BODY_PARTIAL and the nude LoRAs** once the owner picks (golden plans, a 4-picture check each). Opus. *Effort: medium.*
-3. **Writer slip seen live:** "her hands holding the man", "her hands on the man" (D1 610, 611) give him a body; `asCamera`/`ownHands` should catch "on/holding the man". Sonnet. *Effort: low.*
+1. **Deploy** when the owner says "deploy"; read the deploy log, `/health`, `/setup`; the owner looks at her pictures in Telegram. Haiku. *Effort: low.*
+2. **Writer slip seen live:** "her hands holding the man", "her hands on the man" (D1 610, 611) give him a body; `asCamera`/`ownHands` should catch "on/holding the man". Sonnet. *Effort: low.*
+3. **If the owner picks a body option** (shape words or lighter weights): build it, golden plans, a 4-picture check. Opus. *Effort: medium.*
 4. **Cloudflare half of the bench** after 00:00 UTC, with the new `body.jpg` at /nsfw Off. Haiku runs it, Opus reads. *Effort: low.*
-5. **Later:** BODY_WORDS and the face sentence built from CONFIG instead of copied into each line; a REFERENCE_CLOSE bench; `/setup`'s stale Pictures line; VISION.BACKUP_MODEL; old session branches. *Effort: medium.*
+5. **Later:** BODY_WORDS and the face words built from CONFIG instead of copied into each line; a REFERENCE_CLOSE bench; `/setup`'s stale Pictures line; VISION.BACKUP_MODEL; old session branches. *Effort: medium.*
 
 ## Open questions for the owner
 - OK to press Actions > Delete retired branches for `tools/retired-branches.txt`?
 - Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? This session it showed 51 false "work not here" branches on a shallow clone.
 
 ## Prompt for the next chat
-"Read HANDOFF. Deploy if I said so; BODY_PARTIAL: <clothed / nude>; nude LoRAs: <keep / none>. Then step 3." Opus. *Effort: medium.*
+"Read HANDOFF. Deploy if I said so; body option: <none / shape words / lighter weights>. Then step 2." Sonnet. *Effort: low.*

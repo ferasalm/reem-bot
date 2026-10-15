@@ -63,8 +63,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   only POV Doggy Anal drew anal. Judge genitals on a full-size crop (`convert -crop 400x400+x+y`), never at 800 px (round 6, Step 6).
 - A small, dim face loses her likeness even with her face picture: name her face first in the prompt (before the body words), and
   light it ("lamp light falls on her face"): in the dark her hazel-green eyes drew brown (D1 611/612 replays, 2026-10-15). Replay a live picture from D1 (prompt, refs, LoRAs, seed: `tools/face/replay-bench.mjs`) before guessing.
-- The LoRA stack slims her nude body (Lenovo 1.3 + NSFW Unlocked 0.8 + Anatomy Fixer 0.7): no LoRAs matched the body picture on 2 seeds,
-  one LoRA off or weaker barely helped (slim-bench, 2026-10-15) → test body fullness without LoRAs before blaming words or pictures.
+- The LoRA stack slims her nude body: no LoRAs matched the body picture on 2 seeds; one LoRA off, weaker weights, body words first or
+  "hips much wider than her shoulders" barely helped (slim-bench, 2026-10-15) → test fullness without LoRAs before blaming words or pictures.
 - Body words stack on the body picture (heavier picture + "curvier" → overweight; belly words → a big belly, 2026-10-10): image 1 sets
   her build; BODY_WORDS moved nude pictures a little, clothed ones hardly (Fix round 2). Grep DECISIONS for banned body words first.
 - Klein copies the place picture's light (night places `<key>_night`, no place picture on flash), framing and angle (three crops per

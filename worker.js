@@ -1037,8 +1037,10 @@ Changing the story
       // 2026-10-12 (owner: "For realism in telegram bot, always use Lenovo Ultrareal LoRA at 1.3 weighting. Stop using other Realism
       // LoRAs like instapic", "Maximum #of LoRAs per image is 3"): Lenovo UltraReal (Civitai 2682771, ferasalm:lenovoc@1) alone
       LORAS: { "ferasalm:lenovoc@1": 1.3 },
-      // at most this many LoRAs a picture (owner 2026-10-12), kept in this order: LORAS, NUDE_LORAS, an act LoRA, HANDS_LORAS, ANATOMY_LORAS
-      MAX_LORAS: 3,
+      // at most this many LoRAs a picture, kept in this order: LORAS, NUDE_LORAS, an act LoRA, HANDS_LORAS, ANATOMY_LORAS. 2026-10-15 (owner:
+      // "reduce them to only two LoRAs, include the third only when necessary"): 2; a redraw after the anatomy check found a mistake
+      // (drawPicture's `fix`) takes one more, so a nude picture gets the Anatomy Fixer then. Was 3 (owner 2026-10-12)
+      MAX_LORAS: 2,
       // owner 2026-10-12 ("the quality anatomy fix LoRA ... especially since they cannot be retried"; "Sex scenes don't use anatomy
       // fixer"): Anatomy Quality Fixer on every picture that is not a sex act (her own, /pic, /look), at its round-2 weight
       ANATOMY_LORAS: { "myaiprojectsqqq:3@2": 0.7 },
@@ -3846,7 +3848,7 @@ function runwareAffordable(env, ledger, level = CONFIG.PICTURE.NSFW.DEFAULT) {
 // MAX_LORAS in that order (realism, nudity, act, hands, anatomy)
 function runwareLoras(opts = {}) {
   if (typeof opts === "boolean") opts = { explicit: opts };
-  const { kind = "", explicit = false, act = false, text = "", partial = false, anal = "", level = CONFIG.PICTURE.NSFW.DEFAULT } = opts;
+  const { kind = "", explicit = false, act = false, text = "", partial = false, anal = "", fix = false, level = CONFIG.PICTURE.NSFW.DEFAULT } = opts;
   const R = CONFIG.PICTURE.RUNWARE || {};
   const flash = flashAsked(text, level);
   const own = { selfie: R.SELFIE_LORAS, scene: R.SCENE_LORAS, pic: R.PIC_LORAS }[kind] || {};
@@ -3876,7 +3878,8 @@ function runwareLoras(opts = {}) {
   const hands = String(R.HANDS_WORDS || "").split(",").some((w) => w.trim() && hasWord(text, w.trim()));
   const more = [...(hands ? Object.entries(R.HANDS_LORAS || {}) : []), ...(!act && !alone ? Object.entries(R.ANATOMY_LORAS || {}) : [])]
     .map(([model, w]) => ({ model: model.trim(), weight: Number(w) })).filter((l) => l.model && Number.isFinite(l.weight) && l.weight !== 0 && !shaped.some((x) => x.model === l.model));
-  const max = Number(R.MAX_LORAS) > 0 ? Number(R.MAX_LORAS) : Infinity;
+  // `fix`: a redraw after the anatomy check (drawPicture) may take one LoRA more (2026-10-15)
+  const max = (Number(R.MAX_LORAS) > 0 ? Number(R.MAX_LORAS) : Infinity) + (fix ? 1 : 0);
   return [...shaped, ...more].slice(0, max);
 }
 
@@ -4073,7 +4076,7 @@ function nakedLine({ partial = false, back = false, top = false, bottom = false,
 // place (bytes), placeName, width, height, size, who (drawPicture's {who} filler) }. The random picks (act shape, mood,
 // hairstyle) come in the same order as before the split: tools/test/picture-plans.golden.json must not change.
 // `level` (Step 2): the chat's /nsfw level; Off sets checkContent on every try (drawRunware) and makes the flags clothed
-function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = null, faceName = "face-1x", place = null, placeName = "", width, height, size = 0, who, level = CONFIG.PICTURE.NSFW.DEFAULT }) {
+function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = null, faceName = "face-1x", place = null, placeName = "", width, height, size = 0, who, fix = false, level = CONFIG.PICTURE.NSFW.DEFAULT }) {
   const P = CONFIG.PICTURE;
   const R = P.RUNWARE || {};
   const flags = pictureFlags(prompt, herself, level);
@@ -4174,7 +4177,7 @@ function runwarePlan(prompt, { herself = true, kind = "", ref = null, rwFace = n
     const styleLine = extra ? ` ${R.HAIR_LINE.replaceAll("{n}", String(base.length))}` : "";
     // with LoRAs, LORA_PREFIX (a trigger like "...taken with a smartphone of") runs into her description: "...of the woman from image 0"
     // the LoRAs' own trigger words (LORA_WORDS) go first
-    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, act, text: prompt, partial, anal: analNamed, level }) : [];
+    const loras = model === R.MODEL ? runwareLoras({ kind, explicit, act, text: prompt, partial, anal: analNamed, fix, level }) : [];
     const flash = model === R.MODEL && flashAsked(prompt, level);
     const triggers = [flash && R.FLASH_TRIGGER, loraWords(loras)].filter(Boolean).join(". ");
     const alone = loras.length === 1 && (analAt ? (R.ANAL_ALONE || []).includes(analAt) : Object.hasOwn(R.ALONE_LORAS || {}, loras[0].model));
@@ -4608,7 +4611,8 @@ async function drawPicture(env, prompt, opts = {}) {
     let out = null;
     let failure = null;
     try {
-      out = await drawPictureNow(env, prompt, { ...opts, nsfw, seed }, rec);
+      // a redraw after the anatomy check found mistakes: `fix` lets the Anatomy Fixer in as a third LoRA (2026-10-15)
+      out = await drawPictureNow(env, prompt, { ...opts, nsfw, seed, fix: i > 0 }, rec);
     } catch (e) {
       failure = e;
       rec.error = aiText_(e);
@@ -4637,7 +4641,7 @@ async function drawPicture(env, prompt, opts = {}) {
 }
 
 // drawPicture's draw: the Runware tries (runwarePlan), then Cloudflare. `rec` keeps what was sent, for the log.
-async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0, nsfw = CONFIG.PICTURE.NSFW.DEFAULT, planOnly = false } = {}, rec) {
+async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, fix = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0, nsfw = CONFIG.PICTURE.NSFW.DEFAULT, planOnly = false } = {}, rec) {
   const P = CONFIG.PICTURE;
   const ref = face ? await faceBytes(env) : null;
   const body = ref ? bodyBytes() : null; // image 1, the place then follows as image 2
@@ -4665,7 +4669,7 @@ async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PI
   if (ledger && runwareAffordable(env, ledger, nsfw)) {
     const R = P.RUNWARE;
     const rwFace = ref && R.BIG_FACE ? await faceBytes(env, true) : ref;
-    const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who, level: nsfw });
+    const plan = runwarePlan(prompt, { herself, kind, ref, rwFace, faceName: rwFace === ref ? "face-1x" : "face-2x", place, placeName: shown ? `place:${placeKey}` : "", width, height, size, who, fix, level: nsfw });
     if (planOnly) return { plan: plan.tries };
     for (const t of plan.tries) {
       rec.attempts++;

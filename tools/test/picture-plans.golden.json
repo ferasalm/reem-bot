@@ -248,10 +248,6 @@
             {
               "model": "ferasalm:nsfwunlock@1",
               "weight": 0.8
-            },
-            {
-              "model": "myaiprojectsqqq:3@2",
-              "weight": 0.7
             }
           ],
           "model": "runware:400@2",
@@ -453,10 +449,6 @@
             {
               "model": "ferasalm:nsfwunlock@1",
               "weight": 0.8
-            },
-            {
-              "model": "myaiprojectsqqq:3@2",
-              "weight": 0.7
             }
           ],
           "model": "runware:400@2",
@@ -487,10 +479,6 @@
             {
               "model": "ferasalm:nsfwunlock@1",
               "weight": 0.8
-            },
-            {
-              "model": "myaiprojectsqqq:3@2",
-              "weight": 0.7
             }
           ],
           "model": "runware:400@2",
@@ -579,10 +567,6 @@
             {
               "model": "ferasalm:nsfwunlock@1",
               "weight": 0.8
-            },
-            {
-              "model": "myaiprojectsqqq:3@2",
-              "weight": 0.7
             }
           ],
           "model": "runware:400@2",
@@ -696,10 +680,6 @@
             {
               "model": "ferasalm:nsfwunlock@1",
               "weight": 0.8
-            },
-            {
-              "model": "myaiprojectsqqq:3@2",
-              "weight": 0.7
             }
           ],
           "model": "runware:400@2",
@@ -990,10 +970,6 @@
             {
               "model": "ferasalm:nsfwunlock@1",
               "weight": 0.8
-            },
-            {
-              "model": "myaiprojectsqqq:3@2",
-              "weight": 0.7
             }
           ],
           "model": "runware:400@2",
@@ -1024,10 +1000,6 @@
             {
               "model": "ferasalm:nsfwunlock@1",
               "weight": 0.8
-            },
-            {
-              "model": "myaiprojectsqqq:3@2",
-              "weight": 0.7
             }
           ],
           "model": "runware:400@2",

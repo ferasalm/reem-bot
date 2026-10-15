@@ -1,7 +1,9 @@
 // Why nude pictures come out slimmer than the v13 body pictures (2026-10-15): the nude front mirror selfie and the nude belfie through
 // the bot's own /pic path on Runware klein 9B, one change per variant at a fixed seed and fixed random picks:
 // V0 as built, V1 no NSFW Unlocked (NUDE_LORAS), V2 no LoRAs, V3 no place picture, V4 no BODY_WORDS in the body line, V5 no Lenovo,
-// V6 no Anatomy Fixer, V7 NSFW Unlocked at 0.5, V8 Lenovo at 0.8, V9 Lenovo 0.8 + NSFW Unlocked 0.5 + no Anatomy Fixer. SEED=202 for a second seed.
+// V6 no Anatomy Fixer, V7 NSFW Unlocked at 0.5, V8 Lenovo at 0.8, V9 Lenovo 0.8 + NSFW Unlocked 0.5 + no Anatomy Fixer, V11 no Anatomy Fixer + the body words first
+// ("her body exactly image 1's, the same fullness: BODY_WORDS" right after her face, out of their later place), V12 no Anatomy Fixer +
+// SHAPE_WORDS after BODY_WORDS, V13 no Anatomy Fixer + Lenovo 1.0 + NSFW Unlocked 0.6. SEED=202 for a second seed.
 //   NODE_USE_ENV_PROXY=1 node tools/face/slim-bench.mjs <outdir> [V0,V1,...]   paid: ~$0.008 a picture, stops at BUDGET_USD ($0.12)
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -17,6 +19,8 @@ const W = await loadWorker();
 const R = W.CONFIG.PICTURE.RUNWARE;
 const BW = W.CONFIG.PICTURE.BODY_WORDS;
 const saved = { NUDE_LORAS: R.NUDE_LORAS, LORAS: R.LORAS, ANATOMY_LORAS: R.ANATOMY_LORAS, REFERENCE: R.REFERENCE, REFERENCE_BACK: R.REFERENCE_BACK };
+const SHAPE = process.env.SHAPE_WORDS || "her hips much wider than her shoulders, full thick thighs";
+const bodyFirst = (line) => line.replace(`, ${BW},`, ",").replace(`: ${BW},`, ":").replace(", with exactly the same face", `, her body exactly image 1's, the same fullness: ${BW}, with exactly the same face`);
 const VARIANTS = {
   V0: {},
   V1: { NUDE_LORAS: {} },
@@ -27,6 +31,9 @@ const VARIANTS = {
   V7: { NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.5 } },
   V8: { LORAS: { "ferasalm:lenovoc@1": 0.8 } },
   V9: { LORAS: { "ferasalm:lenovoc@1": 0.8 }, NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.5 }, ANATOMY_LORAS: {} },
+  V11: { ANATOMY_LORAS: {}, REFERENCE: bodyFirst(saved.REFERENCE), REFERENCE_BACK: bodyFirst(saved.REFERENCE_BACK) },
+  V12: { ANATOMY_LORAS: {}, REFERENCE: saved.REFERENCE.replace(BW, `${BW}, ${SHAPE}`), REFERENCE_BACK: saved.REFERENCE_BACK.replace(BW, `${BW}, ${SHAPE}`) },
+  V13: { ANATOMY_LORAS: {}, LORAS: { "ferasalm:lenovoc@1": 1.0 }, NUDE_LORAS: { "ferasalm:nsfwunlock@1": 0.6 } },
   V4: { REFERENCE: saved.REFERENCE.replace(`, ${BW},`, ","), REFERENCE_BACK: saved.REFERENCE_BACK.replace(`: ${BW},`, ":") },
 };
 const CASES = [

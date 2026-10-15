@@ -352,12 +352,13 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   };
   const loras = async (words) => { sent = []; try { await W.drawPicture({ RUNWARE_API_KEY: "k" }, `{who} ${words}`, { ledger: {} }); } catch (e) { /* Cloudflare has no AI binding here: the Runware calls are what this checks */ } return sent.map((t) => [t.model, (t.lora || []).map((l) => l.model).sort()]); };
   // 2026-10-12 (owner): Lenovo on every picture, NSFW Unlocked on nude and sex pictures, Anatomy Fixer when not a sex act
-  const anat = Object.keys(R.ANATOMY_LORAS), base = [...Object.keys(R.LORAS), ...anat].sort(), nude = [...base, ...Object.keys(R.NUDE_LORAS)].sort();
+  const anat = Object.keys(R.ANATOMY_LORAS), base = [...Object.keys(R.LORAS), ...anat].sort(), nude = [...Object.keys(R.LORAS), ...Object.keys(R.NUDE_LORAS)].sort();
   const act = [...Object.keys(R.LORAS), ...Object.keys(R.NUDE_LORAS)].sort();
   try {
     W.CONFIG.PICTURE.ROUTE = "runware-klein"; R.SEX_ACTS = false;
     eq(await loras("in a gray sweater on the couch"), [[R.MODEL, base]], "clothed: klein 9B with LORAS + ANATOMY_LORAS");
-    eq(await loras("naked in bed"), [[R.MODEL, nude]], "nude: klein 9B with LORAS + NUDE_LORAS + ANATOMY_LORAS");
+    eq(await loras("naked in bed"), [[R.MODEL, nude]], "nude: klein 9B with LORAS + NUDE_LORAS, two LoRAs (owner 2026-10-15: the third only when necessary)");
+    eq(W.runwareLoras({ explicit: true, fix: true }).map((l) => l.model).sort(), [...nude, ...anat].sort(), "a redraw after the anatomy check (fix): the Anatomy Fixer comes in as the third LoRA");
     failKlein = true;
     eq(await loras("naked in bed"), [[R.MODEL, nude], [R.MODEL, nude]], "klein fails: klein tries again with the same LoRAs, no TwinFlow (Cloudflare draws after; 2026-10-10)");
     failKlein = false;
@@ -377,7 +378,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq([sent[0].width, sent[0].height], [480, 480], "Runware: a size asked by the caller wins");
   } finally { globalThis.fetch = realFetch; [W.CONFIG.PICTURE.ROUTE, R.SEX_ACTS] = keep; }
   eq(Object.entries(R.NUDE_LORAS), [["ferasalm:nsfwunlock@1", 0.8]], "nude LoRAs: NSFW Unlocked V2 at 0.8 (owner 2026-10-12)");
-  eq([Object.entries(R.LORAS), R.MAX_LORAS, R.STEPS, R.CFG], [[["ferasalm:lenovoc@1", 1.3]], 3, 6, 2], "every picture: Lenovo UltraReal at 1.3, at most 3 LoRAs, 6 steps, CFG 2 (owner 2026-10-12)");
+  eq([Object.entries(R.LORAS), R.MAX_LORAS, R.STEPS, R.CFG], [[["ferasalm:lenovoc@1", 1.3]], 2, 6, 2], "every picture: Lenovo UltraReal at 1.3, at most 2 LoRAs (3 on an anatomy redraw, owner 2026-10-15), 6 steps, CFG 2");
 }
 {
   const yes = (v, label, got) => eq(!!v || got, true, label);
@@ -526,7 +527,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const keepHands = R.HANDS_LORAS;
     R.HANDS_LORAS = { "ferasalm:povhandc@1": 0.6 };
     c = await call("riding the man, his hands on her hips", "pic");
-    eq(c.loras, [...actSet, "ferasalm:povhandc@1"].sort(), "HANDS_LORAS set again: his hands named add it, within MAX_LORAS");
+    eq(c.loras, actSet, "HANDS_LORAS set again: within MAX_LORAS 2 (2026-10-15) a sex act keeps Lenovo + NSFW Unlocked");
     R.HANDS_LORAS = keepHands;
     eq(W.picWords("my hand on your waist, you in a black dress"), "His hand on her waist, her in a black dress", "/pic: 'my hand' is his");
     R.SEX_ACTS = false;

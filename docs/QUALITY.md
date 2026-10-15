@@ -33,6 +33,9 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## 2026-10-15 Two LoRAs and other body fixes (Opus 5.5, `claude-opus-5-5`; slim-bench V0, V6, V11-V13 on the v13 bodies; newref-check; not [live])
+Nude front and belfie, seeds 101 and 202 (read beside the body pictures): V0 three LoRAs = V6 two (no Anatomy Fixer) = V11 body words first; V12 "her hips much wider than her shoulders, full thick thighs": a little wider on 202; V13 Lenovo 1.0 + NSFW Unlocked 0.6: a little. All slimmer than the body picture through hips and thighs, the back most. Final bot check (v13, face first, two LoRAs): clothed front and back dressed, her brows and fuller face; nude front with the bush; nude back a little slim. Spent $0.0785 + $0.0468 + $0.0234.
+
 ## 2026-10-15 The prompts behind the face (Opus 5.5, `claude-opus-5-5`; replay-bench P1-P5, G1-G2; newref-check; not [live])
 Rows 611/612 at their seeds: cutting the PHOTO line, the night sentence (611: a second woman), the "not image 0's expression" clause, the scene lead, or all four: the same generic face, brown eyes (face crops read at 2x). G1 (face words first, "clearly green, not brown"): brows and eyeliner, eyes still dark; G2 (+ the lamp light on her face): hazel-green eyes, eyeliner, thick brows, broader face (612; 611 the same face, fuller). The bot's code with G2: four pictures, her brows and eyeliner in all, hazel-green eyes on the nude front, fuller arms and body clothed. Spent $0.0625 + $0.0234 + $0.0276.
 

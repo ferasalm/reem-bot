@@ -23,6 +23,10 @@ const REF = {
   "body-v12": FACE.BODY_NUDE_JPEG_BASE64,
   "body-v12-back": FACE.BODY_BACK_JPEG_BASE64,
   "body-v12-clothed": FACE.BODY_CLOTHED_JPEG_BASE64,
+  // the v12 rows replay on today's bodies (v13 since 2026-10-15)
+  "body-v13": FACE.BODY_NUDE_JPEG_BASE64,
+  "body-v13-back": FACE.BODY_BACK_JPEG_BASE64,
+  "body-v13-clothed": FACE.BODY_CLOTHED_JPEG_BASE64,
 };
 const refB64 = (n) => REF[n] || (n.startsWith("place:") && PLACES.PLACE_JPEG_BASE64[n.slice(6)]) || (n.startsWith("style:") && FACE.STYLE_JPEG_BASE64[n.slice(6)]) || (() => { throw new Error(`no reference ${n}`); })();
 const FACE_WORDS = process.env.FACE_WORDS || "Her face as in image 0: thick dark arched brows, almond-shaped hazel-green eyes with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips.";
