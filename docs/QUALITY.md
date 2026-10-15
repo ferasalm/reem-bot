@@ -33,6 +33,16 @@ Rows up to 2026-10-02 were compiled from the old HANDOFF.md history (`docs/CHANG
 | 2026-10-02 | 36955835015 (voice in person) | 95086a1 | 36/36 @ Novita | 0 | scene clips were only her quoted words 9/9 | 6/6 (one "sweetie") | line starting with "—"; more stage directions give tags |
 | 2026-10-02 | 36944353910 (integrated v10) | 0feb5c4 | 36/36 @ Novita | 0 | voice note when asked 3/3; OOC as the writer 3/3 | 6/6 | Basbousa he/she drift; "him" for "you" once (tuning items) |
 
+## 2026-10-15 Second body set (v13) bot check (Opus 5.5, `claude-opus-5-5`; `tools/face/newref-check.mjs`, Runware klein 9B, seed 101; not a [live] run)
+Same four cases, $0.0276 by Runware's answers, each read at full size. Likeness not measured.
+
+| Case | Image 1 | Result |
+|---|---|---|
+| clothed front: black tank, jeans | v13-clothed | dressed as asked, nothing of image 1's; a fuller bust and softer arms than v12 |
+| clothed back view | v13-back (nude) | fully dressed, nothing bare; her profile a little smeared (mouth) |
+| nude front | v13 | natural dark bush as the picture; the body a little slimmer than image 1 (legs, belly); long bangs from the random hairstyle |
+| nude belfie | v13-back | the new back (wide hips, round bottom); bun |
+
 ## 2026-10-15 New reference set bot check (Opus 5.5, `claude-opus-5-5`; `tools/face/newref-check.mjs`, Runware klein 9B, seed 101; not a [live] run)
 Four pictures through the bot's own /pic path, $0.0234 by Runware's answers (one "200: no picture" retried on the first case), each read at full size. Likeness not measured.
 

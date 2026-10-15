@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-15 (forty-seventh session, continued): deploy of the v12 set; the v13 bodies on `dev`
+- Deploy: main 2c18113 → e0e78ac, run 38674596701, Version `b38605e3-2bd8-4c13-a778-328125822737`; /health and /setup read in the job log.
+- v13 bodies (originals 17-19), the words matched (bush, bra and briefs, 65 kg, soft belly, natural bust); golden plans rewritten (only these changes); four Runware pictures, $0.0276.
+
 ## 2026-10-15 (forty-seventh session, Opus 5.5, `claude-opus-5-5`; no subagents): the owner's new face and bodies
 - References rebuilt from originals 13-16 (`tools/face/build-face.mjs`, face.js); RUNWARE.BODY* v12 names; `runwareBodyBytes` maps v12, v12-back, v12-clothed; the studio's Body menu lists three pictures (no duplicate when BODY_CLOTHED_BACK = BODY_BACK).
 - Words: BODY_WORDS without "full arms" (12 body lines), hazel-green eyes (5 lines), SYSTEM_PROMPT build line, SPICY_PROMPT frame, NAKED_BUSH shaved, REFERENCE_CLOTHED "black lace bra and panties", REFERENCE_CLOTHED_BACK for the nude back. Golden plans rewritten (only these changes, checked by a substitution diff); unit and studio rows updated.

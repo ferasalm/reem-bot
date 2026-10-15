@@ -1,5 +1,5 @@
-// The owner's reference set of 2026-10-15 (face 13, bodies 14-16): four pictures through the bot's own /pic path on Runware klein 9B
-// (/nsfw On, seed 101): a clothed front, a clothed back view on the nude back (BODY_CLOTHED_BACK "v12-back"), a nude front, a nude back.
+// The owner's references of 2026-10-15 (face 13; bodies 14-16, then 17-19): four pictures through the bot's own /pic path on Runware klein 9B
+// (/nsfw On, seed 101): a clothed front, a clothed back view on the nude back (BODY_CLOTHED_BACK, the nude back), a nude front, a nude back.
 //   NODE_USE_ENV_PROXY=1 node tools/face/newref-check.mjs <outdir>    paid: about $0.012
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
