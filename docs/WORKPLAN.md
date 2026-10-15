@@ -877,3 +877,356 @@ built (F1, F2), waiting on the Opus check and the owner's look at the bench'), p
 every bench picture at full size against the same seed with today's words: is she fuller in the owner's shape (narrow shoulders, wide low hips,
 full arms, a defined waist, a big round bottom) without going overweight? Is her face the same? Are there new anatomy mistakes? Write the
 verdict in QUALITY and ask the owner F3 and whether Option B is needed."
+
+## Rebuild (2026-10-15): reliability, module split, picture core, bench, reference library
+Planned by Opus 5.5 (`claude-opus-5-5`, configured and served per get_session; three read-only Explore subagents: two Sonnet, one Haiku, plus an Opus advisor). Approved by the owner (DECISIONS 2026-10-15). One chat per step, in order; each ends with `/handoff` and a push to `dev`; deploy only when the owner says "deploy". Runware budget for the whole rebuild: $1.00.
+
+### Context
+
+Over two weeks the picture system grew one patch at a time. Each prompt now says the same thing up to five times: a long
+face-and-body paragraph, a body picture, nudity lines, act lines and LoRA pulls. Those pieces fight each other, so pictures
+look like neither the references nor the words. The prompts name "the man", "the camera" and things that are out of frame
+("his hands on her butt"), and they use negatives ("never his face", "closed and untouched"). FLUX.2 klein reads those as
+things to draw. Everything lives in one 490 KB `worker.js`: 1,360 lines of settings, then about 256 functions, with history
+written into the comments. On top of that, Reem "disconnects" more often and pictures fail more often.
+
+Goal: a skeleton that is easy to debug and to extend, and that is ready for later needs without building them now:
+- an Arabic SFW Reem as a second persona, not a copy of the code;
+- paid tiers as one gate;
+- pictures that describe only what is in the frame, lean on approved reference pictures, and use one LoRA;
+- a chat that answers, or fails fast and visibly.
+
+Owner's answers (2026-10-15):
+- Split everything into modules.
+- The reliability fixes come first, then the split, with behaviour unchanged.
+- New references are approved in a Studio References tab.
+- $1.00 Runware for the whole rebuild (benches plus candidate references).
+- Anatomy Fixer: only on a redraw after the vision check finds a mistake, and never on sex acts.
+- The chat model stays as it is: measure first (no hedging, no timeout change).
+
+### What the searches found (evidence)
+
+- **Prompt (Runware try):** triggers + style opener + REFERENCE paragraph + scene words + nakedLine + ACT_SCENES/POV_MAN + mood
+  + DRESSED + WIDE + PHOTO (`runwarePlan`, worker.js ~4084-4202).
+  - Body words appear in REFERENCE*, NAKED_*, ACT_SCENES and LOOKS. The man appears in POV_MAN, ACT_SCENES, ANAL_SCENES,
+    SCENE_STYLE, POV_CLOTHED, the writer RULES and WARDROBE ("his oversized flannel shirt").
+  - "camera" appears in SELFIE_PHONE, POV_PHONE, ANGLES, GAZES and EXPRESSIONS.
+- **Sampler:** steps 6, CFG 2, acceleration "none". **No `scheduler` is sent**, so Runware uses klein 9B's "Default" (the
+  schema lists no default; FLUX.2's own pipeline uses the flow-match Euler scheduler, `FlowMatchEulerDiscreteScheduler`).
+  - Runware's schema: at most **4 reference images**.
+  - References may be sent as an uploaded **UUID**. Today about 0.5 MB of base64 goes with every call.
+  - At CFG 1 the negative prompt is ignored, which suits the rule of affirmative prompts only.
+- **LoRAs today:** Lenovo 1.3 always, NSFW Unlocked 0.8 on nude and acts, Anatomy Fixer 0.7 on clothed pictures (and on a nude redraw). Every other list is empty.
+- **Studio bug, one cause** (`studio.js:40-45`, `resultCard` at ~280):
+  - `.row` is a flex row whose children stretch, and the image is 100% wide.
+  - So the text column shrinks to about 0 px and wraps one character per line.
+  - The tall text column then stretches the image's height, so a 1:1 or 16:9 picture looks stretched.
+- **Reliability:**
+  - The chat waits up to 60 s per DeepSeek attempt. Its replies take either 4-6 s or 33-48 s, and some time out.
+  - Worst case for a text reply is about 200 s; a picture message is about 11 min. Everything runs serially on one queue
+    consumer, so one slow message holds every later one.
+  - The memory fold (up to about 135 s) is awaited in `saveTurn`.
+  - Every message is acked before work starts, with no retries, and `runCommand` mostly has no try/catch: a throw drops the
+    rest of the batch silently.
+  - `budget.used++` plus `xfetch`'s own count makes each Runware, Gemini-hearing, Gemini-voice or lingerie call count twice
+    against a 50-call limit that is a free-plan number. This can silently switch pictures and the anatomy check off.
+  - At Nude and On, a Runware failure means no picture (D1 row 705). Before 10-13 the Cloudflare fallback saved these.
+  - 401/402 errors show him "(setup) ⚠️" instead of an in-character line.
+  - There's no counter for these failures: we can't measure "disconnects" today.
+
+### Architecture (target)
+
+```
+worker.js                 entry only: export default { fetch, queue, scheduled } (wrangler `main` unchanged)
+src/
+  config/engine.js        engine CONFIG (LLM, voice, budgets, picture engine: model, sampler, LoRA policy, sizes)
+  config/index.js         CONFIG = merge(engine, persona) + applyOverrides (CONFIG_OVERRIDES env)
+  persona/reem-en/        SYSTEM_PROMPT, INTRO, MEMORY_PROMPT, MESSAGES, wardrobe, places, hairstyles, moods, refs list
+  platform/               telegram.js, kv.js (state), ai.js (aiRun, workersChat), http.js (xfetch, budget), log.js (D1)
+  gate.js                 can(chat, feature) – today: the current rules (nsfw level, caps, minor); later: paid tiers
+  chat/                   respond, think, shapeReply, commands, memory, recall, auto
+  voice/                  tts, hearing, audio tags, arabizi
+  pictures/
+    spec.js               ShotSpec: what the picture is (data, logged)
+    interpret.js          her words / writer / /pic / /look → ShotSpec
+    frames.js             frame templates (data): views, framings, act frames, crop edges
+    compose.js            framePrompt(spec, refs) → text (fixed sentence order)
+    lint.js               banned words, image-number check (tests + runtime log)
+    refs.js               reference catalog + pickRefs(spec) (≤4 slots) + Runware UUID cache
+    loras.js              LoRA policy table by content
+    runware.js cloudflare.js anatomy.js writer.js deliver.js
+  studio/                 routes.js, page.js (was studio.js)
+assets/ face.js places.js mp3.js (generated, unchanged)
+```
+
+- **Arabic SFW Reem later:** `src/persona/reem-ar-sfw/` plus a wrangler `[env.ar]` with its own bot token and KV.
+  - The persona caps nsfw at "off", so all its pictures go to Cloudflare klein.
+  - Its MESSAGES and prompts are in Arabic.
+  - No engine copy.
+- **Paid tiers later:** a D1 `users` table plus `gate.js` rules. Every check that exists today goes through `can()` now.
+
+### The new picture pipeline
+
+1. **ShotSpec**, one object that is logged as JSON in D1:
+   - view: selfie | mirror | pov | pov-act | closeup
+   - content: clothed | partial | nude | act
+   - act {name, hole, position}
+   - outfit {key, refId}, hair {key, refId}, place {key, crop, night}
+   - light, expression
+   - framing: face | chest-up | waist-up | three-quarter | full | crotch
+   - aspect
+   - `inFrame` (her parts, POV's parts) and `edges` (a part cropped at an edge)
+
+   The writer (Llama) **fills spec fields as JSON**: outfit key, action, place, expression. It no longer writes prose, so
+   code alone phrases every prompt and the rules hold by construction.
+2. **framePrompt** writes the sentences in a fixed order:
+   1. lens/perspective + framing
+   2. identity by image number only ("She is the woman of image 0, with the body of image 1"), plus "an adult woman,
+      29" (kept as the age statement, not a body description)
+   3. what she wears, from the outfit picture ("wearing the outfit of image 1"), or plain words when the outfit has no
+      picture yet; or "fully nude"
+   4. pose and what is in frame
+   5. crop edges ("her extended forearm is cropped at the left edge of the frame")
+   6. place + light
+   7. expression
+   8. one affirmative photo-style line
+
+   Act frames are data in `frames.js`, one per act/position. Each names what is visible: "POV's torso and below fill the
+   bottom of the frame", "POV's erect penis …", "her hands cropped at the top edge". They describe the frame, not the act's
+   story. Every act frame names the penis explicitly, after the owner's finding about weights below 1.
+3. **lint.js**, enforced on every frame, golden plan and writer field:
+   - Banned: man/men/he/him/his, camera, not/no/never/without/nobody.
+   - Also banned: **body descriptor phrases**, meaning an adjective of build on a body part (full/thick/wide/big/narrow/
+     tapered … + bust, hips, thighs, arms, waist, bottom), plus curves, voluptuous, eye colour and skin tone.
+   - Body-part nouns stay allowed, because the frames need them to place things ("her forearm cropped at the left edge",
+     "POV's torso and below").
+   - Anatomy words for acts stay allowed too (vulva, penis, anus, labia), to keep the 2026-10-08 detailed-genitalia
+     decision.
+   - Every "image N" must be lower than the number of references sent.
+   - It is a unit test over every frame × case. At runtime it logs a `lint` column in D1 and doesn't block the picture.
+4. **LoRA policy:** only NSFW Unlocked (Lenovo and the others retired), with weight by content. NSFW Unlocked is the one
+   LoRA that helps her face, so clothed pictures keep it too. Starting values, then decided by the bench:
+
+   Owner's rules (2026-10-15):
+   - Clothed pictures are tested at 0.6 and below.
+   - Acts and nudity never go above 0.8, because with a long prompt 1.0 and higher can force an act or nudity.
+   - Weights move in 0.05 steps.
+
+   | content | start | bench sweep (same seed, 0.05 steps) |
+   |---|---|---|
+   | clothed (clothed or outfit body picture, never the nude one) | 0.5 | 0.4 / 0.5 / 0.6 |
+   | partial | 0.65 | 0.6 / 0.65 / 0.7 |
+   | nude | 0.75 | 0.7 / 0.75 / 0.8 |
+   | act (penis always named in the frame) | 0.8 | 0.7 / 0.75 / 0.8 |
+   | act partly dressed | 0.75 | 0.7 / 0.75 / 0.8 |
+
+   - The owner saw that ≥0.7 together with the nude body picture forces nudity on clothed pictures. Clothed pictures never
+     get the nude body picture.
+   - The weights go in one `LORA_WEIGHTS` table, a panel row each.
+
+   **Anatomy Fixer (owner):** never on the first draw. It is added only on a redraw after the vision check finds a mistake,
+   for every kind except sex acts.
+5. **Act vs clothes (the attached picture: an act drawn with jeans on):** `interpret.js` resolves this before any words
+   are written.
+   - Pulled down or pulled aside doesn't draw yet: the owner says it needs its own LoRA. So any garment that covers the
+     act's region is **taken off**: below the waist for vaginal and anal acts, nothing in the way of the mouth for oral.
+     The frame describes only what she still wears.
+   - Garments elsewhere (a bra, a top) may stay.
+   - A partly dressed act sends the nude body picture as image 1, with the kept garment in words. Sending the clothed
+     body would bring in its black bra, which is what the attached picture shows.
+   - Later (owner's approval): a pulled-aside LoRA, and "partly dressed" outfit references (for example a top only) for
+     slot 1. The spec already has a `garmentState` field (on / off; pulled-aside is held back until that LoRA exists).
+6. **Sampler:** steps 4, CFG 1, acceleration none.
+   - No scheduler is sent today, so Runware uses its "Default", and its schema doesn't say which sampler that is.
+   - The chosen sampler becomes the `SCHEDULER` config key, and every D1 row logs it.
+   - **Read first, then test a short list (owner).** Before any picture: Runware's scheduler docs, the FLUX.2 klein model
+     card, and what the community reports for distilled 4-step flow models. Findings go in LESSONS.
+   - Starting reasoning, to be confirmed by that reading:
+     - klein 9B is a step-distilled flow-matching model, trained around the plain flow-match Euler path ("Default" is
+       probably that).
+     - Each sampler name has two parts:
+       - the solver: Euler, DPM++ 2M, 2M SDE, 3M, SDE;
+       - the sigma spacing: Karras, Exponential, Beta, Uniform.
+     - At 4 steps the spacing matters most. Karras crowds the steps at low noise: sharper fine detail, weaker composition.
+       Beta is the spacing most often used for Flux.
+     - DPM++ 2M reuses the last step, so it costs no extra model calls. The SDE kinds add fresh noise at each step: more
+       skin texture, less faithful.
+     - Singlestep "DPM++ SDE" / "2S" kinds call the model twice per step. Runware bills GPU time, so they cost about
+       double: excluded.
+     - 3M needs more than 4 steps to help: excluded.
+   - **Short list:** Default, DPM++ 2M, DPM++ 2M Karras (the owner tried it), DPM++ 2M Beta, DPM++ 2M SDE.
+     - Cases: one clothed selfie and one nude, at one seed.
+     - That's 10 pictures, about $0.03.
+     - For each: likeness, anatomy, skin, adherence to the frame, Runware's `cost` and the time.
+   - Settle on the most accurate one at the same price; at equal accuracy, the cheapest and fastest. The owner sees the
+     sheet before it's set.
+   - Steps don't change Runware's price; steps 4 against 6 is timed in the same bench.
+7. **Redraws keep the same spec.** Only the seed changes; today the mood, hair and aspect are re-rolled too.
+8. **Route profiles:** framePrompt and pickRefs read a profile.
+   - Runware klein 9B: 4 references, the LoRA, 768x1344.
+   - Cloudflare klein 4B: 3 references, no LoRA, FILTER_WORDS, 576x1024.
+   - The /nsfw Off route, and later the whole SFW Arabic Reem, run on the Cloudflare profile with the same spec and frames.
+
+### Reference library
+
+- **Catalog:** D1 table `refs` with id, kind (face, body, outfit, hair, place, pose), key, tags, parent, status
+  (candidate, approved, retired), prompt, seed and runware_uuid.
+  - The picture bytes live in KV `ref:<id>`.
+  - The four core pictures in face.js stay built in as the fallback.
+- **Slots (Runware's limit is 4):**
+  - 0 = her face, the original always, so her likeness never drifts.
+  - 1 = body: the outfit picture, the nude front, the nude back or the clothed body.
+  - 2 = place crop.
+  - 3 = the hairstyle picture, when one is picked.
+  - Hair pictures are drawn from her face picture; outfit pictures are drawn from her faceless body picture.
+  - On 2026-10-15 the old hair pictures' faces had to be blurred so they wouldn't fight her face. A hair picture with its
+    face blurred is benched against an unblurred one before the format is fixed.
+- **`pickRefs(spec)`** picks by tags, deterministically:
+  - the day's home outfit stays the same all day;
+  - an outfit he or she names wins;
+  - an outfit with no approved picture is described in words on the clothed body.
+- **Runware UUIDs:** each reference is uploaded once (imageUpload) and later calls send only its UUID; on an
+  invalid-UUID error it is uploaded again. A first probe checks that a UUID still works days later. This makes calls
+  smaller and faster.
+- **Studio References tab:**
+  - pick a base picture and write the change ("the same body, now in a cream knit sweater and blue jeans, same pose, plain
+    background"), for about $0.003;
+  - the candidate shows at full size;
+  - Approve, Reject or edit tags.
+  - Nothing reaches the bot until the owner approves it.
+  - Claude can also propose a batch of candidates within the budget.
+
+### Reliability
+
+- **Measure first:** a D1 `events` table, one row per reply, holding stage timings, model, attempts, fallback used,
+  outcome and the error. Claude reads it with the MCP, and a Studio Health tab comes later.
+- **The chat model stays as it is (owner).**
+  - The events table counts slow replies, timeouts, backup use and errors per day.
+  - With those numbers, the owner decides between hedging, a shorter timeout or nothing.
+- **No lost messages:**
+  - a try/catch per update and per command;
+  - on a throw, a short in-character line and a logged event, never silence;
+  - 401/402 errors also get the in-character line plus the logged event.
+- **Budget:** fix the double count. Set the limit to the Workers Paid subrequest limit, checked against Cloudflare's docs
+  before setting it.
+- **Memory fold moves to the cron.** The 15-minute `scheduled` run is a separate invocation, so it no longer holds the
+  reply queue.
+- **Pictures:**
+  - send Telegram's `upload_photo` action while a picture draws;
+  - at Nude and On, one more Runware retry, only on a 5xx error or a timeout;
+  - the owner's Runware-only rule stays.
+- **Studio:**
+  - `resultCard` stacks the picture above its text;
+  - pictures use `align-self: flex-start` and `height: auto`;
+  - Log thumbnails keep their shape (`aspect-ratio` from the row's width and height, `object-fit: contain`).
+
+### Order of work (one chat each; the owner sets the effort; nothing deploys unless the owner says "deploy")
+
+| # | Chat | Model, effort | Spend |
+|---|---|---|---|
+| 0 | **Reliability + studio fix:** events table, try/catch per update, budget fix, fold on the cron, upload_photo, a Runware retry at Nude/On, studio cards. Tests and scenarios; deploy on the owner's word. | Sonnet, medium | $0 |
+| 1 | **Module split, behaviour unchanged** (details below). | Opus, high | $0 |
+| 2 | **Picture core:** spec, frames, compose, lint, LoRA policy, the same spec on redraws, the writer filling spec fields. The sampler reading, then the sampler short list (~$0.03). New golden plans; lint is green on all of them. | Opus, high | ~$0.04 |
+| 3 | **Bench:** 12 cases × 2 seeds, old against new: selfie, mirror, POV clothed, partial, nude front, nude back, blowjob, riding, missionary, doggy, reverse cowgirl, anal doggy. Then the 0.05-step weight sweep from the table above at one seed. Haiku runs it; Opus judges every picture at full size; QUALITY rows. | Haiku runs, Opus reads | ≤ $0.45 |
+| 4 | **Reference library:** D1/KV catalog, UUID cache, pickRefs, the Studio References tab; a first batch of outfit and hair candidates for approval. | Sonnet builds from an Opus spec, then an Opus review | ≤ $0.40 |
+| 5 | Deploy, then the owner's Telegram check, then tuning from what the owner sees. | | rest of the $1 |
+
+**Step 1 in detail:**
+- Opus writes the manifest and the split script. haiku-worker drafts the first function → module classification and Opus
+  reviews it. The script computes the imports. Persona-free modules (config, platform) must not import at load time, to
+  avoid TDZ cycles.
+- **Tools that read `worker.js` as text** (grep done) must follow the code:
+  - `tools/test/load-worker.mjs` (copies worker.js and appends `export {EXPORTS}`) → it imports a `src/internals.js`
+    barrel instead. The tests only mutate objects; none reassigns a binding.
+  - `tools/build-panel.mjs` (evaluates worker.js text for CONFIG) → it imports `src/config`.
+  - `node --check worker.js` in `tools/check.mjs` and `test.yml` → `node --check` on every file under `src/`.
+  - `tools/voice/stt-bench.mjs` (regex on HEARING.PROMPT) → it imports CONFIG.
+  - `doc-check.mjs`'s map check → MAP.md lists the new files.
+  - `tools/face/*-bench.mjs` use `loadWorker()` and keep working through the barrel; `bodywords-bench` reads old
+    revisions and is left as it is.
+- Proof that behaviour didn't change:
+  - golden plans byte-identical;
+  - `node tools/check.mjs` 8/8;
+  - plus a check that the LIMITS & OOC test still reads the moved SYSTEM_PROMPT (a test that passes but checks nothing
+    is the trap).
+- **Language belongs to the persona:**
+  - Arabizi, `sayArabizi`, the digit rules, `tidySpoken`'s English rules, Latin-only checks in `live.mjs` and scenarios,
+    and MESSAGES go under `persona/reem-en/` (or take the persona's language), so an Arabic persona doesn't fail them.
+  - The persona folder and `gate.js` are carved out.
+- **Per user:**
+  - The money ledgers (`pics`, `rwUsd`) and the call budget get a chat key wherever it costs nothing now (global totals
+    stay as caps), ready for tiers.
+  - A note in MAP: one serial queue for everyone stays fine for one user, but paid tiers will need per-chat queues
+    (Durable Objects or per-chat locks).
+- History comments move to CHANGELOG.
+
+Records:
+- DECISIONS gets today's owner decisions. They mark as superseded BODY_WORDS / BODY_WORDS_CLOTHED, the face lines in
+  every body line, Lenovo 1.3 (2026-10-12), steps 6 / CFG 2, MAX_LORAS 2, and the Anatomy Fixer on clothed first draws. "Sex scenes don't
+  use anatomy fixer" (2026-10-12) stays.
+- New owner rules to log:
+  - NSFW Unlocked ≤0.8 on nudity and acts, ≤0.6 on clothed pictures, in 0.05 steps;
+  - no pulled-aside garments until a LoRA exists;
+  - the sampler is chosen by reading first, then a short list.
+- MAP, LESSONS and HANDOFF are rewritten at each step.
+
+### Issues and bugs found (existing or likely), to fix in the step named
+
+1. The double `budget.used++` at four call sites, and the 50-call free-plan limit on a Paid account. (0)
+2. Every message is acked before work starts and `runCommand` has no try/catch, so a throw silently drops the batch; a run
+   past the 15-minute cap is lost. (0)
+3. The 60 s chat wait (the owner keeps it for now: measured in 0); 401/402 errors show "⚠️ setup" to him. (0)
+4. The memory fold blocks the queue for up to about 135 s. (0)
+5. At Nude and On, no picture when Runware fails (row 705). (0)
+6. Studio: the stretched picture and the vertical text (one cause); Log thumbnails crop; studio pictures expire from KV
+   with no Telegram copy; `logSent` stores no real size. (0)
+7. D1 has **no rows at all on 2026-10-14**: either a quiet day or logging broke; check it in step 0.
+8. `ref0`'s replace turns "same face and hair" into "same face, hair color (…)", and that makes `CUSTOM.SAME_PERSON` dead
+   whenever a hairstyle is picked (always, since HAIR_CHANCE is 1). (2)
+9. REFERENCE_BACK names "a full bust" in a back view. (2)
+10. Mood, gaze, hair, aspect and anal position re-roll on every anatomy redraw. (2)
+11. All 8 anatomy flags since 10-13 were "2 or 3 heads" on pictures that aren't acts, so they're likely false and cost a
+    redraw each: review in the bench. (3)
+12. WARDROBE has "his oversized … shirt"; MAP mentions DRESSED_FULL, which no longer exists; BODY_WORDS is read only by
+    tests; /setup's Pictures line is stale. (1-2)
+13. `places.js` is 3.5 MB of the about 5 MB bundle. The reference library would let place crops move to KV/UUIDs later.
+    (4, optional)
+14. The shallow clone gives false sync warnings (an open question to the owner since 10-13).
+15. Risk: with no face words, her eyes may draw brown in dark scenes again (seen 10-15). The bench checks this; any
+    face word comes back only with the owner's OK.
+
+### Verification
+
+- Every step: `node tools/check.mjs` 8/8, read line by line, and golden plans:
+  - step 1: byte-identical;
+  - step 2: the new prompts dumped to a scratch file and read in full;
+  - lint green on all of them.
+- Step 0:
+  - scenarios rows for a throwing command, a throwing update in a batch of three (the other two still answered) and a
+    402;
+  - unit tests for the budget count;
+  - the studio page in Playwright at 390 px with 1:1, 9:16 and 16:9 results;
+  - after the deploy, `/health`, `/setup` and the first `events` rows read from D1.
+- Step 3: each picture read at full size; genitals checked on full-size crops; QUALITY rows; spend read from Runware
+  `usage` before and after.
+- Step 4: the studio References tab in Playwright; one approved outfit drawn through the bot's own `/pic` path.
+
+### Paste prompts (one new chat each, in order)
+- **Step 0 (Sonnet, effort medium):** "Do Rebuild Step 0 from docs/WORKPLAN.md (section 'Rebuild (2026-10-15)'): the D1 `events`
+  table, try/catch per update and per command (in-character line on a throw and on 401/402), the double `budget.used++` fix and the
+  Workers Paid subrequest limit (check Cloudflare's docs first), the memory fold on the cron, `upload_photo` while drawing, one more
+  Runware retry at Nude/On on 5xx or timeout only, the studio cards (stack the picture above its text; Log thumbnails keep their
+  shape). Also find out why D1 has no rows on 2026-10-14. Chat model, timeout and hedging stay as they are. Scenarios and unit rows
+  as listed under Verification; Playwright at 390 px; /handoff."
+- **Step 1 (Opus, effort high):** "Do Rebuild Step 1 from docs/WORKPLAN.md: split worker.js into the src/ modules of 'Architecture
+  (target)', behaviour unchanged. Follow 'Step 1 in detail' (manifest + split script, haiku-worker drafts the classification, the
+  text-reading tools, golden plans byte-identical, persona folder, gate.js, per-chat ledger keys). /handoff."
+- **Step 2 (Opus, effort high):** "Do Rebuild Step 2 from docs/WORKPLAN.md: the picture core (ShotSpec, frames, framePrompt, lint,
+  the NSFW Unlocked weight table, the Anatomy Fixer on redraws only (not acts), act vs clothes, same spec on redraws, route
+  profiles, the writer filling spec fields). Read about the samplers first (Runware docs, FLUX.2 klein, distilled flow models),
+  then the sampler short list (≤ $0.04). New golden plans read in full; lint green. /handoff."
+- **Step 3 (Haiku runs, Opus reads; effort medium):** "Do Rebuild Step 3 from docs/WORKPLAN.md: the old-vs-new bench (12 cases x 2
+  seeds) and the 0.05-step weight sweep, ≤ $0.45; every picture read at full size by Opus; QUALITY rows; /handoff."
+- **Step 4 (Sonnet builds from Opus's spec, Opus reviews; effort medium):** "Do Rebuild Step 4 from docs/WORKPLAN.md: the reference
+  library (D1 `refs`, KV bytes, Runware UUID cache, pickRefs, the Studio References tab) and a first batch of outfit and hair
+  candidates for the owner's approval, ≤ $0.40. /handoff."

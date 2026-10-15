@@ -33,6 +33,9 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Runware klein 9B bills GPU time in ~$0.0008 steps: 768x1344 $0.0025-0.0079 (each LoRA or reference adds a step); steps and CFG
   don't. Calls past ~60 s die at the proxy. `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture` benches the bot's own code
   (calls ~4 s apart; wrap `fetch` to fix `seed`). A 502 "no picture" is often billed: read `usage`, budget ~20% over (2026-10-13).
+- Runware's own schema for a model: the Runware MCP `model_schema` (free). klein 9B (`runware:400@2`): at most 4 reference images,
+  each a UUID, URL or base64; `scheduler` is an enum with no stated default (we send none = "Default"); defaults steps 4, CFG 3.5,
+  acceleration "high"; `negativePrompt` is ignored at CFG ≤ 1 (2026-10-15).
 - Bench harness: seed `Math.random` per case so variants differ only by the change; `env` gets an `AI` stub; `convert -resize x700
   +append` for sheets; stub `globalThis.fetch` and print each Runware request to find causes for free (2026-10-10, 2026-10-13).
 - /setup is a web page (owner, 2026-10-06): never tell him to send it; its "send /restart" line wipes her memory: don't repeat it.
@@ -86,6 +89,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   keeps the head in scale (2026-10-04).
 
 ## 2b. Known traps (chat, voice, code)
+- Studio picture stretched and its text one letter per line (2026-10-15): a flex `.row` stretches its children; a 100%-wide
+  image squeezed the text column to ~0 px and took the text's height → stack the picture above the text (read in the CSS; Step 0 checks it in Playwright).
 - A link opened from another app: a 302 setting `SameSite=Strict` loses the cookie → answer the page with `SameSite=Lax`; reproduce
   over https from a different site (`tools/test/studio-browser.mjs`, 2026-10-11).
 - History before v10 has no `parts` (no /edit or /rewind: NOT_FOUND); older chat is in `m:` notes (TOO_OLD). Telegram deletes bot

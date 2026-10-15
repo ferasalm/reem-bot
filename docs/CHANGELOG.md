@@ -4,6 +4,17 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-15 (forty-ninth session): the rebuild plan (no code)
+- Opus 5.5 (`claude-opus-5-5`, configured and served per get_session) with three read-only Explore subagents (two Sonnet, one
+  Haiku) and an Opus advisor: inventory of every Runware prompt string, the disconnect and failed-picture causes (D1 `pictures`
+  read: 1 failed row in 3 days, row 705; no rows on 10-14), the studio card bug, the reference system. Runware MCP `model_schema`
+  for klein 9B. Plan approved: `docs/WORKPLAN.md` "Rebuild (2026-10-15)"; decision logged. No code changed, nothing drawn ($0).
+
+## 2026-10-15 (forty-eighth session): clothed pictures without "soft feminine curves", affirmative face lines; deploy 72962ba
+- `PICTURE.BODY_WORDS_CLOTHED` without "soft feminine curves"; negatives rewritten in the six body lines and DRESSED. Golden plans:
+  18 clothed cases lost the words, 37 "not brown". Deploy run 38686297868, Version `5b39bfb2-933c-41a2-82ee-c29ee1e5c4b5`; /health
+  and /setup read in the job log. Rollback: `3da31c2`.
+
 ## 2026-10-15 (forty-seventh session, final): retired references, face first, two LoRAs, thick/voluptuous words; deploy 451f008
 - Live pictures (D1 611, 612, 614) replayed at their seeds: face named first and lit at night; `stillWorn`. v13 bodies only; hairstyle pictures and old originals retired; BODY_PARTIAL nude; MAX_LORAS 2 (+1 on an anatomy redraw); BODY_WORDS + thick arms, thick thighs, voluptuous.
 - Deploy run 38681909873, Version `9b124fe0-335e-4cec-ab60-1a3a45cc3bdf`; /health and /setup read in the job log.
