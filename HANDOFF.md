@@ -4,19 +4,20 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Rebuild (2026-10-15)", the current plan, with paste prompts).
 
-**Last updated:** 2026-10-15 (fifty-first session: Opus 5.5, `claude-opus-5-5`, configured and served per get_session; one haiku-worker,
-Haiku 5.5 `claude-haiku-5-5` per its transcript, drafted the module classification). Rebuild Step 1 built on `dev`, $0 spent.
-**Deployed:** `main` = ba540c9 (Step 0), Version ID `a6a82381-242a-432a-837f-5b352d0cf787`. Rollback: push `72962ba`.
-Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**On `dev`, not deployed:** Step 1 (the module split; no behaviour change by design).
+**Last updated:** 2026-10-16 (fifty-first session: Opus 5.5, `claude-opus-5-5`, configured and served per get_session; one haiku-worker,
+Haiku 5.5 `claude-haiku-5-5` per its transcript, drafted the module classification). Rebuild Step 1 built and deployed. $0 Runware;
+about $0.03 OpenRouter spent by mistake (an STT bench run started by a push; CHANGELOG, LESSONS).
+**Deployed:** `main` = c652eb3 (Step 1 + the /setup Pictures line), Version ID `649f169d-b85c-44e1-9692-8085f0b3e4ae`, run 38826871125;
+`/setup` all ✅. Rollback: push `ba540c9` (Step 0). Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**On `dev`:** c652eb3 plus this records commit; no undeployed code.
 
 ## Where we are
 Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: chat on DeepSeek V4 Flash (Workers AI, 60 s limit),
 voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off). Rebuild plan (WORKPLAN "Rebuild
-(2026-10-15)", one chat each): 0 done (deployed) → **1 done (dev)** → 2 picture core → 3 bench → 4 reference library → 5 deploy.
+(2026-10-15)", one chat each): 0 done → **1 done (deployed)** → 2 picture core → 3 bench → 4 reference library → 5 deploy.
 Budget $1.00 Runware in all (none spent so far).
 
-## Step 1, built this session (dev only)
+## Step 1, built and deployed this session
 - `worker.js` is only the entry point (fetch, queue, scheduled); the code is in 38 modules under `src/` (map: `docs/MAP.md`, top).
   Generated files moved to `assets/` (face.js, places.js, mp3.js); studio.js is `src/studio/page.js`.
 - CONFIG = `src/config/engine.js` (engine) + `src/persona/reem-en/config.js` (her words, looks, wardrobe, places, MESSAGES, NUDGES,
@@ -36,10 +37,13 @@ Budget $1.00 Runware in all (none spent so far).
   prompt is checked for the text (scenarios).
 - New unit rows: `can()` answers as the old functions at every level; per-chat ledger and budget; the barrel covers every module.
 - `wrangler deploy --dry-run` bundles (5,259 KiB) and the bundle imports in Node (no load-order error).
-- Not verified: the split live in Telegram (it isn't deployed).
+- Deployed (owner: "Deploy"): runs 38826585241 and 38826871125 all steps success; `/health` drew and saw; `/setup` all ✅ (Telegram,
+  DeepSeek, OpenRouter backup, Sulafat clip, Gemini hearing, ElevenLabs, KV, queue: these ran through the new modules).
+- Pre-Step-2 audit: no unresolved names in any module (escope), no duplicate exports (380), D1 `events` 0 rows (nobody wrote yet).
+- Not verified: a reply in Telegram, the first `events` rows, the cron fold.
 
 ## Waiting on the owner
-- Whether to deploy Step 1 on its own now (see Open questions).
+- Using the bot: the first replies fill `events` (read it with the Cloudflare MCP).
 - Before Step 4: the first candidate references to approve in /studio.
 - Do not send `/restart` (the `/setup` page says to; it wipes her memory).
 
@@ -55,7 +59,6 @@ Budget $1.00 Runware in all (none spent so far).
    branches. Haiku or Sonnet. *Effort: low.*
 
 ## Open questions for the owner
-- Deploy Step 1 alone before Step 2? Recommended: yes, so any later picture problem isn't mixed up with the split (rollback ba540c9).
 - OK to press Actions > Delete retired branches for `tools/retired-branches.txt`?
 - Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (it listed 50+ false branches again; after
   unshallowing only `chat-timeout` is left, a superseded commit)

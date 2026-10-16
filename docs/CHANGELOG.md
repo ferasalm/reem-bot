@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-16 (fifty-first session, continued): Step 1 deployed; pre-Step-2 checks
+- Deploys e44c4c4 (run 38826585241, Version `c3a9744f-6482-483d-b96d-1e959802abc5`) and c652eb3 (run 38826871125, Version
+  `649f169d-b85c-44e1-9692-8085f0b3e4ae`, /setup's Pictures line). Audit: no unresolved names, no duplicate exports, events empty.
+- Mistake: editing `tools/voice/stt-bench.mjs` started the STT bench on push (run 38824832842): OpenRouter TTS + hearing, about $0.03
+  (logged hearing calls $0.0238 + unpriced TTS), against the owner's no-OpenRouter-in-tests rule. Lesson added (§1).
+
 ## 2026-10-15 (fifty-first session): Rebuild Step 1, the module split (dev only)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); one haiku-worker (Haiku 5.5, `claude-haiku-5-5` per its
   transcript) drafted the declaration → module classification (369 rows from names, references and CONFIG columns; Opus moved 3 and
