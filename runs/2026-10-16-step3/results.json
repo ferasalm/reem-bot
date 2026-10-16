@@ -1,0 +1,1178 @@
+{
+ "spent": 0.4265300000000002,
+ "rows": [
+  {
+   "phase": "A",
+   "case": "selfie",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "selfie-101-legacy.jpg",
+   "ms": 30093,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "selfie",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "selfie-101-default.jpg",
+   "ms": 26116,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "selfie",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "selfie-202-legacy.jpg",
+   "ms": 21173,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "selfie",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "selfie-202-default.jpg",
+   "ms": 25930,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "mirror",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "mirror-101-legacy.jpg",
+   "ms": 9625,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "mirror",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "mirror-101-default.jpg",
+   "ms": 9082,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "mirror",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "mirror-202-legacy.jpg",
+   "ms": 9577,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "mirror",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "mirror-202-default.jpg",
+   "ms": 8374,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "pov-clothed",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "pov-clothed-101-legacy.jpg",
+   "ms": 9283,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "pov-clothed",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "pov-clothed-101-default.jpg",
+   "ms": 7854,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "pov-clothed",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "pov-clothed-202-legacy.jpg",
+   "ms": 9523,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "pov-clothed",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "pov-clothed-202-default.jpg",
+   "ms": 18117,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "partial",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "partial-101-legacy.jpg",
+   "ms": 7558,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "partial",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "partial-101-default.jpg",
+   "ms": 8090,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.65"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "partial",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "partial-202-legacy.jpg",
+   "ms": 7921,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "partial",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "partial-202-default.jpg",
+   "ms": 7270,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.65"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-front",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "nude-front-101-legacy.jpg",
+   "ms": 8953,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-front",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "nude-front-101-default.jpg",
+   "ms": 7304,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-front",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "nude-front-202-legacy.jpg",
+   "ms": 8481,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-front",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "nude-front-202-default.jpg",
+   "ms": 7563,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-back",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "nude-back-101-legacy.jpg",
+   "ms": 8958,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-back",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "nude-back-101-default.jpg",
+   "ms": 7801,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-back",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "nude-back-202-legacy.jpg",
+   "ms": 8448,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "nude-back",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "nude-back-202-default.jpg",
+   "ms": 7468,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "blowjob",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "blowjob-101-legacy.jpg",
+   "ms": 8563,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "blowjob",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "blowjob-101-default.jpg",
+   "ms": 6199,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1344x768",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "blowjob",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "blowjob-202-legacy.jpg",
+   "ms": 8605,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "blowjob",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "blowjob-202-default.jpg",
+   "ms": 7264,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "riding",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "riding-101-legacy.jpg",
+   "ms": 8366,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "riding",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "riding-101-default.jpg",
+   "ms": 6464,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "riding",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "riding-202-legacy.jpg",
+   "ms": 8112,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "riding",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "riding-202-default.jpg",
+   "ms": 6242,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "missionary",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "missionary-101-legacy.jpg",
+   "ms": 7997,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "missionary",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "missionary-101-default.jpg",
+   "ms": 6195,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "missionary",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "missionary-202-legacy.jpg",
+   "ms": 8355,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "missionary",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "missionary-202-default.jpg",
+   "ms": 6944,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "doggy",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "doggy-101-legacy.jpg",
+   "ms": 7972,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "doggy",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "doggy-101-default.jpg",
+   "ms": 16132,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "doggy",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "doggy-202-legacy.jpg",
+   "ms": 7889,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "doggy",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "doggy-202-default.jpg",
+   "ms": 7967,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "reverse-cowgirl",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "reverse-cowgirl-101-legacy.jpg",
+   "ms": 7489,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "reverse-cowgirl",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "reverse-cowgirl-101-default.jpg",
+   "ms": 7119,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "reverse-cowgirl",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "reverse-cowgirl-202-legacy.jpg",
+   "ms": 9167,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "reverse-cowgirl",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "reverse-cowgirl-202-default.jpg",
+   "ms": 6643,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "anal-doggy",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "anal-doggy-101-legacy.jpg",
+   "ms": 8044,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "anal-doggy",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "anal-doggy-101-default.jpg",
+   "ms": 6874,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1024x1024",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "anal-doggy",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "anal-doggy-202-legacy.jpg",
+   "ms": 8504,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "anal-doggy",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "anal-doggy-202-default.jpg",
+   "ms": 22012,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "1344x768",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "dark",
+   "seed": 101,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "dark-101-legacy.jpg",
+   "ms": 10646,
+   "cost": 0.00988,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "dark",
+   "seed": 101,
+   "core": "frames",
+   "variant": "default",
+   "file": "dark-101-default.jpg",
+   "ms": 7732,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "dark",
+   "seed": 202,
+   "core": "legacy",
+   "variant": "legacy",
+   "file": "dark-202-legacy.jpg",
+   "ms": 8538,
+   "cost": 0.00793,
+   "loras": [
+    "ferasalm:lenovoc@1@1.3",
+    "myaiprojectsqqq:3@2@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "A",
+   "case": "dark",
+   "seed": 202,
+   "core": "frames",
+   "variant": "default",
+   "file": "dark-202-default.jpg",
+   "ms": 8191,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "K",
+   "case": "selfie",
+   "seed": 101,
+   "core": "frames",
+   "variant": "karras",
+   "file": "selfie-101-karras.jpg",
+   "ms": 7931,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "none"
+  },
+  {
+   "phase": "K",
+   "case": "selfie",
+   "seed": 202,
+   "core": "frames",
+   "variant": "karras",
+   "file": "selfie-202-karras.jpg",
+   "ms": 7685,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "none"
+  },
+  {
+   "phase": "K",
+   "case": "nude-front",
+   "seed": 101,
+   "core": "frames",
+   "variant": "karras",
+   "file": "nude-front-101-karras.jpg",
+   "ms": 7539,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "none"
+  },
+  {
+   "phase": "K",
+   "case": "nude-front",
+   "seed": 202,
+   "core": "frames",
+   "variant": "karras",
+   "file": "nude-front-202-karras.jpg",
+   "ms": 7286,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "none"
+  },
+  {
+   "phase": "K",
+   "case": "riding",
+   "seed": 101,
+   "core": "frames",
+   "variant": "karras",
+   "file": "riding-101-karras.jpg",
+   "ms": 6515,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "none"
+  },
+  {
+   "phase": "K",
+   "case": "riding",
+   "seed": 202,
+   "core": "frames",
+   "variant": "karras",
+   "file": "riding-202-karras.jpg",
+   "ms": 6629,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "none"
+  },
+  {
+   "phase": "X",
+   "case": "selfie",
+   "seed": 101,
+   "core": "frames",
+   "variant": "accel",
+   "file": "selfie-101-accel.jpg",
+   "ms": 7301,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "high"
+  },
+  {
+   "phase": "X",
+   "case": "nude-front",
+   "seed": 101,
+   "core": "frames",
+   "variant": "accel",
+   "file": "nude-front-101-accel.jpg",
+   "ms": 7302,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "high"
+  },
+  {
+   "phase": "X",
+   "case": "nude-front",
+   "seed": 202,
+   "core": "frames",
+   "variant": "accel",
+   "file": "nude-front-202-accel.jpg",
+   "ms": 7037,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "high"
+  },
+  {
+   "phase": "X",
+   "case": "riding",
+   "seed": 101,
+   "core": "frames",
+   "variant": "accel",
+   "file": "riding-101-accel.jpg",
+   "ms": 14460,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "high"
+  },
+  {
+   "phase": "X",
+   "case": "riding",
+   "seed": 202,
+   "core": "frames",
+   "variant": "accel",
+   "file": "riding-202-accel.jpg",
+   "ms": 14754,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.8"
+   ],
+   "refs": 2,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "high"
+  },
+  {
+   "phase": "X",
+   "case": "dark",
+   "seed": 101,
+   "core": "frames",
+   "variant": "accel",
+   "file": "dark-101-accel.jpg",
+   "ms": 19495,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "high"
+  },
+  {
+   "phase": "W",
+   "case": "selfie",
+   "seed": 101,
+   "core": "frames",
+   "variant": "wclothed-0.4",
+   "error": "Runware didn't draw it (every try failed); at /nsfw on pictures are drawn on Runware only",
+   "ms": 16343,
+   "cost": 0,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.4"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none",
+   "errors": [
+    {
+     "code": "inferenceError",
+     "message": "Inference error occurred while processing the request. Please try again or contact support if the issue persists.",
+     "documentation": "https://runware.ai/docs/image-inference/api-reference#errors",
+     "taskUUID": "0cd3ad1d-dbfe-4798-a9f9-f8aa39086d13"
+    }
+   ]
+  },
+  {
+   "phase": "W",
+   "case": "selfie",
+   "seed": 101,
+   "core": "frames",
+   "variant": "wclothed-0.6",
+   "file": "selfie-101-wclothed-0.6.jpg",
+   "ms": 23396,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.6"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  },
+  {
+   "phase": "W",
+   "case": "nude-front",
+   "seed": 101,
+   "core": "frames",
+   "variant": "wnude-0.7",
+   "file": "nude-front-101-wnude-0.7.jpg",
+   "ms": 24094,
+   "cost": 0.00585,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.7"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "Default",
+   "acceleration": "none"
+  }
+ ]
+}
