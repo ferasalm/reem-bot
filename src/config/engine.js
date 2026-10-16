@@ -462,6 +462,7 @@ export const ENGINE = {
       ASPECTS: { ORAL: { "1:1": 0.8, "16:9": 0.2 }, ACT: { "9:16": 0.4, "1:1": 0.4, "16:9": 0.2 } },
       WIDE: "Only one woman is in the picture.",
       BIG_FACE: true,                  // her face reference 2x (896x960, Runware upscaler) instead of the 460x480 one (Cloudflare's limit)
+      UUID_REFS: false,                // library pictures (outfit, hair) go to Runware by UUID (imageUpload once, cached) instead of base64: cheaper ($0.0022 vs $0.0039 in one probe) but the same seed drew another background (Step 4 probe, 2026-10-16); off until the owner picks. A UUID Runware forgets is re-sent as bytes
       TRANSIENT_RETRIES: 1,            // at /nsfw Nude and On (Runware only): this many more tries when the last one failed with a Runware 5xx or a timeout (never on another error)
       KLEIN_TRIES: 2,
       HAIR_LINE: "Her hair is styled exactly as in image {n}; her face stays image 0's.",

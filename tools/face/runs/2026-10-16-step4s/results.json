@@ -1,0 +1,19 @@
+{
+ "spent": 0,
+ "log": [
+  {
+   "phase": "S",
+   "seed": 202,
+   "variant": "with-face",
+   "refs": [
+    "face-2x",
+    "body-v13",
+    "place:bedroom~1"
+   ],
+   "prompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: pulled up in a messy bun and a few loose strands framing her face. She is fully nude. On the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: a daring, confident stare. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.75"
+   ]
+  }
+ ]
+}

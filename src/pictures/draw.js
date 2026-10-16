@@ -166,7 +166,7 @@ export async function drawSpecNow(env, spec, { ledger = null, fix = false, seed:
       try {
         const trySeed = ((seed - 1 + rec.attempts - 1) % 2147483646) + 1;
         rec.seed = trySeed;
-        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => (r.name.startsWith("lib:") ? { bytes: r.bytes, id: r.name.slice("lib:".length) } : r.bytes)), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, scheduler: t.scheduler, checkContent: t.checkContent });
+        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => (R.UUID_REFS && r.name.startsWith("lib:") ? { bytes: r.bytes, id: r.name.slice("lib:".length) } : r.bytes)), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, scheduler: t.scheduler, checkContent: t.checkContent });
         const cost = out.cost || Number(R.USD_PER_PICTURE) || 0;
         spend(ledger, "rwUsd", cost);
         rec.cost = cost;
