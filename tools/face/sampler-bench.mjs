@@ -4,7 +4,8 @@
 // by Runware's reported cost.
 //   NODE_USE_ENV_PROXY=1 node tools/face/sampler-bench.mjs <outdir> [variant,variant]   (RUNWARE_API_KEY, or the proxy's own key)
 // Variants: D Default, M "DPM++ 2M", K "DPM++ 2M Karras", B "DPM++ 2M Beta", E "Euler Beta", F "FlowMatchEulerDiscreteScheduler",
-// S6 Default at 6 steps (time and cost against 4).
+// S6 Default at 6 steps (time and cost against 4); U "UniPC", T "DPM++ 3M", H "Heun" (two model calls a step), A Default with
+// acceleration "high", D2 Default again (the cost noise). CASES=clothed runs one case only.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadWorker } from "../test/load-worker.mjs";
@@ -22,6 +23,7 @@ P.WRITER.ON = false;
 const VARIANTS = {
   D: { scheduler: "" }, M: { scheduler: "DPM++ 2M" }, K: { scheduler: "DPM++ 2M Karras" }, B: { scheduler: "DPM++ 2M Beta" },
   E: { scheduler: "Euler Beta" }, F: { scheduler: "FlowMatchEulerDiscreteScheduler" }, S6: { scheduler: "", steps: 6 },
+  U: { scheduler: "UniPC" }, T: { scheduler: "DPM++ 3M" }, H: { scheduler: "Heun" }, A: { scheduler: "", acceleration: "high" }, D2: { scheduler: "" },
 };
 // seeded Math.random (mulberry32): the same spec for every variant
 const seeded = (s) => () => { s = (s + 0x6d2b79f5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -45,7 +47,9 @@ globalThis.fetch = async (u, init) => {
 const env = { RUNWARE_API_KEY: process.env.RUNWARE_API_KEY || "proxy", REEM_KV: { get: async () => null, put: async () => {} } };
 let spent = 0;
 const rows = [];
+const only = process.env.CASES ? process.env.CASES.split(",") : null;
 for (const [name, make] of Object.entries(CASES)) {
+  if (only && !only.includes(name)) continue;
   const spec = make();
   for (const v of pick) {
     const V = VARIANTS[v];
@@ -53,6 +57,7 @@ for (const [name, make] of Object.entries(CASES)) {
     if (spent + 0.0065 > BUDGET) { console.log(`stop: $${spent.toFixed(4)} spent, the next picture would pass $${BUDGET}`); break; }
     P.FRAMES.SCHEDULER = V.scheduler;
     P.FRAMES.STEPS = V.steps || 4;
+    P.FRAMES.ACCELERATION = V.acceleration || "none";
     const ledger = await W.loadLedger(env);
     last = null;
     try {
@@ -60,7 +65,7 @@ for (const [name, make] of Object.entries(CASES)) {
       const file = `${name}-${v}.jpg`;
       writeFileSync(join(out, file), drawn.bytes);
       spent += last ? last.cost : 0;
-      rows.push({ case: name, variant: v, scheduler: V.scheduler || "Default", steps: P.FRAMES.STEPS, cost: last && last.cost, ms: last && last.ms, file });
+      rows.push({ case: name, variant: v, scheduler: V.scheduler || "Default", steps: P.FRAMES.STEPS, acceleration: P.FRAMES.ACCELERATION, cost: last && last.cost, ms: last && last.ms, file });
       console.log(JSON.stringify(rows.at(-1)));
     } catch (e) {
       rows.push({ case: name, variant: v, scheduler: V.scheduler || "Default", error: String(e.message || e).slice(0, 200), sent: last && last.errors });

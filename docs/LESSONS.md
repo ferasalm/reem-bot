@@ -38,7 +38,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   flow-match Euler FLUX's usual default; guides: Euler + simple cleanest, never ancestral/SDE on distilled models, Karras/exponential
   spacing distorts flow schedules. Bench (seed 101): Default ≈ DPM++ 2M Beta, Karras moves the composition. WebFetch can't reach
   outside hosts from the container (ENOTFOUND): read with WebSearch. A picture with 3 references + 1 LoRA is $0.00585 (not $0.003);
-  a `failedModelLoad` first try is sometimes billed: read `usage.total`, budget one picture over the cap.
+  a `failedModelLoad` first try is sometimes billed: read `usage.total`, budget one picture over the cap. Cost by sampler (cost bench):
+  every one-call sampler (Default, DPM++ 2M/3M, UniPC, Euler Beta) $0.00585, Heun $0.00793; acceleration "high" $0.0039 (the cost lever).
 - Runware's own schema for a model: the Runware MCP `model_schema` (free). klein 9B (`runware:400@2`): at most 4 reference images,
   each a UUID, URL or base64; `scheduler` is an enum with no stated default (we send none = "Default"); defaults steps 4, CFG 3.5,
   acceleration "high"; `negativePrompt` is ignored at CFG ≤ 1 (2026-10-15).

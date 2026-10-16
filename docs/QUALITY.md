@@ -752,3 +752,22 @@ place), seed 101, one variable: the scheduler. Each picture read at full size ag
 Verdict (Claude's): none beats Default; Beta ≈ Default, Karras moves the composition (and drew her fuller, one seed). `FRAMES.SCHEDULER` stays ""
 (Default) until the owner picks. Not tested (budget): plain DPM++ 2M, Euler Beta, SDE, steps 6. Timings (8-25 s) are Runware cold loads, not
 the sampler. No face words in any prompt and her eyes stayed hazel-green, but every case was lit (the dark-room eye risk is open: Step 3).
+
+## Rebuild Step 2 follow-up: what each sampler costs (2026-10-16, Opus 5.5 `claude-opus-5-5`; `tools/face/sampler-bench.mjs`, `face-candidates` runs/2026-10-16-step2-sampler-cost, sheet.jpg)
+The clothed selfie of the short list (cream sweater, kitchen, night), seed 101, steps 4, CFG 1, NSFW Unlocked 0.5, 3 references; one variable.
+Each picture read at full size. Spend: $0.05278 by Runware `usage.total` (12.83256 → 12.88534; the cap was $0.05): the Default try failed
+twice with `failedModelLoad` and both tries were billed ($0.0117); the pictures themselves $0.04108 by Runware's reported cost.
+
+| Variant | Cost | Picture (against Default) |
+|---|---|---|
+| Default (flow-match Euler), acceleration none | $0.00585 | sweater, jeans, kitchen at night, her brows, liner, hazel-green eyes; framed to the hips, not "from her chest up" (a framing slip: Step 3) |
+| DPM++ 2M | $0.00585 | the same picture as Default, pixel-close |
+| DPM++ 3M | $0.00585 | the same picture as Default, pixel-close |
+| UniPC | $0.00585 | almost the same; her right arm drawn down instead of out |
+| Euler Beta | $0.00585 | almost the same; sleeves a little different |
+| Heun (two model calls a step) | $0.00793 (+36%) | almost the same as UniPC; a hand on the counter at the bottom right |
+| Default, acceleration "high" | **$0.0039 (-33%)** | very close to Default: same face, eyes, outfit and room; no loss seen at full size (one picture, one seed) |
+
+Verdict (Claude's): at 4 steps every one-call sampler costs the same and draws nearly the same picture, so the sampler is not a cost lever;
+two-call samplers (Heun, DPM2, the SDE singlestep kinds) cost about a third more. Acceleration "high" is the cost lever: a third cheaper,
+no loss seen on this one picture. Not tested: acceleration on a nude, an act, a dark scene, another seed.
