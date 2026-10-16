@@ -1,0 +1,91 @@
+{
+ "seed": 101,
+ "spent": 0.04108,
+ "rows": [
+  {
+   "case": "clothed",
+   "variant": "D",
+   "scheduler": "Default",
+   "error": "Runware didn't draw it (every try failed); at /nsfw on pictures are drawn on Runware only",
+   "sent": [
+    {
+     "code": "failedModelLoad",
+     "error": "standardError",
+     "message": "An error has occurred please read documentation for additional details.",
+     "documentation": "https://runware.ai/docs",
+     "taskUUID": "b6f9e202-1fbf-4b39-a629-f4807811a35d"
+    }
+   ]
+  },
+  {
+   "case": "clothed",
+   "variant": "M",
+   "scheduler": "DPM++ 2M",
+   "steps": 4,
+   "acceleration": "none",
+   "cost": 0.00585,
+   "ms": 25804,
+   "file": "clothed-M.jpg"
+  },
+  {
+   "case": "clothed",
+   "variant": "E",
+   "scheduler": "Euler Beta",
+   "steps": 4,
+   "acceleration": "none",
+   "cost": 0.00585,
+   "ms": 16114,
+   "file": "clothed-E.jpg"
+  },
+  {
+   "case": "clothed",
+   "variant": "U",
+   "scheduler": "UniPC",
+   "steps": 4,
+   "acceleration": "none",
+   "cost": 0.00585,
+   "ms": 7581,
+   "file": "clothed-U.jpg"
+  },
+  {
+   "case": "clothed",
+   "variant": "T",
+   "scheduler": "DPM++ 3M",
+   "steps": 4,
+   "acceleration": "none",
+   "cost": 0.00585,
+   "ms": 7379,
+   "file": "clothed-T.jpg"
+  },
+  {
+   "case": "clothed",
+   "variant": "H",
+   "scheduler": "Heun",
+   "steps": 4,
+   "acceleration": "none",
+   "cost": 0.00793,
+   "ms": 9268,
+   "file": "clothed-H.jpg"
+  },
+  {
+   "case": "clothed",
+   "variant": "A",
+   "scheduler": "Default",
+   "steps": 4,
+   "acceleration": "high",
+   "cost": 0.0039,
+   "ms": 7589,
+   "file": "clothed-A.jpg"
+  },
+  {
+   "case": "clothed",
+   "variant": "D2",
+   "scheduler": "Default",
+   "steps": 4,
+   "acceleration": "none",
+   "cost": 0.00585,
+   "ms": 7538,
+   "file": "clothed-D2.jpg"
+  }
+ ]
+}
