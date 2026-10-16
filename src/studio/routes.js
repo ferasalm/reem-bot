@@ -7,6 +7,7 @@ import { NSFW_LEVELS } from "../gate.js";
 import { customPicture, picWords } from "../pictures/commands.js";
 import { drawPicture, drawRunware } from "../pictures/draw.js";
 import { specFromWords } from "../pictures/interpret.js";
+import { composeCandidate, firstBatch, listRefs, setRef } from "../pictures/library.js";
 import { refBytes } from "../pictures/refs.js";
 import { dayOutfits } from "../pictures/shots.js";
 import { toBase64, xfetch } from "../platform/http.js";
@@ -118,6 +119,10 @@ export async function studioApi(request, env, url) {
   if ((get || post) && path === "/studio/api/presets") return studioJson(await studioPresets(env, request));
   if (post && path === "/studio/api/compose") return studioJson(await studioCompose(env, await studioBody(request), await dayOutfits(env)));
   if (post && path === "/studio/api/draw") return studioJson(await studioDraw(env, await studioBody(request)));
+  if (get && path === "/studio/api/refs") return studioJson(await listRefs(env, { kind: url.searchParams.get("kind") || "", status: url.searchParams.get("status") || "" }));
+  if (post && path === "/studio/api/refs/make") return studioJson(await studioRefMake(env, await studioBody(request)));
+  if (post && path === "/studio/api/refs/batch") return studioJson(await studioRefBatch(env));
+  if (post && path === "/studio/api/refs/set") return studioJson(await studioRefSet(env, await studioBody(request)));
   if (get && path.startsWith("/studio/img/")) return studioImage(env, path.slice("/studio/img/".length), url.searchParams.get("size"));
   if (get && path.startsWith("/studio/ref/")) {
     const bytes = await refBytes(env, decodeURIComponent(path.slice("/studio/ref/".length)));
@@ -276,4 +281,57 @@ export async function studioImage(env, id, size) {
   if (!f.ok) return notFound();
   const res = await xfetch(`https://api.telegram.org/file/bot${env.TELEGRAM_BOT_TOKEN}/${f.result.file_path}`);
   return res.ok ? image(res.body) : notFound();
+}
+
+// ---- The References tab (Rebuild Step 4): candidates drawn from a base picture, then Approve / Reject / Retire / tags ----
+// Candidate draws are the studio's own money (STUDIO.DAILY_USD, ledger studioUsd, read again before the write)
+async function refDraw(env, spec) {
+  const R = CONFIG.PICTURE.RUNWARE;
+  const ledger = await loadLedger(env);
+  if ((ledger.studioUsd || 0) + (Number(R.USD_PER_PICTURE) || 0.004) > CONFIG.STUDIO.DAILY_USD) {
+    return { ok: false, error: `The studio's money for today is spent: ${money4(ledger.studioUsd)} of $${CONFIG.STUDIO.DAILY_USD}. It starts again at 00:00 UTC.` };
+  }
+  let made;
+  try {
+    made = await composeCandidate(env, { ...spec, draw: drawRunware, refBytes });
+  } catch (e) {
+    return { ok: false, error: String(e.message || e) };
+  }
+  const after = await loadLedger(env);
+  after.studioUsd = (after.studioUsd || 0) + made.cost;
+  await saveLedger(env, after);
+  return { ok: true, ...made, studioUsd: after.studioUsd };
+}
+export async function studioRefMake(env, body) {
+  if (!env.RUNWARE_API_KEY) return { ok: false, error: "RUNWARE_API_KEY is not set: the studio draws with Runware." };
+  const kind = String(body.kind || "");
+  const base = String(body.base || "").slice(0, 80);
+  if (!base) return { ok: false, error: "Pick a base picture." };
+  return refDraw(env, { base, kind, key: String(body.key || "").slice(0, 160), tags: String(body.tags || "").slice(0, 300), change: String(body.change || "").slice(0, 1000), seed: intIn(body.seed, 1, 2147483646, 0) });
+}
+// The first batch (firstBatch): one candidate each, stopping at the studio's money; reports what was made
+export async function studioRefBatch(env) {
+  if (!env.RUNWARE_API_KEY) return { ok: false, error: "RUNWARE_API_KEY is not set: the studio draws with Runware." };
+  const made = [];
+  const errors = [];
+  for (const item of firstBatch()) {
+    const r = await refDraw(env, item);
+    if (r.ok) made.push({ id: r.id, kind: item.kind, key: item.key, cost: r.cost });
+    else {
+      errors.push(r.error);
+      break; // the money is spent or Runware failed: stop, never retry blindly
+    }
+  }
+  return { ok: made.length > 0 || !errors.length, made, errors };
+}
+export async function studioRefSet(env, body) {
+  try {
+    const patch = {};
+    if (body.status !== undefined) patch.status = String(body.status);
+    if (body.key !== undefined) patch.key = String(body.key);
+    if (body.tags !== undefined) patch.tags = String(body.tags);
+    return { ok: true, ref: await setRef(env, body.id, patch) };
+  } catch (e) {
+    return { ok: false, error: String(e.message || e) };
+  }
 }

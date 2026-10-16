@@ -97,12 +97,12 @@ export function framePrompt(spec, refs = [], prof = profile("runware")) {
 // The plan of a spec on a route, with no network: { tries, refs, lint } (tries as runwarePlan's: { model, text, refs: [{ name, bytes }],
 // loras, width, height, steps, cfg, acceleration, scheduler, checkContent }). `bytesOf(name)` gives a reference's bytes (drawPictureNow
 // resolves them first). The Runware route tries klein KLEIN_TRIES times; Cloudflare's try is drawn by drawPictureNow's Cloudflare call.
-export function specPlan(spec, { route = "runware", bytesOf = () => null, fix = false, level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
+export function specPlan(spec, { route = "runware", bytesOf = () => null, fix = false, level = CONFIG.PICTURE.NSFW.DEFAULT, lib = [] } = {}) {
   const P = CONFIG.PICTURE;
   const R = P.RUNWARE || {};
   const F = P.FRAMES || {};
   const prof = profile(route);
-  const refs = pickRefs(spec, prof).map((r) => ({ ...r, bytes: bytesOf(r.name) })).filter((r) => r.bytes);
+  const refs = pickRefs(spec, prof, lib).map((r) => ({ ...r, bytes: bytesOf(r.name) })).filter((r) => r.bytes);
   const text = framePrompt(spec, refs, prof);
   const lint = lintPrompt(text, refs.length);
   if (prof.name !== "runware") return { tries: [{ model: prof.model, text, refs, loras: [], width: prof.width, height: prof.height, steps: 0, cfg: 0, acceleration: "", scheduler: "", checkContent: false }], refs, lint };

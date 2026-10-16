@@ -65,6 +65,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
 <button id="tab-log" type="button" role="tab" aria-selected="true">Log</button>
 <button id="tab-editor" type="button" role="tab" aria-selected="false">Editor</button>
 <button id="tab-presets" type="button" role="tab" aria-selected="false">Presets</button>
+<button id="tab-refs" type="button" role="tab" aria-selected="false">References</button>
 </nav>
 <main>
 <section id="log">
@@ -108,6 +109,23 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
 <section id="presets" hidden>
 <div class="bar"><input id="preset-name" placeholder="Preset name" autocomplete="off"><button id="preset-save" type="button">Save editor as preset</button></div>
 <div id="preset-rows"></div>
+</section>
+<section id="refs" hidden>
+<p class="muted">Outfit, hair and body pictures. The bot uses only the ones you approve; a candidate does nothing until then. Outfits are drawn from the faceless clothed body, hair from her face.</p>
+<div class="bar"><label>Kind <select id="rf-kind"><option value="">all</option><option value="outfit">outfit</option><option value="hair">hair</option><option value="body">body</option></select></label>
+<label>Status <select id="rf-status"><option value="candidate">candidate</option><option value="approved">approved</option><option value="">all</option><option value="rejected">rejected</option><option value="retired">retired</option></select></label></div>
+<fieldset><legend>New candidate (about $0.004)</legend>
+<div class="grid">
+<label>Kind<select id="rf-new-kind"><option value="outfit">outfit</option><option value="hair">hair</option><option value="body">body</option></select></label>
+<label>Base picture<select id="rf-new-base"></select></label>
+</div>
+<label>The change<textarea id="rf-new-change" rows="3" placeholder="the same body, now in a cream knit sweater and blue jeans, same pose, plain background"></textarea></label>
+<label>Key (the clothes or hair words the bot matches)<input id="rf-new-key" autocomplete="off"></label>
+<label>Tags (comma separated)<input id="rf-new-tags" autocomplete="off"></label>
+<button id="rf-make" type="button" class="primary">Draw a candidate</button>
+<button id="rf-batch" type="button">Draw the first batch (about $0.04)</button>
+</fieldset>
+<div id="rf-rows"></div>
 </section>
 </main>
 <script>
@@ -162,11 +180,62 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
     setSelect(sel, value);
   }
   function tab(name) {
-    ["log", "editor", "presets"].forEach(function (t) {
+    ["log", "editor", "presets", "refs"].forEach(function (t) {
       $(t).hidden = t !== name;
       $("tab-" + t).setAttribute("aria-selected", t === name ? "true" : "false");
     });
     if (name === "presets") loadPresets().catch(fail);
+    if (name === "refs") loadRefs().catch(fail);
+  }
+  // ---- References (Rebuild Step 4) ----
+  function refBases(approved) {
+    var pairs = [["face-2x", "her face"]];
+    (opts.bodies || []).forEach(function (b) { pairs.push([b.name, b.label]); });
+    approved.forEach(function (r) { pairs.push(["lib:" + r.id, "#" + r.id + " " + r.kind + ": " + String(r.key || "").slice(0, 40)]); });
+    return pairs;
+  }
+  function refCard(r) {
+    var key = el("input", { value: r.key || "", placeholder: "key", "aria-label": "key" });
+    var tags = el("input", { value: r.tags || "", placeholder: "tags", "aria-label": "tags" });
+    function set(patch) {
+      patch.id = r.id;
+      return api("/studio/api/refs/set", patch).then(function () { say("Saved #" + r.id + "."); return loadRefs(); }).catch(fail);
+    }
+    function btn(label, status, primary) {
+      return el("button", { type: "button", cls: primary ? "primary" : "", text: label, on: { click: function () { set({ status: status, key: key.value, tags: tags.value }); } } });
+    }
+    var kids = [btn("Approve", "approved", true), btn("Reject", "rejected"), btn("Retire", "retired"), el("button", { type: "button", text: "Save key and tags", on: { click: function () { set({ key: key.value, tags: tags.value }); } } })];
+    return el("div", { cls: "row stack" }, [
+      el("img", { cls: "full", loading: "lazy", alt: r.kind + " #" + r.id, src: "/studio/ref/lib:" + r.id }),
+      el("div", { cls: "meta" }, [
+        el("div", { cls: "head", text: "#" + r.id + " " + r.kind + " (" + r.status + ")" }),
+        el("div", { cls: "sub", text: "from " + (r.parent || "?") + ", seed " + (r.seed || "?") + ", " + money(r.cost) + ", " + when(r.at) }),
+        el("div", { cls: "words", text: r.prompt || "" }),
+        key, tags, el("div", { cls: "btns" }, kids),
+      ]),
+    ]);
+  }
+  function loadRefs() {
+    var q = "?kind=" + encodeURIComponent($("rf-kind").value) + "&status=" + encodeURIComponent($("rf-status").value);
+    return api("/studio/api/refs" + q).then(function (j) {
+      var box = $("rf-rows");
+      box.innerHTML = "";
+      if (!j.refs.length) box.appendChild(el("p", { cls: "muted", text: "Nothing here yet." }));
+      j.refs.forEach(function (r) { box.appendChild(refCard(r)); });
+      return api("/studio/api/refs?status=approved");
+    }).then(function (a) { fillSelect($("rf-new-base"), refBases(a.refs), $("rf-new-base").value); });
+  }
+  function makeRef() {
+    var change = $("rf-new-change").value.trim();
+    if (!change) return say("Write the change first.", true);
+    say("Drawing...");
+    return api("/studio/api/refs/make", { kind: $("rf-new-kind").value, base: $("rf-new-base").value, change: change, key: $("rf-new-key").value, tags: $("rf-new-tags").value })
+      .then(function (j) { say("Candidate #" + j.id + " drawn (" + money(j.cost) + "). Studio today " + money(j.studioUsd) + "."); $("rf-status").value = "candidate"; return loadRefs(); }).catch(fail);
+  }
+  function makeBatch() {
+    say("Drawing the first batch...");
+    return api("/studio/api/refs/batch", {})
+      .then(function (j) { say(j.made.length + " candidates drawn" + (j.errors.length ? "; stopped: " + j.errors[0] : "") + "."); $("rf-status").value = "candidate"; return loadRefs(); }).catch(fail);
   }
   function idOf(model) { var m = opts.models.filter(function (x) { return x.model === model; })[0]; return m ? m.id : "klein"; }
   function refNamed(refs, prefix) { return refs.filter(function (r) { return String(r).indexOf(prefix) === 0; })[0] || ""; }
@@ -366,6 +435,11 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
   $("tab-log").onclick = function () { tab("log"); };
   $("tab-editor").onclick = function () { tab("editor"); };
   $("tab-presets").onclick = function () { tab("presets"); };
+  $("tab-refs").onclick = function () { tab("refs"); };
+  $("rf-kind").onchange = function () { loadRefs().catch(fail); };
+  $("rf-status").onchange = function () { loadRefs().catch(fail); };
+  $("rf-make").onclick = makeRef;
+  $("rf-batch").onclick = makeBatch;
   $("log-source").onchange = function () { loadLog(false).catch(fail); };
   $("log-more").onclick = function () { loadLog(true).catch(fail); };
   $("ed-compose").onclick = compose;

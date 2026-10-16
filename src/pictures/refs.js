@@ -6,6 +6,7 @@ import {
 import { PLACE_JPEG_BASE64 } from "../../assets/places.js";
 import { CONFIG } from "../config/index.js";
 import { fromBase64 } from "../platform/http.js";
+import { libName, libraryBytes, matchRef } from "./library.js";
 
 /* --- her reference face --- */
 
@@ -38,6 +39,7 @@ export async function imageBytes(out) {
 export async function refBytes(env, name) {
   if (name === "face-1x" || name === "face-2x") return faceBytes(env, name === "face-2x");
   if (name === "body-cloudflare") return bodyBytes();
+  if (name.startsWith("lib:")) return libraryBytes(env, name.slice("lib:".length)); // the reference library (approved or a candidate the studio is showing)
   if (name.startsWith("body-")) return runwareBodyBytes(name.slice("body-".length));
   if (name.startsWith("place:")) {
     // an exact picture ("kitchen~2", the picture core's crop) or a place's first crop
@@ -67,16 +69,22 @@ export function placeNames(key) {
 // The picture core's references (Rebuild Step 2, WORKPLAN "Reference library" slots; Runware takes at most 4): 0 her face (none on a
 // crotch close-up: her face pulled the frame up to her lips, Step 5), 1 the body (clothed pictures the clothed body, never the nude one
 // (owner 2026-10-15: with the LoRA it forced nudity); nude, partly dressed and acts the nude front or back; Cloudflare its small clothed
-// copy), 2 the place crop, 3 the hairstyle picture (Step 4). Cut to the profile's count. [{ role, name }]
-export function pickRefs(spec, prof) {
+// copy), 2 the place crop, 3 the hairstyle picture. Cut to the profile's count. [{ role, name }]
+// `lib` (Step 4): the approved library entries (loadLibrary). On Runware a clothed front view whose clothes match an approved outfit takes
+// that outfit's picture as image 1 instead of the body picture (the outfit pictures are drawn from the faceless clothed body, so the
+// build is the same); a hairstyle that matches an approved hair picture takes slot 3. No match, or no library: exactly as before.
+export function pickRefs(spec, prof, lib = []) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   if (!spec.herself) return [];
   const out = [];
   const cf = prof.name === "cloudflare";
   if (!(spec.view === "closeup" && spec.framing === "crotch")) out.push({ role: "face", name: !cf && R.BIG_FACE ? "face-2x" : "face-1x" });
   const body = cf ? "body-cloudflare" : spec.content === "clothed" ? `body-${R.BODY_CLOTHED || R.BODY}` : `body-${(spec.back && R.BODY_BACK) || R.BODY}`;
-  out.push({ role: "body", name: body });
+  const outfit = !cf && spec.content === "clothed" && !spec.back ? matchRef(lib, "outfit", spec.outfit.words || spec.outfit.key) : null;
+  if (outfit) out.push({ role: "outfit", name: libName(outfit.id) });
+  else out.push({ role: "body", name: body });
   if (spec.place.crop) out.push({ role: "place", name: `place:${spec.place.crop}` });
-  if (spec.hair.refId) out.push({ role: "hair", name: spec.hair.refId });
+  const hair = spec.hair.refId ? { name: spec.hair.refId } : !cf && spec.hair.key ? matchRef(lib, "hair", spec.hair.key) : null;
+  if (hair) out.push({ role: "hair", name: hair.name || libName(hair.id) });
   return out.slice(0, prof.refs);
 }

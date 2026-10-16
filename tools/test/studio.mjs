@@ -40,12 +40,16 @@ const TINY = Buffer.from("fake jpeg bytes").toString("base64");
 
 // The fetch stub: Runware answers `numberResults` pictures per task; Telegram answers getFile and file downloads
 const calls = [];
+let uploads = 0; // imageUpload tasks answered (the UUID cache test)
+let staleUuids = false; // Runware no longer knows the cached UUIDs
 globalThis.fetch = async (url, init = {}) => {
   const u = String(url);
   calls.push({ url: u, body: init.body });
   const json = (body) => new Response(JSON.stringify(body), { headers: { "content-type": "application/json" } });
   if (u === "https://api.runware.ai/v1") {
     const tasks = JSON.parse(init.body);
+    if (tasks[0].taskType === "imageUpload") return json({ data: [{ taskType: "imageUpload", taskUUID: tasks[0].taskUUID, imageUUID: `uuid-${++uploads}` }] });
+    if (staleUuids && (tasks[0].inputs?.referenceImages || []).some((r) => /^uuid-/.test(r))) return json({ errors: [{ code: "invalidImageUUID", message: "invalid image uuid" }] });
     const data = tasks.flatMap((t) => Array.from({ length: t.numberResults || 1 }, () => ({ taskUUID: t.taskUUID, imageBase64Data: TINY, cost: 0.0025 })));
     return json({ data, errors: [] });
   }
@@ -79,6 +83,9 @@ function fakeKV(init = {}) {
     async put(key, value) {
       store.set(key, value);
     },
+    async delete(key) {
+      store.delete(key);
+    },
   };
 }
 
@@ -86,8 +93,29 @@ function fakeKV(init = {}) {
 function fakeD1() {
   const pictures = [];
   const presets = [];
+  const refs = [];
   function exec(sql, args) {
     if (/^\s*CREATE/i.test(sql)) return { results: [], meta: {} };
+    if (/^INSERT INTO refs/.test(sql)) {
+      const cols = sql.match(/\(([^)]*)\)/)[1].split(",").map((c) => c.trim());
+      const row = Object.fromEntries(cols.map((c, i) => [c, args[i]]));
+      row.id = refs.length + 1;
+      refs.push(row);
+      return { results: [], meta: { last_row_id: row.id } };
+    }
+    if (/^UPDATE refs/.test(sql)) {
+      const row = refs.find((r) => r.id === args[3]);
+      if (row) Object.assign(row, { status: args[0], key: args[1], tags: args[2] });
+      return { results: [], meta: {} };
+    }
+    if (/FROM refs/.test(sql)) {
+      if (/WHERE id = \?/.test(sql)) return { results: refs.filter((r) => r.id === args[0]) };
+      let rows = [...refs];
+      let i = 0;
+      if (sql.includes("kind = ?")) { const k = args[i++]; rows = rows.filter((r) => r.kind === k); }
+      if (sql.includes("status = ?")) { const st = args[i++]; rows = rows.filter((r) => r.status === st); }
+      return { results: sql.includes("DESC") ? rows.sort((a, b) => b.id - a.id) : rows };
+    }
     if (/^INSERT INTO pictures/.test(sql)) {
       const cols = sql.match(/\(([^)]*)\)/)[1].split(",").map((c) => c.trim());
       const row = Object.fromEntries(cols.map((c, i) => [c, args[i]]));
@@ -126,6 +154,7 @@ function fakeD1() {
   return {
     pictures,
     presets,
+    refs,
     prepare(sql) {
       let args = [];
       const stmt = {
@@ -310,6 +339,54 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("options: Body = clothed front, nude front and nude back (three different pictures; clothed back views use the nude back, 2026-10-15), no face-1x, hair only, the bot's sampler and LoRAs",
     JSON.stringify(o.bodies.map((b) => b.name)) === JSON.stringify(["body-v13-clothed", "body-v13", "body-v13-back"]) && distinct === 3 && !o.refs.includes("face-1x") && !o.refs.some((r) => r.startsWith("style:outfit-")) && o.sampler.steps === 6 && o.sampler.cfg === 2 && JSON.stringify(o.defaultLoras) === JSON.stringify([{ model: "ferasalm:lenovoc@1", weight: 1.3 }]),
     JSON.stringify({ bodies: o.bodies, distinct, sampler: o.sampler, defaultLoras: o.defaultLoras }));
+}
+
+// 21b. The reference library (Rebuild Step 4): candidates, approval, pickRefs, Runware UUIDs
+{
+  const env = studioEnv();
+  const cookie = await jarOf(env);
+  const get = async (path) => (await (await route(env, path, cookie)).json());
+  check("refs: the list starts empty", (await get("/studio/api/refs")).refs.length === 0);
+  const R = W.CONFIG.PICTURE.RUNWARE;
+  const made = await W.studioRefMake(env, { kind: "outfit", base: `body-${R.BODY_CLOTHED}`, key: "a cream cable-knit sweater and fitted dark jeans", tags: "everyday", change: "The same body, now in a cream cable-knit sweater and fitted dark jeans, same pose, plain background." });
+  check("refs: a candidate is drawn from the base picture, saved in KV and D1 as a candidate, and charged to the studio's money", made.ok && made.id === 1 && env.REEM_KV.store.has("ref:1") && env.STUDIO_DB.refs[0].status === "candidate" && env.STUDIO_DB.refs[0].parent === `body-${R.BODY_CLOTHED}` && made.studioUsd > 0, JSON.stringify(made));
+  check("refs: a candidate is not in the bot's library", (await W.loadLibrary(env, NOW)).length === 0);
+  check("refs: a candidate's picture is readable in the studio", (await route(env, "/studio/ref/lib:1", cookie)).status === 200);
+  const noKey = await W.studioRefSet(env, { id: 1, status: "approved", key: "", tags: "" });
+  check("refs: approving needs a key or tags", !noKey.ok, JSON.stringify(noKey));
+  const approved = await W.studioRefSet(env, { id: 1, status: "approved" });
+  const lib = await W.loadLibrary(env, NOW + 120000);
+  check("refs: an approved entry reaches the bot's library", approved.ok && lib.length === 1 && lib[0].id === 1 && lib[0].kind === "outfit", JSON.stringify({ approved, lib }));
+  const spec = (over) => { const sp = W.newSpec(); return Object.assign(sp, { herself: true, content: "clothed", view: "pov" }, over); };
+  const rw = W.profile("runware");
+  const hit = W.pickRefs(spec({ outfit: { key: "", refId: "", words: "a cream cable-knit sweater and fitted dark jeans", kept: "" } }), rw, lib);
+  check("pickRefs: clothes that match an approved outfit send its picture as image 1 (instead of the body picture)", hit[0].role === "face" && hit[1].role === "outfit" && hit[1].name === "lib:1", JSON.stringify(hit));
+  const miss = W.pickRefs(spec({ outfit: { key: "", refId: "", words: "a red satin cami", kept: "" } }), rw, lib);
+  check("pickRefs: other clothes keep the body picture", miss[1].role === "body", JSON.stringify(miss));
+  check("pickRefs: no library = as before", JSON.stringify(W.pickRefs(spec({ outfit: { key: "", refId: "", words: "a cream cable-knit sweater and fitted dark jeans", kept: "" } }), rw)) === JSON.stringify(W.pickRefs(spec({ outfit: { key: "", refId: "", words: "a cream cable-knit sweater and fitted dark jeans", kept: "" } }), rw, [])));
+  check("pickRefs: a back view and a nude picture never take an outfit picture", W.pickRefs(spec({ back: true, outfit: { key: "", refId: "", words: "a cream cable-knit sweater and fitted dark jeans", kept: "" } }), rw, lib)[1].role === "body" && W.pickRefs(spec({ content: "nude", outfit: { key: "", refId: "", words: "a cream cable-knit sweater", kept: "" } }), rw, lib)[1].role === "body");
+  const cf = W.pickRefs(spec({ outfit: { key: "", refId: "", words: "a cream cable-knit sweater and fitted dark jeans", kept: "" } }), W.profile("cloudflare"), lib);
+  check("pickRefs: Cloudflare (480 px references) keeps its own body picture", cf[1].name === "body-cloudflare");
+  const prompt = W.framePrompt(spec({ outfit: { key: "", refId: "", words: "a cream cable-knit sweater and fitted dark jeans", kept: "" } }), hit, rw);
+  check("framePrompt: with an outfit picture she wears the outfit of image 1; the lint is green", /She wears the outfit of image 1\./.test(prompt) && W.lintPrompt(prompt, hit.length).length === 0, prompt + JSON.stringify(W.lintPrompt(prompt, hit.length)));
+  // Runware UUIDs: uploaded once, then cached; a UUID Runware forgets is uploaded again as bytes this once
+  const lastInference = () => JSON.parse(calls.filter((c) => c.url === "https://api.runware.ai/v1" && JSON.parse(c.body)[0].taskType === "imageInference").at(-1).body)[0];
+  const bytes = await W.refBytes(env, "lib:1");
+  await W.drawRunware(env, R.MODEL, "x", [{ bytes, id: "1" }], 768, 1344, {});
+  const first = lastInference().inputs.referenceImages;
+  const up = uploads;
+  await W.drawRunware(env, R.MODEL, "x", [{ bytes, id: "1" }], 768, 1344, {});
+  check("uuid: a library picture goes by its Runware UUID, uploaded once and cached", first[0] === "uuid-1" && up === 1 && uploads === 1 && lastInference().inputs.referenceImages[0] === "uuid-1", JSON.stringify({ first, up, uploads }));
+  staleUuids = true;
+  const out = await W.drawRunware(env, R.MODEL, "x", [{ bytes, id: "1" }], 768, 1344, {});
+  staleUuids = false;
+  check("uuid: a UUID Runware no longer knows is forgotten and the bytes are sent instead", out.bytes.length > 0 && /^data:image\/jpeg/.test(lastInference().inputs.referenceImages[0]) && !env.REEM_KV.store.has("ruuid:1"));
+  const batch = await W.studioRefBatch(env);
+  check("refs: the first batch draws every candidate (outfits, hair, body) within the studio's money", batch.ok && batch.made.length === W.firstBatch().length && batch.made.some((m) => m.kind === "hair") && batch.made.some((m) => m.kind === "body"), JSON.stringify(batch));
+  const listed = await get("/studio/api/refs?status=candidate");
+  check("refs: the list filters by status", listed.ok && listed.refs.length === batch.made.length && (await get("/studio/api/refs?status=approved")).refs.length === 1, JSON.stringify({ n: listed.refs?.length, made: batch.made.length, err: listed.error }));
+  const retired = await W.studioRefSet(env, { id: 1, status: "retired" });
+  check("refs: retiring an entry takes it out of the library", retired.ok && (await W.loadLibrary(env, NOW + 300000)).length === 0);
 }
 
 // 22. The page's script parses (the page's behaviour was read in a browser: see docs/QUALITY.md)

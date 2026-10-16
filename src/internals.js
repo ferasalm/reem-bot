@@ -23,6 +23,7 @@ export * from "./pictures/draw.js";
 export * from "./pictures/frames.js";
 export * from "./pictures/interpret.js";
 export * from "./pictures/lingerie.js";
+export * from "./pictures/library.js";
 export * from "./pictures/lint.js";
 export * from "./pictures/loras.js";
 export * from "./pictures/plan.js";

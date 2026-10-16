@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS presets (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEX
 CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, chat TEXT, kind TEXT NOT NULL, mode TEXT,
   outcome TEXT NOT NULL, error TEXT, model TEXT, calls TEXT, attempts INTEGER, backup INTEGER, ms INTEGER, model_ms INTEGER, late_ms INTEGER, detail TEXT);
 CREATE INDEX IF NOT EXISTS events_at ON events(at);
+CREATE TABLE IF NOT EXISTS refs (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, kind TEXT NOT NULL, key TEXT, tags TEXT, parent TEXT,
+  status TEXT NOT NULL, prompt TEXT, seed INTEGER, cost REAL, runware_uuid TEXT);
+CREATE INDEX IF NOT EXISTS refs_status ON refs(status);
 `;
 // columns added after a table existed (CREATE TABLE IF NOT EXISTS leaves an old table as it was); each runs alone, "duplicate column" is fine
 // (Rebuild Step 2: the picture core's spec, its lint findings and the sampler)

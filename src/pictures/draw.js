@@ -5,6 +5,7 @@ import { anatomyCheck } from "./anatomy.js";
 import { firstPerson } from "./commands.js";
 import { ownHands } from "./compose.js";
 import { pictureFlags, runwarePlan } from "./plan.js";
+import { forgetUuid, loadLibrary, runwareUuid } from "./library.js";
 import { profile, specPlan } from "./prompt.js";
 import { bodyBytes, faceBytes, imageBytes, pickRefs, placePictures, refBytes } from "./refs.js";
 import { pickOne } from "./shots.js";
@@ -37,7 +38,10 @@ export const cloudflareText = (t) => ownHands(firstPerson([t, CONFIG.PICTURE.CRA
 export async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "", scheduler = "", checkContent = false, results = 1 } = {}) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: results, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: !!checkContent } };
-  if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
+  // a reference is JPEG bytes, or { bytes, id } for a library picture: that one goes by its Runware UUID (uploaded once, KV ruuid:<id>)
+  const dataUrl = (b) => `data:image/jpeg;base64,${toBase64(b.bytes || b)}`;
+  const byUuid = refs.some((r) => r && r.id);
+  if (refs.length) task.inputs = { referenceImages: await Promise.all(refs.map(async (r) => (r.id && (await runwareUuid(env, r.id, r.bytes))) || dataUrl(r))) };
   if (loras.length) task.lora = loras;
   if (seed > 0) task.seed = seed;
   // klein 9B's sampler (STEPS, CFG, ACCELERATION): runwarePlan sets them for klein only; 0 or "" = Runware's default
@@ -45,13 +49,26 @@ export async function drawRunware(env, model, prompt, refs, width, height, { lor
   if (cfg >= 1) task.CFGScale = cfg;
   if (acceleration) task.acceleration = String(acceleration);
   if (scheduler) task.scheduler = String(scheduler); // the picture core's PICTURE.FRAMES.SCHEDULER ("" = Runware's Default)
+  const send = (t) => xfetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${env.RUNWARE_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify([t]), signal: AbortSignal.timeout(Number(R.TIMEOUT_MS) || 60000) });
   let res;
   try {
-    res = await xfetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${env.RUNWARE_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify([task]), signal: AbortSignal.timeout(Number(R.TIMEOUT_MS) || 60000) });
+    res = await send(task);
   } catch (e) {
     throw new Error(`Runware unreachable or too slow (${e.name})`);
   }
-  const data = await res.json().catch(() => ({}));
+  let data = await res.json().catch(() => ({}));
+  // a UUID Runware no longer knows: forget it and send the bytes this once (not one of drawSpecNow's tries)
+  if (byUuid && (!res.ok || (data.errors || []).length) && /uuid|invalid.*image|image.*not found/i.test(JSON.stringify(data.errors || data))) {
+    for (const r of refs) if (r && r.id) await forgetUuid(env, r.id);
+    task.inputs = { referenceImages: refs.map(dataUrl) };
+    task.taskUUID = crypto.randomUUID();
+    try {
+      res = await send(task);
+    } catch (e) {
+      throw new Error(`Runware unreachable or too slow (${e.name})`);
+    }
+    data = await res.json().catch(() => ({}));
+  }
   const pics = (data.data || []).filter((x) => x && x.imageBase64Data); // `results` pictures from one task (the studio)
   const d = pics[0];
   if (!res.ok || (data.errors || []).length || !d) throw new Error(`Runware ${res.status}: ${(data.errors || []).map((x) => x.code || x.message).join(", ") || "no picture"}`);
@@ -127,8 +144,9 @@ export async function drawSpecNow(env, spec, { ledger = null, fix = false, seed:
   rec.seed = seed;
   const route = ledger && can({ env, ledger, level: nsfw }, "runware") ? "runware" : "cloudflare";
   const bytes = {};
-  for (const r of pickRefs(spec, profile(route))) bytes[r.name] = await refBytes(env, r.name);
-  const plan = specPlan(spec, { route, bytesOf: (n) => bytes[n], fix, level: nsfw });
+  const lib = await loadLibrary(env); // the approved reference library (Step 4); [] without D1
+  for (const r of pickRefs(spec, profile(route), lib)) bytes[r.name] = await refBytes(env, r.name);
+  const plan = specPlan(spec, { route, bytesOf: (n) => bytes[n], fix, level: nsfw, lib });
   rec.lint = plan.lint;
   if (planOnly) {
     if (route === "runware") return { plan: plan.tries, spec, lint: plan.lint };
@@ -148,7 +166,7 @@ export async function drawSpecNow(env, spec, { ledger = null, fix = false, seed:
       try {
         const trySeed = ((seed - 1 + rec.attempts - 1) % 2147483646) + 1;
         rec.seed = trySeed;
-        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, scheduler: t.scheduler, checkContent: t.checkContent });
+        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => (r.name.startsWith("lib:") ? { bytes: r.bytes, id: r.name.slice("lib:".length) } : r.bytes)), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, scheduler: t.scheduler, checkContent: t.checkContent });
         const cost = out.cost || Number(R.USD_PER_PICTURE) || 0;
         spend(ledger, "rwUsd", cost);
         rec.cost = cost;

@@ -40,6 +40,13 @@ Since Rebuild Step 1 (2026-10-15) the code lives in modules; `worker.js` is only
   spec (drawPicture passes the same spec to every anatomy redraw); `writer.js` `writeSpec` (WRITER.SPEC JSON, plain-words fallback).
   D1 `pictures` gains `spec`, `lint`, `scheduler` (`STUDIO_MIGRATIONS`, each ALTER alone). Callers pass `spec` (startPicture, picCommand,
   lookPicture, studioCompose); drawPicture without a spec (/face, /health, old benches) is the legacy path.
+- **The reference library** (Rebuild Step 4, 2026-10-16): `src/pictures/library.js`: D1 `refs` (id, kind outfit/hair/body, key, tags, parent, status
+  candidate/approved/rejected/retired, prompt, seed, cost), bytes in KV `ref:<id>`, Runware UUIDs in KV `ruuid:<id>` (`runwareUuid`: imageUpload
+  once; `drawRunware` sends `{ bytes, id }` refs by UUID and re-sends the bytes once when Runware forgets it). `loadLibrary` (approved only, 60 s
+  cache) is passed to `pickRefs(spec, prof, lib)`: on Runware a clothed front view whose clothes match an approved outfit's key takes its picture
+  as image 1 (role `outfit`), a matching hairstyle takes slot 3 (role `hair`); Cloudflare and the golden plans are unchanged. `refBytes` reads
+  `lib:<id>`. `composeCandidate` / `firstBatch` draw candidates; the studio's References tab calls them (`/studio/api/refs`, `/refs/make`,
+  `/refs/batch`, `/refs/set` in routes.js). Her face (slot 0) never comes from the library.
 - `src/studio/routes.js` (`studioRoute`, the API; `setStudioHost` from the webhook) and `src/studio/page.js` (`STUDIO_HTML`). `src/setup.js`
   (/setup, /health).
 - One serial queue (max concurrency 1) answers every chat: fine for one user; paid tiers will need per-chat queues (Durable Objects or

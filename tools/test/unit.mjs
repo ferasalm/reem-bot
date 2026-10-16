@@ -599,7 +599,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const second = await W.drawPicture(env, "{who} selfie in her kitchen, gray cardigan.", { ledger, kind: "selfie", log: { source: "selfie" } });
     const row = columns(db.inserts[0]);
     eq([db.execs, db.inserts.length], [1, 2], "studio: schema applied once, one row per picture");
-    eq([db.schema.length, db.schema.every((q) => /^CREATE (TABLE|INDEX) IF NOT EXISTS/.test(q) && !q.includes(";"))], [5, true], "studio: the schema as five single statements (pictures, presets, events and their indexes)");
+    eq([db.schema.length, db.schema.every((q) => /^CREATE (TABLE|INDEX) IF NOT EXISTS/.test(q) && !q.includes(";"))], [7, true], "studio: the schema as seven single statements (pictures, presets, events, refs and their indexes)");
     eq([first.logId, second.logId], [1, 2], "studio: drawPicture returns the row id");
     eq([row.ok, row.source, row.chat, row.asked, row.model, row.kind], [1, "selfie", "7", "send a pic", "runware:400@2", "clothed"], "studio row: ok, source, chat, his words, model, kind");
     eq([row.seed === sentTasks[0].seed, typeof row.seed === "number" && row.seed >= 1], [true, true], "studio row: the seed sent to Runware");
