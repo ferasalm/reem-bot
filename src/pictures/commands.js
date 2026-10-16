@@ -9,6 +9,7 @@ import { can, levelFor, NSFW_LEVELS, nsfwLevel } from "../gate.js";
 import { asCamera, isDark, locationOf, scenePicturePrompt, sceneWearing, timeOfDay } from "./compose.js";
 import { deliverPicture, startPicture } from "./deliver.js";
 import { drawPicture, filterSafe, safeLine } from "./draw.js";
+import { specFromLook, specFromWords } from "./interpret.js";
 import { pictureFlags } from "./plan.js";
 import { faceBytes } from "./refs.js";
 import { dayOutfits, hasWord, lightFor, namesClothes, nudeWords, pickOne, sexAct, wordsOf } from "./shots.js";
@@ -144,7 +145,9 @@ export function lookPicture(env, ledger, text, withHer, log = null, level = CONF
       // drew image 1's black bra and thong (/look 484, 4/4)
       const wear = withHer && P.SCENE_WEARING && !namesClothes(text) && !nudeWords(text) && !sexAct(text, level) ? `She is wearing ${P.SCENE_WEARING}.` : "";
       const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), wear, light, location && "{room}", withHer ? safeLine(level) : ""].filter(Boolean).join(" ");
-      const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" }, nsfw: level });
+      // the picture core (Rebuild Step 2): /look's text as a spec (with her: POV; alone: the scene only)
+      const spec = CONFIG.PICTURE.CORE !== "legacy" ? specFromLook(text, withHer, { level }) : null;
+      const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" }, nsfw: level, spec });
       model = drawn.model;
       return { bytes: drawn.bytes, kind: "scene", logId: drawn.logId };
     } catch (e) {
@@ -185,13 +188,16 @@ export async function picCommand(env, chatId, args) {
   if (!words) return notice(env, chatId, M.PIC_HELP);
   if (!can({ env, ooc: false, settings, ledger }, "pictures")) return notice(env, chatId, M.LOOK_OFF);
   if (!can({ level: level }, "draw", words)) return nsfwRefusal(env, chatId, words, level);
-  const { prompt, location, night } = customPicture(words, undefined, await dayOutfits(env), level);
+  const dayWear = await dayOutfits(env);
+  const { prompt, location, night } = customPicture(words, undefined, dayWear, level);
+  // the picture core (Rebuild Step 2): his words as a spec
+  const spec = P.CORE !== "legacy" ? specFromWords(words, { source: "pic", level, dayWear }) : null;
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const drawing = (async () => {
     let model = null;
     let error = null;
     try {
-      const drawn = await drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw: level, log: { source: "pic", chat: chatId, asked: args } });
+      const drawn = await drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw: level, log: { source: "pic", chat: chatId, asked: args }, spec });
       model = drawn.model;
       return { bytes: drawn.bytes, kind: "custom", logId: drawn.logId };
     } catch (e) {

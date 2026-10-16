@@ -127,7 +127,9 @@ export function composePicture({ tier = "everyday", shot = "selfie", words = "",
   const draft = named(chosen.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? (["selfie", "mirror", "pov", "expression", "light"].includes(k) ? "" : String(vars[k] || "")) : m)))
     .replace(/(?:,\s*)+(?=[,.]|$)/g, "").replace(/\s+([,.])/g, "$1").replace(/\s{2,}/g, " ").replace(/^[\s,]+/, "").trim();
   const parts = { lead: lead ? String(vars[lead] || "") : "", draft, expression: vars.expression || "", light: vars.light || "" };
-  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", safeLine(level)].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args, parts };
+  // the picture core (Rebuild Step 2): the picks as data, for specFromSelfie (it phrases them itself)
+  const frame = { words, doing, clothes, location, lastAngle: lastAngle[0] || "" };
+  return { prompt: [P.SELFIE_STYLE, "{who}", body, location && "{room}", safeLine(level)].filter(Boolean).join(" "), shot, tier: String(tier).toLowerCase(), angle, what, location, night, args, parts, frame };
 }
 // Her time of day (PICTURE.TIMES) at this hour
 export function timeOfDay(hour = herHour()) {

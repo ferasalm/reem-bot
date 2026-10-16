@@ -738,3 +738,17 @@ Her persona + a 3-line chat, temperature 0.95, as `workersChat` asks. Runs 38355
 | 900 none | 2 (326, 518 chars; 249-267 tokens) | 0 | 0 | 1 | 5 |
 | 220 low | 0 | 3 (104-253 chars) | 0 | 0 | 4-38 |
 → the owner's "short and interrupted, disconnected often" (WORKPLAN "Fix round 2" F1: + `LLM.THINK_TOKENS` on chat replies).
+
+## Rebuild Step 2: the sampler short list (2026-10-16, Opus 5.5 `claude-opus-5-5`; `tools/face/sampler-bench.mjs`, `face-candidates` runs/2026-10-16-step2-sampler, sheet.jpg)
+The picture core's own prompts (ShotSpec → frames, NSFW Unlocked 0.5 clothed / 0.75 nude, steps 4, CFG 1, acceleration none, face + body +
+place), seed 101, one variable: the scheduler. Each picture read at full size against reference-2x.jpg. Spend: $0.04303 by Runware `usage.total`
+(11.94237 → 11.9854; per-picture costs add to $0.0372: one of two `failedModelLoad` first tries was billed).
+
+| Case | Default (flow-match Euler) | DPM++ 2M Karras | DPM++ 2M Beta |
+|---|---|---|---|
+| clothed selfie (cream cable-knit sweater, dark jeans, kitchen, night) | outfit, kitchen and forearm cropped at the edge right; no phone; her eyes hazel-green, brows, liner; $0.00585 | same composition as Default, both forearms out, smoother skin; likeness close; $0.00585 | another angle; eyes read browner, face a little less hers; $0.00793 (a slower call) |
+| nude (sitting on the edge of the bed, bedroom, golden hour) | nude, place right, hands clean, hazel-green eyes with liner; $0.00585 | other composition (wider pose, hands on the bed), harder contrast, **fuller hips and thighs**; $0.00585 | almost Default's picture (same seed), a little smoother; $0.00585 |
+
+Verdict (Claude's): none beats Default; Beta ≈ Default, Karras moves the composition (and drew her fuller, one seed). `FRAMES.SCHEDULER` stays ""
+(Default) until the owner picks. Not tested (budget): plain DPM++ 2M, Euler Beta, SDE, steps 6. Timings (8-25 s) are Runware cold loads, not
+the sampler. No face words in any prompt and her eyes stayed hazel-green, but every case was lit (the dark-room eye risk is open: Step 3).

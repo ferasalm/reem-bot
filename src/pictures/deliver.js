@@ -5,11 +5,12 @@ import {
   composePicture, isDark, locationOf, scenePicturePrompt, sceneWearing, selfiePicture, sexCue, timeOfDay,
 } from "./compose.js";
 import { drawPicture, filterSafe, runwareRoute, safeLine } from "./draw.js";
+import { specFromScene, specFromSelfie } from "./interpret.js";
 import {
   drawLingerie, isSpicy, lingerieArgs, lingerieSeen, lingerieWords, spicyPicture, spicyWords, wantsLingerie,
 } from "./lingerie.js";
 import { lightFor, pickOne, sexAct } from "./shots.js";
-import { writtenScene, writtenSelfie } from "./writer.js";
+import { writeSpec, writtenScene, writtenSelfie } from "./writer.js";
 import { aiFailed, aiFiltered, aiSpent, aiText_ } from "../platform/ai.js";
 import { sha256 } from "../platform/http.js";
 import { saveLedger, spend } from "../platform/kv.js";
@@ -25,6 +26,9 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
   const level = nsfw || P.NSFW.DEFAULT; // /nsfw (Step 2): Off and Nude keep sex acts out of scenes and selfies
   const nanoBanana = level !== "off"; // Nano Banana (OpenRouter) is never drawn at /nsfw Off (2026-10-11)
   const log = { source, chat, asked, herWords: kind === "scene" ? want : said }; // the studio's log (drawPicture)
+  // the picture core (Rebuild Step 2): each picture's ShotSpec; a selfie recomposed below (lingerie, a refused tier) gets a new one
+  const core = P.CORE !== "legacy";
+  const specOf = (p) => (!core || !p ? null : p.spec || (kind === "selfie" && p.frame ? specFromSelfie(p, { level }) : null));
   let pic;
   let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
   if (kind === "scene") {
@@ -42,6 +46,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
     const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
     const wornSafe = filterSafe(wearing, level);
     pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what, level).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", safeLine(level)].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing, act };
+    if (core) pic.spec = specFromScene(what, { cue: act ? sexCue(want, level) || "act" : "", wearing, level, dayWear });
     if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
       pic.lingerie = true;
       pic.spicy = spicyWords(`${asked} ${wearing}`);
@@ -72,7 +77,15 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
       const spicy = !open && nanoBanana && L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
       const lingerie = !open && L.ENABLED && (kind === "selfie" ? !!pic.args && (L.TIERS || []).includes(pic.tier) : !!pic.lingerie);
       // Step C: the picture writer words her own picture (never Nano Banana's or klein's lingerie-check pictures); null = the template
-      if (!spicy && !lingerie) {
+      if (!spicy && !lingerie && core) {
+        // the picture core: the writer fills the spec's fields (JSON); the code phrases the prompt
+        if (!pic.spec) pic = { ...pic, spec: specOf(pic) };
+        const w = await writeSpec(env, kind, pic, pic.spec, { want, history, level });
+        if (w) {
+          pic = { ...pic, spec: w.spec, written: w.raw };
+          log.llmText = w.raw;
+        }
+      } else if (!spicy && !lingerie) {
         const w = kind === "selfie" ? await writtenSelfie(env, pic, { history, level }) : kind === "scene" ? await writtenScene(env, pic, want, { history, level, dayWear }) : null;
         if (w) {
           pic = w;
@@ -88,7 +101,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
       if (lingerie && L.KLEIN_FIRST && !spicy) {
         const kp = kind === "scene" ? pic : { ...composePicture({ ...lingerieArgs(pic), wardrobeList: L.KLEIN_WARDROBE, level }), asked: pic.asked };
         try {
-          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger, kind, log, nsfw: level });
+          const drawn = await drawPicture(env, kp.prompt, { location: kp.location, night: kp.night, ledger, kind, log, nsfw: level, spec: specOf(kp) });
           aiSpent(ledger, drawn.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, null);
           const seen = nanoBanana ? await lingerieSeen(env, ledger, drawn.bytes) : { ok: true, text: "" }; // at Off no vision check: the picture is klein's (2026-10-11)
           kleinPic = { ...kp, bytes: drawn.bytes, kind, logId: drawn.logId };
@@ -129,7 +142,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
       }
       let drawn;
       try {
-        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level });
+        drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level, spec: specOf(pic) });
       } catch (e) {
         // Cloudflare's safety filter (3030) refused it (seen on the real API: a lace bralette and briefs in a
         // mirror): a boudoir picture first again in the code's own boudoir wardrobe (it gets through; owner
@@ -141,7 +154,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
           await aiFailed(env, `drawing a ${pic.tier} ${pic.shot}: ${aiText_(e)}; drew it ${tier}${tier === pic.tier ? " in her own wardrobe" : ""}`);
           pic = composePicture({ tier, shot: pic.shot, recentShots: ledger.shots, dayWear, level });
           try {
-            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level });
+            drawn = await drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, ledger, kind, log, nsfw: level, spec: specOf(pic) });
             break;
           } catch (again) {
             if (i === tiers.length - 1 || !aiFiltered(again)) throw again;

@@ -6,6 +6,7 @@ import { CONFIG } from "../config/index.js";
 import { NSFW_LEVELS } from "../gate.js";
 import { customPicture, picWords } from "../pictures/commands.js";
 import { drawPicture, drawRunware } from "../pictures/draw.js";
+import { specFromWords } from "../pictures/interpret.js";
 import { refBytes } from "../pictures/refs.js";
 import { dayOutfits } from "../pictures/shots.js";
 import { toBase64, xfetch } from "../platform/http.js";
@@ -155,7 +156,7 @@ export function studioRefNames() {
   ];
 }
 // One of the bot's plan tries as the editor reads it (no bytes)
-export const planLine = (t) => ({ model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || 0, cfg: t.cfg || 0, acceleration: t.acceleration || "", checkContent: !!t.checkContent });
+export const planLine = (t) => ({ model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || 0, cfg: t.cfg || 0, acceleration: t.acceleration || "", scheduler: t.scheduler || "", checkContent: !!t.checkContent });
 // The editor's "compose": the bot's own plan for his words (customPicture, then drawPicture's plan with planOnly: no network,
 // nothing logged). Only /pic words compose for now; the first try is the one the editor starts from.
 export async function studioCompose(env, body, dayWear = null) {
@@ -164,10 +165,12 @@ export async function studioCompose(env, body, dayWear = null) {
   const words = picWords(String(body.words || "").slice(0, 1000), level);
   if (!words) return { ok: false, error: "Type the words first, as you would after /pic." };
   const c = customPicture(words, undefined, dayWear, level);
-  const out = await drawPicture(env, c.prompt, { location: c.location, night: c.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: level, planOnly: true });
+  // the picture core (Rebuild Step 2): the same spec /pic draws from; its lint findings come back with the plan
+  const spec = CONFIG.PICTURE.CORE !== "legacy" ? specFromWords(words, { source: "pic", level, dayWear }) : null;
+  const out = await drawPicture(env, c.prompt, { location: c.location, night: c.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: level, planOnly: true, spec });
   // at Off (NSFW.OFF_ROUTE "cloudflare") the bot draws on Cloudflare klein: its prompt and references, named as the studio sends them
   const reason = (out.plan || []).length ? "" : !env.RUNWARE_API_KEY ? "RUNWARE_API_KEY is not set, so there is no Runware plan." : level === "off" ? "" : "Runware isn't the picture route for these words.";
-  return { ok: true, level, tries: (out.plan || []).map(planLine), cloudflare: out.cloudflare || null, reason, location: c.location || null };
+  return { ok: true, level, tries: (out.plan || []).map(planLine), cloudflare: out.cloudflare || null, reason, location: c.location || null, ...(out.spec ? { spec: out.spec, lint: out.lint || [] } : {}) };
 }
 // The studio's own draw: one Runware task with `results` pictures, the editor's prompt, references, LoRAs and sampler. Stops
 // at STUDIO.DAILY_USD (ledger studioUsd, read again before the write). Each picture is a row in the log (source "studio") and
@@ -186,6 +189,7 @@ export async function studioDraw(env, body, now = Date.now()) {
   const steps = intIn(body.steps, 1, 50, 0);
   const cfg = Math.min(10, Math.max(0, Number(body.cfg) || 0));
   const acceleration = String(body.acceleration || "").trim().slice(0, 20);
+  const scheduler = String(body.scheduler || "").trim().slice(0, 40); // Runware's scheduler name ("" = its Default)
   const seed = intIn(body.seed, 1, 2147483646, 0) || 1 + Math.floor(Math.random() * 2147483646);
   const loras = (Array.isArray(body.loras) ? body.loras : []).filter((l) => l && l.model && Number(l.weight) > 0).slice(0, 12).map((l) => ({ model: String(l.model).slice(0, 120), weight: Math.min(1.5, Number(l.weight)) }));
   const refs = [];
@@ -201,7 +205,7 @@ export async function studioDraw(env, body, now = Date.now()) {
   const started = Date.now();
   let out;
   try {
-    out = await drawRunware(env, model, prompt, refs.map((r) => r.bytes), width, height, { loras, seed, steps, cfg, acceleration, checkContent: body.checkContent === true, results });
+    out = await drawRunware(env, model, prompt, refs.map((r) => r.bytes), width, height, { loras, seed, steps, cfg, acceleration, scheduler, checkContent: body.checkContent === true, results });
   } catch (e) {
     return { ok: false, error: String(e.message || e) };
   }

@@ -230,9 +230,8 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("compose: the golden /pic case gives the same prompt", t.prompt === want.positivePrompt, `want ${JSON.stringify(want.positivePrompt).slice(0, 200)}\n     got  ${JSON.stringify(t.prompt || "").slice(0, 200)}`);
   check(
     "compose: the same model, size, sampler, LoRAs and references as the golden case",
-    // the golden names a place by its picture ("place:porch~1", one of its crops); the plan names the place ("place:porch"),
-    // and the editor's place takes the same crop, so the crop suffix is dropped before comparing
-    t.model === want.model && t.width === want.width && t.height === want.height && (want.steps ?? 0) === t.steps && (want.CFGScale ?? 0) === t.cfg && (want.acceleration || "") === t.acceleration && JSON.stringify(t.loras) === JSON.stringify(want.lora) && JSON.stringify([...t.refs].sort()) === JSON.stringify(want.refs.map((r) => r.replace(/~\d+$/, "")).sort()),
+    // Rebuild Step 2: the picture core names each place by its exact picture ("place:porch~1"), as the golden does
+    t.model === want.model && t.width === want.width && t.height === want.height && (want.steps ?? 0) === t.steps && (want.CFGScale ?? 0) === t.cfg && (want.acceleration || "") === t.acceleration && (want.scheduler || "") === t.scheduler && JSON.stringify(t.loras) === JSON.stringify(want.lora) && JSON.stringify(t.refs) === JSON.stringify(want.refs),
     JSON.stringify({ got: { model: t.model, w: t.width, h: t.height, loras: t.loras, refs: t.refs }, want: { model: want.model, w: want.width, h: want.height, lora: want.lora, refs: want.refs } }),
   );
   const none = await W.studioCompose(studioEnv(), { source: "scene", words: "x" });
@@ -240,7 +239,7 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("compose at Off: no Runware plan (tries []), the level is kept", offCompose.ok === true && offCompose.level === "off" && Array.isArray(offCompose.tries) && offCompose.tries.length === 0, JSON.stringify(offCompose).slice(0, 200));
   // 2026-10-12 (owner: compose "always returns Runware can't draw right now"): at Off the Cloudflare prompt and references come back
   const cf = offCompose.cloudflare || {};
-  check("compose at Off: the Cloudflare prompt, with the words, and the studio's reference names", String(cf.prompt || "").includes("black turtleneck") && JSON.stringify(cf.refs) === JSON.stringify(["face-2x", "body-v13-clothed", "place:porch"]), JSON.stringify(cf).slice(0, 300));
+  check("compose at Off: the Cloudflare prompt, with the words, and the studio's reference names", String(cf.prompt || "").includes("black turtleneck") && cf.refs.length === 3 && cf.refs[0] === "face-2x" && cf.refs[1] === "body-v13-clothed" && /^place:porch(?:~\d+)?$/.test(cf.refs[2]), JSON.stringify(cf).slice(0, 300));
   check("compose takes /pic words only", none.ok === false);
 }
 

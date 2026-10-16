@@ -5,7 +5,8 @@ import { anatomyCheck } from "./anatomy.js";
 import { firstPerson } from "./commands.js";
 import { ownHands } from "./compose.js";
 import { pictureFlags, runwarePlan } from "./plan.js";
-import { bodyBytes, faceBytes, imageBytes, placePictures } from "./refs.js";
+import { profile, specPlan } from "./prompt.js";
+import { bodyBytes, faceBytes, imageBytes, pickRefs, placePictures, refBytes } from "./refs.js";
 import { pickOne } from "./shots.js";
 import { aiFailed, aiFiltered, aiRun, aiSpent, aiText_, aiUnavailable } from "../platform/ai.js";
 import { escapeRegex, fromBase64, toBase64, xfetch } from "../platform/http.js";
@@ -33,7 +34,7 @@ export const cloudflareText = (t) => ownHands(firstPerson([t, CONFIG.PICTURE.CRA
 // It only sends: runwarePlan decides the model, text, references, LoRAs and sampler. `refs`: JPEG bytes, the reference
 // images in order (klein: face, body, place, style); none for TwinFlow. `seed`: drawPicture's, one per picture.
 // checkContent (Step 2): Runware's own content check, on at /nsfw Off (runwarePlan sets it); off everywhere else, as before
-export async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "", checkContent = false, results = 1 } = {}) {
+export async function drawRunware(env, model, prompt, refs, width, height, { loras = [], seed = 0, steps = 0, cfg = 0, acceleration = "", scheduler = "", checkContent = false, results = 1 } = {}) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   const task = { taskType: "imageInference", taskUUID: crypto.randomUUID(), model, positivePrompt: prompt, width, height, numberResults: results, outputType: "base64Data", outputFormat: "JPG", includeCost: true, safety: { checkContent: !!checkContent } };
   if (refs.length) task.inputs = { referenceImages: refs.map((b) => `data:image/jpeg;base64,${toBase64(b)}`) };
@@ -43,6 +44,7 @@ export async function drawRunware(env, model, prompt, refs, width, height, { lor
   if (steps > 0) task.steps = steps;
   if (cfg >= 1) task.CFGScale = cfg;
   if (acceleration) task.acceleration = String(acceleration);
+  if (scheduler) task.scheduler = String(scheduler); // the picture core's PICTURE.FRAMES.SCHEDULER ("" = Runware's Default)
   let res;
   try {
     res = await xfetch("https://api.runware.ai/v1", { method: "POST", headers: { Authorization: `Bearer ${env.RUNWARE_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify([task]), signal: AbortSignal.timeout(Number(R.TIMEOUT_MS) || 60000) });
@@ -68,8 +70,13 @@ export async function drawPicture(env, prompt, opts = {}) {
   const A = P.ANATOMY || {};
   const L = opts.log || {};
   const nsfw = opts.nsfw || P.NSFW.DEFAULT;
-  const newRec = () => ({ ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: pictureFlags(prompt, opts.herself !== false, nsfw).kind, model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "", note: "", nsfw });
-  if (opts.planOnly) return drawPictureNow(env, prompt, { ...opts, nsfw }, newRec()); // the studio's compose: the plan only (nothing drawn or logged)
+  // the picture core (Rebuild Step 2): with a spec (and CORE "frames") the spec decides; every redraw keeps the same spec, only the seed
+  // changes (the legacy core re-rolled mood, hair and aspect on each redraw)
+  const spec = P.CORE !== "legacy" && opts.spec ? opts.spec : null;
+  const kindOf = () => (spec ? (spec.herself ? spec.content : "alone") : pictureFlags(prompt, opts.herself !== false, nsfw).kind);
+  const newRec = () => ({ ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: kindOf(), model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "", note: "", nsfw, spec, lint: null, scheduler: "" });
+  const now = (o, rec) => (spec ? drawSpecNow(env, spec, o, rec) : drawPictureNow(env, prompt, o, rec));
+  if (opts.planOnly) return now({ ...opts, nsfw }, newRec()); // the studio's compose: the plan only (nothing drawn or logged)
   const kind = L.source === "look" ? "look" : opts.kind || (opts.custom ? "pic" : "");
   const checking = !!(A.ON && opts.ledger && opts.herself !== false && (A.KINDS || []).includes(kind));
   const tries = checking ? Math.max(1, Math.floor(Number(A.TRIES) || 1)) : 1;
@@ -82,7 +89,7 @@ export async function drawPicture(env, prompt, opts = {}) {
     let failure = null;
     try {
       // a redraw after the anatomy check found mistakes: `fix` lets the Anatomy Fixer in as a third LoRA (2026-10-15)
-      out = await drawPictureNow(env, prompt, { ...opts, nsfw, seed, fix: i > 0 }, rec);
+      out = await now({ ...opts, nsfw, seed, fix: i > 0 }, rec);
     } catch (e) {
       failure = e;
       rec.error = aiText_(e);
@@ -90,7 +97,7 @@ export async function drawPicture(env, prompt, opts = {}) {
     // a redraw on Cloudflare is counted here (the callers count one picture)
     if (i && opts.ledger && rec.model && !String(rec.model).startsWith("runware:")) aiSpent(opts.ledger, rec.model === P.MODEL ? CONFIG.AI_BUDGET.PICTURE_NEURONS : CONFIG.AI_BUDGET.BACKUP_PICTURE_NEURONS, failure);
     // his eyes: sex acts, scenes and /look, and a /pic with him (POV_CLOTHED); her selfies are hers
-    const view = rec.kind === "act" ? "act" : kind === "selfie" ? "" : kind === "pic" ? (P.POV_CLOTHED && String(prompt).includes(P.POV_CLOTHED) ? "pov" : "") : "pov";
+    const view = rec.kind === "act" ? "act" : spec ? (spec.view === "selfie" || spec.view === "mirror" ? "" : "pov") : kind === "selfie" ? "" : kind === "pic" ? (P.POV_CLOTHED && String(prompt).includes(P.POV_CLOTHED) ? "pov" : "") : "pov";
     const verdict = !failure && checking ? await anatomyCheck(env, opts.ledger, out.bytes, view) : null;
     if (verdict && !verdict.ok) rec.note = `anatomy (try ${i + 1} of ${tries}): ${verdict.mistakes.join(", ")}`;
     const logId = await logPicture(env, pictureRow(prompt, L, rec, !failure));
@@ -108,6 +115,82 @@ export async function drawPicture(env, prompt, opts = {}) {
     seed = ((((Number(rec.seed) || 1) - 1 + 7919) % 2147483646) + 1); // another picture, not the same one again
   }
   return best.out;
+}
+// drawPicture's draw from a ShotSpec (the picture core, Rebuild Step 2): Runware klein 9B when the level and money allow it (the Runware
+// profile: 4 references, the LoRA, the spec's aspect), else Cloudflare klein 4B (its profile: 3 references, FILTER_WORDS); the same spec
+// and frames on both. At Nude and On with a Runware key, a picture Runware didn't draw is not drawn (owner 2026-10-13). `rec` keeps what
+// was sent, for the log (and the spec and its lint findings).
+export async function drawSpecNow(env, spec, { ledger = null, fix = false, seed: wantedSeed = 0, nsfw = CONFIG.PICTURE.NSFW.DEFAULT, planOnly = false } = {}, rec) {
+  const P = CONFIG.PICTURE;
+  const R = P.RUNWARE || {};
+  const seed = Number(wantedSeed) || 1 + Math.floor(Math.random() * 2147483646);
+  rec.seed = seed;
+  const route = ledger && can({ env, ledger, level: nsfw }, "runware") ? "runware" : "cloudflare";
+  const bytes = {};
+  for (const r of pickRefs(spec, profile(route))) bytes[r.name] = await refBytes(env, r.name);
+  const plan = specPlan(spec, { route, bytesOf: (n) => bytes[n], fix, level: nsfw });
+  rec.lint = plan.lint;
+  if (planOnly) {
+    if (route === "runware") return { plan: plan.tries, spec, lint: plan.lint };
+    // the studio draws on Runware: Cloudflare's references by the names it sends (the 2x face, the clothed body; body.jpg is its copy)
+    const t = plan.tries[0];
+    const studioName = (n) => (n === "face-1x" ? "face-2x" : n === "body-cloudflare" ? `body-${R.BODY_CLOTHED}` : n);
+    return { plan: [], cloudflare: { prompt: t.text, refs: t.refs.map((r) => studioName(r.name)), width: t.width, height: t.height }, spec, lint: plan.lint };
+  }
+  if (route === "runware") {
+    const transient = (e) => /\bRunware 5\d\d\b|unreachable or too slow/.test(String((e && e.message) || e));
+    const tries = [...plan.tries];
+    let extra = Math.max(0, Number(R.TRANSIENT_RETRIES) || 0);
+    for (let i = 0; i < tries.length; i++) {
+      const t = tries[i];
+      rec.attempts++;
+      Object.assign(rec, { model: t.model, prompt: t.text, refs: t.refs.map((r) => r.name), loras: t.loras.map((l) => ({ model: l.model, weight: l.weight })), width: t.width, height: t.height, steps: t.steps || null, cfg: t.cfg || null, scheduler: t.scheduler || "Default" });
+      try {
+        const trySeed = ((seed - 1 + rec.attempts - 1) % 2147483646) + 1;
+        rec.seed = trySeed;
+        const out = await drawRunware(env, t.model, t.text, t.refs.map((r) => r.bytes), t.width, t.height, { loras: t.loras, seed: trySeed, steps: t.steps, cfg: t.cfg, acceleration: t.acceleration, scheduler: t.scheduler, checkContent: t.checkContent });
+        const cost = out.cost || Number(R.USD_PER_PICTURE) || 0;
+        spend(ledger, "rwUsd", cost);
+        rec.cost = cost;
+        return { bytes: out.bytes, model: t.model };
+      } catch (e) {
+        spend(ledger, "rwFailed", 1);
+        await aiFailed(env, `drawing with ${t.model} (Runware): ${aiText_(e)}`);
+        if (i === tries.length - 1 && extra > 0 && runwareRoute(nsfw) && transient(e) && can({ env, ledger, level: nsfw }, "runware")) {
+          extra--;
+          tries.push(t);
+        }
+      }
+    }
+  }
+  if (ledger && runwareRoute(nsfw) && env.RUNWARE_API_KEY) {
+    const e = new Error(`Runware didn't draw it (${can({ env, ledger, level: nsfw }, "runware") ? "every try failed" : "the day's Runware money is spent"}); at /nsfw ${nsfw} pictures are drawn on Runware only`);
+    e.runwareOnly = true;
+    throw e;
+  }
+  // Cloudflare klein 4B with the spec's references in order (face, body, place)
+  const t = plan.tries[0];
+  rec.attempts++;
+  Object.assign(rec, { model: P.MODEL, prompt: t.text, refs: t.refs.map((r) => r.name), loras: [], width: t.width, height: t.height, steps: null, cfg: null });
+  try {
+    const form = new FormData();
+    form.append("prompt", t.text);
+    form.append("width", String(t.width));
+    form.append("height", String(t.height));
+    form.append("seed", String(seed));
+    t.refs.forEach((r, i) => form.append(`input_image_${i}`, new Blob([r.bytes], { type: "image/jpeg" }), `${r.role}.jpg`));
+    const packed = new Response(form);
+    const out = await aiRun(env, P.MODEL, { multipart: { body: packed.body, contentType: packed.headers.get("content-type") } }, P.TIMEOUT_MS);
+    return { bytes: await imageBytes(out), model: P.MODEL };
+  } catch (e) {
+    if (!P.BACKUP_MODEL || aiFiltered(e) || !aiUnavailable(e)) throw e;
+    await aiFailed(env, `drawing with ${P.MODEL}: ${aiText_(e)}; used ${P.BACKUP_MODEL}`);
+    const backupText = specPlan(spec, { route: "cloudflare", bytesOf: () => null, level: nsfw }).tries[0].text; // no references: from words
+    rec.attempts++;
+    Object.assign(rec, { model: P.BACKUP_MODEL, prompt: backupText, refs: [], width: t.width, height: t.height, steps: null, cfg: null });
+    const out = await aiRun(env, P.BACKUP_MODEL, { prompt: backupText, steps: P.BACKUP_STEPS }, P.TIMEOUT_MS);
+    return { bytes: await imageBytes(out), model: P.BACKUP_MODEL };
+  }
 }
 // drawPicture's draw: the Runware tries (runwarePlan), then Cloudflare. `rec` keeps what was sent, for the log.
 export async function drawPictureNow(env, prompt, { size = 0, width = size || CONFIG.PICTURE.WIDTH, height = size || CONFIG.PICTURE.HEIGHT, face = true, location = null, night = false, ledger = null, custom = false, fix = false, kind = custom ? "pic" : "", herself = true, seed: wantedSeed = 0, nsfw = CONFIG.PICTURE.NSFW.DEFAULT, planOnly = false } = {}, rec) {

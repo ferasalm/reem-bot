@@ -4,6 +4,7 @@ import {
   FACE_JPEG_BASE64, STYLE_JPEG_BASE64,
 } from "../../assets/face.js";
 import { PLACE_JPEG_BASE64 } from "../../assets/places.js";
+import { CONFIG } from "../config/index.js";
 import { fromBase64 } from "../platform/http.js";
 
 /* --- her reference face --- */
@@ -39,7 +40,10 @@ export async function refBytes(env, name) {
   if (name === "body-cloudflare") return bodyBytes();
   if (name.startsWith("body-")) return runwareBodyBytes(name.slice("body-".length));
   if (name.startsWith("place:")) {
-    const crops = placePictures(name.slice("place:".length));
+    // an exact picture ("kitchen~2", the picture core's crop) or a place's first crop
+    const key = name.slice("place:".length);
+    const exact = (PLACE_JPEG_BASE64 || {})[key];
+    const crops = exact ? [exact] : placePictures(key);
     return crops.length ? fromBase64(crops[0]) : null;
   }
   if (name.startsWith("style:")) {
@@ -53,4 +57,26 @@ export function placePictures(key) {
   const pics = PLACE_JPEG_BASE64 || {};
   const crops = Object.keys(pics).filter((k) => k.startsWith(`${key}~`)).map((k) => pics[k]);
   return crops.length ? crops : pics[key] ? [pics[key]] : [];
+}
+// A place's picture names in places.js: its crops "<key>~1".. when it has them, else "<key>" itself; [] when none (placePictures' order)
+export function placeNames(key) {
+  const pics = PLACE_JPEG_BASE64 || {};
+  const crops = Object.keys(pics).filter((k) => k.startsWith(`${key}~`));
+  return crops.length ? crops : pics[key] ? [key] : [];
+}
+// The picture core's references (Rebuild Step 2, WORKPLAN "Reference library" slots; Runware takes at most 4): 0 her face (none on a
+// crotch close-up: her face pulled the frame up to her lips, Step 5), 1 the body (clothed pictures the clothed body, never the nude one
+// (owner 2026-10-15: with the LoRA it forced nudity); nude, partly dressed and acts the nude front or back; Cloudflare its small clothed
+// copy), 2 the place crop, 3 the hairstyle picture (Step 4). Cut to the profile's count. [{ role, name }]
+export function pickRefs(spec, prof) {
+  const R = CONFIG.PICTURE.RUNWARE || {};
+  if (!spec.herself) return [];
+  const out = [];
+  const cf = prof.name === "cloudflare";
+  if (!(spec.view === "closeup" && spec.framing === "crotch")) out.push({ role: "face", name: !cf && R.BIG_FACE ? "face-2x" : "face-1x" });
+  const body = cf ? "body-cloudflare" : spec.content === "clothed" ? `body-${R.BODY_CLOTHED || R.BODY}` : `body-${(spec.back && R.BODY_BACK) || R.BODY}`;
+  out.push({ role: "body", name: body });
+  if (spec.place.crop) out.push({ role: "place", name: `place:${spec.place.crop}` });
+  if (spec.hair.refId) out.push({ role: "hair", name: spec.hair.refId });
+  return out.slice(0, prof.refs);
 }

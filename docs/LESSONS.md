@@ -33,6 +33,12 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Runware klein 9B bills GPU time in ~$0.0008 steps: 768x1344 $0.0025-0.0079 (each LoRA or reference adds a step); steps and CFG
   don't. Calls past ~60 s die at the proxy. `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture` benches the bot's own code
   (calls ~4 s apart; wrap `fetch` to fix `seed`). A 502 "no picture" is often billed: read `usage`, budget ~20% over (2026-10-13).
+- Samplers for klein 9B (read 2026-10-16, Step 2): BFL's reference is 4 steps, CFG 1 (step- and guidance-distilled); Runware's
+  `scheduler` enum has 75 names (FlowMatchEulerDiscreteScheduler, Euler Beta, DPM++ 2M/Karras/Beta/SDE ...) and its scheduler page calls
+  flow-match Euler FLUX's usual default; guides: Euler + simple cleanest, never ancestral/SDE on distilled models, Karras/exponential
+  spacing distorts flow schedules. Bench (seed 101): Default ≈ DPM++ 2M Beta, Karras moves the composition. WebFetch can't reach
+  outside hosts from the container (ENOTFOUND): read with WebSearch. A picture with 3 references + 1 LoRA is $0.00585 (not $0.003);
+  a `failedModelLoad` first try is sometimes billed: read `usage.total`, budget one picture over the cap.
 - Runware's own schema for a model: the Runware MCP `model_schema` (free). klein 9B (`runware:400@2`): at most 4 reference images,
   each a UUID, URL or base64; `scheduler` is an enum with no stated default (we send none = "Default"); defaults steps 4, CFG 3.5,
   acceleration "high"; `negativePrompt` is ignored at CFG ≤ 1 (2026-10-15).
@@ -40,6 +46,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   +append` for sheets; stub `globalThis.fetch` and print each Runware request to find causes for free (2026-10-10, 2026-10-13).
 - /setup is a web page (owner, 2026-10-06): never tell him to send it; its "send /restart" line wipes her memory: don't repeat it.
   A new CONFIG key needs a hand-written row in `tools/settings-panel.html` `SECTIONS` (the unit test names missing ones).
+- `fix-imports.mjs` turns `import * as FR from "./frames.js"` into `import { FR }` (2026-10-16): restore namespace imports by hand after it.
 - Moving code between modules (2026-10-15): acorn + eslint-scope are in `/opt/node-tools/node_modules` (createRequire); `node
   tools/split/fix-imports.mjs` recomputes every module's imports. ES imports are read-only (a `let` set from another module needs a setter)
   and a load-time use of a binding from a module in the same import cycle is a TDZ error: CONFIG stays a leaf. Prove a move with the golden
@@ -112,6 +119,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Tests: `CONFIG_OVERRIDES` is cached per run (set `W.CONFIG`); voice chances are 0 in e2e and scenarios; a unit row comparing a plan's
   refs must leave out random picks; rerun a new test file ~10 times. A per-picture neuron change (klein 9B: 115 → 1,500) made the
   scenarios reach PICTURE_SHARE mid-run → reset the test ledger before late picture blocks (Step B, 2026-10-13).
+- Test stubs key on prompt text: the scenarios' writer stub matched "You write the words of one photo", so a new writer template
+  (WRITER.SPEC) went unanswered; the golden harness turns WRITER off for all cases (a case with `writer` turns it on) (2026-10-16).
 - Golden cases are seeded by index: add cases at the end; compare case by case. Shrinking a MOODS/GAZES list shifts later picks in
   those cases only: expected, read them (Step B).
 - An odd AI error (`5006 '/seed'`) was out of neurons (4006) → run `ai-diag.yml` and read Cloudflare's analytics before fixing the

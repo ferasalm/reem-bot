@@ -81,6 +81,8 @@ globalThis.fetch = async (url, init = {}) => {
         steps: t.steps ?? null,
         CFGScale: t.CFGScale ?? null,
         acceleration: t.acceleration ?? null,
+        // Rebuild Step 2: the picture core's sampler, recorded only when sent ("" = Runware's Default)
+        ...(t.scheduler ? { scheduler: t.scheduler } : {}),
         refs: (t.inputs?.referenceImages || []).map(nameOf),
         // Step 2: Runware's content check, recorded only when on (the On cases keep their lines)
         ...(t.safety?.checkContent ? { checkContent: true } : {}),
@@ -102,7 +104,7 @@ function stubEnv() {
         sent.cloudflare.push({ model, prompt: form.get("prompt"), width: Number(form.get("width")), height: Number(form.get("height")) });
         return { image: TINY_JPEG };
       }
-      return { response: "stub" };
+      return { response: sent.writer || "stub" }; // a case's writer answer (Rebuild Step 2: the writer's JSON), else "stub"
     },
   };
   return { RUNWARE_API_KEY: "stub-key", REEM_KV: kv, AI: ai };
@@ -114,7 +116,9 @@ const cases = (W) => {
     const words = W.picWords(args); // /pic: his words, about her
     if (!W.mayDraw(words)) return { refused: true };
     const { prompt, location, night } = W.customPicture(words);
-    return W.drawPicture(env, prompt, { location, night, ledger, custom: true });
+    // Rebuild Step 2: picCommand's spec (the picture core); CORE "legacy" draws the prompt as before
+    const spec = W.CONFIG.PICTURE.CORE !== "legacy" ? W.specFromWords(words, { source: "pic" }) : null;
+    return W.drawPicture(env, prompt, { location, night, ledger, custom: true, spec });
   };
   const selfie = (want, at = null) => ({ at, run: (env, ledger) => W.startPicture(env, ledger, "selfie", want, { asked: want || "" }) });
   const DAY = { day: "2026-10-11", band: "MILD", home: "a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants", out: "a black leather jacket over a fitted gray tee and jeans" };
@@ -122,8 +126,10 @@ const cases = (W) => {
   // Step 2 (/nsfw): the words go straight to drawPicture at a level, with no refusal in front (the plan itself must hold)
   const picAt = (args, nsfw) => async (env, ledger) => {
     // built at the case's own level, as picCommand does (fix round review: at Off the golden had the On prompt, no SAFE)
-    const { prompt, location, night } = W.customPicture(W.picWords(args, nsfw), undefined, null, nsfw);
-    return W.drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw });
+    const words = W.picWords(args, nsfw);
+    const { prompt, location, night } = W.customPicture(words, undefined, null, nsfw);
+    const spec = W.CONFIG.PICTURE.CORE !== "legacy" ? W.specFromWords(words, { source: "pic", level: nsfw }) : null;
+    return W.drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw, spec });
   };
   return [
     { name: "selfie everyday kitchen (composePicture)", run: selfie("making coffee in my kitchen, gray cardigan").run },
@@ -171,6 +177,14 @@ const cases = (W) => {
     { name: "/pic riding, hands on her ass (not anal)", run: pic("riding the man, his hands on her ass") },
     // Task C (2026-10-11, owner's row 13): a cardigan over a cami and no bottom named: the bottom line is added
     { name: "/pic cardigan over a cami, kitchen (On, Task C)", run: picAt("her father's old gray cardigan over a black cami, in the kitchen", "on") },
+    // Rebuild Step 2 (the picture core): her in-person scenes, act vs clothes, the writer's JSON fields (new cases at the end)
+    { name: "scene: couch in a hoodie (clothed, POV)", run: (env, ledger) => W.startPicture(env, ledger, "scene", "*She curls up on the couch in her gray hoodie and black leggings, a mug of tea in her hands, laughing softly at the screen.*", { dayWear: DAY }) },
+    { name: "scene: riding (her narration's act)", run: (env, ledger) => W.startPicture(env, ledger, "scene", "*She sinks down onto your cock, riding you slowly, her hands braced on your chest, moaning.*", { dayWear: DAY }) },
+    { name: "scene: riding in a tank top, jeans off (act partly dressed)", run: (env, ledger) => W.startPicture(env, ledger, "scene", "*Still in her white tank top and jeans from earlier, she sinks down onto your cock and rides you, moaning.*", { dayWear: DAY }) },
+    { name: "/pic riding in jeans and a tank top (jeans come off)", run: pic("riding the man, wearing a white tank top and jeans") },
+    { name: "/pic blowjob in a hoodie (clothes stay on)", run: pic("blowjob, wearing a gray hoodie") },
+    { name: "selfie with the writer's JSON (action, outfit, place, expression)", writer: '{"action": "sits cross-legged on the bed, one hand in her hair", "outfit": "an oversized gray tee and black sleep shorts", "place": "bedroom", "expression": "a sleepy smile"}', run: selfieDay("lazy sunday, still in bed").run },
+    { name: "selfie: the writer's JSON tries to add nudity (dropped)", writer: '{"action": "lies naked on the bed", "outfit": "", "place": "kitchen", "expression": "a teasing smirk"}', run: selfieDay("making pancakes in the kitchen").run },
   ];
 };
 
@@ -180,7 +194,8 @@ async function runAll(W) {
   for (const [i, c] of list.entries()) {
     frozen = c.at ? Date.parse(c.at) : FROZEN;
     Math.random = mulberry32(i);
-    sent = { runware: [], cloudflare: [], failRunware: !!c.fail };
+    sent = { runware: [], cloudflare: [], failRunware: !!c.fail, writer: c.writer || "" };
+    W.CONFIG.PICTURE.WRITER.ON = !!c.writer; // the writer only where a case gives its answer (Rebuild Step 2's JSON cases)
     const env = stubEnv();
     const ledger = await W.loadLedger(env);
     ledger.rwUsd = 0;

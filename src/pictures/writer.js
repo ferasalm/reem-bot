@@ -4,6 +4,7 @@ import { CONFIG, fill } from "../config/index.js";
 import { can } from "../gate.js";
 import { asCamera, isDark, locationOf, sceneWearing, timeOfDay } from "./compose.js";
 import { filterSafe, safeLine } from "./draw.js";
+import { applyWritten, garmentsOf } from "./interpret.js";
 import { lightFor, namesClothes, nudeWords, pickOne, sexAct, wordsOf } from "./shots.js";
 import { aiFailed, aiText_, callModel } from "../platform/ai.js";
 
@@ -12,7 +13,8 @@ import { aiFailed, aiText_, callModel } from "../platform/ai.js";
 export async function writePicture(env, kind, vars = {}) {
   const W = CONFIG.PICTURE.WRITER || {};
   const template = W[String(kind).toUpperCase()];
-  if (!W.ON || !(W.KINDS || []).includes(kind) || !template || !W.MODEL || !env.AI) return null;
+  // `vars.kind`: the picture's kind when the template is another (the picture core's "spec" template writes selfies and scenes)
+  if (!W.ON || !(W.KINDS || []).includes(vars.kind || kind) || !template || !W.MODEL || !env.AI) return null;
   const ms = Number(W.TIMEOUT_MS) || 25000;
   const prompt = fill(template, { him: "he", her: CONFIG.CHARACTER.NAME, rules: W.RULES || "", ...vars });
   // as aiRun: AbortSignal.timeout, not setTimeout (the tests make setTimeout instant)
@@ -98,3 +100,34 @@ export async function writtenScene(env, pic, want, { history = [], level = CONFI
 // The chat as the writer reads it (WRITER.CHAT_MESSAGES, newest last; his lines as "He")
 export const writerChat = (history = []) => history.slice(-(Number((CONFIG.PICTURE.WRITER || {}).CHAT_MESSAGES) || 6))
   .map((m) => `${m.role === "user" ? "He" : CONFIG.CHARACTER.NAME}: ${String(m.content).slice(0, 600)}`).join("\n") || "(nothing yet)";
+// The picture core (Rebuild Step 2): the writer fills the spec's fields as JSON (WRITER.SPEC: action, outfit, place, expression) and the
+// code phrases the prompt (framePrompt), so the picture rules hold by construction. Her selfies only when her own words went into them
+// (as writtenSelfie); her scenes always. { spec, raw } or null (off, failed, slow, no JSON, nothing usable): the spec stays as built.
+export async function writeSpec(env, kind, pic, spec, { want = "", history = [], level = CONFIG.PICTURE.NSFW.DEFAULT } = {}) {
+  const P = CONFIG.PICTURE;
+  const W = P.WRITER || {};
+  if (!spec || !W.SPEC || !["selfie", "scene"].includes(kind)) return null;
+  const f = (pic && pic.frame) || {};
+  if (kind === "selfie" && !(String(f.words || "").trim() || String(f.doing || "").trim())) return null;
+  const moment = kind === "scene" ? String(want || "").slice(0, 1500) : `Her selfie: ${[f.words, f.doing].filter(Boolean).join(", ")}`;
+  const content = spec.content === "act" ? `they are having sex (${spec.act.name})` : spec.content === "nude" ? "she is naked" : spec.content === "partial" ? `she wears only ${spec.outfit.words}` : "she is dressed";
+  const decided = `${kind === "selfie" ? "a selfie she takes" : "what he sees in person"}; ${content}${spec.place.key ? `; the place: ${spec.place.key}` : ""}.`;
+  const raw = await writePicture(env, "spec", { chat: writerChat(history), moment, decided, places: Object.keys(P.LOCATIONS || {}).join(", "), kind });
+  if (!raw) return null;
+  let fields = null;
+  try {
+    const m = String(raw).match(/\{[\s\S]*\}/);
+    fields = m ? JSON.parse(m[0]) : null;
+  } catch {}
+  // plain words instead of JSON: its clothes are the outfit, the rest the action
+  if (!fields) {
+    const g = garmentsOf(writtenWords(raw));
+    fields = { action: g.rest.join(", "), outfit: g.garments.join(" and ") };
+  }
+  const out = applyWritten(spec, fields, { level });
+  if (!out) {
+    await aiFailed(env, `picture writer (${kind}): no usable JSON: ${String(raw).slice(0, 120)}; drew the spec as built`);
+    return null;
+  }
+  return { spec: out, raw: String(raw) };
+}

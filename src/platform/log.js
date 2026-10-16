@@ -5,13 +5,16 @@ export const STUDIO_SCHEMA = `
 CREATE TABLE IF NOT EXISTS pictures (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, chat TEXT, source TEXT NOT NULL,
   asked TEXT, her_words TEXT, llm_text TEXT, kind TEXT, nsfw TEXT, model TEXT, prompt TEXT NOT NULL, loras TEXT, refs TEXT,
   width INTEGER, height INTEGER, steps INTEGER, cfg REAL, seed INTEGER, cost REAL, ms INTEGER, attempts INTEGER, ok INTEGER NOT NULL,
-  error TEXT, tg_thumb TEXT, tg_full TEXT);
+  error TEXT, tg_thumb TEXT, tg_full TEXT, spec TEXT, lint TEXT, scheduler TEXT);
 CREATE INDEX IF NOT EXISTS pictures_at ON pictures(at);
 CREATE TABLE IF NOT EXISTS presets (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, author TEXT, name TEXT, body TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, chat TEXT, kind TEXT NOT NULL, mode TEXT,
   outcome TEXT NOT NULL, error TEXT, model TEXT, calls TEXT, attempts INTEGER, backup INTEGER, ms INTEGER, model_ms INTEGER, late_ms INTEGER, detail TEXT);
 CREATE INDEX IF NOT EXISTS events_at ON events(at);
 `;
+// columns added after a table existed (CREATE TABLE IF NOT EXISTS leaves an old table as it was); each runs alone, "duplicate column" is fine
+// (Rebuild Step 2: the picture core's spec, its lint findings and the sampler)
+export const STUDIO_MIGRATIONS = ["ALTER TABLE pictures ADD COLUMN spec TEXT", "ALTER TABLE pictures ADD COLUMN lint TEXT", "ALTER TABLE pictures ADD COLUMN scheduler TEXT"];
 export let studioSchema = null;
 export function ensureStudioSchema(env) {
   if (!env.STUDIO_DB) return Promise.resolve(false);
@@ -19,7 +22,14 @@ export function ensureStudioSchema(env) {
     // one prepared statement each in a batch: D1's exec() reads one statement per line, and CREATE TABLE spans three
     const sqls = STUDIO_SCHEMA.split(";").map((q) => q.trim()).filter(Boolean);
     studioSchema = env.STUDIO_DB.batch(sqls.map((q) => env.STUDIO_DB.prepare(q))).then(
-      () => true,
+      async () => {
+        for (const q of STUDIO_MIGRATIONS) {
+          try {
+            await env.STUDIO_DB.prepare(q).run();
+          } catch {}
+        }
+        return true;
+      },
       (e) => {
         studioSchema = null; // try again next time
         console.error("studio schema", e);
@@ -116,5 +126,9 @@ export function pictureRow(prompt, L, rec, ok) {
     attempts: rec.attempts,
     ok: ok ? 1 : 0,
     error: ok ? rec.note || null : rec.error || null, // a drawn picture: the anatomy check's mistakes (Step D)
+    // the picture core (Rebuild Step 2): its spec, the lint's findings (logged, never blocking) and the sampler; left out when empty
+    ...(rec.spec ? { spec: JSON.stringify(rec.spec) } : {}),
+    ...(rec.lint && rec.lint.length ? { lint: JSON.stringify(rec.lint) } : {}),
+    ...(rec.scheduler ? { scheduler: rec.scheduler } : {}),
   };
 }

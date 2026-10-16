@@ -4,6 +4,17 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-16 (fifty-second session): Rebuild Step 2, the picture core (dev only)
+- Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. New: spec.js, interpret.js, frames.js, prompt.js,
+  loras.js, lint.js; drawSpecNow, writeSpec, pickRefs; PICTURE.CORE / PICTURE.FRAMES / WRITER.SPEC (+ panel rows). Golden plans rewritten
+  (46 cases: +7 for scenes, act vs clothes, the writer's JSON) and read in full; lint clean on all. 26 scenario rows and 1 unit row moved
+  to the new wording (same intent); new unit rows (lint over frames and goldens, weights, Anatomy Fixer, same spec on redraws, refs, act
+  vs clothes, writer fields, D1 columns). Bugs found by reading the goldens and fixed: "couch" picked a selfie shot, one garment read for
+  "a tank top and jeans", "Sex act:" label leaking into the pose, "on" stripped from "on the bed", a capital "Her" in outfits.
+- Sampler: reading (BFL 4 steps / CFG 1; Runware: flow-match Euler is FLUX's default; guides: no ancestral/SDE, Karras distorts flow
+  schedules), then Default / DPM++ 2M Karras / DPM++ 2M Beta x clothed + nude at seed 101: none beat Default (QUALITY). $0.04303 Runware
+  by usage.total (one billed failedModelLoad; $0.003 over the $0.04 cap). Pictures: `face-candidates` 486b7e7 runs/2026-10-16-step2-sampler.
+
 ## 2026-10-16 (fifty-first session, continued): Step 1 deployed; pre-Step-2 checks
 - Deploys e44c4c4 (run 38826585241, Version `c3a9744f-6482-483d-b96d-1e959802abc5`) and c652eb3 (run 38826871125, Version
   `649f169d-b85c-44e1-9692-8085f0b3e4ae`, /setup's Pictures line). Audit: no unresolved names, no duplicate exports, events empty.

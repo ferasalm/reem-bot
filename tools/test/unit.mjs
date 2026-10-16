@@ -458,7 +458,8 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     eq(["*She wraps her lips around your cock.*", "*She takes you into her mouth, slow.*", "*She takes you all the way down her throat.*", "*She rides you hard, moaning.*", "*She gasps as you take her from behind.*", "*You press into her ass, slow.*", "*She pulls you down on top of her as you push inside her.*"].map(W.sexCue), ["a blowjob", "a blowjob", "deepthroat", "riding the man, cowgirl", "doggy style", "anal", "missionary"], "SEX_CUES: the act in her own words");
     const look = async (t) => { sent = []; await W.startPicture({ RUNWARE_API_KEY: "k" }, { rwUsd: 0 }, "scene", t, { history: [] }); return sent[0]; };
     let lk = await look("*She pulls you down on top of her, legs wrapping around your hips as you push inside her.*");
-    yes(lk && JSON.stringify(lk.lora.map((l) => l.model).sort()) === JSON.stringify(actSet) && lk.positivePrompt.includes(W.CONFIG.PICTURE.SCENE_ACT_STYLE) && !lk.positivePrompt.includes("She is wearing") && lk.positivePrompt.includes("Sex act: missionary."), "/look missionary in her words: Lenovo + NSFW Unlocked (2026-10-12), his-eyes style, no clothes", lk && lk.positivePrompt.slice(0, 200));
+    // Rebuild Step 2: in-person pictures go through the picture core (her scene → ShotSpec → frame); drawPicture without a spec stays legacy
+    yes(lk && JSON.stringify(lk.lora) === JSON.stringify([{ model: W.CONFIG.PICTURE.FRAMES.LORA, weight: W.CONFIG.PICTURE.FRAMES.LORA_WEIGHTS.act }]) && lk.positivePrompt.startsWith(W.ACTS.missionary.text.slice(0, 50)) && lk.positivePrompt.includes(W.WEAR.nude), "/look missionary in her words: missionary's frame, NSFW Unlocked at the act weight, nude (Rebuild Step 2)", lk && lk.positivePrompt.slice(0, 200));
     lk = await look("*She kneels between your legs and takes you into her mouth, slow.*");
     yes(lk && !lk.lora.some((l) => l.model === "ferasalm:povdt@1") && Object.keys(R.ASPECTS.ORAL).map((k) => R.SIZES[k]).includes(`${lk.width}x${lk.height}`), "/look blowjob in her words: no act LoRA (2026-10-12), 1:1 or 16:9 (round 7)", lk && [lk.width, lk.height]);
     c = await call("riding the man on the bed", "pic");
@@ -1108,6 +1109,95 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   } finally {
     globalThis.fetch = realFetch;
   }
+}
+
+// The picture core (Rebuild Step 2, 2026-10-16): ShotSpec → frames; the owner's picture rules (2026-10-15) as tests
+{
+  const yes = (ok, label, got) => eq(!!ok, true, ok ? label : `${label} ${String(got || "").slice(0, 600)}`);
+  const P = W.CONFIG.PICTURE, F = P.FRAMES, R = P.RUNWARE;
+  const { readFileSync } = await import("node:fs");
+  // lint: every frame string is clean (body-part nouns and act anatomy words stay allowed)
+  const frameStrings = [...Object.values(W.LENS), ...Object.values(W.ANGLES), W.BACK, ...Object.values(W.FRAMINGS), ...Object.values(W.IDENTITY), ...Object.values(W.WEAR), W.ONLY_HER, W.ONE_WOMAN, ...Object.values(W.EDGES), ...Object.values(W.PLACE), W.EXPRESSION, W.PHOTO, W.ALONE_PHOTO, ...Object.values(W.PENETRATION), W.ACT_GENERIC, ...Object.values(W.ACTS).flatMap((a) => [a.text, a.anal].filter(Boolean)), ...Object.values(W.SHOTS).flatMap((x) => [x.pose, ...(x.poses || []).map((p) => p[0])].filter(Boolean))];
+  const dirty = frameStrings.map((t) => [t, W.lintPrompt(t)]).filter(([, l]) => l.length);
+  eq(dirty, [], "lint: every frame string is clean (no man/he/his, camera, negatives, body descriptions, eye colour or skin tone)");
+  // every act frame names POV's penis (owner 2026-10-15: below weight 1 the LoRA alone doesn't draw it), solo acts aside
+  eq(Object.entries(W.ACTS).filter(([, a]) => !a.solo && ![a.text, a.anal].filter(Boolean).every((t) => /POV's erect penis/.test(t) || (t.includes("{hole}") && /POV's erect penis/.test(Object.values(W.PENETRATION).join(" "))))).map(([k]) => k), [], "every act frame names POV's penis");
+  // lint: every golden plan's prompt is clean, and every "image N" is lower than the references sent
+  const golden = JSON.parse(readFileSync(new URL("./picture-plans.golden.json", import.meta.url), "utf8")).cases;
+  const bad = [];
+  for (const [name, c] of Object.entries(golden)) {
+    for (const t of c.runware) { const l = W.lintPrompt(t.positivePrompt, t.refs.length); if (l.length) bad.push([name, l]); }
+    for (const t of c.cloudflare) { const l = W.lintPrompt(t.prompt, 3); if (l.length) bad.push([name, l]); }
+  }
+  eq(bad, [], `lint: all ${Object.keys(golden).length} golden plans clean`);
+  // the lint itself catches what it must
+  eq(W.lintPrompt("the man holds the camera, never his face; a full bust, wide low hips, hazel-green eyes, fair olive skin, image 3", 3), ["banned: man", "banned: camera", "banned: never", "banned: his", "body: full bust", "body: wide low hips", "eyes: hazel-green eyes", "skin: olive skin", "image 3 of 3"], "lint: him, the camera, negatives, body descriptions, eye colour, skin tone, image numbers");
+  eq(W.lintPrompt("her extended forearm is cropped at the left edge of the frame; POV's torso and below fill the bottom of the frame; her vulva"), [], "lint: body-part nouns and anatomy words stay allowed");
+  eq(W.ruleWords("he holds the camera close, with no bangs, his hand on her hip"), "POV holds the lens close, POV's hand on her hip", "ruleWords: him → POV, camera → lens, a negated phrase dropped");
+  // the LoRA weight table (owner 2026-10-15: clothed ≤ 0.6, nudity and acts ≤ 0.8, 0.05 steps)
+  const w = F.LORA_WEIGHTS;
+  yes(w.clothed <= 0.6 && w.partial <= 0.8 && w.nude <= 0.8 && w.act <= 0.8 && w["act-partial"] <= 0.8 && Object.values(w).every((x) => Math.abs(x * 20 - Math.round(x * 20)) < 1e-9), "LORA_WEIGHTS: clothed ≤ 0.6, nudity and acts ≤ 0.8, in 0.05 steps", JSON.stringify(w));
+  const sp = (fields) => W.newSpec(fields);
+  eq(W.lorasFor(sp({ content: "clothed" })), [{ model: F.LORA, weight: w.clothed }], "lorasFor: clothed = NSFW Unlocked alone, at the clothed weight");
+  eq(W.lorasFor(sp({ content: "act", act: { name: "riding", hole: "vagina" } })), [{ model: F.LORA, weight: w.act }], "lorasFor: an act = NSFW Unlocked at the act weight");
+  eq(W.lorasFor(sp({ content: "act", act: { name: "riding", hole: "vagina" }, outfit: { words: "a white tank top", kept: "top" } })), [{ model: F.LORA, weight: w["act-partial"] }], "lorasFor: an act partly dressed = the act-partial weight");
+  eq(W.lorasFor(sp({ content: "nude" }), { fix: true }), [{ model: F.LORA, weight: w.nude }, { model: F.FIX_LORA, weight: F.FIX_WEIGHT }], "lorasFor: a redraw after the anatomy check adds the Anatomy Fixer");
+  eq(W.lorasFor(sp({ content: "act", act: { name: "doggy style", hole: "vagina" } }), { fix: true }).map((l) => l.model), [F.LORA], "lorasFor: never the Anatomy Fixer on a sex act, even on a redraw");
+  eq([W.lorasFor(sp({ content: "clothed" })).length, W.lorasFor(sp({ herself: false, view: "alone" }))], [1, []], "lorasFor: no Anatomy Fixer on a first draw; /look alone has no LoRA");
+  // references: clothed never gets the nude body (owner: with the LoRA it forced nudity); slots face, body, place
+  const rw = W.profile("runware"), cf = W.profile("cloudflare");
+  eq(W.pickRefs(sp({ content: "clothed", back: true, place: { key: "bedroom", crop: "bedroom~1", night: false } }), rw).map((r) => r.name), ["face-2x", `body-${R.BODY_CLOTHED}`, "place:bedroom~1"], "pickRefs: a clothed back view keeps the clothed body (never the nude one); face, body, place");
+  eq(W.pickRefs(sp({ content: "act", back: true }), rw).map((r) => r.name), ["face-2x", `body-${R.BODY_BACK}`], "pickRefs: an act from behind: the nude back");
+  eq(W.pickRefs(sp({ content: "nude", view: "closeup", framing: "crotch" }), rw).map((r) => r.name), [`body-${R.BODY}`], "pickRefs: a crotch close-up has no face picture");
+  eq(W.pickRefs(sp({ content: "clothed", place: { key: "kitchen", crop: "kitchen~2" } }), cf).map((r) => r.name), ["face-1x", "body-cloudflare", "place:kitchen~2"], "pickRefs: the Cloudflare profile (3 references, its own face and body pictures)");
+  // act vs clothes (owner 2026-10-15): a garment over the act's region comes off; the rest stays
+  const rd = (t) => W.readWords(t, { level: "on" });
+  let x = rd("riding the man in a white tank top and jeans");
+  eq([x.content, x.outfit.words, x.outfit.kept, x.garmentState], ["act", "a white tank top", "top", "off"], "act vs clothes: riding takes the jeans off, the tank top stays");
+  x = rd("blowjob, wearing a gray hoodie and sweatpants");
+  eq([x.content, x.outfit.words], ["act", "a gray hoodie and sweatpants"], "act vs clothes: nothing is in the way of her mouth (clothes stay)");
+  x = rd("doggy style in a sundress");
+  eq([x.content, x.outfit.words], ["act", ""], "act vs clothes: a dress over the act's region comes off");
+  x = rd("topless, jeans on");
+  eq([x.content, x.outfit.words, x.outfit.kept], ["partial", "jeans", "bottom"], "partly dressed: what stays, and which half");
+  x = rd("a cropped white tee");
+  eq([x.content, x.outfit.words], ["clothed", "a cropped white tee and fitted blue jeans"], "clothed with only a top: a bottom said affirmatively (was \"never bare\")");
+  // the same spec on every redraw: only the seed changes (the legacy core re-rolled mood, hair and aspect)
+  {
+    const sent = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (u, init) => { const t = JSON.parse(init.body)[0]; sent.push(t); return new Response(JSON.stringify({ data: [{ imageBase64Data: "/9j/2Q==", cost: 0.003 }] })); };
+    const oldAnat = { ...P.ANATOMY };
+    const env = { RUNWARE_API_KEY: "k", AI: { run: async () => ({ response: '{"bad_hands": true, "heads": 1}' }) } }; // the anatomy check finds a mistake every time
+    try {
+      P.ANATOMY.ON = true; P.ANATOMY.TRIES = 3; P.ANATOMY.STOP_ON_REPEAT = false; P.ANATOMY.KINDS = ["pic"];
+      W.budget.reset();
+      const spec = W.specFromWords("naked on the bed", { source: "pic", level: "on" });
+      const before = JSON.stringify(spec);
+      const ledger = await W.loadLedger({ REEM_KV: { get: async () => null, put: async () => {} } });
+      await W.drawPicture(env, "{who} naked on the bed", { ledger, custom: true, spec });
+      const texts = new Set(sent.map((t) => t.positivePrompt));
+      const seeds = new Set(sent.map((t) => t.seed));
+      eq([sent.length, texts.size, seeds.size, JSON.stringify(spec) === before], [3, 1, 3, true], "redraws: the same spec and prompt on every try, a new seed each (Rebuild Step 2)");
+      eq(sent.map((t) => (t.lora || []).map((l) => l.model)), [[F.LORA], [F.LORA, F.FIX_LORA], [F.LORA, F.FIX_LORA]], "redraws: the Anatomy Fixer only from the second try (after the check found a mistake)");
+      eq([sent[0].steps, sent[0].CFGScale, sent[0].acceleration, sent[0].scheduler], [F.STEPS, F.CFG, F.ACCELERATION, F.SCHEDULER || undefined], "the picture core's sampler: steps 4, CFG 1, acceleration none, the scheduler when set");
+    } finally {
+      globalThis.fetch = realFetch; Object.assign(P.ANATOMY, oldAnat); W.budget.reset();
+    }
+  }
+  // the writer's JSON fields: action, outfit, place, expression; one that adds nudity or an act is dropped
+  {
+    const base = W.specFromWords("in a gray sweater on the couch", { source: "scene", level: "on", view: "pov" });
+    const out = W.applyWritten(base, { action: "curls up with a mug of tea", outfit: "a cream knit sweater and black leggings", place: "living", expression: "a sleepy smile" }, { level: "on" });
+    eq([out.pose, out.outfit.words, out.place.key, out.expression], ["curls up with a mug of tea", "a cream knit sweater and black leggings", "living", "a sleepy smile"], "applyWritten: the writer's fields fill the spec");
+    const naughty = W.applyWritten(base, { action: "lies naked on the bed", outfit: "nothing", place: "nowhere", expression: "fucking the man" }, { level: "on" });
+    eq([naughty.pose, naughty.outfit.words, naughty.place.key, naughty.expression], [base.pose, base.outfit.words, base.place.key, base.expression], "applyWritten: nudity, an act, a made-up place or no garment change nothing");
+  }
+  // D1: the spec, its lint and the sampler are logged; old tables get the columns (each ALTER alone)
+  eq(W.STUDIO_MIGRATIONS.map((q) => q.split(" ").at(-2)), ["spec", "lint", "scheduler"], "D1: pictures gets spec, lint and scheduler columns (Rebuild Step 2)");
+  const row = W.pictureRow("p", {}, { ms0: Date.now(), attempts: 1, loras: [], refs: [], spec: { v: 1 }, lint: ["banned: camera"], scheduler: "Default" }, true);
+  eq([row.spec, row.lint, row.scheduler], ['{"v":1}', '["banned: camera"]', "Default"], "D1: a row keeps the spec, the lint findings and the scheduler");
+  eq(["spec", "lint", "scheduler"].filter((k) => k in W.pictureRow("p", {}, { ms0: 0, attempts: 1, loras: [], refs: [] }, true)), [], "D1: a legacy row leaves them out");
 }
 
 console.log(fails ? `${fails} FAILED` : "all passed");

@@ -404,7 +404,31 @@ export const ENGINE = {
       MAX_WORDS: 60,                   // longer answers are cut back to whole sentences
       RULES: "Call her \"she\", no names. He is the camera: the photo is what his own eyes see, so never write about the man, his body, his face, his hands or where he is (write \"facing the camera\" or \"close to the camera\"); every hand in your words is hers, and her hands never point, reach or gesture toward the camera; nothing on his body (a cut, his shirt). Always say what she is wearing, garment by garment with colors and what she wears below the waist (sleep shorts, sweatpants, a skirt), or that she is naked, or which clothes are off. Her expression in plain everyday words (a worried look, a soft smile, a sleepy face). If they are having sex, name the act plainly with one of these words: blowjob, deepthroat, missionary, riding, reverse cowgirl, doggy style, anal; the man is named only as the one she does it with (\"she rides the man\"). No feelings, thoughts, sounds, dialogue or story; only what a camera sees.",
       SELFIE: "You write the words of one photo for an image model. {her} is sending {him} a selfie. The code wrote this draft from her words, and it may contradict itself:\n{draft}\n\nWhat was said around it (newest last):\n{chat}\n\nRewrite the draft as one plain clause of at most 40 words with no subject, starting the way the draft starts: its framing and pose first, then what she is wearing, then where she is. Keep every garment and color the draft names, and its place. Drop: anything that contradicts the framing or the pose (a second pose, a second place), every expression, gaze, smile or laugh (they are added later), any phone or anything held in her hands, and the light. {rules} Answer with the clause only.",
+      // Rebuild Step 2 (2026-10-16): with CORE "frames" the writer fills ShotSpec fields as JSON and the code phrases every prompt
+      SPEC: "You fill in the fields of one photo for an image model. {her} is the woman in it; {him} sees it with his own eyes (he is the lens, never in it).\n\nWhat was said (newest last):\n{chat}\n\nThe moment:\n{moment}\n\nThe code already decided: {decided}\n\nAnswer with one JSON object and nothing else, with these keys:\n\"action\": what she is doing and her pose, and where each of her hands is, in at most 20 plain words, starting with a verb (\"sits on the edge of the bed, one hand in her hair\"); she holds only what the story puts in her hands, never a phone.\n\"outfit\": what she is wearing, garment by garment with colors, including what she wears below the waist; \"\" if she is naked.\n\"place\": one of {places}, or \"\".\n\"expression\": her expression in a few everyday words (\"a sleepy smile\").\nUse only words for what the lens sees: call her \"she\", write \"the lens\" for where the photo is taken from, describe only things that are in the photo, and say what is there (never what is missing). No feelings, sounds, dialogue or story. Add no nudity or sex the moment hasn't.",
       SCENE: "You write the words of one photo for an image model: what {him} sees with his own eyes right now, in person, in the roleplay story below. {her} is the woman in it.\n\nThe story so far (newest last):\n{chat}\n\nThe moment to draw is her last reply:\n{moment}\n\nWrite 1 or 2 plain sentences, at most 45 words: what she is doing and her pose, where each of her hands is (on her knee, in her hair, on the sheets; she holds only what the story puts in her hands, never a phone); what she is wearing (if the story names no clothes: {clothes}); the place and one or two things around her; her expression in a few words. The light only if the story names it (a lamp, candles). {rules} Answer with the sentences only.",
+    },
+    // The picture core (Rebuild Step 2, 2026-10-16, WORKPLAN "Rebuild"): "frames" = ShotSpec → framePrompt (src/pictures/spec.js,
+    // interpret.js, frames.js, prompt.js, loras.js, lint.js); "legacy" = the deployed prompts (runwarePlan, Lenovo, steps 6 / CFG 2), kept
+    // only for the Step 3 bench (old against new), then removed
+    CORE: "frames",
+    FRAMES: {
+      // the sampler (owner 2026-10-15: "CFG at 1 and Steps at 4"; FLUX.2 klein 9B is step-distilled for 4 steps at guidance 1).
+      // SCHEDULER: "" = Runware's "Default" (the flow-match Euler of FLUX, per Runware's scheduler page); the Step 2 sampler sheet decides
+      STEPS: 4,
+      CFG: 1,
+      ACCELERATION: "none",
+      SCHEDULER: "",
+      // one LoRA, NSFW Unlocked, by content (owner 2026-10-15: clothed tested at 0.6 and below; nudity and acts never above 0.8, since
+      // with a long prompt 1.0 and higher forces an act or nudity; 0.05 steps). Starting values; the Step 3 weight sweep decides.
+      // "alone": /look without her (no LoRA)
+      LORA: "ferasalm:nsfwunlock@1",
+      LORA_WEIGHTS: { clothed: 0.5, partial: 0.65, nude: 0.75, act: 0.8, "act-partial": 0.75, alone: 0 },
+      // the Anatomy Fixer (owner 2026-10-15): only on a redraw after the anatomy check found a mistake, never on a sex act
+      FIX_LORA: "myaiprojectsqqq:3@2",
+      FIX_WEIGHT: 0.7,
+      // references a route takes (Runware's schema: at most 4; Cloudflare klein 4B: face, body, place)
+      MAX_REFS: { runware: 4, cloudflare: 3 },
     },
     // Runware (PICTURE.ROUTE "runware-klein" / "runware-twinflow"): every picture, lingerie and nudity included, with her
     // real words (no FILTER_WORDS, no NOT_DRAWN, no SAFE). Benched 2026-10-06 (docs/QUALITY.md): klein 9B kept her face and

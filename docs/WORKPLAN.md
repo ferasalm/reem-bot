@@ -1179,6 +1179,16 @@ Records:
 - `can()` takes `who` = { env, settings, ledger, ooc, level }; Step 2 code should call `can()`, never the rule functions.
 - After moving code between modules, `node tools/split/fix-imports.mjs` fixes the imports; rerun the golden plans.
 
+### Step 2 build (Opus 5.5 `claude-opus-5-5`, 2026-10-16): done, on dev
+- As specified, with these choices: `PICTURE.CORE` "frames" | "legacy" (legacy = the old prompts, only for Step 3's old-vs-new bench;
+  remove it after Step 3). framePrompt lives in `src/pictures/prompt.js` (compose.js keeps the old Cloudflare/selfie composers that build
+  the picks). Solo acts (masturbating) have a frame with no POV penis. /look's own model still writes prose (interpreted into a spec);
+  only WRITER (selfies, scenes) fills JSON fields. The night line keeps her face lit but drops "green eyes" (a face word): Step 3 must
+  check her eyes in dark scenes. Clothed with only a top gets "fitted blue jeans", only a bottom "a fitted black tank top" (affirmative).
+- For Step 3: run the bench with `PICTURE.CORE` "legacy" vs "frames" (both live in the code); sampler stays Default unless the owner picks;
+  Karras drew her nude fuller at seed 101 (worth one more seed in the sweep). A picture costs $0.00585 (3 references + 1 LoRA), so the
+  Step 3 budget ($0.45) holds about 70 pictures.
+
 ### Issues and bugs found (existing or likely), to fix in the step named
 
 1. The double `budget.used++` at four call sites, and the 50-call free-plan limit on a Paid account. (0)

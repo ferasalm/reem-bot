@@ -4,66 +4,57 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Rebuild (2026-10-15)", the current plan, with paste prompts).
 
-**Last updated:** 2026-10-16 (fifty-first session: Opus 5.5, `claude-opus-5-5`, configured and served per get_session; one haiku-worker,
-Haiku 5.5 `claude-haiku-5-5` per its transcript, drafted the module classification). Rebuild Step 1 built and deployed. $0 Runware;
-about $0.03 OpenRouter spent by mistake (an STT bench run started by a push; CHANGELOG, LESSONS).
-**Deployed:** `main` = c652eb3 (Step 1 + the /setup Pictures line), Version ID `649f169d-b85c-44e1-9692-8085f0b3e4ae`, run 38826871125;
-`/setup` all ✅. Rollback: push `ba540c9` (Step 0). Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**On `dev`:** c652eb3 plus this records commit; no undeployed code.
+**Last updated:** 2026-10-16 (fifty-second session: Opus 5.5, `claude-opus-5-5`, configured and served per get_session; no subagents).
+Rebuild Step 2 built (dev only). Spent $0.04303 Runware (sampler bench; cap was $0.04, a billed failedModelLoad put it $0.003 over).
+**Deployed:** `main` = c652eb3 (Step 1), Version `649f169d-b85c-44e1-9692-8085f0b3e4ae`. Step 2 is NOT deployed.
+Rollback: push `ba540c9`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
+**On `dev`:** the Step 2 commit (the picture core), not deployed.
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: chat on DeepSeek V4 Flash (Workers AI, 60 s limit),
-voice Sulafat, hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off). Rebuild plan (WORKPLAN "Rebuild
-(2026-10-15)", one chat each): 0 done → **1 done (deployed)** → 2 picture core → 3 bench → 4 reference library → 5 deploy.
-Budget $1.00 Runware in all (none spent so far).
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: chat on DeepSeek V4 Flash (Workers AI, 60 s), voice Sulafat,
+hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off), still on the old prompts (main = Step 1).
+Rebuild plan: 0 done → 1 done (deployed) → **2 done (dev)** → 3 bench → 4 reference library → 5 deploy. Runware so far: $0.043 of $1.00.
 
-## Step 1, built and deployed this session
-- `worker.js` is only the entry point (fetch, queue, scheduled); the code is in 38 modules under `src/` (map: `docs/MAP.md`, top).
-  Generated files moved to `assets/` (face.js, places.js, mp3.js); studio.js is `src/studio/page.js`.
-- CONFIG = `src/config/engine.js` (engine) + `src/persona/reem-en/config.js` (her words, looks, wardrobe, places, MESSAGES, NUDGES,
-  English patterns: 85 paths); a key in both throws at start-up. `src/persona/index.js` is the switch point for a second persona.
-- `src/gate.js` `can(who, feature, detail)`: all 28 existing rule checks go through it (pictures, runware, draw, nude, acts, ai).
-- Per chat: `loadLedger(env, chatId)` + `spend()` keep each chat's share (`byChat`) beside the global caps; `budget.byChat` counts
-  outside calls per chat. MAP notes that paid tiers will need per-chat queues.
-- The persona's language: `LANGUAGE.FOREIGN_SCRIPT` (live.mjs reads it); sayArabizi/tidySpoken/forSpeech in `reem-en/language.js`.
-- Tools: tests load `src/internals.js`; build-panel imports `src/config`; check.mjs and test.yml parse every module; stt-bench reads
-  `CONFIG.HEARING.PROMPT` (the old regex likely matched OR_PROMPT); `tools/split/` keeps the split script, manifest and `fix-imports.mjs`.
-- The old worker.js header (v4-v11 history) is in CHANGELOG's appendix. Inline dated comments stay where they are.
+## Step 2, built this session (dev)
+- `PICTURE.CORE` "frames" (default) | "legacy" (the deployed prompts, kept only for Step 3's old-vs-new bench).
+- Every picture of hers is a ShotSpec (`src/pictures/spec.js`, `interpret.js`) phrased by `framePrompt` (`prompt.js`) from `frames.js`, in
+  order: lens + framing, "She is the woman of image 0, with the body (shape) of image 1: an adult woman, 29.", what she wears, pose,
+  crop edges, place + light, expression, photo line. No body/face/eye/skin words; POV for him; lens for camera; affirmative only.
+- `lint.js`: unit test over every frame and all 46 golden plans (green); runtime findings go to D1 `pictures.lint` (never blocks).
+- `PICTURE.FRAMES`: steps 4, CFG 1, acceleration none, SCHEDULER "" (Default); one LoRA NSFW Unlocked by content (clothed 0.5, partial
+  0.65, nude 0.75, act 0.8, act partly dressed 0.75, /look alone 0); Anatomy Fixer 0.7 only on an anatomy redraw, never on acts.
+- Act vs clothes: garments over the act's region come off, the rest stays. Clothed never gets the nude body. Redraws keep the spec.
+- Route profiles: Runware (4 refs, LoRA, aspect sizes) / Cloudflare (3 refs, no LoRA, FILTER_WORDS). Writer fills JSON (`WRITER.SPEC`).
+- D1 `pictures` gets `spec`, `lint`, `scheduler` columns by self-migration on first write after deploy.
 
 ## Verified this session
-- `node tools/check.mjs` 8 of 8, read line by line. Golden picture plans byte-identical (39 cases).
-- CONFIG deep-equal to the old one (sorted JSON compare against bcbe21c). The settings panel's DEFAULTS line changed key order only.
-- The LIMITS & OOC test reads the moved SYSTEM_PROMPT: `W.SYSTEM_PROMPT` is the persona file's binding, CONFIG uses it, every reply's
-  prompt is checked for the text (scenarios).
-- New unit rows: `can()` answers as the old functions at every level; per-chat ledger and budget; the barrel covers every module.
-- `wrangler deploy --dry-run` bundles (5,259 KiB) and the bundle imports in Node (no load-order error).
-- Deployed (owner: "Deploy"): runs 38826585241 and 38826871125 all steps success; `/health` drew and saw; `/setup` all ✅ (Telegram,
-  DeepSeek, OpenRouter backup, Sulafat clip, Gemini hearing, ElevenLabs, KV, queue: these ran through the new modules).
-- Pre-Step-2 audit: no unresolved names in any module (escope), no duplicate exports (380), D1 `events` 0 rows (nobody wrote yet).
-- Not verified: a reply in Telegram, the first `events` rows, the cron fold.
+- `node tools/check.mjs` 8 of 8 (before the docs; docs 201/201 after). Golden plans (46) dumped and read in full; lint clean.
+- Unit rows: lint, weights ≤ owner caps in 0.05 steps, Anatomy Fixer only from the 2nd try and never on acts, same prompt and spec on
+  3 redraws with 3 seeds, refs per content, act vs clothes, writer fields, D1 columns.
+- Sampler bench (6 pictures, each read at full size; QUALITY): Default ≈ DPM++ 2M Beta, Karras moves the composition (and drew her
+  nude fuller at seed 101). Her hazel-green eyes came through with no face words, in lit scenes.
+- Not verified: the wrangler dry-run bundle (CI runs it on this push: read the `mocked` job), any picture in Telegram, dark-scene eyes.
 
 ## Waiting on the owner
-- Using the bot: the first replies fill `events` (read it with the Cloudflare MCP).
-- Before Step 4: the first candidate references to approve in /studio.
-- Do not send `/restart` (the `/setup` page says to; it wipes her memory).
+- **Sampler:** keep Default (Claude's pick) or try another? Sheet: `face-candidates` runs/2026-10-16-step2-sampler/sheet.jpg.
+- Using the bot: the first replies fill D1 `events`. Before Step 4: approving references in /studio.
+- Do not send `/restart` (it wipes her memory).
 
 ## Next steps (in order; one chat each; paste prompts at the end of WORKPLAN "Rebuild")
-1. **Read `events`** after a few days of use (slow replies, backup use, errors, `late_ms`) and decide hedging / timeout with the owner.
-   Sonnet. *Effort: low.*
-2. **Rebuild Step 2:** the picture core + sampler reading and short list (≤ $0.04), in `src/pictures/` (spec, frames, compose, lint,
-   loras, refs). Opus. *Effort: high.*
-3. **Rebuild Step 3:** bench old vs new and the weight sweep (≤ $0.45). Haiku runs, Opus reads. *Effort: medium.*
+1. **Check CI** of this push (test.yml `mocked`, the wrangler bundle) and fix if red. Haiku or Sonnet. *Effort: low.*
+2. **Rebuild Step 3:** old (CORE "legacy") vs new (CORE "frames") bench, 12 cases x 2 seeds, then the 0.05 weight sweep; include a dark
+   scene for her eyes and one Karras seed (≤ $0.45, ~70 pictures at $0.00585). Haiku runs, Opus reads. *Effort: medium.*
+3. **Read `events`** after some use (slow replies, backup, errors) and decide hedging/timeout with the owner. Sonnet. *Effort: low.*
 4. **Rebuild Step 4:** reference library + Studio References tab (≤ $0.40). Sonnet builds, Opus reviews. *Effort: medium.*
-5. **Later:** WORKPLAN issue 12 (WARDROBE "his oversized shirt", BODY_WORDS read only by tests, /setup's stale Pictures line: Step 2);
-   studio pictures expire from KV with no Telegram copy; `logSent` stores no real size; Cloudflare bench at /nsfw Off; old session
-   branches. Haiku or Sonnet. *Effort: low.*
+5. **Later:** remove CORE "legacy" after Step 3; WORKPLAN issue 12 leftovers (WARDROBE "his oversized" shirt words: the lint flags them
+   at runtime); studio pictures expire from KV; `logSent` sizes. Haiku or Sonnet. *Effort: low.*
 
 ## Open questions for the owner
-- OK to press Actions > Delete retired branches for `tools/retired-branches.txt`?
-- Should the SessionStart hook run `git fetch --unshallow origin` before the sync report? (it listed 50+ false branches again; after
-  unshallowing only `chat-timeout` is left, a superseded commit)
-- Her line on a provider error is "wifi died" for every error; should a 401/402 also ping you once outside the chat?
+- Which sampler (above)?
+- The Runware account showed $3.19 over 558 requests in its "today" window before this session's bench; the bot's own cap is $1/day.
+  Worth a look at Runware's usage page (this session spent $0.043).
+- OK to press Actions > Delete retired branches? Unshallow in the SessionStart hook? A 401/402 ping outside the chat?
 
 ## Prompt for the next chat
-Step 2's paste prompt at the end of `docs/WORKPLAN.md` (Opus, high), or "Read the D1 `events` rows and summarize slow replies, backup use
-and errors" (Sonnet, low).
+"Check the CI run of the Step 2 push to dev (test.yml mocked job incl. the wrangler bundle); then do Rebuild Step 3 from docs/WORKPLAN.md
+(see 'Step 2 build' for what Step 3 needs)." Opus, medium.
