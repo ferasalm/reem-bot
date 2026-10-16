@@ -116,8 +116,8 @@ const cases = (W) => {
     const words = W.picWords(args); // /pic: his words, about her
     if (!W.mayDraw(words)) return { refused: true };
     const { prompt, location, night } = W.customPicture(words);
-    // Rebuild Step 2: picCommand's spec (the picture core); CORE "legacy" draws the prompt as before
-    const spec = W.CONFIG.PICTURE.CORE !== "legacy" ? W.specFromWords(words, { source: "pic" }) : null;
+    // Rebuild Step 2: picCommand's spec (the picture core)
+    const spec = W.specFromWords(words, { source: "pic" });
     return W.drawPicture(env, prompt, { location, night, ledger, custom: true, spec });
   };
   const selfie = (want, at = null) => ({ at, run: (env, ledger) => W.startPicture(env, ledger, "selfie", want, { asked: want || "" }) });
@@ -128,7 +128,7 @@ const cases = (W) => {
     // built at the case's own level, as picCommand does (fix round review: at Off the golden had the On prompt, no SAFE)
     const words = W.picWords(args, nsfw);
     const { prompt, location, night } = W.customPicture(words, undefined, null, nsfw);
-    const spec = W.CONFIG.PICTURE.CORE !== "legacy" ? W.specFromWords(words, { source: "pic", level: nsfw }) : null;
+    const spec = W.specFromWords(words, { source: "pic", level: nsfw });
     return W.drawPicture(env, prompt, { location, night, ledger, custom: true, nsfw, spec });
   };
   return [

@@ -146,7 +146,7 @@ export function lookPicture(env, ledger, text, withHer, log = null, level = CONF
       const wear = withHer && P.SCENE_WEARING && !namesClothes(text) && !nudeWords(text) && !sexAct(text, level) ? `She is wearing ${P.SCENE_WEARING}.` : "";
       const prompt = [style, withHer ? "{who}" : "", body.replace(/[.\s]*$/, "."), wear, light, location && "{room}", withHer ? safeLine(level) : ""].filter(Boolean).join(" ");
       // the picture core (Rebuild Step 2): /look's text as a spec (with her: POV; alone: the scene only)
-      const spec = CONFIG.PICTURE.CORE !== "legacy" ? specFromLook(text, withHer, { level }) : null;
+      const spec = specFromLook(text, withHer, { level });
       const drawn = await drawPicture(env, prompt, { location, night: night || isDark(undefined, lightText || ""), ledger, kind: "scene", herself: withHer, face: withHer, log: { ...log, source: "look" }, nsfw: level, spec });
       model = drawn.model;
       return { bytes: drawn.bytes, kind: "scene", logId: drawn.logId };
@@ -191,7 +191,7 @@ export async function picCommand(env, chatId, args) {
   const dayWear = await dayOutfits(env);
   const { prompt, location, night } = customPicture(words, undefined, dayWear, level);
   // the picture core (Rebuild Step 2): his words as a spec
-  const spec = P.CORE !== "legacy" ? specFromWords(words, { source: "pic", level, dayWear }) : null;
+  const spec = specFromWords(words, { source: "pic", level, dayWear });
   await tg(env, "sendChatAction", { chat_id: chatId, action: "upload_photo" });
   const drawing = (async () => {
     let model = null;

@@ -716,7 +716,7 @@ section("pictures: his photos (Workers AI vision)");
     banana.mode = "draw";
     nb1 = banana.calls.length;
     r = await turn("send me a pic in lingerie", ["[selfie: curled up on the couch in his hoodie]"], { history: APART });
-    yes(r.photos.length === 1 && banana.calls.length === nb1 && KW.some((w) => klein().at(-1).fields.prompt.includes(w)) && !/hoodie/.test(klein().at(-1).fields.prompt), "he asked for lingerie, her words name none: klein draws KLEIN_WARDROBE, not her hoodie", klein().at(-1).fields.prompt);
+    yes(r.photos.length === 1 && banana.calls.length === nb1 && KW.some((w) => [w, W.inFrameOutfit(w, "chest-up")].some((v) => klein().at(-1).fields.prompt.includes(v))) && !/hoodie/.test(klein().at(-1).fields.prompt), "he asked for lingerie, her words name none: klein draws KLEIN_WARDROBE, not her hoodie", klein().at(-1).fields.prompt);
     W.CONFIG.PICTURE.LINGERIE.KLEIN_FIRST = false;
     banana.mode = "refuse";
   }

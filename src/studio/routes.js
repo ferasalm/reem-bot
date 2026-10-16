@@ -166,7 +166,7 @@ export async function studioCompose(env, body, dayWear = null) {
   if (!words) return { ok: false, error: "Type the words first, as you would after /pic." };
   const c = customPicture(words, undefined, dayWear, level);
   // the picture core (Rebuild Step 2): the same spec /pic draws from; its lint findings come back with the plan
-  const spec = CONFIG.PICTURE.CORE !== "legacy" ? specFromWords(words, { source: "pic", level, dayWear }) : null;
+  const spec = specFromWords(words, { source: "pic", level, dayWear });
   const out = await drawPicture(env, c.prompt, { location: c.location, night: c.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: level, planOnly: true, spec });
   // at Off (NSFW.OFF_ROUTE "cloudflare") the bot draws on Cloudflare klein: its prompt and references, named as the studio sends them
   const reason = (out.plan || []).length ? "" : !env.RUNWARE_API_KEY ? "RUNWARE_API_KEY is not set, so there is no Runware plan." : level === "off" ? "" : "Runware isn't the picture route for these words.";

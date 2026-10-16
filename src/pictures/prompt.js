@@ -5,6 +5,7 @@
 // and frames on both.
 import { CONFIG } from "../config/index.js";
 import * as FR from "./frames.js";
+import { inFrameOutfit } from "./interpret.js";
 import { lintPrompt, ruleWords } from "./lint.js";
 import { lorasFor } from "./loras.js";
 import { pickRefs } from "./refs.js";
@@ -73,7 +74,7 @@ export function framePrompt(spec, refs = [], prof = profile("runware")) {
     // 3. what she wears
     const words = String(spec.outfit.words || "").replace(/^(?:Her|His|A|An|The|My)\b/, (w) => w.toLowerCase());
     const outfitPic = at("outfit");
-    if (spec.content === "clothed") out.push(outfitPic >= 0 ? fill(FR.WEAR.outfitPicture, { n: outfitPic }) : fill(FR.WEAR.clothed, { outfit: words }));
+    if (spec.content === "clothed") out.push(outfitPic >= 0 ? fill(FR.WEAR.outfitPicture, { n: outfitPic }) : fill(FR.WEAR.clothed, { outfit: inFrameOutfit(words, spec.framing) }));
     else if (words) out.push(fill(FR.WEAR[spec.outfit.kept] || FR.WEAR.partial, { outfit: words }));
     else out.push(FR.WEAR.nude);
     // 4. pose, and who is in the frame

@@ -24,9 +24,9 @@ export const BACK = "She is seen from behind, her back toward the lens.";
 // 1b. How much of her the frame holds (spec.framing); "detail" says it in the pose
 export const FRAMINGS = {
   face: "Framed close on her face and shoulders; the frame ends at her collarbones.",
-  "chest-up": "Framed from her chest up; the frame ends at mid-chest.",
+  "chest-up": "Framed close from her head to the middle of her chest; the frame ends across her chest.",
   "waist-up": "Framed from her waist up; the frame ends at her waist.",
-  "three-quarter": "Framed from her head to mid-thigh; the frame ends at her thighs.",
+  "three-quarter": "Framed from her head to her knees; the frame ends just below her knees.",
   full: "Framed head to toe, her feet at the bottom of the frame.",
   crotch: "Her vulva fills the center of the frame, her inner thighs at the left and right edges, her lower belly at the top edge.",
   detail: "",

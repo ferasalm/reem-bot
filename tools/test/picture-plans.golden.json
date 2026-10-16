@@ -7,12 +7,13 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [],
           "model": "runware:400@2",
           "positivePrompt": "A first-person perspective from POV's eyes. The view out of my car window at night. It is night, lit only by the lights in the scene. An unretouched iPhone photo, true color, fine grain in dim light.",
           "refs": [],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -24,7 +25,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -33,12 +34,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: pulled up in a messy bun and a few loose strands framing her face. She is fully dressed in her old cardigan and fitted blue jeans. She sits on POV's couch, laughing. She is the only person in the frame. Behind her is the room of image 2. Lit by bright afternoon daylight. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: pulled up in a messy bun and a few loose strands framing her face. She is fully dressed in her old cardigan and fitted blue jeans. She sits on POV's couch, laughing. She is the only person in the frame. Behind her is the room of image 2. Lit by bright afternoon daylight. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:his_living~1"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -50,7 +52,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -64,6 +66,7 @@
             "face-2x",
             "body-v13-back"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -75,7 +78,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -89,6 +92,7 @@
             "face-2x",
             "body-v13-back"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -100,7 +104,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 768,
           "lora": [
             {
@@ -114,6 +118,7 @@
             "face-2x",
             "body-v13-back"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1344
         }
@@ -125,7 +130,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 768,
           "lora": [
             {
@@ -139,6 +144,7 @@
             "face-2x",
             "body-v13-back"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1344
         }
@@ -150,7 +156,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -164,6 +170,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -175,7 +182,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -189,6 +196,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -200,7 +208,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -209,12 +217,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: piled up with a claw clip, loose, messy strands falling out. She is fully dressed in her father's old gray cardigan over a black cami and fitted blue jeans. In the kitchen. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: a shy small smile, chin tucked. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: piled up with a claw clip, loose, messy strands falling out. She is fully dressed in her father's old gray cardigan over a black cami and fitted blue jeans. In the kitchen. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: a shy small smile, chin tucked. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:kitchen~1"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -226,7 +235,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -239,6 +248,7 @@
           "refs": [
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -250,7 +260,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -264,6 +274,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -275,7 +286,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -289,6 +300,7 @@
             "face-2x",
             "body-v13-back"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -300,7 +312,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -309,11 +321,12 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. She is fully dressed in her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a plain black tank top and soft gray sweatpants. With her hair in a messy bun. She is the only person in the frame. Lit by bright afternoon daylight. Her expression: a calm, serious face. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. She is fully dressed in her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a plain black tank top and soft gray sweatpants. With her hair in a messy bun. She is the only person in the frame. Lit by bright afternoon daylight. Her expression: a calm, serious face. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -325,7 +338,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -334,12 +347,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. She is fully dressed in a black turtleneck and fitted blue jeans. Messy bun, red lipstick, on the porch. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: a thoughtful look, lips pressed together. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. She is fully dressed in a black turtleneck and fitted blue jeans. Messy bun, red lipstick, on the porch. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: a thoughtful look, lips pressed together. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:porch~1"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -351,7 +365,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -365,6 +379,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -376,7 +391,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -390,6 +405,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -401,7 +417,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -410,12 +426,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: tucked behind one ear, the rest down. She is fully nude. On the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: a shy, flushed smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: tucked behind one ear, the rest down. She is fully nude. On the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: a shy, flushed smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13",
             "place:bedroom~1"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -427,7 +444,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -436,12 +453,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A mirror selfie: her reflection in a tall mirror, an iPhone in one of her hands at chest height, its lenses toward the mirror, her face beside it. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: pulled up in a messy bun and a few loose strands framing her face. She is fully nude. She stands with her back to the mirror and twists to look over her shoulder at her phone; the reflection shows her back, in the bedroom. Behind her is the room of image 2. Lit by bright afternoon daylight. Her expression: a teasing smile, biting her lower lip. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A mirror selfie: her reflection in a tall mirror, an iPhone in one of her hands at chest height, its lenses toward the mirror, her face beside it. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: pulled up in a messy bun and a few loose strands framing her face. She is fully nude. She stands with her back to the mirror and twists to look over her shoulder at her phone; the reflection shows her back, in the bedroom. Behind her is the room of image 2. Lit by bright afternoon daylight. Her expression: a teasing smile, biting her lower lip. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-back",
             "place:bedroom~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -453,7 +471,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -462,11 +480,12 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: long, loose dark waves with a center part, falling over her shoulders. She is fully dressed in the olive cardigan and jeans. At home. She is the only person in the frame. Lit by bright afternoon daylight. Her expression: a surprised, delighted look, eyebrows raised. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: long, loose dark waves with a center part, falling over her shoulders. She is fully dressed in the olive cardigan and jeans. At home. She is the only person in the frame. Lit by bright afternoon daylight. Her expression: a surprised, delighted look, eyebrows raised. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -478,7 +497,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -492,6 +511,7 @@
             "face-2x",
             "body-v13-back"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -503,7 +523,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -516,6 +536,7 @@
           "refs": [
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -527,7 +548,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -541,6 +562,7 @@
             "face-2x",
             "body-v13-back"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -552,7 +574,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -566,6 +588,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -577,7 +600,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -591,6 +614,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -602,7 +626,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1024,
           "lora": [
             {
@@ -616,6 +640,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1024
         }
@@ -627,7 +652,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -642,6 +667,7 @@
             "body-v13",
             "place:hallway~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -653,7 +679,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -662,18 +688,19 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a gray cardigan and fitted blue jeans. In the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: an unimpressed deadpan look. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a gray cardigan. In the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: an unimpressed deadpan look. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:kitchen~3"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         },
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -682,18 +709,19 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a gray cardigan and fitted blue jeans. In the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: an unimpressed deadpan look. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a gray cardigan. In the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: an unimpressed deadpan look. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:kitchen~3"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         },
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -702,12 +730,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a gray cardigan and fitted blue jeans. In the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: an unimpressed deadpan look. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a gray cardigan. In the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: an unimpressed deadpan look. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:kitchen~3"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -719,7 +748,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -728,11 +757,12 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, at her eye level. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: tucked behind one ear, the rest down. She is fully dressed in a black lace bodysuit. Her extended forearm is cropped at the left edge of the frame. Lit by bright afternoon daylight. Her expression: a daring look straight into the lens. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, at her eye level. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: tucked behind one ear, the rest down. She is fully dressed in a black lace bodysuit. Her extended forearm is cropped at the left edge of the frame. Lit by bright afternoon daylight. Her expression: a daring look straight into the lens. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -744,7 +774,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -753,12 +783,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, at her eye level. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a low, sleek bun at the nape of her neck. She is fully dressed in a fitted rust-red halter crop top and light-blue straight-leg jeans. Sitting up on the counter, legs dangling, leaning back on one of her hands. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: biting back a smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, at her eye level. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a low, sleek bun at the nape of her neck. She is fully dressed in a fitted rust-red halter crop top and light-blue straight-leg jeans. Sitting up on the counter, legs dangling, leaning back on one of her hands. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: biting back a smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:kitchen~1"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -770,7 +801,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -779,11 +810,12 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: long, loose dark waves with a center part, falling over her shoulders. She is fully dressed in a black leather jacket over a fitted gray tee and jeans. At the coffee shop, smiling. Her extended forearm is cropped at the right edge of the frame. Lit by soft window light. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: long, loose dark waves with a center part, falling over her shoulders. She is fully dressed in a black leather jacket over a fitted gray tee. At the coffee shop, smiling. Her extended forearm is cropped at the right edge of the frame. Lit by soft window light. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -795,7 +827,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -804,11 +836,12 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a cream sweater and fitted blue jeans. Smiling. Her extended forearm is cropped at the right edge of the frame. Lit by soft gray overcast daylight from the window. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: messy bedhead waves, a little flat on one side. She is fully dressed in a cream sweater. Smiling. Her extended forearm is cropped at the right edge of the frame. Lit by soft gray overcast daylight from the window. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -820,7 +853,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -829,12 +862,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly below her chin, tilted up. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a high ponytail. She is fully dressed in a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants. Sitting on the floor with her back against the sofa, knees pulled up, a mug beside her. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by bright afternoon daylight. Her expression: a sleepy, lazy smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly below her chin, tilted up. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a high ponytail. She is fully dressed in a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants. Sitting on the floor with her back against the sofa, knees pulled up, a mug beside her. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by bright afternoon daylight. Her expression: a sleepy, lazy smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:living~3"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -846,7 +880,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -855,12 +889,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A mirror selfie: her reflection in a tall mirror, an iPhone in one of her hands at chest height, its lenses toward the mirror, her face beside it. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a loose side braid over one shoulder. She is fully dressed in a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan. She stands with her back to the mirror and twists to look over her shoulder at her phone; the reflection shows her back, in the bedroom. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: laughing, eyes crinkled almost shut. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A mirror selfie: her reflection in a tall mirror, an iPhone in one of her hands at chest height, its lenses toward the mirror, her face beside it. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a loose side braid over one shoulder. She is fully dressed in a fitted olive ribbed cami and soft olive cotton shorts under a long, open cream chunky-knit cardigan. She stands with her back to the mirror and twists to look over her shoulder at her phone; the reflection shows her back, in the bedroom. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: laughing, eyes crinkled almost shut. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:bedroom~1"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -872,7 +907,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -887,6 +922,7 @@
             "body-v13-clothed",
             "place:bedroom_night~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -898,7 +934,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -907,12 +943,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: piled up with a claw clip, loose, messy strands falling out. She is fully nude. On the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: heavy-lidded eyes and a slow smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: piled up with a claw clip, loose, messy strands falling out. She is fully nude. On the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: heavy-lidded eyes and a slow smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13",
             "place:bedroom~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -924,7 +961,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -939,6 +976,7 @@
             "body-v13",
             "place:bedroom~1"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -949,7 +987,7 @@
         {
           "height": 1024,
           "model": "@cf/black-forest-labs/flux-2-klein-4b",
-          "prompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: her long hair down in loose natural waves. She is fully dressed in her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a plain black tank top and soft gray sweatpants. On the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: a playful grin showing her teeth. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "prompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: her long hair down in loose natural waves. She is fully dressed in her father's old gray knit cardigan, elbows worn through, sliding off one shoulder, over a plain black tank top and soft gray sweatpants. On the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. Her expression: a playful grin showing her teeth. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "width": 576
         }
       ],
@@ -962,7 +1000,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -971,12 +1009,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: piled up with a claw clip, loose, messy strands falling out. She is fully dressed in her gray hoodie and black leggings. She curls up on the couch, a mug of tea in her hands, laughing softly at the screen. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to her knees; the frame ends just below her knees. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: piled up with a claw clip, loose, messy strands falling out. She is fully dressed in her gray hoodie and black leggings. She curls up on the couch, a mug of tea in her hands, laughing softly at the screen. She is the only person in the frame. Behind her is the room of image 2. Lit by soft gray overcast daylight from the window. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:living~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -988,7 +1027,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -1002,6 +1041,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -1013,7 +1053,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 768,
           "lora": [
             {
@@ -1027,6 +1067,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 1344
         }
@@ -1038,7 +1079,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -1052,6 +1093,7 @@
             "face-2x",
             "body-v13"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -1063,7 +1105,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -1078,6 +1120,7 @@
             "body-v13-clothed",
             "place:bedroom~3"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -1089,7 +1132,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -1098,12 +1141,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a loose side braid over one shoulder. She is fully dressed in a gray cardigan and fitted blue jeans. Making coffee in her kitchen. Her extended forearm is cropped at the right edge of the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: laughing, eyes crinkled almost shut. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a loose side braid over one shoulder. She is fully dressed in a gray cardigan. Making coffee in her kitchen. Her extended forearm is cropped at the right edge of the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: laughing, eyes crinkled almost shut. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:kitchen~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -1115,7 +1159,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -1124,12 +1168,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close on her face and shoulders; the frame ends at her collarbones. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a loose low ponytail with a silk scrunchie. She is fully dressed in a red silk blouse with the top buttons open and black jeans. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: a raised-eyebrow smirk. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close on her face and shoulders; the frame ends at her collarbones. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a loose low ponytail with a silk scrunchie. She is fully dressed in a red silk blouse with the top buttons open. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by dappled sunlight through the leaves outside the window. Her expression: a raised-eyebrow smirk. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:hallway~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -1141,7 +1186,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -1150,12 +1195,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a high ponytail. She is fully dressed in an oversized gray tee and black sleep shorts. Sits cross-legged on the bed, one hand in her hair. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: a sleepy smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: in a high ponytail. She is fully dressed in an oversized gray tee. Sits cross-legged on the bed, one hand in her hair. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by soft window light. Her expression: a sleepy smile. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:bedroom~2"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }
@@ -1167,7 +1213,7 @@
       "runware": [
         {
           "CFGScale": 1,
-          "acceleration": "none",
+          "acceleration": "high",
           "height": 1344,
           "lora": [
             {
@@ -1176,12 +1222,13 @@
             }
           ],
           "model": "runware:400@2",
-          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, from just behind her shoulder as she glances back into the lens. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: tucked behind one ear, the rest down. She is fully dressed in a gray knit cardigan sliding off one shoulder over a fitted black tank top and soft gray sweatpants. Making pancakes in the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by bright afternoon daylight. Her expression: a teasing smirk. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
+          "positivePrompt": "A smartphone selfie through her front lens, held at arm's length, from just behind her shoulder as she glances back into the lens. Framed close from her head to the middle of her chest; the frame ends across her chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: tucked behind one ear, the rest down. She is fully dressed in a gray knit cardigan sliding off one shoulder over a fitted black tank top. Making pancakes in the kitchen. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. Lit by bright afternoon daylight. Her expression: a teasing smirk. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.",
           "refs": [
             "face-2x",
             "body-v13-clothed",
             "place:kitchen~3"
           ],
+          "scheduler": "DPM++ 2M Karras",
           "steps": 4,
           "width": 768
         }

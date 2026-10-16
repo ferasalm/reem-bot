@@ -27,8 +27,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
   const nanoBanana = level !== "off"; // Nano Banana (OpenRouter) is never drawn at /nsfw Off (2026-10-11)
   const log = { source, chat, asked, herWords: kind === "scene" ? want : said }; // the studio's log (drawPicture)
   // the picture core (Rebuild Step 2): each picture's ShotSpec; a selfie recomposed below (lingerie, a refused tier) gets a new one
-  const core = P.CORE !== "legacy";
-  const specOf = (p) => (!core || !p ? null : p.spec || (kind === "selfie" && p.frame ? specFromSelfie(p, { level }) : null));
+  const specOf = (p) => (!p ? null : p.spec || (kind === "selfie" && p.frame ? specFromSelfie(p, { level }) : null));
   let pic;
   let nanoScene = null; // an in-person moment in lingerie, worded for Nano Banana (real words, her description, no face)
   if (kind === "scene") {
@@ -46,7 +45,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
     const light = night && lightText === P.SCENE_NIGHT ? lightText : lightText && `Lit by ${lightText}.`;
     const wornSafe = filterSafe(wearing, level);
     pic = { prompt: [(act && P.SCENE_ACT_STYLE) || P.SCENE_STYLE, "{who}", filterSafe(what, level).replace(/[.\s]*$/, "."), wornSafe && `She is wearing ${wornSafe}.`, light, location && "{room}", safeLine(level)].filter(Boolean).join(" "), what, location, night: night || isDark(undefined, lightText || ""), wearing, act };
-    if (core) pic.spec = specFromScene(what, { cue: act ? sexCue(want, level) || "act" : "", wearing, level, dayWear });
+    pic.spec = specFromScene(what, { cue: act ? sexCue(want, level) || "act" : "", wearing, level, dayWear });
     if (L.ENABLED && L.SCENES && (lingerieWords(`${wearing} ${what}`) || lingerieWords(asked) || spicyWords(asked))) {
       pic.lingerie = true;
       pic.spicy = spicyWords(`${asked} ${wearing}`);
@@ -77,7 +76,7 @@ export function startPicture(env, ledger, kind, want, { said = "", plan = null, 
       const spicy = !open && nanoBanana && L.ENABLED && (kind === "selfie" ? isSpicy(pic) : !!pic.spicy);
       const lingerie = !open && L.ENABLED && (kind === "selfie" ? !!pic.args && (L.TIERS || []).includes(pic.tier) : !!pic.lingerie);
       // Step C: the picture writer words her own picture (never Nano Banana's or klein's lingerie-check pictures); null = the template
-      if (!spicy && !lingerie && core) {
+      if (!spicy && !lingerie) {
         // the picture core: the writer fills the spec's fields (JSON); the code phrases the prompt
         if (!pic.spec) pic = { ...pic, spec: specOf(pic) };
         const w = await writeSpec(env, kind, pic, pic.spec, { want, history, level });

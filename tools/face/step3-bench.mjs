@@ -1,3 +1,4 @@
+// Needs PICTURE.CORE "legacy", removed in Step 3b (2026-10-16): rerun it from commit 7baf729.
 // Rebuild Step 3 (2026-10-16): the old prompts (PICTURE.CORE "legacy") against the picture core (CORE "frames") through the bot's own /pic
 // path (customPicture → drawPicture for legacy, specFromWords → drawPicture for frames), 13 cases x 2 seeds, then on the frames core:
 // DPM++ 2M Karras against Default (owner: "compare default vs karras with more than one seed"), acceleration "high" (owner: "Yes, test

@@ -70,9 +70,9 @@ export async function drawPicture(env, prompt, opts = {}) {
   const A = P.ANATOMY || {};
   const L = opts.log || {};
   const nsfw = opts.nsfw || P.NSFW.DEFAULT;
-  // the picture core (Rebuild Step 2): with a spec (and CORE "frames") the spec decides; every redraw keeps the same spec, only the seed
-  // changes (the legacy core re-rolled mood, hair and aspect on each redraw)
-  const spec = P.CORE !== "legacy" && opts.spec ? opts.spec : null;
+  // the picture core (Rebuild Step 2): with a spec the spec decides; every redraw keeps the same spec, only the seed changes (the old
+  // prompts re-rolled mood, hair and aspect on each redraw)
+  const spec = opts.spec || null;
   const kindOf = () => (spec ? (spec.herself ? spec.content : "alone") : pictureFlags(prompt, opts.herself !== false, nsfw).kind);
   const newRec = () => ({ ms0: Date.now(), attempts: 0, cost: 0, seed: 0, kind: kindOf(), model: "", prompt: "", refs: [], loras: [], width: null, height: null, steps: null, cfg: null, error: "", note: "", nsfw, spec, lint: null, scheduler: "" });
   const now = (o, rec) => (spec ? drawSpecNow(env, spec, o, rec) : drawPictureNow(env, prompt, o, rec));

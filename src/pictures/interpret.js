@@ -21,6 +21,17 @@ const GARMENT_PHRASES = { "covered breasts": "a top covering her breasts", "brea
 const DEFAULT_BOTTOM = "fitted blue jeans";
 const DEFAULT_TOP = "a fitted black tank top"; // ...and bottoms named with no top
 
+// What she wears, as far as the frame shows it (Step 3b, 2026-10-16: a chest-up selfie that named "fitted blue jeans" was drawn to her
+// hips 2/2; the owner's rule: name nothing the frame doesn't hold). Face and chest-up framings drop each part that names only a bottom
+// (BOTTOM_WORDS, not a top or a one-piece); a part with both stays. Nothing left → the words as they were.
+export const CLOSE_FRAMINGS = ["face", "chest-up"];
+export function inFrameOutfit(words, framing) {
+  if (!CLOSE_FRAMINGS.includes(framing) || !words) return words;
+  const g = garmentLists();
+  const parts = String(words).split(/,\s*(?:and\s+)?|\s+and\s+/);
+  const kept = parts.filter((p) => !(names(p, g.bottom) && !names(p, g.top) && !names(p, g.onePiece)));
+  return kept.length && kept.length < parts.length ? kept.join(" and ") : words;
+}
 // The garment words of the picture's lists: WEARING_WORDS, TOP_WORDS, BOTTOM_WORDS, ONE_PIECE_WORDS
 function garmentLists() {
   const P = CONFIG.PICTURE;

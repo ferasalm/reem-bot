@@ -1162,6 +1162,11 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   eq([x.content, x.outfit.words, x.outfit.kept], ["partial", "jeans", "bottom"], "partly dressed: what stays, and which half");
   x = rd("a cropped white tee");
   eq([x.content, x.outfit.words], ["clothed", "a cropped white tee and fitted blue jeans"], "clothed with only a top: a bottom said affirmatively (was \"never bare\")");
+  // Step 3b: a close framing names only what the frame holds (a chest-up selfie with "fitted blue jeans" was drawn to her hips 2/2)
+  eq(W.inFrameOutfit("a cream sweater and fitted blue jeans", "chest-up"), "a cream sweater", "chest-up: the bottom is out of the words");
+  eq(W.inFrameOutfit("a gray knit cardigan over a fitted black tank top and soft gray sweatpants", "face"), "a gray knit cardigan over a fitted black tank top", "face: the sweatpants are out");
+  eq(W.inFrameOutfit("a cream sweater and fitted blue jeans", "three-quarter"), "a cream sweater and fitted blue jeans", "three-quarter: every garment stays");
+  eq(W.inFrameOutfit("black leggings", "chest-up"), "black leggings", "only a bottom: the words stay");
   // the same spec on every redraw: only the seed changes (the legacy core re-rolled mood, hair and aspect)
   {
     const sent = [];
