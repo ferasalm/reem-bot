@@ -48,7 +48,7 @@ const PHASES = {
   X: [["selfie", 101], ["nude-front", 101], ["nude-front", 202], ["riding", 101], ["riding", 202], ["dark", 101]].map(([c, s]) => ({ c, s, core: "frames", v: "accel", acceleration: "high" })),
   // the weight sweep's edges at seed 101 (the start values are phase A's)
   // Step 3b check: the two slip cases with the new framings, at the built config (Karras + "high")
-  C: ["selfie", "pov-clothed"].flatMap((c) => SEEDS.map((s) => ({ c, s, core: "frames", v: "3b" }))),
+  C: (process.env.CASES ? process.env.CASES.split(",") : ["selfie", "pov-clothed"]).flatMap((c) => SEEDS.map((s) => ({ c, s, core: "frames", v: "3b" }))),
   W: [["selfie", "clothed", 0.4], ["selfie", "clothed", 0.6], ["nude-front", "nude", 0.7], ["nude-front", "nude", 0.8], ["riding", "act", 0.7]].map(([c, k, w]) => ({ c, s: 101, core: "frames", v: `w${k}-${w}`, weight: [k, w] })),
 };
 

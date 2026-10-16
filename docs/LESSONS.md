@@ -99,8 +99,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - A framing slip can be the wear words: a chest-up selfie that named "fitted blue jeans" was drawn to the hips 2/2 → name only the garments
   the frame holds (`inFrameOutfit`, Step 3b, 2026-10-16). Removing a switch: grep the local variable it set too (a leftover `core` in
   deliver.js stopped every selfie; only the golden plans' "drawn: false" showed it).
-- A framing edge on a seated subject facing the lens ("ends just below her knees") puts her knees nearest the lens: klein drew them bare
-  over the named leggings 2/2 (Step 3b check, 2026-10-16) → check every framing edge on a seated pose, not only standing.
+- "Sitting across from POV" seats POV too: klein drew his bare legs toward the lens 4/4 (I first blamed the knee framing; a lap
+  framing made it worse) → POV poses say "facing the lens" (Step 3b check, 2026-10-16). Rule out a second body from the words first.
 - Shot names are matched as words (`shotNamed`) → names nobody writes. Short prompts beat long ones (blowjob 4/4 vs 0/10); on acts the
   expression goes after the act words (early, it turned doggy to face the lens).
 - D1 (`reem-studio`, table `pictures`): Worker `exec()` reads one statement per line → `batch()` of prepared statements; check SQL in

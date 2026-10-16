@@ -78,7 +78,8 @@ export function framePrompt(spec, refs = [], prof = profile("runware")) {
     else if (words) out.push(fill(FR.WEAR[spec.outfit.kept] || FR.WEAR.partial, { outfit: words }));
     else out.push(FR.WEAR.nude);
     // 4. pose, and who is in the frame
-    if (spec.pose) out.push(sentence(spec.pose));
+    // "across from POV" seats POV too: klein drew his bare legs toward the lens 4/4 (Step 3b check); she faces the lens instead
+    if (spec.pose) out.push(sentence(spec.view === "pov" ? spec.pose.replace(/\bacross from POV\b/gi, "facing the lens") : spec.pose));
     if (spec.view === "pov" || spec.view === "closeup") out.push(FR.ONLY_HER);
     if (spec.aspect === "16:9") out.push(FR.ONE_WOMAN);
     // 5. crop edges

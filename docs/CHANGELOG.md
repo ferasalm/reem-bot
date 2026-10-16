@@ -6,7 +6,8 @@ New entries: when a session's HANDOFF "Where we are" item is finished, move its 
 
 ## 2026-10-16 (fifty-fifth session): Step 3b paired check
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. 4 Runware pictures, $0.0156 (Karras + "high", $0.0039 each);
-  step3-bench phase C; pictures on `face-candidates` runs/2026-10-16-step3b-check (4d8297c). Selfie fixed 2/2; POV hoodie: bare knees toward the lens 2/2 (QUALITY).
+  step3-bench phase C; pictures on `face-candidates` runs/2026-10-16-step3b-check (4d8297c). Selfie fixed 2/2; POV hoodie: POV's bare legs toward the lens 2/2. Owner: "Fix it first": a lap framing failed (reverted); "across from POV" →
+  "facing the lens" (prompt.js) fixed 2/2. Total $0.0312 (QUALITY).
 
 ## 2026-10-16 (fifty-fourth session): Rebuild Step 3b (dev only)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. Owner's picks: acceleration "high", DPM++ 2M Karras,
