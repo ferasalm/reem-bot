@@ -4,7 +4,7 @@
 // DPM++ 2M Karras against Default (owner: "compare default vs karras with more than one seed"), acceleration "high" (owner: "Yes, test
 // it"), and the NSFW Unlocked weight sweep at the edges. Math.random is seeded per case and seed, so the variants of one case differ only
 // by the change. The hour is fixed (14:00; the dark case 23:00). Stops at BUDGET_USD (default 0.43) by Runware's reported cost.
-//   NODE_USE_ENV_PROXY=1 node tools/face/step3-bench.mjs <outdir> [phases]   phases: A (old vs new), K (Karras), X (acceleration), W (weights)
+//   NODE_USE_ENV_PROXY=1 node tools/face/step3-bench.mjs <outdir> [phases]   phases: A (old vs new), K (Karras), X (acceleration), W (weights), C (Step 3b check)
 //   DRY=1: the plans only (prompts, references, LoRAs), nothing drawn.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -47,6 +47,8 @@ const PHASES = {
   // acceleration "high" on the frames core
   X: [["selfie", 101], ["nude-front", 101], ["nude-front", 202], ["riding", 101], ["riding", 202], ["dark", 101]].map(([c, s]) => ({ c, s, core: "frames", v: "accel", acceleration: "high" })),
   // the weight sweep's edges at seed 101 (the start values are phase A's)
+  // Step 3b check: the two slip cases with the new framings, at the built config (Karras + "high")
+  C: ["selfie", "pov-clothed"].flatMap((c) => SEEDS.map((s) => ({ c, s, core: "frames", v: "3b" }))),
   W: [["selfie", "clothed", 0.4], ["selfie", "clothed", 0.6], ["nude-front", "nude", 0.7], ["nude-front", "nude", 0.8], ["riding", "act", 0.7]].map(([c, k, w]) => ({ c, s: 101, core: "frames", v: `w${k}-${w}`, weight: [k, w] })),
 };
 

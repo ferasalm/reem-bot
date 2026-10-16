@@ -801,3 +801,10 @@ Verdict (Claude's): the new core is better on rules (no phone or hands where the
 draws her **slimmer** than the old prompts (they had BODY_WORDS; the new core relies on image 1, per the owner's rule). Open: the leggings
 slip, the "chest up" framing slip, the slimness. Karras = Default at the same price: keep Default. Acceleration "high": a third cheaper with
 no loss seen in 6 cases: the owner's call.
+
+## Rebuild Step 3b check: the two slip cases with the new framings, Karras + "high" together (2026-10-16, Opus 5.5 `claude-opus-5-5`; `tools/face/step3-bench.mjs` phase C, `face-candidates` runs/2026-10-16-step3b-check; $0.0156)
+| Case | Seed 101 | Seed 202 |
+|---|---|---|
+| Selfie, cream sweater, kitchen (was drawn to the hips 2/2) | fixed: head to chest, sweater only, her face (eyeliner, hazel-green eyes) | fixed: head to chest, her face, smirk as asked |
+| POV, gray hoodie + black leggings on the couch (was bike shorts 2/2) | **new slip**: leggings on her thighs, but a pair of bare knees/thighs fills the bottom of the frame toward the lens; her face smeared while laughing (melted nose) | **same slip**: leggings worn, bare knees toward the lens (sheer black at the edges); face fine |
+Karras + "high" together: no new artifact on the selfies (2/2 clean); the 101 POV face smear is on a small laughing face, cause unknown (could be "high"). Not fixed: "the frame ends just below her knees" on a seated subject seen from in front puts her knees nearest the lens, and klein draws them bare.

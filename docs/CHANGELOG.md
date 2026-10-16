@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-16 (fifty-fifth session): Step 3b paired check
+- Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. 4 Runware pictures, $0.0156 (Karras + "high", $0.0039 each);
+  step3-bench phase C; pictures on `face-candidates` runs/2026-10-16-step3b-check (4d8297c). Selfie fixed 2/2; POV hoodie: bare knees toward the lens 2/2 (QUALITY).
+
 ## 2026-10-16 (fifty-fourth session): Rebuild Step 3b (dev only)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. Owner's picks: acceleration "high", DPM++ 2M Karras,
   body kept for Step 4. Built: FRAMES.ACCELERATION/SCHEDULER; FRAMINGS chest-up "Framed close from her head to the middle of her chest; the
