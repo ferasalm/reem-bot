@@ -369,6 +369,23 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("pickRefs: Cloudflare (480 px references) keeps its own body picture", cf[1].name === "body-cloudflare");
   const prompt = W.framePrompt(spec({ outfit: { key: "", refId: "", words: "a cream cable-knit sweater and fitted dark jeans", kept: "" } }), hit, rw);
   check("framePrompt: with an outfit picture she wears the outfit of image 1; the lint is green", /She wears the outfit of image 1\./.test(prompt) && W.lintPrompt(prompt, hit.length).length === 0, prompt + JSON.stringify(W.lintPrompt(prompt, hit.length)));
+  // /pic's own steps (picWords -> customPicture -> specFromWords -> drawPicture) with a local catalog holding the approved outfit (Step 4 finish, 2026-10-16)
+  {
+    const wordsPic = "a selfie of her in a cream cable-knit sweater and fitted dark jeans in the kitchen";
+    const mk = () => { const pic = W.customPicture(W.picWords(wordsPic, "on", {}), 14, null, "on"); const sp = W.specFromWords(W.picWords(wordsPic, "on", {}), { source: "pic", level: "on", hour: 14 }); return { pic, sp }; };
+    const { pic, sp } = mk();
+    const plan = await W.drawPicture(env, pic.prompt, { location: pic.location, night: pic.night, custom: true, nsfw: "on", spec: sp, ledger: await W.loadLedger(env), planOnly: true });
+    const t = (plan.plan || [])[0] || {};
+    const names = (t.refs || []).map((r) => r.name || r);
+    check("/pic with an approved outfit: try 1 sends her face, then the outfit picture (not the body picture), and the prompt says she wears the outfit of image 1",
+      names[0] === "face-2x" && names[1] === "lib:1" && !names.some((n) => /^body-/.test(n)) && /She wears the outfit of image 1\./.test(t.text || t.prompt || "") && !(plan.lint || []).length, JSON.stringify({ names, lint: plan.lint, text: t.text || t.prompt }));
+    const { pic: pic2, sp: sp2 } = mk();
+    const before = calls.length;
+    const drawn = await W.drawPicture(env, pic2.prompt, { location: pic2.location, night: pic2.night, custom: true, nsfw: "on", spec: sp2, ledger: await W.loadLedger(env), seed: 101 });
+    const inf = calls.slice(before).filter((c) => c.url === "https://api.runware.ai/v1").map((c) => JSON.parse(c.body)[0]).find((b) => b.taskType === "imageInference");
+    check("/pic with an approved outfit: the Runware request carries at least 2 references (face, then the outfit; by UUID only when UUID_REFS is on) and the picture comes back",
+      !!drawn && !!inf && inf.inputs.referenceImages.length >= 2 && String(inf.inputs.referenceImages[1]).startsWith("uuid") === !!W.CONFIG.PICTURE.RUNWARE.UUID_REFS, JSON.stringify({ drawn: !!drawn, refs: inf && inf.inputs.referenceImages.map((r) => String(r).slice(0, 20)), uuid: W.CONFIG.PICTURE.RUNWARE.UUID_REFS }));
+  }
   // Runware UUIDs: uploaded once, then cached; a UUID Runware forgets is uploaded again as bytes this once
   const lastInference = () => JSON.parse(calls.filter((c) => c.url === "https://api.runware.ai/v1" && JSON.parse(c.body)[0].taskType === "imageInference").at(-1).body)[0];
   const bytes = await W.refBytes(env, "lib:1");

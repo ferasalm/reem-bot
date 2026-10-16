@@ -223,7 +223,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
       if (!j.refs.length) box.appendChild(el("p", { cls: "muted", text: "Nothing here yet." }));
       j.refs.forEach(function (r) { box.appendChild(refCard(r)); });
       return api("/studio/api/refs?status=approved");
-    }).then(function (a) { fillSelect($("rf-new-base"), refBases(a.refs), $("rf-new-base").value); });
+    }).then(function (a) { fillSelect($("rf-new-base"), refBases(a.refs), $("rf-new-base").value || "face-2x"); });
   }
   function makeRef() {
     var change = $("rf-new-change").value.trim();
