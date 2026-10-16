@@ -1,0 +1,42 @@
+{
+ "seed": 101,
+ "spent": 0.025480000000000003,
+ "rows": [
+  {
+   "case": "clothed",
+   "variant": "K",
+   "scheduler": "DPM++ 2M Karras",
+   "steps": 4,
+   "cost": 0.00585,
+   "ms": 8556,
+   "file": "clothed-K.jpg"
+  },
+  {
+   "case": "clothed",
+   "variant": "B",
+   "scheduler": "DPM++ 2M Beta",
+   "steps": 4,
+   "cost": 0.00793,
+   "ms": 20091,
+   "file": "clothed-B.jpg"
+  },
+  {
+   "case": "nude",
+   "variant": "K",
+   "scheduler": "DPM++ 2M Karras",
+   "steps": 4,
+   "cost": 0.00585,
+   "ms": 16999,
+   "file": "nude-K.jpg"
+  },
+  {
+   "case": "nude",
+   "variant": "B",
+   "scheduler": "DPM++ 2M Beta",
+   "steps": 4,
+   "cost": 0.00585,
+   "ms": 8027,
+   "file": "nude-B.jpg"
+  }
+ ]
+}

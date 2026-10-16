@@ -1,0 +1,46 @@
+A smartphone selfie through her front lens, held at arm's length, slightly above her eyes, tilted down. Framed from her chest up; the frame ends at mid-chest. She is the woman of image 0, with the body shape of image 1: an adult woman, 29. Her hair: damp and tousled from the shower. She is fully dressed in a cream cable-knit sweater and dark jeans. Leaning on the kitchen counter. Her extended forearm is cropped at the left edge of the frame. Behind her is the room of image 2. It is night: the windows are dark, and warm lamp light from the room falls on her face. Her expression: a surprised, delighted look, eyebrows raised. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.
+
+{
+ "v": 1,
+ "source": "pic",
+ "herself": true,
+ "view": "selfie",
+ "content": "clothed",
+ "act": null,
+ "back": false,
+ "outfit": {
+  "key": "",
+  "refId": "",
+  "words": "a cream cable-knit sweater and dark jeans",
+  "kept": ""
+ },
+ "garmentState": "on",
+ "hair": {
+  "key": "damp and tousled from the shower",
+  "refId": ""
+ },
+ "place": {
+  "key": "kitchen",
+  "crop": "kitchen_night~1",
+  "night": true
+ },
+ "light": "",
+ "dark": true,
+ "expression": "a surprised, delighted look, eyebrows raised",
+ "pose": "leaning on the kitchen counter",
+ "framing": "chest-up",
+ "aspect": "9:16",
+ "angle": "high",
+ "side": "left",
+ "inFrame": {
+  "her": [],
+  "pov": []
+ },
+ "edges": [
+  {
+   "part": "her extended forearm",
+   "edge": "left"
+  }
+ ],
+ "alone": ""
+}

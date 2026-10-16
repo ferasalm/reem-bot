@@ -1,0 +1,41 @@
+A first-person perspective from POV's eyes, a few steps in front of her. Framed from her head to mid-thigh; the frame ends at her thighs. She is the woman of image 0, with the body of image 1: an adult woman, 29. Her hair: tucked behind one ear, the rest down. She is fully nude. Sitting on the edge of the bed. She is the only person in the frame. Behind her is the room of image 2. Lit by golden hour: low, warm orange sun across her face, long soft shadows. Her expression: a serious, intense look. An unretouched iPhone photo: natural skin texture with pores and fine hair, real light from one side with soft falloff, true color, fine grain in dim light.
+
+{
+ "v": 1,
+ "source": "pic",
+ "herself": true,
+ "view": "pov",
+ "content": "nude",
+ "act": null,
+ "back": false,
+ "outfit": {
+  "key": "",
+  "refId": "",
+  "words": "",
+  "kept": ""
+ },
+ "garmentState": "on",
+ "hair": {
+  "key": "tucked behind one ear, the rest down",
+  "refId": ""
+ },
+ "place": {
+  "key": "bedroom",
+  "crop": "bedroom~2",
+  "night": false
+ },
+ "light": "golden hour: low, warm orange sun across her face, long soft shadows",
+ "dark": false,
+ "expression": "a serious, intense look",
+ "pose": "sitting on the edge of the bed",
+ "framing": "three-quarter",
+ "aspect": "9:16",
+ "angle": "",
+ "side": "",
+ "inFrame": {
+  "her": [],
+  "pov": []
+ },
+ "edges": [],
+ "alone": ""
+}

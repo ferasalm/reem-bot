@@ -1,0 +1,24 @@
+{
+ "seed": 101,
+ "spent": 0.0117,
+ "rows": [
+  {
+   "case": "clothed",
+   "variant": "D",
+   "scheduler": "Default",
+   "steps": 4,
+   "cost": 0.00585,
+   "ms": 14466,
+   "file": "clothed-D.jpg"
+  },
+  {
+   "case": "nude",
+   "variant": "D",
+   "scheduler": "Default",
+   "steps": 4,
+   "cost": 0.00585,
+   "ms": 24936,
+   "file": "nude-D.jpg"
+  }
+ ]
+}
