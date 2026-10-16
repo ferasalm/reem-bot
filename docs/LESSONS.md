@@ -5,11 +5,10 @@ proved wrong, delete ones that no longer apply. Only verified lessons, dated. Ne
 At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it back to about 150 (owner, 2026-10-11).
 
 ## 1. You can do this yourself (don't ask the owner)
-- Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` works (face.yml). Klein needs multipart form data even
-  with only a prompt; reference images under 512x512 (ours: 480). The container can't reach api.cloudflare.com, openrouter.ai or
-  workers.dev (network policy; the owner can allow a host): a Cloudflare question goes to a small workflow that runs on a push of its
-  script to your branch (`cf-lora-probe.yml`, 2026-10-13). Deleting branches, `gh run download` and a KV dump workflow are refused;
-  reading `tools/face/` images works. Read Actions logs with the GitHub MCP (`actions_list` / `get_job_logs`, `per_page` small); a job still running answers 404 for its log: wait for it to complete (2026-10-13).
+- Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` works (face.yml). Klein needs multipart form data even with only a prompt;
+  references under 512x512 (ours: 480). The container can't reach api.cloudflare.com, openrouter.ai or workers.dev: a Cloudflare question goes to a small
+  workflow that runs on a push of its script to your branch (`cf-lora-probe.yml`, 2026-10-13). Deleting branches, `gh run download` and a KV dump workflow
+  are refused; reading `tools/face/` images works. Read Actions logs with the GitHub MCP (`get_job_logs` with `return_content`, small `tail_lines`); a job still running answers 404.
 - Read the live Worker after a deploy: the deploy log's Version ID, `/health` and `/setup` (`workers_get_worker_code` is the ~5 MB
   bundle); Vectorize "already exists" errors (3002, 40004) are normal. D1: `d1_databases_list`, `d1_database_create`,
   `d1_database_query` (several statements in one call) on the Cloudflare MCP (2026-10-11).
@@ -33,18 +32,16 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Runware klein 9B bills GPU time in ~$0.0008 steps: 768x1344 $0.0025-0.0079 (each LoRA or reference adds a step); steps and CFG
   don't. Calls past ~60 s die at the proxy. `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture` benches the bot's own code
   (calls ~4 s apart; wrap `fetch` to fix `seed`). A 502 "no picture" is often billed: read `usage`, budget ~20% over (2026-10-13).
-- Samplers for klein 9B (read 2026-10-16, Step 2): BFL's reference is 4 steps, CFG 1 (step- and guidance-distilled); Runware's
-  `scheduler` enum has 75 names (FlowMatchEulerDiscreteScheduler, Euler Beta, DPM++ 2M/Karras/Beta/SDE ...) and its scheduler page calls
-  flow-match Euler FLUX's usual default; guides: Euler + simple cleanest, never ancestral/SDE on distilled models, Karras/exponential
-  spacing distorts flow schedules. Bench (seed 101): Default ≈ DPM++ 2M Beta, Karras moves the composition. WebFetch can't reach
-  outside hosts from the container (ENOTFOUND): read with WebSearch. A picture with 3 references + 1 LoRA is $0.00585 (not $0.003);
-  a `failedModelLoad` first try is sometimes billed: read `usage.total`, budget one picture over the cap. Cost by sampler (cost bench):
-  every one-call sampler (Default, DPM++ 2M/3M, UniPC, Euler Beta) $0.00585, Heun $0.00793; acceleration "high" $0.0039 (the cost lever).
-- Runware `imageUpload` (free, answers `imageUUID`; `inputs.referenceImages` takes it): the same seed drew another background than base64 and billed $0.0022 vs $0.0039
-  (Step 4 probe, 2026-10-16) → `RUNWARE.UUID_REFS` off. A `failedModelLoad` twice in a row on one case: stop, don't loop. Nude-front test: her face picture doesn't slim her.
-- Runware's own schema for a model: the Runware MCP `model_schema` (free). klein 9B (`runware:400@2`): at most 4 reference images,
-  each a UUID, URL or base64; `scheduler` is an enum with no stated default (we send none = "Default"); defaults steps 4, CFG 3.5,
-  acceleration "high"; `negativePrompt` is ignored at CFG ≤ 1 (2026-10-15).
+- Runware klein 9B samplers and schema (Steps 2-4, 2026-10-15/16): BFL's reference is 4 steps, CFG 1; `scheduler` has 75 names and no stated default (we send
+  none = "Default"); never ancestral/SDE on distilled models. Bench: Default ≈ DPM++ 2M Beta ≈ Karras (same picture 6/6, Karras can move the composition).
+  Cost with 3 refs + 1 LoRA: every one-call sampler $0.00585, Heun $0.00793, acceleration "high" $0.0039. `negativePrompt` is ignored at CFG ≤ 1; at most 4
+  references; the Runware MCP `model_schema` is free; WebFetch can't reach outside hosts (ENOTFOUND): use WebSearch. A `failedModelLoad` first try is sometimes
+  billed (read `usage.total`, budget one picture over the cap); twice in a row on one case: stop.
+- Runware `imageUpload` (free): a UUID in `referenceImages` drew another background than base64 at one seed and billed $0.0022 vs $0.0039 (Step 4, 2026-10-16)
+  → `RUNWARE.UUID_REFS` off. Nude-front test: her face picture doesn't slim her.
+- GitHub Actions (2026-10-16): every workflow failing in 2-5 s with no steps and a 404 log (Tests 679-682, Deploy 55, rerun too) is an account-level Actions
+  problem (billing, quota or outage), not the code: check the last green run's time, tell the owner, don't loop reruns. `actions_list` ignores `per_page` and
+  filters and can dump 20 KB: read one run with `actions_get` + `list_workflow_jobs`.
 - A bench that skips the command's own word step tests another prompt: /pic runs `picWords` (me → the man) before `specFromWords`;
   without it "across from me" reached the prompt as "me" (Step 3 dry run, 2026-10-16) → call the same steps, dry-run (`DRY=1`) and read prompts first.
 - Bench harness: seed `Math.random` per case so variants differ only by the change; `env` gets an `AI` stub; `convert -resize x700
@@ -114,6 +111,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 ## 2b. Known traps (chat, voice, code)
 - Studio picture stretched and its text one letter per line (2026-10-15): a flex `.row` stretches its children; a 100%-wide
   image squeezed the text column to ~0 px and took the text's height → stack the picture above the text (read in the CSS; Step 0 checks it in Playwright).
+- Studio selects (2026-10-16): `setSelect(sel, "")` adds a blank option and selects it, so a form read before the user touched the select sent `base: ""`
+  ("Pick a base picture."): pass a real default to `fillSelect`; `tools/test/studio-refs.mjs` (Playwright, 390 px) found it.
 - A link opened from another app: a 302 setting `SameSite=Strict` loses the cookie → answer the page with `SameSite=Lax`; reproduce
   over https from a different site (`tools/test/studio-browser.mjs`, 2026-10-11).
 - History before v10 has no `parts` (no /edit or /rewind: NOT_FOUND); older chat is in `m:` notes (TOO_OLD). Telegram deletes bot
