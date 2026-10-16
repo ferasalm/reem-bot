@@ -8,6 +8,7 @@ New entries: when a session's HANDOFF "Where we are" item is finished, move its 
 - Sonnet 5.5 (`claude-sonnet-5-5`, configured and served per get_session); Opus 5.5 advisor set, not called; no subagents. $0 Runware.
   Fix: References tab base select defaulted to "" (`setSelect` appends a blank option) → `fillSelect(..., value || "face-2x")`. New: `tools/test/studio-refs.mjs`
   (Playwright 390 px, page.route fixtures), two studio.mjs rows (/pic with an approved outfit). check.mjs 8 of 8. Commit 8d0f79c on dev, the session branch and `main`.
+- Deployed later the same session: Deploy by hand, run 38855045063 (run_number 56) green, Version `84fd5b01-afce-4290-a78e-2270e08cd51f`, /health ok, /setup all ✅ (DECISIONS).
 - Deploy run 38854226211 (run_number 55) failed in 4 s, the rerun (attempt 2) in 5 s; job log 404, no steps. Tests runs 679-682 failed the same way since 05:00 UTC
   (last green 677 at 04:46 UTC). Live Version stays `649f169d` (c652eb3).
 
