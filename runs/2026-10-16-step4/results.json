@@ -1,0 +1,137 @@
+{
+ "spent": 0.02938,
+ "log": [
+  {
+   "phase": "U",
+   "mode": "bytes",
+   "file": "U-bytes.jpg",
+   "bytes": 295484,
+   "sent": [
+    "data",
+    "data"
+   ],
+   "cost": 0.0039
+  },
+  {
+   "phase": "U",
+   "mode": "uuid",
+   "file": "U-uuid.jpg",
+   "bytes": 298466,
+   "sent": [
+    "data",
+    "843df3e0-b4d7-488d-9929-a2d5cb5206c2"
+   ],
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-01-outfit.jpg",
+   "kind": "outfit",
+   "key": "a fitted rust-red halter crop top and light-blue straight-leg jeans",
+   "tags": "everyday",
+   "base": "body-v13-clothed",
+   "prompt": "The same body, now in a fitted rust-red halter crop top and light-blue straight-leg jeans, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.00169
+  },
+  {
+   "phase": "B",
+   "file": "B-02-outfit.jpg",
+   "kind": "outfit",
+   "key": "a cream cable-knit sweater and fitted dark jeans",
+   "tags": "everyday",
+   "base": "body-v13-clothed",
+   "prompt": "The same body, now in a cream cable-knit sweater and fitted dark jeans, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-03-outfit.jpg",
+   "kind": "outfit",
+   "key": "a fitted black ribbed tank top and high-waisted jeans",
+   "tags": "everyday",
+   "base": "body-v13-clothed",
+   "prompt": "The same body, now in a fitted black ribbed tank top and high-waisted jeans, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-04-outfit.jpg",
+   "kind": "outfit",
+   "key": "a fitted olive ribbed long-sleeve top and gray yoga pants",
+   "tags": "everyday",
+   "base": "body-v13-clothed",
+   "prompt": "The same body, now in a fitted olive ribbed long-sleeve top and gray yoga pants, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.0039
+  },
+  {
+   "phase": "B",
+   "file": "B-05-hair.jpg",
+   "kind": "hair",
+   "key": "long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows",
+   "tags": "hair",
+   "base": "face-2x",
+   "prompt": "The same woman, same face, her hair long, layered jet-black waves falling past her chest, with soft wispy curtain bangs grazing her brows, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-06-hair.jpg",
+   "kind": "hair",
+   "key": "pulled up in a big messy top bun, no bangs, loose wispy strands around her face and neck",
+   "tags": "hair",
+   "base": "face-2x",
+   "prompt": "The same woman, same face, her hair pulled up in a big messy top bun, no bangs, loose wispy strands around her face and neck, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-07-hair.jpg",
+   "kind": "hair",
+   "key": "in a high ponytail",
+   "tags": "hair",
+   "base": "face-2x",
+   "prompt": "The same woman, same face, her hair in a high ponytail, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-08-hair.jpg",
+   "kind": "hair",
+   "key": "half-up with a black claw clip, the rest falling down her back",
+   "tags": "hair",
+   "base": "face-2x",
+   "prompt": "The same woman, same face, her hair half-up with a black claw clip, the rest falling down her back, same pose, plain background.",
+   "seed": 101,
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-09-body.jpg",
+   "kind": "body",
+   "key": "fuller body",
+   "tags": "body, fuller",
+   "base": "body-v13-clothed",
+   "prompt": "The same woman, same pose, plain background: narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, feminine curves.",
+   "seed": 101,
+   "cost": 0.00221
+  },
+  {
+   "phase": "B",
+   "file": "B-10-body.jpg",
+   "kind": "body",
+   "key": "fuller nude front",
+   "tags": "body, fuller, nude",
+   "base": "body-v13",
+   "prompt": "The same woman, same pose, plain background: narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, feminine curves.",
+   "seed": 101,
+   "cost": 0.00221
+  }
+ ]
+}
