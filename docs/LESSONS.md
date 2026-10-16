@@ -43,6 +43,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Runware's own schema for a model: the Runware MCP `model_schema` (free). klein 9B (`runware:400@2`): at most 4 reference images,
   each a UUID, URL or base64; `scheduler` is an enum with no stated default (we send none = "Default"); defaults steps 4, CFG 3.5,
   acceleration "high"; `negativePrompt` is ignored at CFG ≤ 1 (2026-10-15).
+- A bench that skips the command's own word step tests another prompt: /pic runs `picWords` (me → the man) before `specFromWords`;
+  without it "across from me" reached the prompt as "me" (Step 3 dry run, 2026-10-16) → call the same steps, dry-run (`DRY=1`) and read prompts first.
 - Bench harness: seed `Math.random` per case so variants differ only by the change; `env` gets an `AI` stub; `convert -resize x700
   +append` for sheets; stub `globalThis.fetch` and print each Runware request to find causes for free (2026-10-10, 2026-10-13).
 - /setup is a web page (owner, 2026-10-06): never tell him to send it; its "send /restart" line wipes her memory: don't repeat it.

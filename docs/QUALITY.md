@@ -771,3 +771,33 @@ twice with `failedModelLoad` and both tries were billed ($0.0117); the pictures 
 Verdict (Claude's): at 4 steps every one-call sampler costs the same and draws nearly the same picture, so the sampler is not a cost lever;
 two-call samplers (Heun, DPM2, the SDE singlestep kinds) cost about a third more. Acceleration "high" is the cost lever: a third cheaper,
 no loss seen on this one picture. Not tested: acceleration on a nude, an act, a dark scene, another seed.
+
+## Rebuild Step 3: old prompts (CORE "legacy") vs the picture core (CORE "frames"), Karras, acceleration, weights (2026-10-16, Opus 5.5 `claude-opus-5-5`; `tools/face/step3-bench.mjs`, `face-candidates` runs/2026-10-16-step3)
+Through the bot's own /pic path (picWords → customPicture / specFromWords → drawPicture), level On, 14:00 (dark case 23:00), seeds 101 and 202, the
+anatomy check and the writer off. 64 pictures, each read at full size (anal on full-size crops). Spend $0.43628 by Runware `usage.total`
+(12.88534 → 13.32162; the cap was $0.45; the bench stopped itself at $0.4265; one weight picture failed with `inferenceError`, not billed).
+
+| Case (2 seeds) | Old (Lenovo 1.3 + 2nd LoRA, $0.00793) | New (NSFW Unlocked by content, $0.00585) |
+|---|---|---|
+| selfie (cream sweater, kitchen) | **drew mirror selfies with the phone in hand 2/2** (the shot was a front-lens selfie); fuller | front-lens selfie, no phone, 2/2; her brows, liner, hazel-green eyes; **slimmer**; framed to the hips, not "chest up" (2/2) |
+| mirror (black tank, jeans) | right; fuller arms and bust | right; **slimmer arms 2/2**; bangs drawn at 202 (the hair pick) and the phone hides half her face |
+| POV clothed (hoodie, black leggings) | **his hands holding a phone at the bottom (101)** | no hands; **leggings drawn as bike shorts with bare thighs 2/2** |
+| partial (topless, jeans, mirror) | right | right |
+| nude front | right, fuller | right, face clearer; a little slimmer |
+| nude back | right | right |
+| blowjob, riding, missionary, doggy, reverse cowgirl | right; fuller; a harsher, "AI" skin at 1:1 | right; anatomy as named on full-size reads; cleaner skin; a little slimmer |
+| anal doggy | right 2/2 | right 2/2 (penis in the anus on full-size crops) |
+| dark (bed at night, gray tee) | eyes hazel-green 2/2 | eyes hazel-green 2/2 (the face lit by a lamp; the room dark) |
+
+Sampler and acceleration on the new core (same seed as the Default picture; RMSE against Default 0.06-0.11 for Karras, 0.08-0.12 for acceleration):
+| Variant | Cost | Seen (selfie, nude front, riding; 2 seeds each, dark for acceleration) |
+|---|---|---|
+| DPM++ 2M Karras | $0.00585 | the same picture as Default 6/6 (small texture differences); not fuller this time (the 101 fuller nude of the short list did not repeat) |
+| acceleration "high" | **$0.0039** | the same picture as Default 6/6, dark included; no loss seen |
+
+Weights (seed 101): clothed 0.6 ≈ 0.5 (the same picture); nude 0.7 ≈ 0.75. Clothed 0.4 failed (Runware `inferenceError`), the rest not reached (budget).
+
+Verdict (Claude's): the new core is better on rules (no phone or hands where they don't belong, the shot as named) and a quarter cheaper; it
+draws her **slimmer** than the old prompts (they had BODY_WORDS; the new core relies on image 1, per the owner's rule). Open: the leggings
+slip, the "chest up" framing slip, the slimness. Karras = Default at the same price: keep Default. Acceleration "high": a third cheaper with
+no loss seen in 6 cases: the owner's call.

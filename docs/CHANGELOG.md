@@ -4,12 +4,14 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
-## 2026-10-16 (fifty-third session): the sampler cost bench (dev only)
+## 2026-10-16 (fifty-third session): the sampler cost bench and Rebuild Step 3's bench (dev only)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. Owner: "Let's continue with step two, especially on
   testing the samplers, I have not chosen one yet, I will choose based on cost". CI of the Step 2 push (test.yml run 38846706576, run_number
   664 on cfec209): mocked (incl. the wrangler bundle) and sync success, live skipped. Sampler cost bench (QUALITY): 7 pictures, $0.05278
   by `usage.total` (cap $0.05; two billed `failedModelLoad` tries). Every one-call sampler $0.00585, Heun $0.00793, acceleration "high"
   $0.0039. `tools/face/sampler-bench.mjs` gained variants U, T, H, A, D2 and `CASES`. Nothing in the bot changed.
+- Then (owner: "Answer first, ask me which one to choose, then rebuild step 3"): Step 3 bench (`tools/face/step3-bench.mjs`), 64 pictures,
+  $0.43628 by `usage.total` (12.88534 → 13.32162), `face-candidates` a572409 runs/2026-10-16-step3; QUALITY "Rebuild Step 3".
 
 ## 2026-10-16 (fifty-second session): Rebuild Step 2, the picture core (dev only)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. New: spec.js, interpret.js, frames.js, prompt.js,

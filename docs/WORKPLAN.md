@@ -1189,6 +1189,14 @@ Records:
   Karras drew her nude fuller at seed 101 (worth one more seed in the sweep). A picture costs $0.00585 (3 references + 1 LoRA), so the
   Step 3 budget ($0.45) holds about 70 pictures.
 
+### Step 3 bench (Opus 5.5 `claude-opus-5-5`, 2026-10-16): done (QUALITY "Rebuild Step 3")
+- Run by Opus in one chat (no Haiku: the run is one script; the reading is Opus's). 64 pictures, $0.436. Added the owner's asks: Default
+  vs DPM++ 2M Karras on 3 cases x 2 seeds (the same picture, the same price) and acceleration "high" on 6 cases ($0.0039, no loss seen).
+- New core: rules kept (no phone or hands where they don't belong), a quarter cheaper, a little slimmer than the old prompts. To fix
+  (Step 3b, $0): "black leggings" drawn as bike shorts with bare thighs in POV (2/2): the framing "ends at her thighs" likely invites it
+  (try "head to knees" or "her legs in black leggings"); the selfie's "from her chest up" drawn to the hips (2/2). Waiting on the owner:
+  acceleration "high", and whether the slimmer body is wanted (the reference picture decides now, per his rule).
+
 ### Issues and bugs found (existing or likely), to fix in the step named
 
 1. The double `budget.used++` at four call sites, and the 50-call free-plan limit on a Paid account. (0)
