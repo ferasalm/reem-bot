@@ -1,0 +1,73 @@
+{
+ "spent": 0.0156,
+ "rows": [
+  {
+   "phase": "C",
+   "case": "selfie",
+   "seed": 101,
+   "core": "frames",
+   "variant": "3b",
+   "file": "selfie-101-3b.jpg",
+   "ms": 8637,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "high"
+  },
+  {
+   "phase": "C",
+   "case": "selfie",
+   "seed": 202,
+   "core": "frames",
+   "variant": "3b",
+   "file": "selfie-202-3b.jpg",
+   "ms": 7518,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "high"
+  },
+  {
+   "phase": "C",
+   "case": "pov-clothed",
+   "seed": 101,
+   "core": "frames",
+   "variant": "3b",
+   "file": "pov-clothed-101-3b.jpg",
+   "ms": 7971,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "high"
+  },
+  {
+   "phase": "C",
+   "case": "pov-clothed",
+   "seed": 202,
+   "core": "frames",
+   "variant": "3b",
+   "file": "pov-clothed-202-3b.jpg",
+   "ms": 7551,
+   "cost": 0.0039,
+   "loras": [
+    "ferasalm:nsfwunlock@1@0.5"
+   ],
+   "refs": 3,
+   "size": "768x1344",
+   "scheduler": "DPM++ 2M Karras",
+   "acceleration": "high"
+  }
+ ]
+}
