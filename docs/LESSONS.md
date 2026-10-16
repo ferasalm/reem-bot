@@ -40,6 +40,8 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   outside hosts from the container (ENOTFOUND): read with WebSearch. A picture with 3 references + 1 LoRA is $0.00585 (not $0.003);
   a `failedModelLoad` first try is sometimes billed: read `usage.total`, budget one picture over the cap. Cost by sampler (cost bench):
   every one-call sampler (Default, DPM++ 2M/3M, UniPC, Euler Beta) $0.00585, Heun $0.00793; acceleration "high" $0.0039 (the cost lever).
+- Runware `imageUpload` (free, answers `imageUUID`; `inputs.referenceImages` takes it): the same seed drew another background than base64 and billed $0.0022 vs $0.0039
+  (Step 4 probe, 2026-10-16) → `RUNWARE.UUID_REFS` off. A `failedModelLoad` twice in a row on one case: stop, don't loop. Nude-front test: her face picture doesn't slim her.
 - Runware's own schema for a model: the Runware MCP `model_schema` (free). klein 9B (`runware:400@2`): at most 4 reference images,
   each a UUID, URL or base64; `scheduler` is an enum with no stated default (we send none = "Default"); defaults steps 4, CFG 3.5,
   acceleration "high"; `negativePrompt` is ignored at CFG ≤ 1 (2026-10-15).
@@ -129,6 +131,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   scenarios reach PICTURE_SHARE mid-run → reset the test ledger before late picture blocks (Step B, 2026-10-13).
 - Test stubs key on prompt text: the scenarios' writer stub matched "You write the words of one photo", so a new writer template
   (WRITER.SPEC) went unanswered; the golden harness turns WRITER off for all cases (a case with `writer` turns it on) (2026-10-16).
+- A fake D1 filter written as `rows.filter((r) => r.x === args[i++])` consumes one arg per row → read the arg once before filtering (studio.mjs, 2026-10-16).
 - Golden cases are seeded by index: add cases at the end; compare case by case. Shrinking a MOODS/GAZES list shifts later picks in
   those cases only: expected, read them (Step B).
 - An odd AI error (`5006 '/seed'`) was out of neurons (4006) → run `ai-diag.yml` and read Cloudflare's analytics before fixing the

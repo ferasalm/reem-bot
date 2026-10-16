@@ -2,3 +2,4 @@ tools/face/out/
 dist/
 tools/voice/out/
 __pycache__/
+tools/face/runs/

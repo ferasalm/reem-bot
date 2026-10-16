@@ -4,46 +4,46 @@ Current state only, **rewritten every session** (`/handoff`). At most 80 lines (
 Decisions: `docs/DECISIONS.md` (older ones: `docs/DECISIONS-ARCHIVE.md`, grep it). Lessons: `docs/LESSONS.md`. Code map + checks: `docs/MAP.md`.
 History: `docs/CHANGELOG.md`. Work plan: `docs/WORKPLAN.md` (its end holds "Rebuild (2026-10-15)", the current plan, with paste prompts).
 
-**Last updated:** 2026-10-16 (fifty-fifth session: Opus 5.5, `claude-opus-5-5`, configured and served per get_session; no subagents).
-Step 3b paired check run, POV slip fixed. Runware this session: $0.0312.
-**Deployed:** `main` = c652eb3 (Step 1), Version `649f169d-b85c-44e1-9692-8085f0b3e4ae`. Steps 2 and 3b are NOT deployed.
+**Last updated:** 2026-10-16 (fifty-sixth session: Sonnet 5.5, `claude-sonnet-5-5`, configured and served per get_session; Opus 5.5 advisor once; no subagents).
+Rebuild Step 4 built (reference library). Runware this session: $0.0451.
+**Deployed:** `main` = c652eb3 (Step 1), Version `649f169d-b85c-44e1-9692-8085f0b3e4ae`. Steps 2, 3b and 4 are NOT deployed.
 Rollback: push `ba540c9`. Deploy = `git push origin origin/dev:main`, only when the owner says "deploy".
-**On `dev`:** Step 2 (the picture core) + Step 3b + this session's check and POV fix.
+**On `dev`:** Step 2 (picture core) + 3b + POV fix + Step 4 (library, References tab).
 
 ## Where we are
-Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: chat on DeepSeek V4 Flash (Workers AI, 60 s), voice Sulafat,
-hearing Gemini, pictures Runware klein 9B (Nude/On) and Cloudflare klein 4B (Off), still on the old prompts (main = Step 1).
-Rebuild: 0 done → 1 done (deployed) → 2 done (dev) → 3 bench done → 3b done and checked (dev) → **4 reference library** → 5 deploy.
-Runware for the Rebuild: $0.606 of $1.00 (Step 4 planned ≤ $0.40).
+Telegram roleplay companion "Reem" (@reem_nabot) on Cloudflare Workers. Live: still the old prompts (main = Step 1).
+Rebuild: 0, 1 done (deployed) → 2, 3, 3b done (dev) → **4 built (dev), candidates not yet approved** → 5 deploy.
+Runware for the Rebuild: $0.651 of $1.00.
 
-## This session (QUALITY "Rebuild Step 3b check"; pictures `face-candidates` runs/2026-10-16-step3b-*)
-- Built config, Karras + acceleration "high" together ($0.0039 a picture): no artifact from them in 6 pictures.
-- Selfie (cream sweater, kitchen), seeds 101/202: fixed: head to chest, sweater only, her face, eyeliner, hazel-green eyes.
-- POV (gray hoodie, black leggings, couch): the leggings were right, but bare legs came toward the lens 2/2. They were POV's own legs:
-  "Sitting across from POV" seats him. Fix (owner: "Fix it first"): `framePrompt` turns "across from POV" into "facing the lens" in POV
-  poses; fixed 2/2. A lap framing was tried first: worse, reverted.
-- `tools/face/step3-bench.mjs` phase C (`CASES=` picks cases).
+## This session (Step 4; QUALITY "Rebuild Step 4"; pictures `face-candidates` runs/2026-10-16-step4*)
+- `src/pictures/library.js`: D1 `refs`, KV `ref:<id>`, `loadLibrary` (approved only), `pickRefs(spec, prof, lib)`: a clothed front view whose clothes
+  match an approved outfit's key sends that picture as image 1; a matching hairstyle takes slot 3. Cloudflare, back views, nudes, golden plans unchanged.
+- Studio References tab (`/studio/api/refs`, `/make`, `/batch`, `/set`): new candidate from a base + change text, "first batch" button (~$0.04),
+  Approve / Reject / Retire / key and tags. Nothing reaches the bot until approved.
+- `RUNWARE.UUID_REFS` false: UUID refs drew another background than base64 at one seed (cheaper, $0.0022); off until you pick.
+- First batch drawn here to read (not in the live catalog: this container can't write KV): 4 outfits good, 4 hair pictures carry full faces
+  (bangs one is not her), fuller-body candidates weak. Face-vs-no-face nude: the face picture does not slim her (seed 101 only; seed 202 failed twice).
 
 ## Verified this session
-- `node tools/check.mjs` 8 of 8; golden plans unchanged by the fix (no golden case says "across from POV").
-- Every picture read one at a time at full size (8 pictures); dry-run prompts read before each paid run.
-- Not verified: "across from POV" wording from /look or the writer (only /pic's words tested); other POV seated poses.
+- `node tools/check.mjs` 8 of 8; golden plans unchanged; studio.mjs rows for the catalog, approval, pickRefs, UUID cache and stale-UUID fallback; page script parses.
+- Every picture read at full size. Not verified: the References tab in a browser at 390 px (Playwright not run), a UUID's life over days, an approved outfit drawn through /pic.
 
 ## Waiting on the owner
-- Deploy Steps 2 + 3b now, or after Step 4? (Everything on dev is checked.)
-- Using the bot: the first replies fill D1 `events`. Before Step 4: approving references in /studio. Do not send `/restart`.
+- Deploy Steps 2 + 3b + 4 (the References tab exists only after a deploy); then open /studio > References, press "Draw the first batch", approve outfits.
+- Hair pictures: approve none until a blurred-face version is tested (they carry her face). Do not send `/restart`.
 
 ## Next steps (in order; one chat each)
-1. **Rebuild Step 4:** reference library + Studio References tab (≤ $0.40; her body here: a fuller body reference, and test whether
-   the face picture slims her). Sonnet builds, Opus reviews. *Effort: medium.*
-2. **Read `events`** after some use and decide hedging/timeout with the owner. Sonnet. *Effort: low.*
-3. **Later:** WORKPLAN issue 12 leftovers (WARDROBE "his oversized" shirt words); studio pictures expire from KV; `logSent` sizes; remove
-   runwarePlan once /face and /health draw from a spec; other ways POV gets seated ("next to POV", "on POV's lap" are fine). Haiku. *Effort: low.*
+1. **Step 4 finish:** Playwright at 390 px on the References tab; blurred-face hair bench; one approved outfit drawn through `/pic` with a local catalog;
+   a fuller body reference that works (the two candidates don't). Sonnet builds, Opus reads pictures. ≤ $0.15. *Effort: medium.*
+2. **Step 5:** deploy on the owner's word, `/health` + `/setup`, then the owner's Telegram check. *Effort: low (Haiku).*
+3. **Read `events`** after some use; decide hedging/timeout. Sonnet. *Effort: low.*
+4. **Later:** WORKPLAN issue 12 leftovers; studio pictures expire from KV; `logSent` sizes; remove runwarePlan once /face and /health use a spec. Haiku. *Effort: low.*
 
 ## Open questions for the owner
-- Deploy Steps 2 + 3b before Step 4?
-- Runware's "today" window read $2.72 before the Step 3 run (the bot's cap is $1/day). Worth a look at Runware's usage page.
+- Deploy now, so you can approve candidates in /studio?
+- UUID refs (cheaper, a different background at one seed): on or off?
+- Runware's "today" window read $2.72 before Step 3 (the bot's cap is $1/day): worth a look at Runware's usage page.
 - OK to press Actions > Delete retired branches? Unshallow in the SessionStart hook? A 401/402 ping outside the chat?
 
 ## Prompt for the next chat
-"Do Rebuild Step 4 from docs/WORKPLAN.md." Sonnet builds, effort medium.
+"Finish Rebuild Step 4 from HANDOFF.md next steps 1." Sonnet builds, effort medium.

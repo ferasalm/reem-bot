@@ -4,6 +4,13 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-16 (fifty-sixth session): Rebuild Step 4, the reference library (dev only)
+- Sonnet 5.5 (`claude-sonnet-5-5`, configured and served per get_session); Opus 5.5 advisor once; no subagents. Built `src/pictures/library.js`
+  (D1 `refs`, KV `ref:<id>`, `ruuid:<id>`), `pickRefs(spec, prof, lib)` (outfit slot 1, hair slot 3), `loadLibrary`, `lib:<id>` in refBytes,
+  the studio References tab and `/studio/api/refs*`, `firstBatch`, `RUNWARE.UUID_REFS` (off), tests (studio.mjs 17 rows, unit schema count).
+  Golden plans unchanged (46). Runware $0.0451 (account usage 13.36452 → 13.40963): UUID probe, 10 candidates, 2 nude pictures; one billed or
+  unbilled `failedModelLoad` on S seed 202 twice (not retried). Pictures: `face-candidates` runs/2026-10-16-step4 and -step4s (01fbcf8).
+
 ## 2026-10-16 (fifty-fifth session): Step 3b paired check
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. 4 Runware pictures, $0.0156 (Karras + "high", $0.0039 each);
   step3-bench phase C; pictures on `face-candidates` runs/2026-10-16-step3b-check (4d8297c). Selfie fixed 2/2; POV hoodie: POV's bare legs toward the lens 2/2. Owner: "Fix it first": a lap framing failed (reverted); "across from POV" →
