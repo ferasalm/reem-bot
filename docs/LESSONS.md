@@ -96,6 +96,9 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   name the thing; "her back" is not a back view ("lying on her back") (2026-10-11).
 - A superseded rule lives on in a prompt string (`SELF_CHOICE` kept "never fully naked" for 5 days) → grep every prompt string
   when a decision supersedes a rule (2026-10-11).
+- A framing slip can be the wear words: a chest-up selfie that named "fitted blue jeans" was drawn to the hips 2/2 → name only the garments
+  the frame holds (`inFrameOutfit`, Step 3b, 2026-10-16). Removing a switch: grep the local variable it set too (a leftover `core` in
+  deliver.js stopped every selfie; only the golden plans' "drawn: false" showed it).
 - Shot names are matched as words (`shotNamed`) → names nobody writes. Short prompts beat long ones (blowjob 4/4 vs 0/10); on acts the
   expression goes after the act words (early, it turned doggy to face the lens).
 - D1 (`reem-studio`, table `pictures`): Worker `exec()` reads one statement per line → `batch()` of prepared statements; check SQL in

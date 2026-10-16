@@ -1197,6 +1197,12 @@ Records:
   (try "head to knees" or "her legs in black leggings"); the selfie's "from her chest up" drawn to the hips (2/2). Waiting on the owner:
   acceleration "high", and whether the slimmer body is wanted (the reference picture decides now, per his rule).
 
+### Step 3b (Opus 5.5 `claude-opus-5-5`, 2026-10-16): done, on dev
+- Owner's picks: acceleration "high", DPM++ 2M Karras (never benched together: worth one paired check, ~$0.02, before the deploy), body to
+  Step 4 (owner suspects the slim face picture). Chest-up slip cause: the wear sentence named a bottom ("fitted blue jeans", the default
+  for a top alone) → `inFrameOutfit` drops bottom-only parts at face/chest-up. Leggings slip: three-quarter now ends below the knees. CORE
+  "legacy" removed; `tools/face/step3-bench.mjs` needs commit 7baf729 to rerun. Not benched ($0).
+
 ### Issues and bugs found (existing or likely), to fix in the step named
 
 1. The double `budget.used++` at four call sites, and the 50-call free-plan limit on a Paid account. (0)

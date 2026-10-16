@@ -4,6 +4,15 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-16 (fifty-fourth session): Rebuild Step 3b (dev only)
+- Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. Owner's picks: acceleration "high", DPM++ 2M Karras,
+  body kept for Step 4. Built: FRAMES.ACCELERATION/SCHEDULER; FRAMINGS chest-up "Framed close from her head to the middle of her chest; the
+  frame ends across her chest.", three-quarter "Framed from her head to her knees; the frame ends just below her knees."; `inFrameOutfit`
+  (interpret.js, used by framePrompt) drops bottom-only garments at face/chest-up; CORE "legacy" removed (deliver, draw, commands, studio,
+  picture-plans; panel row). The golden plans caught a leftover `core` in deliver.js (selfies stopped drawing) before the commit.
+  Golden diffs: only acceleration, scheduler, the two framing sentences and the dropped bottoms (69 prompt pairs checked by script). A
+  scenario row now accepts the in-frame version of a KLEIN_WARDROBE set. `node tools/check.mjs` 8 of 8. $0 Runware; not deployed.
+
 ## 2026-10-16 (fifty-third session): the sampler cost bench and Rebuild Step 3's bench (dev only)
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. Owner: "Let's continue with step two, especially on
   testing the samplers, I have not chosen one yet, I will choose based on cost". CI of the Step 2 push (test.yml run 38846706576, run_number
