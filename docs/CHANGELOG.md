@@ -4,6 +4,11 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-17 (fifty-eighth session, part 4): right side body out, face slightly fuller, deployed
+- Same chat. Face warp (A, k=12; B, k=22 shown, not picked), Shepards control points: fixed 340,410 630,410 490,560 490,730 400,730 580,730 490,200 150,300 810,300 and the corners;
+  moved 215,560 765,560 235,650 745,650 285,760 695,760 (±12 px), 370,840 610,840 (±8), chin 490,875 (+4). `newref-check.mjs` takes `ONLY=`.
+  Actions came back by 01:36 UTC: Deploy run 38991580245 (run_number 58) green, Version `31d318d7-23fd-409c-b446-0b9be7a05927`, /health ok, /setup all ✅.
+
 ## 2026-10-17 (fifty-eighth session, part 3): medium natural bust, v15 check, deploy blocked
 - Same chat. "a full bust" → "a medium, natural bust" (10 strings); newref-check 4/4 drawn ($0.0175; the earlier failedModelLoad cost $0.0039); `stripPhrases` article fix.
   `git push origin origin/dev:main` 8d0f79c → ed9e4a2; Deploy run 38990832683 (run_number 57) failed in 2 s, runner_id 0, log 404; Tests 688-693 the same since 00:44 UTC.
