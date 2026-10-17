@@ -4,6 +4,11 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-17 (fifty-ninth session): slips of the owner's Telegram check fixed (Opus 5.5, `claude-opus-5-5`)
+- Haiku 5.5 (`claude-haiku-5-5`, chat "Slip logs review", session_01Jan9cSPxZDWaDMBx5D2ZUp, branch ccr-9e45f16e-4hycxb, nothing pushed) read D1 and listed 4 slips;
+  this chat read the transcript and D1 rows 860-871 (prompts, `asked`, specs) and found 7. D1 `events`: 6 rows, all ok, wall 17-104 s, model 2-30 s (HANDOFF step 4).
+- Belfie bench (scratch script, `specPlan` + Runware at the live seeds): $0.0156, plus up to 2 Runware 400s ("An error has occurred"; the retry drew).
+
 ## 2026-10-17 (fifty-eighth session, part 4): right side body out, face slightly fuller, deployed
 - Same chat. Face warp (A, k=12; B, k=22 shown, not picked), Shepards control points: fixed 340,410 630,410 490,560 490,730 400,730 580,730 490,200 150,300 810,300 and the corners;
   moved 215,560 765,560 235,650 745,650 285,760 695,760 (±12 px), 370,840 610,840 (±8), chin 490,875 (+4). `newref-check.mjs` takes `ONLY=`.

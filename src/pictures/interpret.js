@@ -9,7 +9,7 @@ import * as FR from "./frames.js";
 import { ruleWords } from "./lint.js";
 import { pictureFlags, stillWorn } from "./plan.js";
 import { placeNames } from "./refs.js";
-import { hasWord, lightFor, pickHair, pickOne, pickWeighted, sexAct } from "./shots.js";
+import { hasWord, lightFor, notActs, pickHair, pickOne, pickWeighted, sexAct } from "./shots.js";
 import { newSpec } from "./spec.js";
 import { escapeRegex } from "../platform/http.js";
 
@@ -63,6 +63,8 @@ export function garmentsOf(text) {
     }
     const m = seg.match(/\b(?:in|wearing|into|has on|dressed in|wears|she wears|she is wearing|pulls on|only)\s+(.+)$/i);
     let g = (m ? m[1] : seg).replace(/^(?:only|just|still)\s+/i, "").replace(/\s+(?:on|still on|from earlier|from before)$/i, "").trim();
+    // what a photo-type word left behind: "tights only in (a belfie)" → "tights" (D1 871, 2026-10-17)
+    g = g.replace(/(?:\s+(?:only|in|at|for|with|of))+$/i, "").trim();
     // "a white tank top and jeans": two garments (an act keeps the top and takes off the jeans); "a cardigan over a cami" stays one
     // a place after the clothes ("lingerie on the bed") goes to the pose
     const at = g.search(/\s+(?:on|at|in|by|near|against)\s+(?:the|her|his|my)\b/i);
@@ -158,11 +160,15 @@ function aspectOf(act, close) {
 // nothing is in the way of the mouth or a hand); the rest may stay ("garmentState" off/on). Clothed words with only a top get a bottom.
 export function readWords(text, { level = CONFIG.PICTURE.NSFW.DEFAULT, nude = false, act: actName = "" } = {}) {
   const R = CONFIG.PICTURE.RUNWARE || {};
+  text = notActs(text);
   const flags = pictureFlags(text, true, level);
   const actsOk = can({ level }, "acts") && level !== "off";
+  // "in tights only", "only in her panties": the rest of her is bare (D1 870/871: "Reem in tights only in a belfie" drew her day's outfit)
   const isAct = actsOk && (flags.act || !!actName);
-  const isNude = level !== "off" && (flags.nude || nude || isAct);
-  const { garments, rest } = garmentsOf(text);
+  const onlyWorn = /\bonly\s+(?:in|wearing)\b|\bin\s+only\b|\b(?:wearing|in)\s+[\w\s'-]{1,30}?\s+only\b/i.test(text);
+  const isNude = level !== "off" && (flags.nude || nude || isAct || (onlyWorn && garmentsOf(text).garments.length > 0));
+  // the photo type ("belfie", "mirror selfie") is no part of the clothes ("Reem in tights only in a belfie", D1 871)
+  const { garments, rest } = garmentsOf(stripPhrases(text, Object.keys(FR.PHOTO_TYPES)));
   let act = null;
   let kept = garments;
   if (isAct) {
@@ -183,13 +189,37 @@ export function readWords(text, { level = CONFIG.PICTURE.NSFW.DEFAULT, nude = fa
   return { flags, content, act, outfit: { words, kept: content === "clothed" ? "" : keptKind }, back, profile, close, rest, garments, garmentState: isAct && kept.length < garments.length ? "off" : "on" };
 }
 // The pose words: what is left of the segments, without the act, nudity, shot and close-up words, in the rules' words (ruleWords)
+// Fluids on her, said in explicit words before the act and nude words go ("wet creamy pussy, cum on ass" left "wet creamy, on ass", D1 862)
+const FLUID_PARTS = { ass: "bottom", butt: "bottom", bottom: "bottom", back: "lower back", face: "face", tits: "breasts", boobs: "breasts", breasts: "breasts", chest: "chest", belly: "belly", stomach: "belly", thighs: "thighs", lips: "lips", mouth: "lips", tongue: "tongue", pussy: "vulva" };
+function fluidsOf(seg) {
+  const found = [];
+  let t = String(seg || "").replace(new RegExp(`\\b(?:cum|semen|jizz|load)\\s+(?:all\\s+)?(?:on|over|across)\\s+(?:her\\s+)?(${Object.keys(FLUID_PARTS).join("|")})\\b`, "gi"), (m, part) => {
+    found.push(`POV's semen on her ${FLUID_PARTS[part.toLowerCase()]}`);
+    return " ";
+  });
+  t = t.replace(/\b((?:(?:wet|creamy|dripping|soaked|soaking)[\s,]+(?:and\s+)?)+)(?:pussy|vulva|cunt)\b/gi, (m, adj) => {
+    const words = adj.toLowerCase().match(/wet|creamy|dripping|soaked|soaking/g);
+    found.push(`her vulva ${words.length > 1 ? `${words.slice(0, -1).join(", ")} and ${words.at(-1)}` : words[0]}`);
+    return " ";
+  });
+  return { found, rest: t };
+}
 function poseOf(rest, extra = []) {
   const P = CONFIG.PICTURE;
   const R = P.RUNWARE || {};
-  const phrases = [...list(R.NUDE_WORDS), ...list(R.ANAL_WORDS), ...list(R.CLOSE_WORDS), ...list(R.NOT_DRAWN), ...Object.values(FR.ACTS).flatMap((a) => list(a.words)), ...FR.TYPE_WORDS, "topless", "completely", "fully", "partly", ...extra];
+  // her name and the view words (framePrompt says the view: "reem side view" left "She side view.", D1 866)
+  const views = [...list(R.PROFILE_WORDS), "rear view", "back view", "from behind", ...list(CONFIG.CHARACTER.NAME_PREFIXES)];
+  const phrases = [...list(R.NUDE_WORDS), ...list(R.ANAL_WORDS), ...list(R.CLOSE_WORDS), ...list(R.NOT_DRAWN), ...Object.values(FR.ACTS).flatMap((a) => list(a.words)), ...FR.TYPE_WORDS, ...views, "topless", "completely", "fully", "partly", ...extra];
+  const fluids = [];
   // a segment left with only fillers ("Still", "and then") goes
-  const segs = rest.map((s) => stripPhrases(s, phrases)).filter((s) => /\p{L}{3,}/u.test(s.replace(/\b(?:the man|POV|him|her|she|on|in|with|and|of|the|a|still|then|now|just|again|so)\b/gi, "")));
-  return ownHands(ruleWords(segs.join(", ")));
+  const segs = rest
+    .map((s) => {
+      const f = fluidsOf(s);
+      fluids.push(...f.found);
+      return stripPhrases(f.rest, phrases);
+    })
+    .filter((s) => /\p{L}{3,}/u.test(s.replace(/\b(?:the man|POV|him|her|she|on|in|with|and|of|the|a|still|then|now|just|again|so)\b/gi, "")));
+  return ownHands(ruleWords([...segs, ...fluids].join(", ")));
 }
 
 // /pic and /look with her: the words → a spec. ctx: { source, level, hour, dayWear, view (default "pov"), outside }

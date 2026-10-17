@@ -33,8 +33,10 @@ export function ruleWords(text) {
   return String(text || "")
     .replace(/\bthe camera\b/gi, "the lens").replace(/\bcameras?\b/gi, "lens")
     .replace(/\b(?:the man|he|him)['’]s\b/gi, "POV's").replace(/\bhis\b/gi, "POV's").replace(/\bthe man\b/gi, "POV").replace(/\b(?:him|himself)\b/gi, "POV").replace(/\bhe\b/gi, "POV")
+    // a bare garment said affirmatively: "a cropped white tee with no bra" → "a cropped white tee, braless" (D1 863, 2026-10-17)
+    .replace(/(?:,?\s*)\b(?:with\s+)?(?:no|without(?:\s+a)?)\s+bra\b,?/gi, ", braless,")
     // "with no bangs", "and no makeup", "never her face": the negative and up to three words after it, stopping at "and"/"or"
     .replace(/(?:,\s*|\s+)(?:with\s+|and\s+)?(?:no|not|never|without)\s+(?:(?!and\b|or\b)[\w'’-]+[ ]?){1,3}/gi, " ")
     .replace(/^(?:no|not|never|without)\s+(?:(?!and\b|or\b)[\w'’-]+[ ]?){1,3}[,;]?\s*/i, "")
-    .replace(/\s+([,.;:])/g, "$1").replace(/([,;])\s*(?=[,.;])/g, "").replace(/\s{2,}/g, " ").trim();
+    .replace(/\s+([,.;:])/g, "$1").replace(/([,;])\s*(?=[,.;])/g, "").replace(/\s{2,}/g, " ").trim().replace(/^[,;]\s*|[,;]$/g, "");
 }

@@ -8,6 +8,10 @@
 export const LENS = {
   selfie: "A smartphone selfie through her front lens, held at arm's length{angle}.",
   mirror: "A mirror selfie: her reflection in a tall mirror, an iPhone in one of her hands at chest height, its lenses toward the mirror, her face beside it.",
+  // a belfie: "her face beside it" with "her back to the mirror" drew her twice, her body and her reflection ("2 heads" on D1 868/869,
+  // 2026-10-17); "a tall mirror fills the frame, her reflection shows her from behind" drew her twice too (seed 15537955). The reflection
+  // alone as the whole frame drew one woman, her back to the lens
+  mirrorBack: "A photo of her from behind, taken in a tall mirror: the whole frame is the reflection.",
   pov: "A first-person perspective from POV's eyes, a few steps in front of her{angle}.",
   closeup: "A close first-person perspective from POV's eyes.",
   alone: "A first-person perspective from POV's eyes.",
@@ -150,7 +154,7 @@ export const SHOTS = {
   cozy: { view: "selfie", framing: "chest-up", angle: true, poses: [["curled up on the sofa, wool socks, knees pulled up", "living"], ["under a blanket on the sofa", "living"], ["in bed against the pillows", "bedroom"]] },
   detail: { view: "closeup", framing: "detail", poses: [["her hand with thin gold rings around a coffee cup fills the frame, the frame ending at her wrist", "kitchen"], ["her bare feet up on the railing fill the frame, the frame ending at her ankles", "porch"], ["her hand with a yellow highlighter on a stack of receipts by a printing calculator fills the frame, the frame ending at her wrist", "living"]] },
   golden: { view: "selfie", framing: "chest-up", angle: true, poses: [["at golden hour, warm low sun on her face, maple trees and rooftops behind her", "porch"]], light: "" },
-  "mirror-back": { view: "mirror", framing: "three-quarter", back: true, places: ["bedroom", "hallway"], pose: "she stands with her back to the mirror and twists to look over her shoulder at her phone; the reflection shows her back" },
+  "mirror-back": { view: "mirror", framing: "three-quarter", back: true, places: ["bedroom", "hallway"], pose: "her back and bottom toward the lens, she looks back over her shoulder into the lens, her iPhone in one hand at her hip" },
   neckline: { view: "selfie", framing: "chest-up", pose: "seen from high above her, her collarbones and neckline in the frame" },
   legs: { view: "selfie", framing: "three-quarter", poses: [["sitting on the sofa, her legs crossed and in the frame, seen from above", "living"], ["sitting on the bed, her legs crossed and in the frame, seen from above", "bedroom"], ["sitting on a chair, her legs crossed and in the frame, seen from above", "porch"]] },
   waist: { view: "mirror", framing: "three-quarter", places: ["bedroom"], pose: "one of her hands on her waist, her hip turned toward the mirror" },

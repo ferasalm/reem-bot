@@ -5,43 +5,34 @@ proved wrong, delete ones that no longer apply. Only verified lessons, dated. Ne
 At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it back to about 150 (owner, 2026-10-11).
 
 ## 1. You can do this yourself (don't ask the owner)
-- Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` works (face.yml). Klein needs multipart form data even with only a prompt;
-  references under 512x512 (ours: 480). The container can't reach api.cloudflare.com, openrouter.ai or workers.dev: a Cloudflare question goes to a small
-  workflow that runs on a push of its script to your branch (`cf-lora-probe.yml`, 2026-10-13). Deleting branches, `gh run download` and a KV dump workflow
-  are refused; reading `tools/face/` images works. Read Actions logs with the GitHub MCP (`get_job_logs` with `return_content`, small `tail_lines`); a job still running answers 404.
+- Workers AI from GitHub Actions: the REST API with `CLOUDFLARE_API_TOKEN` (face.yml; klein needs multipart, references under 512x512). The container can't
+  reach api.cloudflare.com, openrouter.ai or workers.dev → a small push-triggered workflow (`cf-lora-probe.yml`). Deleting branches and `gh run download` are
+  refused. Actions logs: GitHub MCP `get_job_logs` (`return_content`, small `tail_lines`); a running job answers 404.
 - Read the live Worker after a deploy: the deploy log's Version ID, `/health` and `/setup` (`workers_get_worker_code` is the ~5 MB
   bundle); Vectorize "already exists" errors (3002, 40004) are normal. D1: `d1_databases_list`, `d1_database_create`,
   `d1_database_query` (several statements in one call) on the Cloudflare MCP (2026-10-11).
-- Prices: the Cloudflare MCP's `search_cloudflare_documentation` (klein 4B 26.05 neurons a 512² tile; 9B 1,363.64 the first
-  megapixel); runware.ai and fal.ai are blocked (WebSearch). Workers AI takes no LoRA on klein ("not supported for finetunes"). On this
-  account Gemma 3 12B is "not allowed"; Mistral Small 3.1 rejects `reasoning_effort: "none"` (2026-10-13).
+- Prices: the Cloudflare MCP's `search_cloudflare_documentation`; runware.ai and fal.ai are blocked. Workers AI takes no LoRA on klein; Gemma 3 12B is
+  "not allowed" on this account; Mistral Small 3.1 rejects `reasoning_effort: "none"` (2026-10-13).
 - Judging pictures: 300 px contact sheets can't say "same face" (owner, 2026-10-03) → each picture at full size, one at a time, with
   per-picture checks (face, age, outfit, phone rule, room, framing, hands, a second person).
-- Test pictures on Cloudflare: push `tools/face/job.json` to your branch (never `dev`: face.yml skips dev/main and its own edits);
-  pictures land on `face-candidates`; past `day_neurons` it refuses, and the count is the whole account's neurons today (61,712 on 2026-10-13: wait for 00:00 UTC, or raise it); `model` and `keep_full` pick klein 9B at
-  full size (2026-10-13). A 3030 there falls back to Pollinations (watermarked: never a reference).
+- Test pictures on Cloudflare: push `tools/face/job.json` to your branch (never `dev`); pictures land on `face-candidates`; `day_neurons` counts the whole
+  account's day; `model`/`keep_full` pick klein 9B at full size; a 3030 falls back to Pollinations (watermarked: never a reference) (2026-10-13).
 - The sync report lists false "commits not here" on a shallow clone: `git fetch --unshallow origin`, rerun `node tools/sync-check.mjs`
   (2026-10-13). Deploy = `git push origin origin/dev:main`.
-- No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only. Text replay on Workers AI: test.yml `model`
-  `@cf/...`; never two at once (429, 3021); a push-triggered probe starts a run per push, so fix the script locally, push once
-  (cf-probe: three pushes, three runs at once, one hung with no fetch timeout; give probe calls `AbortSignal.timeout`, 2026-10-13). Runware MCP `account`: the spend is `usage.total` read before and after (the `balance`
-  lagged). Hand-run workflows must be on `dev` (404).
-- Civitai → Runware LoRAs (2026-10-08): `api.civitai.com/api/download/models/<v>` gives a signed link Runware can fetch (REST
-  `modelUpload`, `uniqueIdentifier` = sha256). "failed to load": DoRA → `dora-to-lora.py`, LoKR → `lokr-to-lora.py --rank 128`.
-  9 LoRAs in one call drifted her face 5/8 (keep ≤6); judge her face on every act-LoRA bench (POV Doggy Anal drew another woman 4/4).
+- No OpenRouter in tests/benches (owner, 2026-10-06): Workers AI and Runware only (test.yml `model` `@cf/...`; never two runs at once: 429, 3021). A push-
+  triggered probe runs per push: fix locally, push once, give calls `AbortSignal.timeout`. Runware spend: MCP `account` `usage.total` before and after.
+  Hand-run workflows must be on `dev` (404) (2026-10-13).
+- Civitai → Runware LoRAs (2026-10-08): `api.civitai.com/api/download/models/<v>` gives a signed link for REST `modelUpload` (`uniqueIdentifier` = sha256);
+  "failed to load": DoRA → `dora-to-lora.py`, LoKR → `lokr-to-lora.py --rank 128`. Judge her face on every LoRA bench (POV Doggy Anal drew another woman 4/4).
 - Runware klein 9B bills GPU time in ~$0.0008 steps: 768x1344 $0.0025-0.0079 (each LoRA or reference adds a step); steps and CFG
   don't. Calls past ~60 s die at the proxy. `NODE_USE_ENV_PROXY=1 node` + `loadWorker()` + `drawPicture` benches the bot's own code
   (calls ~4 s apart; wrap `fetch` to fix `seed`). A 502 "no picture" is often billed: read `usage`, budget ~20% over (2026-10-13).
-- Runware klein 9B samplers and schema (Steps 2-4, 2026-10-15/16): BFL's reference is 4 steps, CFG 1; `scheduler` has 75 names and no stated default (we send
-  none = "Default"); never ancestral/SDE on distilled models. Bench: Default ≈ DPM++ 2M Beta ≈ Karras (same picture 6/6, Karras can move the composition).
-  Cost with 3 refs + 1 LoRA: every one-call sampler $0.00585, Heun $0.00793, acceleration "high" $0.0039. `negativePrompt` is ignored at CFG ≤ 1; at most 4
-  references; the Runware MCP `model_schema` is free; WebFetch can't reach outside hosts (ENOTFOUND): use WebSearch. A `failedModelLoad` first try is sometimes
-  billed (read `usage.total`, budget one picture over the cap); twice in a row on one case: stop.
-- Runware `imageUpload` (free): a UUID in `referenceImages` drew another background than base64 at one seed and billed $0.0022 vs $0.0039 (Step 4, 2026-10-16)
-  → `RUNWARE.UUID_REFS` off. Nude-front test: her face picture doesn't slim her.
-- GitHub Actions (2026-10-16): every workflow failing in 2-5 s with no steps and a 404 log (Tests 679-682, Deploy 55, rerun too) is an account-level Actions
-  problem, not the code (it cleared after ~15 min; again 2026-10-17 from 00:44 UTC, runner_id 0): note the last green run's time, don't loop reruns, retry a hand-run `deploy.yml` later. `actions_list` ignores `per_page` and
-  filters and can dump 20 KB: read one run with `actions_get` + `list_workflow_jobs`.
+- Runware klein 9B (Steps 2-4, 2026-10-15/16): BFL's reference is 4 steps, CFG 1; never ancestral/SDE samplers; Default ≈ DPM++ 2M Beta ≈ Karras (6/6).
+  With 3 refs + 1 LoRA: one-call samplers $0.00585, acceleration "high" $0.0039; `negativePrompt` ignored at CFG ≤ 1; at most 4 references; MCP `model_schema`
+  is free; WebFetch can't reach outside hosts (use WebSearch). A `failedModelLoad` or a 400 is sometimes billed; twice in a row on one case: stop.
+- Runware `imageUpload` UUID refs drew another background than base64 at one seed ($0.0022 vs $0.0039, Step 4) → `RUNWARE.UUID_REFS` off.
+- GitHub Actions failing in 2-5 s with no steps and a 404 log (2026-10-16, 2026-10-17, runner_id 0) is an account-level outage that clears: note the last
+  green run, don't loop reruns, retry later. `actions_list` can dump 20 KB: read one run with `actions_get` + `list_workflow_jobs`.
 - A bench that skips the command's own word step tests another prompt: /pic runs `picWords` (me → the man) before `specFromWords`;
   without it "across from me" reached the prompt as "me" (Step 3 dry run, 2026-10-16) → call the same steps, dry-run (`DRY=1`) and read prompts first.
 - Bench harness: seed `Math.random` per case so variants differ only by the change; `env` gets an `AI` stub; `convert -resize x700
@@ -56,35 +47,29 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Skills/agents go in the repo's `.claude/` (`~/.claude` is wiped); a new agents folder needs a new chat (2026-10-11).
 - Browser checks: global Playwright (`createRequire` on `/opt/node22/lib/node_modules/playwright`), `executablePath:
   "/opt/pw-browsers/chromium"`; `allHeaders()` shows Set-Cookie; the browser's own `/favicon.ico` 404 is not the page's (2026-10-11).
-- Paid workflows run on any push that changes a file in their `paths` (stt-bench.yml: `tools/voice/stt-bench.mjs` → an OpenRouter run,
-  ~$0.03, 2026-10-15, against the owner's no-OpenRouter rule): before pushing an edit under `tools/`, `grep -n paths .github/workflows/*.yml`.
-  `image-bench.yml` runs (paid) on every push that changes `tools/face/bench.json`: only for an owner-approved bench. Stop a background
-  workflow (TaskStop) before running its steps by hand.
+- Paid workflows run on any push changing a file in their `paths` (stt-bench.yml → an OpenRouter run, ~$0.03, 2026-10-15; `image-bench.yml` on
+  `tools/face/bench.json`): before pushing under `tools/`, `grep -n paths .github/workflows/*.yml`. Stop a background workflow before running its steps by hand.
 
 ## 2. Known traps (pictures)
-- A vision check of drawn pictures (Step D probes, 2026-10-13): one open checklist → "ok" on most mistakes; one question per mistake
-  works better (Scout 5/7). On POV sex acts Scout counts the man as a second head even on clean pictures (checked at full size) → don't
-  count heads there. Label each probe picture by reading it at full size first; a "good" label was right where the model was wrong.
+- Vision checks (Step D, 2026-10-13): one question per mistake (Scout 5/7), not one checklist; on POV acts Scout counts the man as a second head →
+  heads don't count there. Label probe pictures by reading them at full size first.
 - Klein draws a person for every body or position the words give someone ("his hands on her hips" → a second man 3/4; "I sit beside
   me" → a second woman 2/2): he is never a subject with a body (`asCamera`) and every hand is owned (`ownHands`) (Step A-B, 2026-10-13).
+  A mirror with her back to it draws her body and her reflection (2 heads, 3/3) → "the whole frame is the reflection" (1/1 at 3 seeds, 2026-10-17).
 - Image 1 leaks whenever the words name no clothes (the bra-and-thong body on /look and /pic 7/7 → SCENE_WEARING, Step B); a clothed
   image 1 also lends its garment's cut (0/18). Bench clothed pictures with real wardrobe words, on same-seed side-by-sides.
 - Cloudflare's prompt filter (3030) refuses bra, panties, briefs, thong, g-string (5/5) anywhere, even negated → `FILTER_WORDS`;
   boudoir back views and "PoV of spooning" too; front lace bodysuits pass. Its output filter is random: never conclude from one 3030.
-- Off on Runware: `checkContent` didn't stop a naked lower half (a top named on the nude image 1) → `DRESSED_BOTTOM`; Off draws on
-  Cloudflare now. Gate by the level's rule, not the route's list (`mayDraw` let "blowjob" pass at Off once): rerun `levelFor` and
-  `mayDraw` after any route change. A line gated on word lists needs a sweep of every WARDROBE entry through `runwarePlan` (2026-10-11).
+- Gate by the level's rule, not the route's list (`mayDraw` once let "blowjob" pass at Off): rerun `levelFor` and `mayDraw` after any route change;
+  a line gated on word lists needs a sweep of every WARDROBE entry through the plan (2026-10-11).
 - A gaze or expression is camera words: "looking up through her lashes" made her head too large (Step 3); "looking down at something in
   her hands" drew a second phone, "looking past the camera at someone" invites a second person, "an intense, hungry stare" drew a frown
   2/2 (Step A-B) → removed. Test a lead by changing one thing at the same seed, after redrawing the original once.
-- Act LoRAs override the words with their own pose; vaginal-trained ones put the entry at her vulva even with "inside her anus" (0/9);
-  only POV Doggy Anal drew anal. Judge genitals on a full-size crop (`convert -crop 400x400+x+y`), never at 800 px (round 6, Step 6).
+- Judge genitals on a full-size crop (`convert -crop 400x400+x+y`), never at 800 px; act LoRAs override the words with their own pose (round 6).
 - A small, dim face loses her likeness even with her face picture: name her face first in the prompt (before the body words), and
   light it ("lamp light falls on her face"): in the dark her hazel-green eyes drew brown (D1 611/612 replays, 2026-10-15). Replay a live picture from D1 (prompt, refs, LoRAs, seed: `tools/face/replay-bench.mjs`) before guessing.
-- The LoRA stack slims her nude body: no LoRAs matched the body picture on 2 seeds; one LoRA off, weaker weights, body words first or
-  "hips much wider than her shoulders" barely helped (slim-bench, 2026-10-15) → test fullness without LoRAs before blaming words or pictures.
-- Body words stack on the body picture (heavier picture + "curvier" → overweight; belly words → a big belly, 2026-10-10): image 1 sets
-  her build; BODY_WORDS moved nude pictures a little, clothed ones hardly (Fix round 2). Grep DECISIONS for banned body words first.
+- The LoRA stack slims her nude body (no LoRAs matched the body picture, 2 seeds; slim-bench 2026-10-15); body words stack on image 1 ("curvier" →
+  overweight, belly words → a big belly, 2026-10-10): image 1 sets her build. Test without LoRAs, then grep DECISIONS for banned body words.
 - Klein copies the place picture's light (night places `<key>_night`, no place picture on flash), framing and angle (three crops per
   place) and bathroom mirrors break (bedroom/hallway only). "natural light" at night drew daylight → `SCENE_NIGHT` (2026-10-03/05).
 - A nude image 1 can dress a clothed back view when the line says "Image 1 shows her body naked: she is not naked here" (tank + jeans, 1/1,
@@ -92,29 +77,19 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Image numbers in a prompt follow the pictures sent (ROOM's `{n}`). A 9:16 frame plus her face kept crotch close-ups framed from her
   lips (12/12) → 1:1 without the face (Step 5). The camera is the frame and the references, not the framing words.
 - Pose words that are also clothes ("on her heels", riding "on top", "covered" in sweat, "between her legs") → only phrases that
-  name the thing; "her back" is not a back view ("lying on her back") (2026-10-11).
-- A superseded rule lives on in a prompt string (`SELF_CHOICE` kept "never fully naked" for 5 days) → grep every prompt string
-  when a decision supersedes a rule (2026-10-11).
-- A framing slip can be the wear words: a chest-up selfie that named "fitted blue jeans" was drawn to the hips 2/2 → name only the garments
-  the frame holds (`inFrameOutfit`, Step 3b, 2026-10-16). Removing a switch: grep the local variable it set too (a leftover `core` in
-  deliver.js stopped every selfie; only the golden plans' "drawn: false" showed it).
+  name the thing; "her back" is not a back view ("lying on her back") (2026-10-11). The reverse too: clothes "riding up" made a selfie a
+  riding act (D1 865) → `notActs` before every act check (2026-10-17).
+- A superseded rule lives on in a prompt string (`SELF_CHOICE` kept "never fully naked" 5 days) → grep every prompt string (2026-10-11).
+- A framing slip can be the wear words (chest-up + "jeans" drew to the hips 2/2 → `inFrameOutfit`, Step 3b). Removing a switch: grep the local
+  variable it set too (a leftover `core` stopped every selfie; only the golden plans' "drawn: false" showed it, 2026-10-16).
 - "Sitting across from POV" seats POV too: klein drew his bare legs toward the lens 4/4 (I first blamed the knee framing; a lap
   framing made it worse) → POV poses say "facing the lens" (Step 3b check, 2026-10-16). Rule out a second body from the words first.
-- Shot names are matched as words (`shotNamed`) → names nobody writes. Short prompts beat long ones (blowjob 4/4 vs 0/10); on acts the
-  expression goes after the act words (early, it turned doggy to face the lens).
-- D1 (`reem-studio`, table `pictures`): Worker `exec()` reads one statement per line → `batch()` of prepared statements; check SQL in
-  `node:sqlite`; /look's DeepSeek text is `llm_text`. R2 is off on the account (403 10042). Read `runwareLoras` before blaming a
-  LoRA (POV hand sat in ACT_WORDS, never loaded) (2026-10-11).
-- "completely naked: no tank top, no leggings" drew nude 8/8; "her head is naturally sized for her body, about one seventh of her height"
-  keeps the head in scale (2026-10-04).
+- Shot names are matched as words (`shotNamed`) → names nobody writes. Short prompts beat long ones; on acts the expression goes after the act words.
+- D1 (`reem-studio`, `pictures`, `events`): Worker `exec()` reads one statement per line → `batch()` of prepared statements; /look's text is `llm_text`;
+  R2 is off on the account (403 10042). Read `runwareLoras`/`lorasFor` before blaming a LoRA (2026-10-11).
 
 ## 2b. Known traps (chat, voice, code)
-- Studio picture stretched and its text one letter per line (2026-10-15): a flex `.row` stretches its children; a 100%-wide
-  image squeezed the text column to ~0 px and took the text's height → stack the picture above the text (read in the CSS; Step 0 checks it in Playwright).
-- Studio selects (2026-10-16): `setSelect(sel, "")` adds a blank option and selects it, so a form read before the user touched the select sent `base: ""`
-  ("Pick a base picture."): pass a real default to `fillSelect`; `tools/test/studio-refs.mjs` (Playwright, 390 px) found it.
-- A link opened from another app: a 302 setting `SameSite=Strict` loses the cookie → answer the page with `SameSite=Lax`; reproduce
-  over https from a different site (`tools/test/studio-browser.mjs`, 2026-10-11).
+- A link opened from another app: a 302 with `SameSite=Strict` loses the cookie → answer the page with `SameSite=Lax` (`tools/test/studio-browser.mjs`, 2026-10-11).
 - History before v10 has no `parts` (no /edit or /rewind: NOT_FOUND); older chat is in `m:` notes (TOO_OLD). Telegram deletes bot
   messages only for 48 h. A `VOICE_ID` Worker secret overrides `VOICE.ID`: remove it. A cron run (`scheduled`) has 15 min of wall time on Workers Paid (the 30 s is CPU time): the memory fold runs there, not in the reply queue (2026-10-15).
 - `clean()` strips `[...]` at line starts except audio tags; `dropCues()` anywhere; `tidySpoken()` the rest before TTS. eleven_v3: no
@@ -130,27 +105,22 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   scenarios reach PICTURE_SHARE mid-run → reset the test ledger before late picture blocks (Step B, 2026-10-13).
 - Test stubs key on prompt text: the scenarios' writer stub matched "You write the words of one photo", so a new writer template
   (WRITER.SPEC) went unanswered; the golden harness turns WRITER off for all cases (a case with `writer` turns it on) (2026-10-16).
-- A fake D1 filter written as `rows.filter((r) => r.x === args[i++])` consumes one arg per row → read the arg once before filtering (studio.mjs, 2026-10-16).
 - Golden cases are seeded by index: add cases at the end; compare case by case. Shrinking a MOODS/GAZES list shifts later picks in
   those cases only: expected, read them (Step B).
 - An odd AI error (`5006 '/seed'`) was out of neurons (4006) → run `ai-diag.yml` and read Cloudflare's analytics before fixing the
   error shown (2026-10-03). Right after a deploy the old code may still serve: re-test later.
-- Shared KV keys and `ctx.waitUntil`: re-read the key right before a write and keep the other writer's field (`refreshDay`, 2026-10-11).
-  A sync function can't await (`startPicture`): async callers pass values in (`dayWear`).
+- Shared KV keys and `ctx.waitUntil`: re-read the key right before a write, keep the other writer's field; a sync function can't await: callers pass values in (2026-10-11).
 - face.yml, image-bench and tts-bench share one queue keeping one waiting run: a third push cancels it → one job at a time.
 - Voice: Whisper reads Telegram's OGG as base64 `audio`, never laughs; aura-2 reads [tags] aloud (`AURA_CUES`), 2.73 neurons a char;
   Gemini TTS answers only PCM (→ MP3 for sendVoice); Nova-3 turns Arabic into Devanagari. Vendoring an npm package needs the owner's OK.
 
 ## 3. Routes to avoid (and the cheaper route)
-- Never read a big file whole: `src/config/engine.js` (~95 KB), `src/persona/reem-en/config.js` (~64 KB) (worker.js was ~500 KB before the
-  split, 2026-10-15): `grep -rn` the function or CONFIG key in `src` (docs/MAP.md), then read only those lines. Never open `assets/` or `tools/settings-panel.html` (generated: `node tools/build-panel.mjs`). Golden diffs: dump the prompts to a
-  scratch file and read them, not `--check`'s whole-prompt output.
+- Never read a big file whole: `src/config/engine.js` (~95 KB), `src/persona/reem-en/config.js` (~64 KB): `grep -rn` in `src` (docs/MAP.md), read only those lines;
+  never open `assets/` or `tools/settings-panel.html` (generated). Golden diffs: dump the prompts to a scratch file, not `--check`'s output.
 - `docs/CHANGELOG.md` and `tools/model-bench/FINDINGS.md`: `grep -n`, don't read whole.
-- Mocked tests: trust the exit code and read the failing lines. `[live]` runs: read every reply in the job log, REVIEW lines included;
-  a summary once said "nothing broken" while broken replies went out (Incident).
+- Mocked tests: trust the exit code, read the failing lines. `[live]` runs: read every reply, REVIEW lines included (a summary hid broken replies: Incident).
 - Don't spawn sub-agents to explore: they start cold and re-read what you already know.
-- Moving text between files or editing CONFIG strings: a script that asserts each old string exists once, anchored on text unique to the
-  line, then print the changed lines (2026-10-09).
+- Moving text or editing CONFIG strings: a script asserting each old string exists once, then print the changed lines (2026-10-09).
 - The live log cuts replies at ~400 characters → rebuild the reply and run it through `shapeReply` with `loadWorker()` (2026-10-05).
 
 ## 4. What works
@@ -159,8 +129,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Refactoring a sender: golden plans first (`tools/test/picture-plans.mjs`, $0), keep every `Math.random` pick in its order; check
   levels by name (`actsOff`), never `level !== "on"`; `grep -n` every reader of a pattern before editing it (2026-10-11).
 - Before writing "deployed" in HANDOFF, read the remote: `git ls-remote origin main` and the deploy runs for `main` (2026-10-09).
-- A free probe before building on a doc's promise: one push-triggered workflow answered the LoRA question in 2 minutes and 3 pictures
-  (2026-10-13). Comparing models: a workflow `matrix`, one job each, in parallel (writer-replay: 3 models in 5 minutes, 2026-10-13).
+- A free probe before building on a doc's promise (one push-triggered workflow, 2 minutes); compare models with a workflow `matrix` (2026-10-13).
 
 ## 5. Model behaviour seen live (DeepSeek V4 Flash unless named)
 - Before any model switch, replay `OWNER_CHAT` with `model`. Examples teach as strongly as rules: an example's "bring him back" drifted
@@ -170,8 +139,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - A rule that names the word to avoid makes her say it ("never habibti" → corrections 4/5; "(to him it's always habibi)" 1/5).
 - Told to go to him, she walks in with words `HER_MOVE` misses → visit mode trusts the scene. "him/his" for "you" in scenes survived a
   prompt rule (3/9): POV slips need a code guard (`toYou`). (2026-10-05/06)
-- /look's DeepSeek text makes the man a subject with a body ("The man sits on the edge of a bed", D1 484) despite "he is the camera":
-  code rewrites it (`asCamera`) and LOOK.PROMPT now forbids it (Step B, not yet seen live).
+- /look's DeepSeek text made the man a subject with a body (D1 484) despite "he is the camera" → `asCamera` rewrites it (Step B).
 - DeepSeek V4 Flash on Workers AI thinks before every answer, even at reasoning "none": the thinking counts in max_tokens, so short
   limits come back cut or empty (writer replays 5-24 s; TEXT 220 cut 3/3, cf-probe 38355964346) → short writing on Llama 3.3 70B fast
   (15/15, 1.3 s). A provider change can look like a deploy bug: probe the live call shape first. Writer words that draw wrong: "thumb

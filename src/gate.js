@@ -1,7 +1,7 @@
 // What a chat may do: pictures allowed, the /nsfw level, the minor rule, daily money caps. One place for the rules (later: paid tiers).
 import { CONFIG } from "./config/index.js";
 import { runwareRoute } from "./pictures/draw.js";
-import { hasWord, nudeWords } from "./pictures/shots.js";
+import { hasWord, notActs, nudeWords } from "./pictures/shots.js";
 import { aiAffordable } from "./platform/ai.js";
 import { budget } from "./platform/http.js";
 
@@ -71,7 +71,7 @@ export function mayDraw(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   if (!actsOff(level) && runwareRoute(level) && R.SEX_ACTS === true) return true;
   const list = runwareRoute(level) || level === "off" ? R.NOT_DRAWN : CONFIG.PICTURE.NOT_DRAWN; // Off keeps sex acts and nudity out on any route (2026-10-11)
-  if ((list || []).some((w) => String(w).trim() && hasWord(text, w))) return false;
+  if ((list || []).some((w) => String(w).trim() && hasWord(notActs(text), w))) return false;
   return !(level === "off" && nudeWords(text)); // Off refuses nude words on every route (2026-10-11)
 }
 // The tier of a picture: he asks for lingerie/swimwear (BOUDOIR_ASK_PATTERN) → boudoir, for something sexy

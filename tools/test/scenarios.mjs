@@ -625,7 +625,7 @@ section("pictures: his photos (Workers AI vision)");
   r = await turn("send me a belfie 😏", ["fine. don't say i never spoil you\n\n[selfie: mirror-back, black leggings]"], { history: APART });
   yes(r.system[0].includes("[selfie: mirror-back, what it shows]") && [W.CONFIG.PICTURE.TIER_HINTS.flirty, W.CONFIG.PICTURE.TIER_HINTS.boudoir].some((h) => r.system[0].includes(h.trim())), "he asks for a belfie: she's told the shot and a sexier tier (flirty or boudoir)", r.system[0].slice(-500));
   const fb = ai.filter((a) => a.model === W.CONFIG.PICTURE.MODEL).at(-1).fields;
-  yes(fb.prompt.includes("her back to the mirror") && fb.prompt.includes("black leggings") && fb.prompt.includes("iPhone"), "drawn as a mirror-back with her words", fb.prompt);
+  yes(fb.prompt.includes("the whole frame is the reflection") && fb.prompt.includes("only person in the frame") && !fb.prompt.includes("her face beside it") && fb.prompt.includes("black leggings") && fb.prompt.includes("iPhone"), "drawn as a mirror-back with her words", fb.prompt);
   eq(r.saved.parts.at(-1).text, "[selfie: mirror-back, black leggings]", "history: [selfie: type, what]");
   r = await turn("send me a pic in your lingerie", ["greedy\n\n[selfie: in black lace, curled up in the armchair]"], { history: APART });
   yes(r.system[0].includes(W.CONFIG.PICTURE.TIER_HINTS.boudoir.trim()), "lingerie asked: boudoir hint");

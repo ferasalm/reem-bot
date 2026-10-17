@@ -23,10 +23,14 @@ export function overlap(a, b) {
 export const hasWord = (text, w) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegex(String(w).toLowerCase())}(?![\\p{L}\\p{N}])`, "u").test(String(text || "").toLowerCase());
 // A nude word (PICTURE.RUNWARE.NUDE_WORDS) in the text
 export const nudeWords = (text) => ((CONFIG.PICTURE.RUNWARE || {}).NUDE_WORDS || []).some((w) => String(w).trim() && hasWord(text, w));
+// Clothes that ride up or ride low are no riding act: "the cropped white tee riding up under her ribs" drew a riding act from a side-view
+// selfie (D1 865, 2026-10-17) → the clothes phrase is said another way before any act check
+export const notActs = (text) => String(text || "").replace(/\brid(es|ing|e)\s+(up|low|high)\b/gi, (m, s, d) => `${{ es: "hitches", ing: "hitched", e: "hitch" }[s.toLowerCase()]} ${d}`);
 // A sex act (a RUNWARE.NOT_DRAWN word) in words drawn on Runware with SEX_ACTS on; not at Off or Nude
 export function sexAct(text, level = CONFIG.PICTURE.NSFW.DEFAULT) {
   const R = CONFIG.PICTURE.RUNWARE || {};
-  return can({ level: level }, "acts") && runwareRoute(level) && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(text, w));
+  const t = notActs(text);
+  return can({ level: level }, "acts") && runwareRoute(level) && R.SEX_ACTS === true && (R.NOT_DRAWN || []).some((w) => String(w).trim() && hasWord(t, w));
 }
 // Nude or a sex act on Runware (NUDE_WORDS, or sexAct)
 export const explicitWords = (text, level = CONFIG.PICTURE.NSFW.DEFAULT) => sexAct(text, level) || (runwareRoute(level) && nudeWords(text));

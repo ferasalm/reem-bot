@@ -33,7 +33,8 @@ Since Rebuild Step 1 (2026-10-15) the code lives in modules; `worker.js` is only
 - **The picture core** (Rebuild Step 2, 2026-10-16; the CORE "legacy" switch removed in Step 3b; runwarePlan only without a spec):
   `src/pictures/spec.js` (`newSpec`, `loraKey`: the ShotSpec shape), `interpret.js` (`specFromWords` for /pic and /look, `specFromLook`,
   `specFromScene`, `specFromSelfie` from composePicture's `frame` picks, `readWords` (content, act, act vs clothes), `garmentsOf`, `inFrameOutfit` (face/chest-up: bottom-only garments out), `actOf`,
-  `applyWritten` (the writer's JSON fields)), `frames.js` (data: LENS, ANGLES, FRAMINGS, IDENTITY, WEAR, EDGES, PLACE, PHOTO, ACTS,
+  `applyWritten` (the writer's JSON fields), `fluidsOf` (his fluid words kept explicit in the pose); `shots.js` `notActs` (clothes "riding up" are no
+  act: sexAct, mayDraw, readWords)), `frames.js` (LENS.mirrorBack: a belfie is "the whole frame is the reflection", 2026-10-17) (data: LENS, ANGLES, FRAMINGS, IDENTITY, WEAR, EDGES, PLACE, PHOTO, ACTS,
   PENETRATION, SHOTS, PHOTO_TYPES, FRAMING_WORDS), `prompt.js` (`framePrompt(spec, refs, profile)` in fixed sentence order, `profile`
   runware/cloudflare, `specPlan` = the tries), `loras.js` (`lorasFor`: NSFW Unlocked by `PICTURE.FRAMES.LORA_WEIGHTS`, the Anatomy Fixer
   on `fix` and never on acts), `lint.js` (`lintPrompt`, `ruleWords`), `refs.js` `pickRefs` + `placeNames`. `draw.js` `drawSpecNow` draws a

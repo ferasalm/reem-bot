@@ -320,7 +320,7 @@ export const ENGINE = {
     // Step 4: an everyday picture (or /pic) whose words say she is out takes the day's OUT outfit, else HOME. Not a bare "out", "rain"
     // or "snow" (review: "stretched out", "lights out", "rain on the window" put her in a coat at home)
     OUTSIDE_WORDS: ["outside", "going out", "out for", "out with", "night out", "walk", "walking", "street", "park", "cafe", "café", "coffee shop", "store", "grocery", "market", "work", "office", "car", "train", "bus", "subway", "beach", "restaurant", "bar", "date", "campus", "sidewalk", "in the snow", "in the rain"],
-    WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "satin slip", "silk slip", "lace slip", "velvet slip", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "corset", "babydoll", "teddy"],
+    WEARING_WORDS: ["cardigan", "sweater", "hoodie", "sweatshirt", "t-shirt", "tee", "shirt", "blouse", "tank top", "camisole", "slip dress", "satin slip", "silk slip", "lace slip", "velvet slip", "dress", "skirt", "jeans", "leggings", "sweatpants", "pants", "trousers", "shorts", "pajamas", "pyjamas", "robe", "bathrobe", "kimono", "nightgown", "nightie", "coat", "jacket", "scarf", "apron", "towel", "socks", "slippers", "heels", "boots", "sneakers", "bodysuit", "bikini", "swimsuit", "turtleneck", "lingerie", "bra", "bralette", "panties", "underwear", "stockings", "tights", "corset", "babydoll", "teddy"],
     PORTRAIT: "Head-and-shoulders portrait photo, looking at the camera, plain light wall behind her, soft natural light, realistic, sharp focus on the face.", // what /face draws
     CRAFT: "Natural skin texture, slight grain.",
     // owner 2026-10-05: "90% from the same angle as the location pictures ... included as is": klein copies the place
@@ -711,7 +711,7 @@ export const ENGINE = {
       // what stays on: only a top (TOP_WORDS) = PARTIAL_TOP, only a bottom (BOTTOM_WORDS) = PARTIAL_BOTTOM, both or neither = PARTIAL;
       // "topless" (or "bottomless") in the words beats a top (or bottom) word
       TOP_WORDS: ["bra", "bralette", "sports bra", "top", "crop top", "tank top", "camisole", "t-shirt", "tee", "shirt", "blouse", "sweater", "hoodie", "sweatshirt", "cardigan", "corset", "turtleneck", "covered breasts", "breasts covered", "covered chest", "chest covered"],
-      BOTTOM_WORDS: ["panties", "underwear", "thong", "briefs", "bottoms", "jeans", "leggings", "sweatpants", "joggers", "pants", "trousers", "shorts", "skirt"],
+      BOTTOM_WORDS: ["panties", "underwear", "thong", "briefs", "bottoms", "jeans", "leggings", "tights", "sweatpants", "joggers", "pants", "trousers", "shorts", "skirt"],
       // a top and a bottom in one piece: named with no BOTTOM_WORDS, no DRESSED_BOTTOM line (Task C)
       ONE_PIECE_WORDS: ["dress", "jumpsuit", "romper", "robe", "nightgown", "bodysuit", "overalls", "onesie", "long coat"],
       // an outfit that shows her legs on purpose (a long tee to mid-thigh, his shirt and bare legs): no DRESSED_BOTTOM line (fix round review, 2026-10-11)

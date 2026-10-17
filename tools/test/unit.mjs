@@ -1211,6 +1211,26 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const naughty = W.applyWritten(base, { action: "lies naked on the bed", outfit: "nothing", place: "nowhere", expression: "fucking the man" }, { level: "on" });
     eq([naughty.pose, naughty.outfit.words, naughty.place.key, naughty.expression], [base.pose, base.outfit.words, base.place.key, base.expression], "applyWritten: nudity, an act, a made-up place or no garment change nothing");
   }
+  // the slips of the owner's 2026-10-17 Telegram check (D1 860-871), each with its live words
+  {
+    const rw2 = W.profile("runware");
+    const prompt = (sp) => String(W.framePrompt(sp, W.pickRefs(sp, rw2), rw2));
+    const day = { home: "her father's old gray knit cardigan over a plain black tank top and soft gray sweatpants", out: "a coat" };
+    const pic = (t) => W.specFromWords(t, { source: "pic", level: "on", hour: 22, dayWear: day });
+    const ride = W.specFromSelfie({ shot: "selfie", tier: "everyday", frame: { words: "the cropped white tee riding up just under her ribs", doing: "", clothes: "a cropped white tee and low-rise sweatpants" } }, { level: "on", hour: 22 });
+    eq([ride.content, ride.view, W.sexAct("her top riding up a little", "on"), W.sexAct("riding the man", "on"), W.mayDraw("her top riding up", "nude")], ["clothed", "selfie", false, true, true], "a top riding up is no riding act (D1 865: a side-view selfie was drawn as a sex act)");
+    const belfie = prompt(pic("reem belfie"));
+    yes(belfie.includes("the whole frame is the reflection") && belfie.includes("only person in the frame") && !belfie.includes("her face beside it") && !/\breem\b/i.test(belfie), "a belfie: the mirror alone, her back in it, one figure (D1 868/869: drawn with 2 heads)", belfie);
+    const tights = pic("belfie in tights");
+    eq([tights.content, tights.outfit.words, /tights/.test(tights.pose)], ["clothed", "a fitted black tank top and tights", false], "\"in tights\" is what she wears, not a pose (D1 870)");
+    const only = pic("Reem in tights only in a belfie");
+    eq([only.content, only.outfit.words, only.outfit.kept, only.pose], ["partial", "tights", "bottom", "her back and bottom toward the lens, she looks back over her shoulder into the lens, her iPhone in one hand at her hip"], "\"in tights only\": only the tights, the photo type and her name out of the words (D1 871)");
+    eq([pic("reem side view").pose, pic("reem nude showing her ass rear view and looking back over her shoulder").pose], ["", "showing her ass and looking back over her shoulder"], "view words and her name leave the pose (D1 866: \"She side view.\", 860: \"rear view\")");
+    eq(W.specFromWords("reem fucked Doggystyle, wet creamy pussy, cum on ass", { source: "pic", level: "on", hour: 22 }).pose, "her vulva wet and creamy, POV's semen on her bottom", "fluids said in explicit words, not cut to \"wet creamy, on ass\" (D1 862)");
+    const bra = W.specFromSelfie({ shot: "stretch-mirror", tier: "flirty", frame: { words: "", doing: "", clothes: "a cropped white tee with no bra and low-rise sweatpants" } }, { level: "on", hour: 7 });
+    const braText = prompt(bra);
+    yes(braText.includes("a cropped white tee, braless, and low-rise sweatpants") && W.lintPrompt(braText, 3).length === 0, "\"with no bra\" said affirmatively, lint clean (D1 863)", braText);
+  }
   // D1: the spec, its lint and the sampler are logged; old tables get the columns (each ALTER alone)
   eq(W.STUDIO_MIGRATIONS.map((q) => q.split(" ").at(-2)), ["spec", "lint", "scheduler"], "D1: pictures gets spec, lint and scheduler columns (Rebuild Step 2)");
   const row = W.pictureRow("p", {}, { ms0: Date.now(), attempts: 1, loras: [], refs: [], spec: { v: 1 }, lint: ["banned: camera"], scheduler: "Default" }, true);

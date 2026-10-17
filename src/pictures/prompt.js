@@ -56,7 +56,8 @@ export function framePrompt(spec, refs = [], prof = profile("runware")) {
       const hole = anal ? FR.PENETRATION.anus : a && a.back ? FR.PENETRATION.vaginaBehind : FR.PENETRATION.vagina;
       out.push(fill(a ? (anal && a.anal) || a.text : FR.ACT_GENERIC, { hole }));
     } else {
-      out.push(fill(FR.LENS[spec.view] || FR.LENS.pov, { angle: FR.ANGLES[spec.angle] || "" }));
+      const lens = spec.view === "mirror" && spec.back ? FR.LENS.mirrorBack : FR.LENS[spec.view] || FR.LENS.pov;
+      out.push(fill(lens, { angle: FR.ANGLES[spec.angle] || "" }));
       if (spec.back && spec.view !== "mirror") out.push(FR.BACK);
       else if (spec.profile && spec.view !== "mirror") out.push(FR.PROFILE);
       if (FR.FRAMINGS[spec.framing]) out.push(FR.FRAMINGS[spec.framing]);
@@ -73,7 +74,7 @@ export function framePrompt(spec, refs = [], prof = profile("runware")) {
     if (hairPic >= 0) out.push(fill(FR.IDENTITY.hairPicture, { n: hairPic }));
     else if (spec.hair.key) out.push(fill(FR.IDENTITY.hair, { hair: ruleWords(spec.hair.key) }));
     // 3. what she wears
-    const words = String(spec.outfit.words || "").replace(/^(?:Her|His|A|An|The|My)\b/, (w) => w.toLowerCase());
+    const words = ruleWords(String(spec.outfit.words || "")).replace(/^(?:Her|His|A|An|The|My)\b/, (w) => w.toLowerCase());
     const outfitPic = at("outfit");
     if (spec.content === "clothed") out.push(outfitPic >= 0 ? fill(FR.WEAR.outfitPicture, { n: outfitPic }) : fill(FR.WEAR.clothed, { outfit: inFrameOutfit(words, spec.framing) }));
     else if (words) out.push(fill(FR.WEAR[spec.outfit.kept] || FR.WEAR.partial, { outfit: words }));
@@ -81,7 +82,7 @@ export function framePrompt(spec, refs = [], prof = profile("runware")) {
     // 4. pose, and who is in the frame
     // "across from POV" seats POV too: klein drew his bare legs toward the lens 4/4 (Step 3b check); she faces the lens instead
     if (spec.pose) out.push(sentence(spec.view === "pov" ? spec.pose.replace(/\bacross from POV\b/gi, "facing the lens") : spec.pose));
-    if (spec.view === "pov" || spec.view === "closeup") out.push(FR.ONLY_HER);
+    if (spec.view === "pov" || spec.view === "closeup" || (spec.view === "mirror" && spec.back)) out.push(FR.ONLY_HER);
     if (spec.aspect === "16:9") out.push(FR.ONE_WOMAN);
     // 5. crop edges
     if (spec.view === "selfie" && spec.side) out.push(fill(FR.EDGES.selfie, { side: spec.side }));
