@@ -23,13 +23,15 @@ Runware for the Rebuild: about $0.70 of $1.00.
 - Junk in the pose: "She side view." (866), "rear view" (860), "Reem in tights only in" (871) → her name, the view and photo-type words go.
 - "wet creamy pussy, cum on ass" became "wet creamy, on ass" (862) → "her vulva wet and creamy, POV's semen on her bottom".
 - "with no bra" in an outfit (863, lint "banned: no") → "braless"; outfit words pass `ruleWords`.
+- /studio: Body menu has the v15 side view, fixed labels; editor defaults = the bot's core (4 steps, CFG 1, "high", Karras, NSFW Unlocked 0.5),
+  a new Scheduler field (was the retired 6 steps, CFG 2, Lenovo 1.3).
 
 ## Verified this session
-- `node tools/check.mjs` 8 of 8; a unit row per slip with the live words; golden plans changed only in the 2 belfie cases (read).
+- Playwright studio-refs and studio-cards at 390 px green. `node tools/check.mjs` 8 of 8; a unit row per slip with the live words; golden plans changed only in the 2 belfie cases (read).
 - 4 Runware pictures read at full size (QUALITY 2026-10-17). Not verified: Telegram after a deploy.
 
 ## Waiting on the owner
-- Deploy the slip fixes? (say "deploy").
+- Deploy the slip fixes and the /studio update? (say "deploy").
 - "tights only" picture: the tights weren't drawn (she came out fully nude) and she held a phone in each hand. Fix next, or leave?
 - Is "in tights only" = topless what you meant? (Claude's reading; at /nsfw Off it stays clothed.)
 - /studio > References, "Draw the first batch" (~$0.04), approve outfits only.

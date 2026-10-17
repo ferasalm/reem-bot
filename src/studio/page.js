@@ -89,6 +89,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
 <label>Steps (0 = Runware's)<input id="ed-steps" type="number" min="0" max="50"></label>
 <label>CFG (0 = Runware's)<input id="ed-cfg" type="number" min="0" max="10" step="0.1"></label>
 <label>Acceleration (blank = Runware's)<input id="ed-acc" autocomplete="off"></label>
+<label>Scheduler (blank = Runware's Default)<input id="ed-sched" autocomplete="off"></label>
 <label>Seed (0 = random)<input id="ed-seed" type="number" min="0"></label>
 <label>Pictures<select id="ed-n"></select></label>
 <label>Nudity level (for Compose)<select id="ed-level"></select></label>
@@ -277,6 +278,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
       steps: Number($("ed-steps").value) || 0,
       cfg: Number($("ed-cfg").value) || 0,
       acceleration: $("ed-acc").value.trim(),
+      scheduler: $("ed-sched").value.trim(),
       seed: Number($("ed-seed").value) || 0,
       results: Number($("ed-n").value) || 1,
       refs: [$("ed-face").value, $("ed-body").value, $("ed-place").value, $("ed-style").value].filter(Boolean),
@@ -297,6 +299,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
     $("ed-steps").value = s.steps || "";
     $("ed-cfg").value = s.cfg || "";
     $("ed-acc").value = s.acceleration || "";
+    $("ed-sched").value = s.scheduler || "";
     $("ed-seed").value = s.seed || "";
     setSelect($("ed-n"), String(s.results || 1));
     if (s.nsfw) setSelect($("ed-level"), s.nsfw);
@@ -326,6 +329,8 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; backgroun
       // the bot's own defaults: its sampler and its LoRAs on every picture
       $("ed-steps").value = o.sampler.steps || "";
       $("ed-cfg").value = o.sampler.cfg || "";
+      $("ed-acc").value = o.sampler.acceleration || "";
+      $("ed-sched").value = o.sampler.scheduler || "";
       renderLoras(o.defaultLoras || []);
       estimate();
     });

@@ -336,8 +336,9 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("options: LoRAs, references and two models; every face and body name resolves", o.loras.length > 0 && o.refs.includes("face-2x") && o.models.length === 2 && bytes.every((b) => b && b.length > 1000), JSON.stringify({ loras: o.loras.length, models: o.models.length }));
   // 2026-10-12 (owner): one face in the list, the body pictures under Body (three since 2026-10-15), hair pictures only (no outfit pictures), and the bot's defaults
   const distinct = new Set(bytes.slice(3).map((b) => b.length)).size;
-  check("options: Body = clothed front, nude front and nude back (three different pictures; clothed back views use the nude back, 2026-10-15), no face-1x, hair only, the bot's sampler and LoRAs",
-    JSON.stringify(o.bodies.map((b) => b.name)) === JSON.stringify(["body-v15-clothed", "body-v15", "body-v15-back"]) && distinct === 3 && !o.refs.includes("face-1x") && !o.refs.some((r) => r.startsWith("style:outfit-")) && o.sampler.steps === 6 && o.sampler.cfg === 2 && JSON.stringify(o.defaultLoras) === JSON.stringify([{ model: "ferasalm:lenovoc@1", weight: 1.3 }]),
+  // 2026-10-17: the v15 set with its side view; the defaults are the picture core's (FRAMES: 4 steps, CFG 1, "high", Karras, NSFW Unlocked 0.5)
+  check("options: Body = clothed front, nude front, nude back and the side view (four different pictures), no face-1x, hair only, the picture core's sampler and LoRA",
+    JSON.stringify(o.bodies.map((b) => b.name)) === JSON.stringify(["body-v15-clothed", "body-v15", "body-v15-back", "body-v15-side"]) && distinct === 4 && o.refs.includes("body-v15-side") && !o.refs.includes("face-1x") && !o.refs.some((r) => r.startsWith("style:outfit-")) && JSON.stringify(o.sampler) === JSON.stringify({ steps: 4, cfg: 1, acceleration: "high", scheduler: "DPM++ 2M Karras" }) && JSON.stringify(o.defaultLoras) === JSON.stringify([{ model: "ferasalm:nsfwunlock@1", weight: 0.5 }]),
     JSON.stringify({ bodies: o.bodies, distinct, sampler: o.sampler, defaultLoras: o.defaultLoras }));
 }
 

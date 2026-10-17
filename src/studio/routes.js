@@ -133,29 +133,32 @@ export async function studioApi(request, env, url) {
 // The editor's lists: models, LoRAs (LORA_INFO), references, sizes, the nudity levels, the money today
 export async function studioOptions(env) {
   const R = CONFIG.PICTURE.RUNWARE;
+  const F = CONFIG.PICTURE.FRAMES || {};
   const ledger = await loadLedger(env);
   return {
     ok: true,
     models: [{ id: "klein", label: "klein 9B (Runware, her face)", model: R.MODEL }, { id: "twinflow", label: "TwinFlow (Runware, text only)", model: R.BACKUP_MODEL }],
     loras: Object.entries(R.LORA_INFO || {}).map(([air, i]) => ({ air, name: i.name, category: i.category, trigger: i.trigger || "", note: i.note || "" })),
     refs: studioRefNames(),
-    // the Body menu (owner 2026-10-12: body pictures under Body, hair pictures under Hair)
-    bodies: [[R.BODY_CLOTHED, "clothed front (bra + briefs)"], [R.BODY, "nude front"], [R.BODY_BACK, "nude back (also clothed back views)"], [R.BODY_CLOTHED_BACK, "clothed back"]].filter(([n], i, a) => n && a.findIndex(([m]) => m === n) === i).map(([n, label]) => ({ name: `body-${n}`, label })),
-    // the editor starts from the bot's own sampler and its every-picture LoRAs (LORAS)
-    sampler: { steps: Number(R.STEPS) || 0, cfg: Number(R.CFG) || 0 },
-    defaultLoras: Object.entries(R.LORAS || {}).map(([model, weight]) => ({ model, weight: Number(weight) })),
+    // the Body menu (owner 2026-10-12: body pictures under Body, hair pictures under Hair); the v15 set and its side view (2026-10-17)
+    bodies: [[R.BODY_CLOTHED, "clothed front (black bra + briefs)"], [R.BODY, "nude front"], [R.BODY_BACK, "nude back"], ...bodySides().map((n) => [n, "nude side view"]), [R.BODY_CLOTHED_BACK, "clothed back"]].filter(([n], i, a) => n && a.findIndex(([m]) => m === n) === i).map(([n, label]) => ({ name: `body-${n}`, label })),
+    // the editor starts from the bot's own picture core (PICTURE.FRAMES, Rebuild Steps 2-3b): its sampler and NSFW Unlocked at the clothed weight
+    sampler: { steps: Number(F.STEPS) || 0, cfg: Number(F.CFG) || 0, acceleration: String(F.ACCELERATION || ""), scheduler: String(F.SCHEDULER || "") },
+    defaultLoras: F.LORA && Number((F.LORA_WEIGHTS || {}).clothed) > 0 ? [{ model: String(F.LORA), weight: Number(F.LORA_WEIGHTS.clothed) }] : [],
     sizes: [{ label: "9:16 (768 x 1344)", width: 768, height: 1344 }, { label: "1:1 (1024 x 1024)", width: 1024, height: 1024 }, { label: "16:9 (1344 x 768)", width: 1344, height: 768 }],
     levels: NSFW_LEVELS,
     usdPerPicture: Number(R.USD_PER_PICTURE) || 0,
     cap: { dailyUsd: CONFIG.STUDIO.DAILY_USD, spentUsd: ledger.studioUsd || 0, resultsMax: CONFIG.STUDIO.RESULTS_MAX },
   };
 }
+// The side-view body pictures (RUNWARE.BODY_SIDES, a comma list)
+const bodySides = () => String(CONFIG.PICTURE.RUNWARE.BODY_SIDES || "").split(",").map((s) => s.trim()).filter(Boolean);
 // The reference pictures the editor can send, by name: face-2x, body-<BODY name>, place:<key>, style:<key> (hairstyles). face-1x
 // (Cloudflare's 480 px face) and body-cloudflare stay readable for old log rows, but are not offered (2026-10-12)
 export function studioRefNames() {
   const R = CONFIG.PICTURE.RUNWARE;
   return [
-    "face-2x", ...[...new Set([R.BODY, R.BODY_BACK, R.BODY_CLOTHED, R.BODY_CLOTHED_BACK])].filter(Boolean).map((n) => `body-${n}`),
+    "face-2x", ...[...new Set([R.BODY, R.BODY_BACK, R.BODY_CLOTHED, R.BODY_CLOTHED_BACK, ...bodySides()])].filter(Boolean).map((n) => `body-${n}`),
     ...Object.keys(PLACE_JPEG_BASE64 || {}).filter((k) => !k.includes("~")).map((k) => `place:${k}`),
     ...Object.keys(STYLE_JPEG_BASE64 || {}).map((k) => `style:${k}`),
   ];
