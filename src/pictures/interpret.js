@@ -98,7 +98,8 @@ function garmentKind(phrase) {
 function stripPhrases(text, phrases) {
   let t = String(text || "");
   for (const p of [...phrases].sort((a, b) => b.length - a.length)) {
-    t = t.replace(new RegExp(`(?<![\\p{L}])${escapeRegex(p)}(?:s)?(?:\\s+(?:him|the man|POV|me))?(?![\\p{L}])`, "giu"), " ");
+    // with its article: "a mirror selfie in the bedroom" lost only "mirror selfie" and left "a in the bedroom" (2026-10-17 check)
+    t = t.replace(new RegExp(`(?<![\\p{L}])(?:(?:an?|the)\\s+)?${escapeRegex(p)}(?:s)?(?:\\s+(?:him|the man|POV|me))?(?![\\p{L}])`, "giu"), " ");
   }
   return t.replace(/\s+([,.;])/g, "$1").replace(/^[\s,.;:]+|[\s,;:]+$/g, "").replace(/\s{2,}/g, " ").trim();
 }

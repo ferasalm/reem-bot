@@ -549,7 +549,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const want = ["REFERENCE", "RUNWARE REFERENCE_CLOTHED", "RUNWARE REFERENCE_CLOTHED_BACK"].includes(name) ? P.BODY_WORDS_CLOTHED : BW;
     eq([s.includes(want) && (want === BW || !s.includes(BW)), /not slimmer|full upper arms|soft body/.test(s)], [true, false], `${name}: carries its body words, no old body line (Fix round 2)`);
   }
-  eq(BW, "narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous", "PICTURE.BODY_WORDS is the owner's list (2026-10-13, Fix round 2; \"full arms\" back and \"a full bust\" added 2026-10-15, owner)");
+  eq(BW, "narrow shoulders, a medium, natural bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous", "PICTURE.BODY_WORDS is the owner's list (2026-10-13, Fix round 2; \"full arms\" back 2026-10-15; \"a medium, natural bust\" 2026-10-17, owner)");
   eq(typeof JSON.parse(P.LINGERIE.SPICY_PROMPT), "object", "LINGERIE SPICY_PROMPT: still valid JSON after the cut");
   eq(R.KLEIN_TRIES, 2, "her pictures: klein tried twice, then Cloudflare klein (no TwinFlow)");
 }
@@ -1157,6 +1157,8 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
     const side = W.specFromWords("naked in the bedroom, side view", { source: "pic", level: "on" });
     const behind = W.specFromWords("naked, from behind, in profile", { source: "pic", level: "on" });
     const plain = W.specFromWords("naked in the bedroom", { source: "pic", level: "on" });
+    const typed = W.specFromWords("naked, standing, a mirror selfie in the bedroom mirror, full body", { source: "pic", level: "on" });
+    yes(!/\ba in\b/.test(typed.pose), "poseOf: a photo-type phrase goes with its article (2026-10-17 check: \"Standing, a in the bedroom.\")", typed.pose);
     const text = W.framePrompt(side, W.pickRefs(side, rw), rw);
     yes(["left", "right"].includes(side.profile) && behind.profile === "" && behind.back && plain.profile === "" && String(text).includes("in profile to the lens") && W.lintPrompt(String(text), 4).length === 0, "specFromWords: PROFILE_WORDS make a side view (a back view wins), the prompt says so and lints clean", JSON.stringify({ side: side.profile, behind: [behind.profile, behind.back], plain: plain.profile, text, lint: W.lintPrompt(String(text), 4) }));
   }
