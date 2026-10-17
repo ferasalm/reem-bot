@@ -25,7 +25,8 @@ Runware for the Rebuild: about $0.70 of $1.00 (the last counted figure; not re-r
 ## Verified this session
 - Deploy run 39001015983: every step success; `/health` drew 54,020 bytes (16.0 s) and Scout described it; `/setup` all ✅ (both read in full from the job log).
 - `node tools/check.mjs` 8 of 8 on 0444bf2 before the push. Sync report: only `chat-timeout` (the superseded 60 s DeepSeek change; `dev` has its content).
-- Not verified: a reply or picture in Telegram (the owner's check). Tests run 39001015954 (sync and mocked) was still running at the deploy; its result was not read.
+- Tests run 39001015954 (run_number 705, sync and mocked) on `0444bf2`: `success` (conclusion read from the run).
+- Not verified: a reply or picture in Telegram (the owner's check).
 
 ## Waiting on the owner
 - Telegram check of the deployed slip fixes and /studio: a picture or reply in the bot, and /studio opened from Telegram.
