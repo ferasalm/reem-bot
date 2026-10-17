@@ -31,6 +31,9 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
   With 3 refs + 1 LoRA: one-call samplers $0.00585, acceleration "high" $0.0039; `negativePrompt` ignored at CFG ≤ 1; at most 4 references; MCP `model_schema`
   is free; WebFetch can't reach outside hosts (use WebSearch). A `failedModelLoad` or a 400 is sometimes billed; twice in a row on one case: stop.
 - Runware `imageUpload` UUID refs drew another background than base64 at one seed ($0.0022 vs $0.0039, Step 4) → `RUNWARE.UUID_REFS` off.
+- Waiting for a deploy: foreground `sleep` is blocked, but `Bash` `sleep N` with `run_in_background` works and wakes you when it ends; then `actions_get`
+  (run) and `list_workflow_jobs` → `get_job_logs` (`return_content`, `tail_lines` 120) give the Version ID and the `/health` and `/setup` lines (2026-10-17).
+- `git cherry` can list a branch commit as "not on dev" when dev applied the same change by hand: compare the lines (`grep TIMEOUT_MS`) before calling it missing work (2026-10-17).
 - GitHub Actions failing in 2-5 s with no steps and a 404 log (2026-10-16, 2026-10-17, runner_id 0) is an account-level outage that clears: note the last
   green run, don't loop reruns, retry later. `actions_list` can dump 20 KB: read one run with `actions_get` + `list_workflow_jobs`.
 - A bench that skips the command's own word step tests another prompt: /pic runs `picWords` (me → the man) before `specFromWords`;

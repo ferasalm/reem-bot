@@ -4,6 +4,12 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-17 (sixtieth session): deploy of 0444bf2 to main (Haiku 5.5, `claude-haiku-5-5`)
+- Owner: "Deploy". `main` 6c6c19f → 0444bf2 (fast-forward), Deploy to Cloudflare run 39001015983 (run_number 59), every step success.
+  Version `ea9af634-f77d-49bc-adae-627130662e42` (was `31d318d7-23fd-409c-b446-0b9be7a05927`). `/health` and `/setup` read in full from the job log: all ✅.
+- Sync report: only `chat-timeout` (1 commit, `b0d52f7`, the superseded 60 s DeepSeek change); `dev` already has `LLM.TIMEOUT_MS: 60000` and DeepSeek, so nothing missing.
+- Tests run 39001015954 (run_number 705, sync and mocked) was still running at the deploy; its result was not read.
+
 ## 2026-10-17 (fifty-ninth session): slips of the owner's Telegram check fixed (Opus 5.5, `claude-opus-5-5`)
 - Haiku 5.5 (`claude-haiku-5-5`, chat "Slip logs review", session_01Jan9cSPxZDWaDMBx5D2ZUp, branch ccr-9e45f16e-4hycxb, nothing pushed) read D1 and listed 4 slips;
   this chat read the transcript and D1 rows 860-871 (prompts, `asked`, specs) and found 7. D1 `events`: 6 rows, all ok, wall 17-104 s, model 2-30 s (HANDOFF step 4).
