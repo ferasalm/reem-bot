@@ -40,7 +40,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Runware `imageUpload` (free): a UUID in `referenceImages` drew another background than base64 at one seed and billed $0.0022 vs $0.0039 (Step 4, 2026-10-16)
   → `RUNWARE.UUID_REFS` off. Nude-front test: her face picture doesn't slim her.
 - GitHub Actions (2026-10-16): every workflow failing in 2-5 s with no steps and a 404 log (Tests 679-682, Deploy 55, rerun too) is an account-level Actions
-  problem, not the code (it cleared after ~15 min): note the last green run's time, don't loop reruns, retry a hand-run `deploy.yml` later. `actions_list` ignores `per_page` and
+  problem, not the code (it cleared after ~15 min; again 2026-10-17 from 00:44 UTC, runner_id 0): note the last green run's time, don't loop reruns, retry a hand-run `deploy.yml` later. `actions_list` ignores `per_page` and
   filters and can dump 20 KB: read one run with `actions_get` + `list_workflow_jobs`.
 - A bench that skips the command's own word step tests another prompt: /pic runs `picWords` (me → the man) before `specFromWords`;
   without it "across from me" reached the prompt as "me" (Step 3 dry run, 2026-10-16) → call the same steps, dry-run (`DRY=1`) and read prompts first.

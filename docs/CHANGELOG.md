@@ -4,6 +4,10 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-17 (fifty-eighth session, part 3): medium natural bust, v15 check, deploy blocked
+- Same chat. "a full bust" → "a medium, natural bust" (10 strings); newref-check 4/4 drawn ($0.0175; the earlier failedModelLoad cost $0.0039); `stripPhrases` article fix.
+  `git push origin origin/dev:main` 8d0f79c → ed9e4a2; Deploy run 38990832683 (run_number 57) failed in 2 s, runner_id 0, log 404; Tests 688-693 the same since 00:44 UTC.
+
 ## 2026-10-17 (fifty-eighth session, part 2): v15 full-length bodies, side views, warmed skin, petite
 - Same chat (Opus 5.5, `claude-opus-5-5`). Originals 23-26 in, 21-22 out; `tools/face/warm-skin.sh` (saturation and flood-fill masks were tried first: holes and tinted floor shadows; Lab a* worked);
   `spec.profile`, `BODY_SIDES`, `PROFILE_WORDS`, `FR.PROFILE`; persona 158 cm / 58 kg; `newref-check.mjs` now runs the spec path with a side case.
