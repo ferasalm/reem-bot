@@ -1,6 +1,6 @@
-// The owner's references of 2026-10-15 (face 13; bodies 14-16, then 17-19): four pictures through the bot's own /pic path on Runware klein 9B
-// (/nsfw On, seed 101): a clothed front, a clothed back view on the nude back (BODY_CLOTHED_BACK, the nude back), a nude front, a nude back.
-//   NODE_USE_ENV_PROXY=1 node tools/face/newref-check.mjs <outdir>    paid: about $0.012
+// A new reference set through the bot's own /pic path (picWords → specFromWords → drawPicture with the spec) on Runware klein 9B
+// (/nsfw On, seed 101, no anatomy check): a clothed front, a nude front, a nude back, a nude side view (2026-10-17: the v15 bodies).
+//   NODE_USE_ENV_PROXY=1 node tools/face/newref-check.mjs <outdir>    paid: about $0.025
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadWorker } from "../test/load-worker.mjs";
@@ -9,11 +9,12 @@ const OUT = process.argv[2];
 if (!OUT) throw new Error("usage: newref-check.mjs <outdir>");
 mkdirSync(OUT, { recursive: true });
 const W = await loadWorker();
+W.CONFIG.PICTURE.ANATOMY.ON = false;
 const CASES = [
   ["clothed-front", "a mirror selfie, standing, full body, a fitted black tank top and high-waisted jeans, her arms visible"],
-  ["clothed-back", "a mirror selfie from behind, back view, standing, full body, a fitted black tank top and high-waisted jeans"],
   ["nude-front", "naked, standing, a mirror selfie in the bedroom mirror, full body"],
   ["nude-back", "a belfie, naked, standing in the bedroom"],
+  ["nude-side", "naked, standing in the bedroom, side view, full body"],
 ];
 let current = null;
 let spent = 0;
@@ -39,9 +40,10 @@ const env = {
 const rows = [];
 for (const [id, words] of CASES) {
   current = { calls: [], bytes: null };
-  const said = W.picWords(words);
+  const said = W.picWords(words, "on", {});
   const p = W.customPicture(said, undefined, null, "on");
-  await W.drawPicture(env, p.prompt, { location: p.location, night: p.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: "on" });
+  const spec = W.specFromWords(said, { source: "pic", level: "on" });
+  await W.drawPicture(env, p.prompt, { location: p.location, night: p.night, ledger: { rwUsd: 0, rwFailed: 0 }, custom: true, nsfw: "on", spec }).catch((e) => console.log(id, "not drawn:", e.message));
   if (current.bytes) writeFileSync(join(OUT, `${id}.jpg`), Buffer.from(current.bytes, "base64"));
   rows.push({ id, words, calls: current.calls });
   console.log(id, current.calls.map((c) => `${c.status} $${c.cost}`).join(" "), "\n ", current.calls[0]?.prompt);

@@ -268,7 +268,7 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   check("compose at Off: no Runware plan (tries []), the level is kept", offCompose.ok === true && offCompose.level === "off" && Array.isArray(offCompose.tries) && offCompose.tries.length === 0, JSON.stringify(offCompose).slice(0, 200));
   // 2026-10-12 (owner: compose "always returns Runware can't draw right now"): at Off the Cloudflare prompt and references come back
   const cf = offCompose.cloudflare || {};
-  check("compose at Off: the Cloudflare prompt, with the words, and the studio's reference names", String(cf.prompt || "").includes("black turtleneck") && cf.refs.length === 3 && cf.refs[0] === "face-2x" && cf.refs[1] === "body-v14-clothed" && /^place:porch(?:~\d+)?$/.test(cf.refs[2]), JSON.stringify(cf).slice(0, 300));
+  check("compose at Off: the Cloudflare prompt, with the words, and the studio's reference names", String(cf.prompt || "").includes("black turtleneck") && cf.refs.length === 3 && cf.refs[0] === "face-2x" && cf.refs[1] === "body-v15-clothed" && /^place:porch(?:~\d+)?$/.test(cf.refs[2]), JSON.stringify(cf).slice(0, 300));
   check("compose takes /pic words only", none.ok === false);
 }
 
@@ -337,7 +337,7 @@ const jarOf = async (env, chat = "42") => `studio=${await W.studioToken(env, cha
   // 2026-10-12 (owner): one face in the list, the body pictures under Body (three since 2026-10-15), hair pictures only (no outfit pictures), and the bot's defaults
   const distinct = new Set(bytes.slice(3).map((b) => b.length)).size;
   check("options: Body = clothed front, nude front and nude back (three different pictures; clothed back views use the nude back, 2026-10-15), no face-1x, hair only, the bot's sampler and LoRAs",
-    JSON.stringify(o.bodies.map((b) => b.name)) === JSON.stringify(["body-v14-clothed", "body-v14", "body-v14-back"]) && distinct === 3 && !o.refs.includes("face-1x") && !o.refs.some((r) => r.startsWith("style:outfit-")) && o.sampler.steps === 6 && o.sampler.cfg === 2 && JSON.stringify(o.defaultLoras) === JSON.stringify([{ model: "ferasalm:lenovoc@1", weight: 1.3 }]),
+    JSON.stringify(o.bodies.map((b) => b.name)) === JSON.stringify(["body-v15-clothed", "body-v15", "body-v15-back"]) && distinct === 3 && !o.refs.includes("face-1x") && !o.refs.some((r) => r.startsWith("style:outfit-")) && o.sampler.steps === 6 && o.sampler.cfg === 2 && JSON.stringify(o.defaultLoras) === JSON.stringify([{ model: "ferasalm:lenovoc@1", weight: 1.3 }]),
     JSON.stringify({ bodies: o.bodies, distinct, sampler: o.sampler, defaultLoras: o.defaultLoras }));
 }
 

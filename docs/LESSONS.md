@@ -88,7 +88,7 @@ At most 180 lines (`tools/doc-check.mjs`); once it reaches 180, summarize it bac
 - Klein copies the place picture's light (night places `<key>_night`, no place picture on flash), framing and angle (three crops per
   place) and bathroom mirrors break (bedroom/hallway only). "natural light" at night drew daylight → `SCENE_NIGHT` (2026-10-03/05).
 - A nude image 1 can dress a clothed back view when the line says "Image 1 shows her body naked: she is not naked here" (tank + jeans, 1/1,
-  2026-10-15); new body pictures: cut off the chin and lips, or klein gets a second mouth to copy.
+  2026-10-15); new body pictures: cut off the chin and lips, or klein gets a second mouth to copy. Skin tint: saturation and flood-fill masks caught the background and floor shadows; Lab a* (redness) separates skin cleanly (`tools/face/warm-skin.sh`, 2026-10-17).
 - Image numbers in a prompt follow the pictures sent (ROOM's `{n}`). A 9:16 frame plus her face kept crotch close-ups framed from her
   lips (12/12) → 1:1 without the face (Step 5). The camera is the frame and the references, not the framing words.
 - Pose words that are also clothes ("on her heels", riding "on top", "covered" in sweat, "between her legs") → only phrases that

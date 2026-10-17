@@ -21,6 +21,7 @@ export const ANGLES = {
 };
 // seen from behind: after the lens sentence
 export const BACK = "She is seen from behind, her back toward the lens.";
+export const PROFILE = "She is seen from the side, in profile to the lens.";
 // 1b. How much of her the frame holds (spec.framing); "detail" says it in the pose
 export const FRAMINGS = {
   face: "Framed close on her face and shoulders; the frame ends at her collarbones.",

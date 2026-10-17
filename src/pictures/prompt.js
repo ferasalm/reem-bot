@@ -58,6 +58,7 @@ export function framePrompt(spec, refs = [], prof = profile("runware")) {
     } else {
       out.push(fill(FR.LENS[spec.view] || FR.LENS.pov, { angle: FR.ANGLES[spec.angle] || "" }));
       if (spec.back && spec.view !== "mirror") out.push(FR.BACK);
+      else if (spec.profile && spec.view !== "mirror") out.push(FR.PROFILE);
       if (FR.FRAMINGS[spec.framing]) out.push(FR.FRAMINGS[spec.framing]);
     }
     // 2. who she is

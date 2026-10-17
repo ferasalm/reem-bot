@@ -177,7 +177,9 @@ export function readWords(text, { level = CONFIG.PICTURE.NSFW.DEFAULT, nude = fa
   else if (content === "clothed" && words && kinds.includes("bottom") && !kinds.some((k) => k === "top" || k === "one-piece" || k === "both")) words = `${DEFAULT_TOP} and ${words}`;
   const close = isNude && !isAct && !!flags.close;
   const back = act ? act.back : flags.back || (!isNude && list(R.NUDE_BACK_WORDS).some((w) => hasWord(text, w)));
-  return { flags, content, act, outfit: { words, kept: content === "clothed" ? "" : keptKind }, back, close, rest, garments, garmentState: isAct && kept.length < garments.length ? "off" : "on" };
+  // seen from the side (owner 2026-10-17: side-view body pictures): which way she faces is picked once, here
+  const profile = !back && list(R.PROFILE_WORDS).some((w) => hasWord(text, w)) ? pickOne(["left", "right"]) : "";
+  return { flags, content, act, outfit: { words, kept: content === "clothed" ? "" : keptKind }, back, profile, close, rest, garments, garmentState: isAct && kept.length < garments.length ? "off" : "on" };
 }
 // The pose words: what is left of the segments, without the act, nudity, shot and close-up words, in the rules' words (ruleWords)
 function poseOf(rest, extra = []) {
@@ -214,6 +216,7 @@ export function specFromWords(words, { source = "pic", level = CONFIG.PICTURE.NS
     content: w.content,
     act: w.act && { name: w.act.name, hole: w.act.hole, position: w.act.position },
     back: !!w.back || !!(shot && shot.back),
+    profile: w.back || (shot && shot.back) ? "" : w.profile,
     outfit,
     garmentState: w.garmentState,
     hair: { key: w.close ? "" : pickHair(text), refId: "" },
@@ -265,6 +268,7 @@ export function specFromSelfie(pic, { level = CONFIG.PICTURE.NSFW.DEFAULT, hour 
     content: w.content,
     act: w.act && { name: w.act.name, hole: w.act.hole, position: w.act.position },
     back: !!w.back || !!shot.back,
+    profile: w.back || shot.back ? "" : w.profile,
     outfit,
     garmentState: w.garmentState,
     hair: { key: pickHair(text), refId: "" },

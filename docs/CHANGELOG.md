@@ -4,6 +4,11 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-17 (fifty-eighth session, part 2): v15 full-length bodies, side views, warmed skin, petite
+- Same chat (Opus 5.5, `claude-opus-5-5`). Originals 23-26 in, 21-22 out; `tools/face/warm-skin.sh` (saturation and flood-fill masks were tried first: holes and tinted floor shadows; Lab a* worked);
+  `spec.profile`, `BODY_SIDES`, `PROFILE_WORDS`, `FR.PROFILE`; persona 158 cm / 58 kg; `newref-check.mjs` now runs the spec path with a side case.
+  Runware check: failedModelLoad on case 1 (01:15 UTC), not retried. check.mjs 8 of 8. Not deployed.
+
 ## 2026-10-17 (fifty-eighth session): v14 bodies and wheatish skin
 - Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. $0 Runware.
   Originals 20-22 in, 17-19 out; body-*.jpg rebuilt (576 wide; body.jpg 270x480); assets/face.js rebuilt; v13 → v14 in config, refs.js, plan.js, tests, golden;

@@ -5,7 +5,7 @@
 //   view: selfie | mirror | pov | pov-act | closeup | alone
 //   content: clothed | partial | nude | act
 //   act: { name, hole, position } (name: a frames.ACTS key or "act"; hole: mouth | hand | vagina | anus)
-//   back: seen from behind
+//   back: seen from behind; profile: "" | left | right, seen from the side (PROFILE_WORDS; the side-view body picture facing that way)
 //   outfit: { key, refId, words, kept } (words: the clothes; kept: "top" | "bottom" | "" when partly dressed; refId: an outfit picture,
 //     Step 4) ; garmentState: "on" | "off" (pulled aside waits on its own LoRA, owner 2026-10-15)
 //   hair: { key, refId } (key: a HAIRSTYLES text or "" when the words name her hair)
@@ -27,6 +27,7 @@ export function newSpec(fields = {}) {
     content: "clothed",
     act: null,
     back: false,
+    profile: "",
     outfit: { key: "", refId: "", words: "", kept: "" },
     garmentState: "on",
     hair: { key: "", refId: "" },

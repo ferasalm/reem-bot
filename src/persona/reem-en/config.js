@@ -392,17 +392,18 @@ Changing the story
       // ass from the nude pictures", "Instapic and Real HD 2k are good. Use them both together"): his lace body nude, by klein 9B + InstaPic 1.0
       // + Real HD 2K 1.0; "v5-back" from behind, "v5-clothed" drawn from v5
       // then "v6" (owner: "redraw the body (the fuller are what's important)"): v5 redrawn with fuller arms and a softer belly
-      BODY: "v14",
-                     // image 1 on nude pictures: the owner's nude front (2026-10-17 set; v13, v12, v10 before); older sets are in the history above
+      BODY: "v15",
+                     // image 1 on nude pictures: the owner's full-length nude front (2026-10-17, skin warmed to wheatish; v14, v13, v12, v10 before); older sets are in the history above
       // 2026-10-12 (owner: "Add attached body images as THE only clothed body reference, retiring other clothed image references
       // (Wardrobe variety now happens with prompt text)"): the black bra + thong pictures (originals 11, 12). Was v10-clothed (the rust
       // halter + jeans), then the nude front for clothed pictures (CLOTHED_BODY "nude", Step 5); the outfit pictures are retired too
-      BODY_CLOTHED: "v14-clothed",
-     // the owner's black bra and briefs (2026-10-17 set; v13-clothed bra and briefs, v12-clothed lace, v11-clothed bra + thong before). Image 1 when she isn't naked (and of partly naked pictures, BODY_PARTIAL "clothed")
-      BODY_CLOTHED_BACK: "v14-back",
+      BODY_CLOTHED: "v15-clothed",
+     // the owner's black bra and briefs (2026-10-17, skin warmed; v14-clothed the same unwarmed, v13-clothed bra and briefs, v12-clothed lace, v11-clothed bra + thong before). Image 1 when she isn't naked (and of partly naked pictures, BODY_PARTIAL "clothed")
+      BODY_CLOTHED_BACK: "v15-back",
    // image 1 of a clothed back view (NUDE_BACK_WORDS in a clothed picture: a belfie, a mirror back view): the nude back
       // dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15: "Use the nude back"; no clothed back picture in the 2026-10-15 set)
-      BODY_BACK: "v14-back",
+      BODY_BACK: "v15-back",
+      BODY_SIDES: "v15-side, v15-side-r", // the owner's side views of 2026-10-17 (facing left, facing right): image 1 of a nude, partly dressed or act picture seen from the side (PROFILE_WORDS)
                   // her pictures: klein 9B tries (2 = one retry), then Cloudflare klein with the same references; TwinFlow never draws her (words only: its LOOKS drew the belly, 2026-10-10)
       // owner 2026-10-10: these hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when picked (about
       // $0.0009 more). The four outfit pictures were retired 2026-10-12 (owner): outfits are words only

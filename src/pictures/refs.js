@@ -1,6 +1,6 @@
 // Reference picture bytes: face, bodies, places, styles.
 import {
-  BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, FACE_2X_JPEG_BASE64,
+  BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_SIDE_JPEG_BASE64, BODY_SIDE_R_JPEG_BASE64, FACE_2X_JPEG_BASE64,
   FACE_JPEG_BASE64, STYLE_JPEG_BASE64,
 } from "../../assets/face.js";
 import { PLACE_JPEG_BASE64 } from "../../assets/places.js";
@@ -14,9 +14,9 @@ import { libName, libraryBytes, matchRef } from "./library.js";
 // Her body shape (face.js BODY_JPEG_BASE64: a Nano Banana picture of the figure, face out of frame): image 1 of every
 // picture drawn from her face, so her softly curvy figure and soft narrow shoulders don't depend on words alone
 export const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null);
-// A body picture by its RUNWARE.BODY* name: v14 / v14-back (nude), v14-clothed (black bra and briefs): the owner's set of 2026-10-17
+// A body picture by its RUNWARE.BODY* name: v15 / v15-back (nude), v15-side / v15-side-r (nude side views), v15-clothed (black bra and briefs): the owner's sets of 2026-10-17, skin warmed
 export function runwareBodyBytes(name) {
-  const pics = { "v14": BODY_NUDE_JPEG_BASE64, "v14-back": BODY_BACK_JPEG_BASE64, "v14-clothed": BODY_CLOTHED_JPEG_BASE64 };
+  const pics = { "v15": BODY_NUDE_JPEG_BASE64, "v15-back": BODY_BACK_JPEG_BASE64, "v15-side": BODY_SIDE_JPEG_BASE64, "v15-side-r": BODY_SIDE_R_JPEG_BASE64, "v15-clothed": BODY_CLOTHED_JPEG_BASE64 };
   const b64 = pics[name] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }
@@ -79,7 +79,10 @@ export function pickRefs(spec, prof, lib = []) {
   const out = [];
   const cf = prof.name === "cloudflare";
   if (!(spec.view === "closeup" && spec.framing === "crotch")) out.push({ role: "face", name: !cf && R.BIG_FACE ? "face-2x" : "face-1x" });
-  const body = cf ? "body-cloudflare" : spec.content === "clothed" ? `body-${R.BODY_CLOTHED || R.BODY}` : `body-${(spec.back && R.BODY_BACK) || R.BODY}`;
+  // a nude, partly dressed or act picture seen from the side (spec.profile, PROFILE_WORDS) takes the side view facing that way (owner 2026-10-17)
+  const sides = String(R.BODY_SIDES || "").split(",").map((s) => s.trim()).filter(Boolean);
+  const side = !spec.back && spec.profile && sides.length ? sides[spec.profile === "right" && sides[1] ? 1 : 0] : "";
+  const body = cf ? "body-cloudflare" : spec.content === "clothed" ? `body-${R.BODY_CLOTHED || R.BODY}` : `body-${(spec.back && R.BODY_BACK) || side || R.BODY}`;
   const outfit = !cf && spec.content === "clothed" && !spec.back ? matchRef(lib, "outfit", spec.outfit.words || spec.outfit.key) : null;
   if (outfit) out.push({ role: "outfit", name: libName(outfit.id) });
   else out.push({ role: "body", name: body });
