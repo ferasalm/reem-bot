@@ -4,6 +4,11 @@ History, moved word for word from HANDOFF.md on 2026-10-03 (handbook restructure
 Not loaded at session start: `grep -n` it for a run id, version or date when you need the history behind something.
 New entries: when a session's HANDOFF "Where we are" item is finished, move its detail here (newest first).
 
+## 2026-10-17 (fifty-eighth session): v14 bodies and wheatish skin
+- Opus 5.5 (`claude-opus-5-5`, configured and served per get_session); no subagents. $0 Runware.
+  Originals 20-22 in, 17-19 out; body-*.jpg rebuilt (576 wide; body.jpg 270x480); assets/face.js rebuilt; v13 → v14 in config, refs.js, plan.js, tests, golden;
+  replay-bench maps body-v12/v13/v14 to today's pictures. "fair olive skin" → "wheatish skin" (12 strings). check.mjs 8 of 8. Not deployed.
+
 ## 2026-10-16 (fifty-seventh session): Rebuild Step 4 finished; deploy blocked by Actions
 - Sonnet 5.5 (`claude-sonnet-5-5`, configured and served per get_session); Opus 5.5 advisor set, not called; no subagents. $0 Runware.
   Fix: References tab base select defaulted to "" (`setSelect` appends a blank option) → `fillSelect(..., value || "face-2x")`. New: `tools/test/studio-refs.mjs`

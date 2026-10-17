@@ -378,8 +378,8 @@ Changing the story
     // "full upper arms and soft body"); image 1 (body.jpg) is the owner's bra-and-briefs picture (second 2026-10-15 set), so its clothes are named
     // out without naming them (Cloudflare's prompt filter refuses "bra" and "thong": FILTER_WORDS). Was ~700 characters with height,
     // weight, shoulders and "a messy bun" (git history)
-    REFERENCE: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair, and exactly the body of image 1, narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, thick arms, thick thighs, fair olive skin. Image 1 shows only her body: she wears only the clothes described here. She is 29, clearly an adult.",
-    LOOKS: "A 29-year-old Lebanese woman, clearly an adult: soft rounded face, fair olive skin, thick dark softly arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, thin gold rings.",
+    REFERENCE: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair, and exactly the body of image 1, narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, thick arms, thick thighs, wheatish skin. Image 1 shows only her body: she wears only the clothes described here. She is 29, clearly an adult.",
+    LOOKS: "A 29-year-old Lebanese woman, clearly an adult: soft rounded face, wheatish skin, thick dark softly arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, thin gold rings.",
     RUNWARE: {
  // text only (LOOKS); also the "runware-twinflow" route's model
       // round 8 (owner: "update her body reference to reflect the skin tone and fuller arms ... all her body shots (back, front, clothed, and
@@ -387,22 +387,22 @@ Changing the story
       // pale warm ivory skin and fuller arms, "v3-back" and "v3-clothed" drawn from it, all with phone2025 + ultrareal5 (768x1344)
       // 2026-10-09 (owner: "her body looks so airbrushed ... fair olive and ... hyperdetailed skin texture, natural and imperfect", then
       // "use klein for everything with a realism LoRA"): "v4" = the owner's nude pictures redrawn by klein 9B + phone2025 0.6 + ultrareal5 0.9
-      // in fair olive skin; "v4-back" from his back picture, "v4-clothed" drawn from v4 (tools/face/owner-2026-10-09)
+      // in wheatish skin; "v4-back" from his back picture, "v4-clothed" drawn from v4 (tools/face/owner-2026-10-09)
       // then "v5" (owner: "We want the bodies of the clothed pictures ... nudify it ... same breasts from the nude image front shot ... same
       // ass from the nude pictures", "Instapic and Real HD 2k are good. Use them both together"): his lace body nude, by klein 9B + InstaPic 1.0
       // + Real HD 2K 1.0; "v5-back" from behind, "v5-clothed" drawn from v5
       // then "v6" (owner: "redraw the body (the fuller are what's important)"): v5 redrawn with fuller arms and a softer belly
-      BODY: "v13",
-                     // image 1 on nude pictures: the owner's nude front (second 2026-10-15 set; v12, v10 before); older sets are in the history above
+      BODY: "v14",
+                     // image 1 on nude pictures: the owner's nude front (2026-10-17 set; v13, v12, v10 before); older sets are in the history above
       // 2026-10-12 (owner: "Add attached body images as THE only clothed body reference, retiring other clothed image references
       // (Wardrobe variety now happens with prompt text)"): the black bra + thong pictures (originals 11, 12). Was v10-clothed (the rust
       // halter + jeans), then the nude front for clothed pictures (CLOTHED_BODY "nude", Step 5); the outfit pictures are retired too
-      BODY_CLOTHED: "v13-clothed",
-     // the owner's black bra and briefs (second 2026-10-15 set; v12-clothed lace, v11-clothed bra + thong before). Image 1 when she isn't naked (and of partly naked pictures, BODY_PARTIAL "clothed")
-      BODY_CLOTHED_BACK: "v13-back",
+      BODY_CLOTHED: "v14-clothed",
+     // the owner's black bra and briefs (2026-10-17 set; v13-clothed bra and briefs, v12-clothed lace, v11-clothed bra + thong before). Image 1 when she isn't naked (and of partly naked pictures, BODY_PARTIAL "clothed")
+      BODY_CLOTHED_BACK: "v14-back",
    // image 1 of a clothed back view (NUDE_BACK_WORDS in a clothed picture: a belfie, a mirror back view): the nude back
       // dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15: "Use the nude back"; no clothed back picture in the 2026-10-15 set)
-      BODY_BACK: "v13-back",
+      BODY_BACK: "v14-back",
                   // her pictures: klein 9B tries (2 = one retry), then Cloudflare klein with the same references; TwinFlow never draws her (words only: its LOOKS drew the belly, 2026-10-10)
       // owner 2026-10-10: these hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when picked (about
       // $0.0009 more). The four outfit pictures were retired 2026-10-12 (owner): outfits are words only
@@ -411,13 +411,13 @@ Changing the story
       STYLE_PICTURES: {},
       // clothed pictures on BODY_CLOTHED (2026-10-12): klein copies a clothed image 1's garment (the rust halter's crop, Step 4), so
       // the line names what image 1 wears and keeps it out. Owner 2026-10-12: "keep adding to prompts of Reem: full upper arms and soft body"
-      REFERENCE_CLOTHED: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair (her expression and head pose as this scene describes), and exactly the body of image 1, narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, thick arms, thick thighs, fair olive skin. Image 1 shows only her body: she wears only the clothes described here. She is 29, clearly an adult.",
-      REFERENCE_CLOTHED_BACK: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, thick arms, thick thighs, fair olive skin. Image 1 shows only her body shape: here she is fully dressed, in only the clothes described here. She is 29, clearly an adult.",
-      REFERENCE_NOBODY: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair (her expression and head pose as this scene describes): narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE_CLOTHED: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair (her expression and head pose as this scene describes), and exactly the body of image 1, narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, thick arms, thick thighs, wheatish skin. Image 1 shows only her body: she wears only the clothes described here. She is 29, clearly an adult.",
+      REFERENCE_CLOTHED_BACK: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, thick arms, thick thighs, wheatish skin. Image 1 shows only her body shape: here she is fully dressed, in only the clothes described here. She is 29, clearly an adult.",
+      REFERENCE_NOBODY: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair (her expression and head pose as this scene describes): narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, wheatish skin. She is 29, clearly an adult.",
       // who she is, with her face (klein) / in words (TwinFlow). {n} = the place's image number in ROOM
       // round 4 (owner: "test using simpler prompts with the LoRAs"): short prompts drew blowjobs 4/4 (long: 0/10), doggy 2/2 and real lamp light (the long texts: git history before round 4)
       // round 7 (owner: "use concise prompts, relying more on reference images, and mentioning only what makes a difference"; "her body is
-      // accurate when she's nude, but ... too overweight" clothed; "her skin tone ... pale warm ivory" (fair olive since 2026-10-09); the mole "keeps changing its place",
+      // accurate when she's nude, but ... too overweight" clothed; "her skin tone ... pale warm ivory" (fair olive since 2026-10-09, wheatish since 2026-10-17); the mole "keeps changing its place",
       // so out): the body is image 1's, in words only the arms (owner: "keep the fuller arms") and the skin. Was "image 1 but curvier: ...
       // 163 cm and 64 kg, an hourglass figure ... wide hips, full thighs", which on the heavier clothed body made her overweight
       // round 8: with only "the same build and proportions" clothed pictures came out slimmer than image 1 (narrow hips, thin arms 4/4):
@@ -425,10 +425,10 @@ Changing the story
       // 2026-10-15 (owner: the clothed scene pictures "don't look like her", "it's mostly because of the prompts ... eye color as well"): her face
       // in words, first, before the body (replays of D1 611/612 at their seeds: cutting prompt parts, the place picture or LoRAs changed nothing;
       // the face words after the body gave her eyeliner and brows, first and with SCENE_NIGHT's lit face also her green eyes)
-      REFERENCE: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair (her expression and head pose as this scene describes), and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, fair olive skin. She is 29, clearly an adult.",
+      REFERENCE: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair (her expression and head pose as this scene describes), and exactly the body of image 1, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, wheatish skin. She is 29, clearly an adult.",
       // a sex act from behind (BACK_WORDS): image 1 is BODY_BACK, no breasts named (owner: "don't prompt her breasts since they won't show")
-      REFERENCE_BACK: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, fair olive skin. She is 29, clearly an adult.",
-      LOOKS: "Photo of a woman: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, fair olive skin, thick dark arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous. Her head is naturally sized for her body, about one seventh of her height.",
+      REFERENCE_BACK: "The woman from image 0, her face exactly image 0's: thick dark arched brows, light hazel-green eyes, clearly green, with black winged eyeliner, a soft rounded face with full cheeks and a defined jaw, full lips, with exactly the same face and hair, and exactly the body of image 1, seen from behind: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous, wheatish skin. She is 29, clearly an adult.",
+      LOOKS: "Photo of a woman: a 29-year-old Armenian-Lebanese woman, clearly an adult, soft rounded face, wheatish skin, thick dark arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun: narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous. Her head is naturally sized for her body, about one seventh of her height.",
       // round 4 (owner: "Reem has the same expression and gaze direction in almost every picture"): klein copied image 0's closed-lip
       // smile and tilted head whenever the words named no face. A picture whose words name none (FACE_WORDS) gets one expression and
       // one gaze: ACT on sex acts, HEATED on nude pictures, EVERYDAY on the rest. Claude's wording
@@ -440,7 +440,7 @@ Changing the story
         ACT: ["her mouth open in pleasure, brows drawn together", "eyes half-closed, lips parted, cheeks flushed", "biting her lower lip hard", "a breathless open-mouthed moan", "a wicked, satisfied smile", "eyes squeezed shut, head pressed back", "a dazed, blissful look", "a hungry, heavy-lidded look"],
       },
       // no belly, hip or thigh words (owner 2026-10-10: they made her belly big); the first framing bench had them, the redraw has not
-      REFERENCE_CLOSE: "A 29-year-old woman, clearly an adult: fair olive skin, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous.",
+      REFERENCE_CLOSE: "A 29-year-old woman, clearly an adult: wheatish skin, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous.",
     },
     LINGERIE: {
       KLEIN_WARDROBE: [
@@ -455,7 +455,7 @@ Changing the story
         "a white lace bralette and a matching lace thong", "an open oversized white shirt slipping off her shoulders over only a black lace thong",
       ],
       // who she is, in words (the description Nano Banana drew her face from)
-      WHO: "a 29-year-old Lebanese woman with a soft rounded face, fair olive skin, thick dark arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous.",
+      WHO: "a 29-year-old Lebanese woman with a soft rounded face, wheatish skin, thick dark arched brows, almond-shaped hazel-green eyes, full lips, long jet-black wavy hair often piled up in a messy bun, narrow shoulders, a full bust, wide low hips, full arms, a tapered defined waist, a big round bubbly bottom, soft feminine curves, thick arms, thick thighs, voluptuous.",
       WARDROBE: [
         "a black lace bra and matching black lace panties", "a red lace bra and matching red lace panties",
         "a black lace bralette and matching high-waisted lace briefs", "a white lace bra and matching white lace panties",

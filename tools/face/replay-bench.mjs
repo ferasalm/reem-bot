@@ -23,7 +23,7 @@ const REF = {
   "body-v12": FACE.BODY_NUDE_JPEG_BASE64,
   "body-v12-back": FACE.BODY_BACK_JPEG_BASE64,
   "body-v12-clothed": FACE.BODY_CLOTHED_JPEG_BASE64,
-  // the v12 rows replay on today's bodies (v13 since 2026-10-15)
+  // the v12 rows replay on today's bodies (v14 since 2026-10-17)
   "body-v13": FACE.BODY_NUDE_JPEG_BASE64,
   "body-v13-back": FACE.BODY_BACK_JPEG_BASE64,
   "body-v13-clothed": FACE.BODY_CLOTHED_JPEG_BASE64,

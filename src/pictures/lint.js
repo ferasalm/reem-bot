@@ -9,7 +9,7 @@ const PARTS = "bust|breasts?|chest|hips?|thighs?|arms?|waist|waistline|bottom|bu
 const BODY = new RegExp(`\\b(?:${BUILD})(?:[\\s,-]+(?:and\\s+)?[\\w-]+){0,2}?[\\s-]+(?:${PARTS})\\b`, "gi");
 const WORDS = /\b(?:curves|curvy|voluptuous|hourglass)\b/gi;
 const EYES = /\b(?:green|hazel|hazel-green|brown|blue|amber|gray|grey|dark)[\s-]+eyes\b/gi;
-const SKIN = /\b(?:olive|ivory|fair|pale|tan|tanned|dark|light|porcelain)[\s-]+skin(?:ned)?\b/gi;
+const SKIN = /\b(?:olive|ivory|fair|pale|tan|tanned|dark|light|porcelain|wheatish)[\s-]+skin(?:ned)?\b/gi;
 
 // Every finding in `text` as short strings ("banned: camera", "body: big round bubbly bottom", "image 4 of 3"): [] = clean.
 // `refs`: how many reference pictures go with the prompt (every "image N" must be lower).

@@ -14,9 +14,9 @@ import { libName, libraryBytes, matchRef } from "./library.js";
 // Her body shape (face.js BODY_JPEG_BASE64: a Nano Banana picture of the figure, face out of frame): image 1 of every
 // picture drawn from her face, so her softly curvy figure and soft narrow shoulders don't depend on words alone
 export const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null);
-// A body picture by its RUNWARE.BODY* name: v13 / v13-back (nude), v13-clothed (black bra and briefs): the owner's second set of 2026-10-15
+// A body picture by its RUNWARE.BODY* name: v14 / v14-back (nude), v14-clothed (black bra and briefs): the owner's set of 2026-10-17
 export function runwareBodyBytes(name) {
-  const pics = { "v13": BODY_NUDE_JPEG_BASE64, "v13-back": BODY_BACK_JPEG_BASE64, "v13-clothed": BODY_CLOTHED_JPEG_BASE64 };
+  const pics = { "v14": BODY_NUDE_JPEG_BASE64, "v14-back": BODY_BACK_JPEG_BASE64, "v14-clothed": BODY_CLOTHED_JPEG_BASE64 };
   const b64 = pics[name] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }

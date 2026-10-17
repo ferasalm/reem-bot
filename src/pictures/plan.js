@@ -8,9 +8,9 @@ import { runwareBodyBytes } from "./refs.js";
 import { hasWord, pickHair, pickOne, pickWeighted, sexAct } from "./shots.js";
 import { fromBase64 } from "../platform/http.js";
 
-// Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): v13 nude front, v13-back, v13-clothed (the owner's second set of 2026-10-15)
+// Runware's image 1 (RUNWARE.BODY, BODY_BACK, BODY_CLOTHED): v14 nude front, v14-back, v14-clothed (the owner's set of 2026-10-17)
 // `explicit` false: BODY_CLOTHED (a nude body picture made her naked whenever no clothes were named, 2026-10-08); "back": BODY_BACK
-// The RUNWARE.BODY* key of a picture's body reference ("v13", "v13-back", "v13-clothed"); explicit = "back" | nude | clothed
+// The RUNWARE.BODY* key of a picture's body reference ("v14", "v14-back", "v14-clothed"); explicit = "back" | nude | clothed
 export function runwareBodyName(explicit = true) {
   const R = CONFIG.PICTURE.RUNWARE || {};
   return explicit === "back" ? R.BODY_BACK || R.BODY : explicit ? R.BODY : R.BODY_CLOTHED || R.BODY;

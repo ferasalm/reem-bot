@@ -1,8 +1,8 @@
 // Builds face.js (her reference pictures as base64) from tools/face/: node tools/face/build-face.mjs
-// The owner's reference set of 2026-10-15 (originals in tools/face/originals/): face = 13 (cut square from above the hairline to
-// below the chin), and bodies of the second 2026-10-15 set: clothed front = 17 (black bra and
-// briefs), nude back = 18, nude front = 19 (the chin cut off each body). No clothed back picture: clothed back views use the nude back (owner 2026-10-15). style/ = hairstyle pictures (RUNWARE.STYLE_PICTURES): none since 2026-10-15 (retired with the old originals 01-10).
-// Earlier sets (face 2, bodies 6, 7, 11, 12, 14-16) are in the git history.
+// Face = original 13 of 2026-10-15 (cut square from above the hairline to below the chin). Bodies = the owner's set of 2026-10-17
+// (originals in tools/face/originals/, already faceless, cut at the neck): clothed front = 20 (black bra and briefs), nude back = 21,
+// nude front = 22 (natural bush). No clothed back picture: clothed back views use the nude back (owner 2026-10-15). style/ = hairstyle pictures (RUNWARE.STYLE_PICTURES): none since 2026-10-15.
+// Earlier sets (face 2, bodies 6, 7, 11, 12, 14-19) are in the git history.
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,10 +18,10 @@ const out = [
   "// /face in Telegram can replace the face (KV \"face\"; /face reset goes back to this one).\n",
   one("FACE_JPEG_BASE64", "reference.jpg", "her face, 480x480 (Cloudflare needs under 512)"),
   one("FACE_2X_JPEG_BASE64", "reference-2x.jpg", "her face, 960x960 (Runware, RUNWARE.BIG_FACE)"),
-  one("BODY_JPEG_BASE64", "body.jpg", "the Cloudflare route's body picture (image 1): the clothed front (picture 17), made small"),
-  one("BODY_NUDE_JPEG_BASE64", "body-nude.jpg", "Runware BODY \"v13\": nude, front, faceless (picture 19)"),
-  one("BODY_BACK_JPEG_BASE64", "body-back.jpg", "Runware BODY_BACK \"v13-back\": nude, from behind (picture 18); also clothed back views"),
-  one("BODY_CLOTHED_JPEG_BASE64", "body-clothed.jpg", "Runware BODY_CLOTHED \"v13-clothed\": black bra + briefs, front, faceless (picture 17)"),
+  one("BODY_JPEG_BASE64", "body.jpg", "the Cloudflare route's body picture (image 1): the clothed front (picture 20), made small"),
+  one("BODY_NUDE_JPEG_BASE64", "body-nude.jpg", "Runware BODY \"v14\": nude, front, faceless (picture 22)"),
+  one("BODY_BACK_JPEG_BASE64", "body-back.jpg", "Runware BODY_BACK \"v14-back\": nude, from behind (picture 21); also clothed back views"),
+  one("BODY_CLOTHED_JPEG_BASE64", "body-clothed.jpg", "Runware BODY_CLOTHED \"v14-clothed\": black bra + briefs, front, faceless (picture 20)"),
   "// hairstyles (RUNWARE.STYLE_PICTURES: key = file name without .jpg)\nexport const STYLE_JPEG_BASE64 = {\n",
   ...styles.map((f) => `  "${f.replace(/\.jpg$/, "")}": "${b64(join("style", f))}",\n`),
   "};\n",
