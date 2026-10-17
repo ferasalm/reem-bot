@@ -1,6 +1,6 @@
 // Reference picture bytes: face, bodies, places, styles.
 import {
-  BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_SIDE_JPEG_BASE64, BODY_SIDE_R_JPEG_BASE64, FACE_2X_JPEG_BASE64,
+  BODY_BACK_JPEG_BASE64, BODY_CLOTHED_JPEG_BASE64, BODY_JPEG_BASE64, BODY_NUDE_JPEG_BASE64, BODY_SIDE_JPEG_BASE64, FACE_2X_JPEG_BASE64,
   FACE_JPEG_BASE64, STYLE_JPEG_BASE64,
 } from "../../assets/face.js";
 import { PLACE_JPEG_BASE64 } from "../../assets/places.js";
@@ -14,9 +14,9 @@ import { libName, libraryBytes, matchRef } from "./library.js";
 // Her body shape (face.js BODY_JPEG_BASE64: a Nano Banana picture of the figure, face out of frame): image 1 of every
 // picture drawn from her face, so her softly curvy figure and soft narrow shoulders don't depend on words alone
 export const bodyBytes = () => (BODY_JPEG_BASE64 ? fromBase64(BODY_JPEG_BASE64) : null);
-// A body picture by its RUNWARE.BODY* name: v15 / v15-back (nude), v15-side / v15-side-r (nude side views), v15-clothed (black bra and briefs): the owner's sets of 2026-10-17, skin warmed
+// A body picture by its RUNWARE.BODY* name: v15 / v15-back (nude), v15-side (nude side view), v15-clothed (black bra and briefs): the owner's sets of 2026-10-17, skin warmed
 export function runwareBodyBytes(name) {
-  const pics = { "v15": BODY_NUDE_JPEG_BASE64, "v15-back": BODY_BACK_JPEG_BASE64, "v15-side": BODY_SIDE_JPEG_BASE64, "v15-side-r": BODY_SIDE_R_JPEG_BASE64, "v15-clothed": BODY_CLOTHED_JPEG_BASE64 };
+  const pics = { "v15": BODY_NUDE_JPEG_BASE64, "v15-back": BODY_BACK_JPEG_BASE64, "v15-side": BODY_SIDE_JPEG_BASE64, "v15-clothed": BODY_CLOTHED_JPEG_BASE64 };
   const b64 = pics[name] || BODY_JPEG_BASE64;
   return b64 ? fromBase64(b64) : null;
 }

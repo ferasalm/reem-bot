@@ -1,7 +1,7 @@
 // Builds face.js (her reference pictures as base64) from tools/face/: node tools/face/build-face.mjs
-// Face = original 13 of 2026-10-15 (cut square from above the hairline to below the chin). Bodies = the owner's sets of 2026-10-17
+// Face = original 13 of 2026-10-15 (cut square from above the hairline to below the chin), made slightly fuller 2026-10-17 (owner picked "A": cheeks and jaw moved out 12 px at 960 by an ImageMagick Shepards warp, eyes, nose and mouth fixed; the warp is in docs/CHANGELOG.md). Bodies = the owner's sets of 2026-10-17
 // (originals in tools/face/originals/), skin warmed to wheatish by warm-skin.sh: clothed front = 20 (black bra and briefs, already
-// faceless); full-length nude back = 23, nude front = 24 (natural bush), side views 25 (facing left) and 26 (facing right), each cut
+// faceless); full-length nude back = 23, nude front = 24 (natural bush), a side view 25 (facing left; 26, facing right, dropped 2026-10-17: thinner arms), each cut
 // below the chin (crop 720x1360+0+320). No clothed back picture: clothed back views use the nude back (owner 2026-10-15). style/ = hairstyle pictures (RUNWARE.STYLE_PICTURES): none since 2026-10-15.
 // Earlier sets (face 2, bodies 6, 7, 11, 12, 14-19, 21, 22) are in the git history.
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -23,7 +23,6 @@ const out = [
   one("BODY_NUDE_JPEG_BASE64", "body-nude.jpg", "Runware BODY \"v15\": nude, front, full length, faceless (picture 24)"),
   one("BODY_BACK_JPEG_BASE64", "body-back.jpg", "Runware BODY_BACK \"v15-back\": nude, from behind (picture 23); also clothed back views"),
   one("BODY_SIDE_JPEG_BASE64", "body-side.jpg", "Runware BODY_SIDES \"v15-side\": nude, side view facing left (picture 25)"),
-  one("BODY_SIDE_R_JPEG_BASE64", "body-side-r.jpg", "Runware BODY_SIDES \"v15-side-r\": nude, side view facing right (picture 26)"),
   one("BODY_CLOTHED_JPEG_BASE64", "body-clothed.jpg", "Runware BODY_CLOTHED \"v15-clothed\": black bra + briefs, front, faceless (picture 20)"),
   "// hairstyles (RUNWARE.STYLE_PICTURES: key = file name without .jpg)\nexport const STYLE_JPEG_BASE64 = {\n",
   ...styles.map((f) => `  "${f.replace(/\.jpg$/, "")}": "${b64(join("style", f))}",\n`),

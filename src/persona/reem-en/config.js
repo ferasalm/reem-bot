@@ -403,7 +403,7 @@ Changing the story
    // image 1 of a clothed back view (NUDE_BACK_WORDS in a clothed picture: a belfie, a mirror back view): the nude back
       // dressed by REFERENCE_CLOTHED_BACK (owner 2026-10-15: "Use the nude back"; no clothed back picture in the 2026-10-15 set)
       BODY_BACK: "v15-back",
-      BODY_SIDES: "v15-side, v15-side-r", // the owner's side views of 2026-10-17 (facing left, facing right): image 1 of a nude, partly dressed or act picture seen from the side (PROFILE_WORDS)
+      BODY_SIDES: "v15-side", // the owner's side view of 2026-10-17 (facing left; the right-facing one dropped the same day: its arms weren't full): image 1 of a nude, partly dressed or act picture seen from the side (PROFILE_WORDS)
                   // her pictures: klein 9B tries (2 = one retry), then Cloudflare klein with the same references; TwinFlow never draws her (words only: its LOOKS drew the belly, 2026-10-10)
       // owner 2026-10-10: these hairstyles also send their picture (tools/face/style/<key>.jpg) as the next image when picked (about
       // $0.0009 more). The four outfit pictures were retired 2026-10-12 (owner): outfits are words only

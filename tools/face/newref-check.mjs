@@ -38,7 +38,8 @@ const env = {
   AI: { run: async () => { throw new Error("Cloudflare is not called here"); } },
 };
 const rows = [];
-for (const [id, words] of CASES) {
+const ONLY = (process.env.ONLY || "").split(",").filter(Boolean); // e.g. ONLY=clothed-front,nude-side
+for (const [id, words] of CASES.filter(([id]) => !ONLY.length || ONLY.includes(id))) {
   current = { calls: [], bytes: null };
   const said = W.picWords(words, "on", {});
   const p = W.customPicture(said, undefined, null, "on");

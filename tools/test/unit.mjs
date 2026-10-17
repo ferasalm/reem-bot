@@ -1152,7 +1152,7 @@ eq(W.CONFIG.PICTURE.ROUTE, "runware-klein", "pictures default to Runware klein (
   // side views (owner 2026-10-17): nude, partly dressed and acts seen from the side take the side picture facing that way; clothed keeps
   // the clothed body; a back view wins; the prompt says so
   const sides = String(R.BODY_SIDES).split(",").map((x) => x.trim());
-  eq([W.pickRefs(sp({ content: "nude", profile: "left" }), rw)[1].name, W.pickRefs(sp({ content: "act", profile: "right" }), rw)[1].name, W.pickRefs(sp({ content: "clothed", profile: "left" }), rw)[1].name, W.pickRefs(sp({ content: "nude", back: true, profile: "left" }), rw)[1].name], [`body-${sides[0]}`, `body-${sides[1]}`, `body-${R.BODY_CLOTHED}`, `body-${R.BODY_BACK}`], "pickRefs: side views take BODY_SIDES (left, right); clothed and back views don't");
+  eq([W.pickRefs(sp({ content: "nude", profile: "left" }), rw)[1].name, W.pickRefs(sp({ content: "act", profile: "right" }), rw)[1].name, W.pickRefs(sp({ content: "clothed", profile: "left" }), rw)[1].name, W.pickRefs(sp({ content: "nude", back: true, profile: "left" }), rw)[1].name], [`body-${sides[0]}`, `body-${sides[1] || sides[0]}`, `body-${R.BODY_CLOTHED}`, `body-${R.BODY_BACK}`], "pickRefs: side views take BODY_SIDES (left, right); clothed and back views don't");
   {
     const side = W.specFromWords("naked in the bedroom, side view", { source: "pic", level: "on" });
     const behind = W.specFromWords("naked, from behind, in profile", { source: "pic", level: "on" });
